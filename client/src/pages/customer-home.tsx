@@ -159,7 +159,7 @@ export default function CustomerHome() {
                   </CardHeader>
                   <CardFooter>
                     <p className="text-2xl font-bold text-primary" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                      ${(item.price / 100).toFixed(2)}
+                      ₹{item.price.toLocaleString('en-IN')}
                     </p>
                   </CardFooter>
                 </Card>

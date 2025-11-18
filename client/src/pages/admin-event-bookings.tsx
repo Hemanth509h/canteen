@@ -57,8 +57,8 @@ export default function EventBookingsManager() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertEventBooking) => {
-      const priceInCents = Math.round(data.pricePerPlate * 100);
-      return apiRequest("POST", "/api/bookings", { ...data, pricePerPlate: priceInCents });
+      const priceInRupees = Math.round(data.pricePerPlate);
+      return apiRequest("POST", "/api/bookings", { ...data, pricePerPlate: priceInRupees });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
@@ -75,7 +75,7 @@ export default function EventBookingsManager() {
     mutationFn: async ({ id, data }: { id: string; data: UpdateEventBooking }) => {
       const updateData = { ...data };
       if (data.pricePerPlate !== undefined) {
-        updateData.pricePerPlate = Math.round(data.pricePerPlate * 100);
+        updateData.pricePerPlate = Math.round(data.pricePerPlate);
       }
       return apiRequest("PATCH", `/api/bookings/${id}`, updateData);
     },
@@ -111,7 +111,7 @@ export default function EventBookingsManager() {
       eventDate: booking.eventDate,
       eventType: booking.eventType,
       guestCount: booking.guestCount,
-      pricePerPlate: booking.pricePerPlate / 100,
+      pricePerPlate: booking.pricePerPlate,
       contactEmail: booking.contactEmail,
       contactPhone: booking.contactPhone,
       specialRequests: booking.specialRequests || "",
@@ -236,14 +236,14 @@ export default function EventBookingsManager() {
                     name="pricePerPlate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price per Plate ($)</FormLabel>
+                        <FormLabel>Price per Plate (₹)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            step="0.01"
-                            placeholder="25.00" 
+                            step="1"
+                            placeholder="500" 
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                             data-testid="input-price-per-plate"
                           />
                         </FormControl>
@@ -387,9 +387,9 @@ export default function EventBookingsManager() {
                       <TableCell>{booking.eventType}</TableCell>
                       <TableCell>{booking.eventDate}</TableCell>
                       <TableCell>{booking.guestCount}</TableCell>
-                      <TableCell>${(booking.pricePerPlate / 100).toFixed(2)}</TableCell>
+                      <TableCell>₹{booking.pricePerPlate.toLocaleString('en-IN')}</TableCell>
                       <TableCell className="font-semibold">
-                        ${((booking.pricePerPlate * booking.guestCount) / 100).toFixed(2)}
+                        ₹{(booking.pricePerPlate * booking.guestCount).toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell>
                         <Badge variant={statusColors[booking.status]}>

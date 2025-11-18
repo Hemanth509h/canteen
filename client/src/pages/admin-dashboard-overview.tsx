@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UtensilsCrossed, CalendarDays, DollarSign, TrendingUp } from "lucide-react";
+import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp } from "lucide-react";
 import type { FoodItem, EventBooking } from "@shared/schema";
 
 export default function DashboardOverview() {
@@ -46,8 +46,8 @@ export default function DashboardOverview() {
     },
     {
       title: "Estimated Revenue",
-      value: `$${(totalRevenue / 100).toFixed(2)}`,
-      icon: DollarSign,
+      value: `₹${totalRevenue.toLocaleString('en-IN')}`,
+      icon: IndianRupee,
       color: "text-amber-500",
       loading: loadingBookings,
     },

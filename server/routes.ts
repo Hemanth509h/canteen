@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema } from "@shared/schema";
+import { storage } from "./db-storage";
+import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -182,6 +182,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(info);
     } catch (error) {
       res.status(500).json({ error: "Failed to update company info" });
+    }
+  });
+
+  // Staff Routes
+  app.get("/api/staff", async (_req, res) => {
+    try {
+      const staffList = await storage.getStaff();
+      res.json(staffList);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staff" });
+    }
+  });
+
+  app.get("/api/staff/:id", async (req, res) => {
+    try {
+      const staffMember = await storage.getStaffMember(req.params.id);
+      if (!staffMember) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.json(staffMember);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staff member" });
+    }
+  });
+
+  app.post("/api/staff", async (req, res) => {
+    try {
+      const result = insertStaffSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      const staffMember = await storage.createStaffMember(result.data);
+      res.status(201).json(staffMember);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create staff member" });
+    }
+  });
+
+  app.patch("/api/staff/:id", async (req, res) => {
+    try {
+      const result = updateStaffSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      const staffMember = await storage.updateStaffMember(req.params.id, result.data);
+      if (!staffMember) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.json(staffMember);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update staff member" });
+    }
+  });
+
+  app.delete("/api/staff/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteStaffMember(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete staff member" });
     }
   });
 

@@ -1,4 +1,4 @@
-import { type FoodItem, type InsertFoodItem, type EventBooking, type InsertEventBooking, type CompanyInfo, type InsertCompanyInfo } from "@shared/schema";
+import { type FoodItem, type InsertFoodItem, type EventBooking, type InsertEventBooking, type CompanyInfo, type InsertCompanyInfo, type Staff, type InsertStaff } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -20,17 +20,26 @@ export interface IStorage {
   getCompanyInfo(): Promise<CompanyInfo | undefined>;
   createCompanyInfo(info: InsertCompanyInfo): Promise<CompanyInfo>;
   updateCompanyInfo(id: string, info: Partial<InsertCompanyInfo>): Promise<CompanyInfo | undefined>;
+
+  // Staff
+  getStaff(): Promise<Staff[]>;
+  getStaffMember(id: string): Promise<Staff | undefined>;
+  createStaffMember(staff: InsertStaff): Promise<Staff>;
+  updateStaffMember(id: string, staff: Partial<InsertStaff>): Promise<Staff | undefined>;
+  deleteStaffMember(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private foodItems: Map<string, FoodItem>;
   private bookings: Map<string, EventBooking>;
   private companyInfo: CompanyInfo | undefined;
+  private staff: Map<string, Staff>;
 
   constructor() {
     this.foodItems = new Map();
     this.bookings = new Map();
     this.companyInfo = undefined;
+    this.staff = new Map();
     this.initializeDefaults();
   }
 
@@ -42,8 +51,8 @@ export class MemStorage implements IStorage {
       tagline: "Exceptional Food for Unforgettable Events",
       description: "We specialize in creating memorable culinary experiences for weddings, corporate events, and special occasions. Our team of expert chefs uses only the finest ingredients to craft dishes that delight your guests.",
       email: "info@premiumcatering.com",
-      phone: "+1 (555) 123-4567",
-      address: "123 Culinary Avenue, Food City, FC 12345",
+      phone: "+91 98765 43210",
+      address: "123 MG Road, Mumbai, Maharashtra 400001",
       eventsPerYear: 500,
     };
     this.companyInfo = defaultCompany;
@@ -131,6 +140,41 @@ export class MemStorage implements IStorage {
 
     this.companyInfo = { ...this.companyInfo, ...updates };
     return this.companyInfo;
+  }
+
+  // Staff
+  async getStaff(): Promise<Staff[]> {
+    return Array.from(this.staff.values()).sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }
+
+  async getStaffMember(id: string): Promise<Staff | undefined> {
+    return this.staff.get(id);
+  }
+
+  async createStaffMember(insertStaff: InsertStaff): Promise<Staff> {
+    const id = randomUUID();
+    const staffMember: Staff = {
+      ...insertStaff,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    this.staff.set(id, staffMember);
+    return staffMember;
+  }
+
+  async updateStaffMember(id: string, updates: Partial<InsertStaff>): Promise<Staff | undefined> {
+    const staffMember = this.staff.get(id);
+    if (!staffMember) return undefined;
+
+    const updated: Staff = { ...staffMember, ...updates };
+    this.staff.set(id, updated);
+    return updated;
+  }
+
+  async deleteStaffMember(id: string): Promise<boolean> {
+    return this.staff.delete(id);
   }
 }
 

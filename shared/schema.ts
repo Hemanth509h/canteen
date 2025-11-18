@@ -65,3 +65,28 @@ export const insertCompanyInfoSchema = createInsertSchema(companyInfo).omit({
 
 export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
 export type CompanyInfo = typeof companyInfo.$inferSelect;
+
+export const staff = pgTable("staff", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  role: text("role").notNull(), // chef, worker, serving_boy
+  phone: text("phone").notNull(),
+  experience: text("experience").notNull(), // e.g., "5 years"
+  imageUrl: text("image_url"),
+  salary: integer("salary").notNull(), // monthly salary in rupees
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const insertStaffSchema = createInsertSchema(staff).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const updateStaffSchema = createInsertSchema(staff).omit({
+  id: true,
+  createdAt: true,
+}).partial();
+
+export type InsertStaff = z.infer<typeof insertStaffSchema>;
+export type UpdateStaff = z.infer<typeof updateStaffSchema>;
+export type Staff = typeof staff.$inferSelect;

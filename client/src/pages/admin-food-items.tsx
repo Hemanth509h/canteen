@@ -66,8 +66,8 @@ export default function FoodItemsManager() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertFoodItem) => {
-      const priceInCents = Math.round(data.price * 100);
-      return apiRequest("POST", "/api/food-items", { ...data, price: priceInCents });
+      const priceInRupees = Math.round(data.price);
+      return apiRequest("POST", "/api/food-items", { ...data, price: priceInRupees });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
@@ -82,8 +82,8 @@ export default function FoodItemsManager() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertFoodItem }) => {
-      const priceInCents = Math.round(data.price * 100);
-      return apiRequest("PATCH", `/api/food-items/${id}`, { ...data, price: priceInCents });
+      const priceInRupees = Math.round(data.price);
+      return apiRequest("PATCH", `/api/food-items/${id}`, { ...data, price: priceInRupees });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
@@ -115,7 +115,7 @@ export default function FoodItemsManager() {
     form.reset({
       name: item.name,
       description: item.description,
-      price: item.price / 100,
+      price: item.price,
       category: item.category,
       imageUrl: item.imageUrl || "",
     });
@@ -208,14 +208,14 @@ export default function FoodItemsManager() {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price ($)</FormLabel>
+                        <FormLabel>Price (₹)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            step="0.01"
-                            placeholder="0.00" 
+                            step="1"
+                            placeholder="0" 
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                             data-testid="input-food-price"
                           />
                         </FormControl>
@@ -354,7 +354,7 @@ export default function FoodItemsManager() {
                         <Badge variant="secondary">{categoryMap[item.category]}</Badge>
                       </TableCell>
                       <TableCell className="font-semibold">
-                        ${(item.price / 100).toFixed(2)}
+                        ₹{item.price.toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

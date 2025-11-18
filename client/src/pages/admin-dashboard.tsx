@@ -1,19 +1,23 @@
-import { Route, Switch, useLocation, Link } from "wouter";
+import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
 import CompanySettingsManager from "./admin-company-settings";
+import StaffManager from "./admin-staff";
+import { useEffect, useState } from "react";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
+  { title: "Staff", url: "/admin/staff", icon: Users },
   { title: "Company Settings", url: "/admin/settings", icon: Settings },
 ];
 
-function AppSidebar() {
+function AppSidebar({ onLogout }: { onLogout: () => void }) {
   const [location] = useLocation();
 
   return (
@@ -37,6 +41,16 @@ function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            <div className="mt-4 px-3">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={onLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
@@ -45,6 +59,36 @@ function AppSidebar() {
 }
 
 export default function AdminDashboard() {
+  const [, setLocation] = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const authStatus = localStorage.getItem("adminAuthenticated");
+    setIsAuthenticated(authStatus === "true");
+    setIsChecking(false);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuthenticated");
+    setLocation("/admin/login");
+  };
+
+  if (isChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <ChefHat className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Redirect to="/admin/login" />;
+  }
+
   const style = {
     "--sidebar-width": "16rem",
     "--sidebar-width-icon": "3rem",
@@ -53,7 +97,7 @@ export default function AdminDashboard() {
   return (
     <SidebarProvider style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
-        <AppSidebar />
+        <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">
           <header className="flex items-center justify-between p-4 border-b border-border bg-background">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
@@ -66,6 +110,7 @@ export default function AdminDashboard() {
               <Route path="/admin" component={DashboardOverview} />
               <Route path="/admin/food-items" component={FoodItemsManager} />
               <Route path="/admin/bookings" component={EventBookingsManager} />
+              <Route path="/admin/staff" component={StaffManager} />
               <Route path="/admin/settings" component={CompanySettingsManager} />
             </Switch>
           </main>
