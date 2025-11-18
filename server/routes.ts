@@ -3,17 +3,47 @@ import { createServer, type Server } from "http";
 import { storage } from "./db-storage";
 import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import { verifyPassword, updatePassword } from "./password-manager";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Login Route
   app.post("/api/admin/login", async (req, res) => {
-    const { password } = req.body;
-    
-    // Simple password-only authentication for single-company use
-    if (password === "admin123") {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ error: "Invalid password" });
+    try {
+      const { password } = req.body;
+      
+      const isValid = await verifyPassword(password);
+      if (isValid) {
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ error: "Invalid password" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  // Admin Password Change Route
+  app.post("/api/admin/change-password", async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Current password and new password are required" });
+      }
+
+      const isCurrentPasswordValid = await verifyPassword(currentPassword);
+      if (!isCurrentPasswordValid) {
+        return res.status(401).json({ error: "Current password is incorrect" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "New password must be at least 6 characters" });
+      }
+
+      await updatePassword(newPassword);
+      res.json({ success: true, message: "Password changed successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to change password" });
     }
   });
 

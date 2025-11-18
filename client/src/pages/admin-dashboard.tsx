@@ -1,12 +1,13 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
 import CompanySettingsManager from "./admin-company-settings";
 import StaffManager from "./admin-staff";
+import AdminAccount from "./admin-account";
 import { useEffect, useState } from "react";
 
 const menuItems = [
@@ -15,6 +16,7 @@ const menuItems = [
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Staff", url: "/admin/staff", icon: Users },
   { title: "Company Settings", url: "/admin/settings", icon: Settings },
+  { title: "Account Settings", url: "/admin/account", icon: UserCog },
 ];
 
 function AppSidebar({ onLogout }: { onLogout: () => void }) {
@@ -112,6 +114,7 @@ export default function AdminDashboard() {
               <Route path="/admin/bookings" component={EventBookingsManager} />
               <Route path="/admin/staff" component={StaffManager} />
               <Route path="/admin/settings" component={CompanySettingsManager} />
+              <Route path="/admin/account" component={AdminAccount} />
             </Switch>
           </main>
         </div>
