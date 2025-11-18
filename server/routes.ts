@@ -7,13 +7,13 @@ import { fromZodError } from "zod-validation-error";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Login Route
   app.post("/api/admin/login", async (req, res) => {
-    const { username, password } = req.body;
+    const { password } = req.body;
     
-    // Simple hardcoded admin credentials for single-company use
-    if (username === "admin" && password === "admin123") {
+    // Simple password-only authentication for single-company use
+    if (password === "admin123") {
       res.json({ success: true });
     } else {
-      res.status(401).json({ error: "Invalid credentials" });
+      res.status(401).json({ error: "Invalid password" });
     }
   });
 

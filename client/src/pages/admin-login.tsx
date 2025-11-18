@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -22,7 +21,7 @@ export default function AdminLogin() {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ password }),
       });
 
       if (response.ok) {
@@ -31,7 +30,7 @@ export default function AdminLogin() {
       } else {
         toast({
           title: "Login Failed",
-          description: "Invalid username or password",
+          description: "Invalid password",
           variant: "destructive",
         });
       }
@@ -60,26 +59,14 @@ export default function AdminLogin() {
               Admin Login
             </CardTitle>
             <CardDescription>
-              Enter your credentials to access the admin panel
+              Enter the admin password to access the panel
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Enter username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                autoComplete="username"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Admin Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -88,19 +75,21 @@ export default function AdminLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                data-testid="input-password"
               />
             </div>
             <Button
               type="submit"
               className="w-full"
               disabled={isLoading}
+              data-testid="button-login"
             >
               <Lock className="w-4 h-4 mr-2" />
               {isLoading ? "Logging in..." : "Login"}
             </Button>
             <div className="text-sm text-muted-foreground text-center mt-4">
-              <p>Default credentials:</p>
-              <p className="font-mono text-xs mt-1">admin / admin123</p>
+              <p>Default password:</p>
+              <p className="font-mono text-xs mt-1">admin123</p>
             </div>
           </form>
         </CardContent>
