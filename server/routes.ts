@@ -5,6 +5,18 @@ import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchem
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Admin Login Route
+  app.post("/api/admin/login", async (req, res) => {
+    const { username, password } = req.body;
+    
+    // Simple hardcoded admin credentials for single-company use
+    if (username === "admin" && password === "admin123") {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  });
+
   // Food Items Routes
   app.get("/api/food-items", async (_req, res) => {
     try {
