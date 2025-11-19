@@ -4,7 +4,8 @@ import type { EventBooking, FoodItem, BookingItem } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Calendar } from "lucide-react";
+import { Printer, Calendar, RefreshCw } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
 
 interface BookingWithItems extends EventBooking {
   items: (BookingItem & { foodItem: FoodItem })[];
@@ -15,9 +16,13 @@ type GroupedBookings = Record<string, BookingWithItems[]>;
 export default function ChefPrintout() {
   const [selectedDate, setSelectedDate] = useState<string>("");
 
-  const { data: groupedBookings, isLoading } = useQuery<GroupedBookings>({
+  const { data: groupedBookings, isLoading, isRefetching } = useQuery<GroupedBookings>({
     queryKey: ["/api/chef-printout"],
   });
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/chef-printout"] });
+  };
 
   const dates = groupedBookings 
     ? Object.keys(groupedBookings).filter(date => date && date.trim() !== '').sort() 
@@ -38,7 +43,6 @@ export default function ChefPrintout() {
     totalMembers += booking.guestCount;
     
     booking.items.forEach(item => {
-      const quantityForBooking = item.quantity * booking.guestCount;
       const foodItem = item.foodItem;
       
       if (!foodItem) {
@@ -46,13 +50,13 @@ export default function ChefPrintout() {
       }
       
       if (combinedItems[item.foodItemId]) {
-        combinedItems[item.foodItemId].totalQuantity += quantityForBooking;
+        combinedItems[item.foodItemId].totalQuantity += item.quantity;
         combinedItems[item.foodItemId].totalGuests += booking.guestCount;
       } else {
         combinedItems[item.foodItemId] = {
           name: foodItem.name,
           category: foodItem.category,
-          totalQuantity: quantityForBooking,
+          totalQuantity: item.quantity,
           totalGuests: booking.guestCount
         };
       }
@@ -93,9 +97,29 @@ export default function ChefPrintout() {
             border: none !important;
             padding-bottom: 1rem !important;
           }
+          .print-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          table {
+            page-break-inside: auto;
+          }
+          tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+          }
+          thead {
+            display: table-header-group;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
         }
         @page {
           margin: 0.5in;
+          size: auto;
         }
       `}</style>
 
@@ -124,14 +148,25 @@ export default function ChefPrintout() {
                 </SelectContent>
               </Select>
             </div>
-            <Button 
-              onClick={handlePrint} 
-              variant="default"
-              data-testid="button-print"
-            >
-              <Printer className="mr-2 h-4 w-4" />
-              Print This Sheet
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleRefresh} 
+                variant="outline"
+                disabled={isRefetching}
+                data-testid="button-refresh"
+              >
+                <RefreshCw className={`mr-2 h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+                {isRefetching ? 'Refreshing...' : 'Refresh'}
+              </Button>
+              <Button 
+                onClick={handlePrint} 
+                variant="default"
+                data-testid="button-print"
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                Print This Sheet
+              </Button>
+            </div>
           </div>
         )}
 
@@ -145,7 +180,7 @@ export default function ChefPrintout() {
           </div>
         ) : (
           <>
-            <Card>
+            <Card className="print-section">
               <CardHeader>
                 <CardTitle>Daily Summary - {activeDate}</CardTitle>
               </CardHeader>
@@ -173,13 +208,13 @@ export default function ChefPrintout() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="print-section">
               <CardHeader>
                 <CardTitle>Events for {activeDate}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {bookingsForDate.map((booking, idx) => (
-                  <div key={booking.id} className="p-4 rounded-md border bg-card space-y-2">
+                  <div key={booking.id} className="p-4 rounded-md border bg-card space-y-2 print-section">
                     <div className="flex flex-wrap justify-between items-start gap-2">
                       <span className="font-semibold">
                         Event {idx + 1}: {booking.clientName} - {booking.eventType}
@@ -210,7 +245,7 @@ export default function ChefPrintout() {
             ) : (
               <>
                 {Object.entries(groupedByCategory).map(([category, items]) => (
-                  <Card key={category} className="break-inside-avoid">
+                  <Card key={category} className="print-section">
                     <CardHeader className="bg-primary text-primary-foreground rounded-t-md">
                       <CardTitle>{category}</CardTitle>
                     </CardHeader>
@@ -245,7 +280,7 @@ export default function ChefPrintout() {
                   </Card>
                 ))}
 
-                <Card className="bg-green-50 dark:bg-green-950 border-green-500">
+                <Card className="bg-green-50 dark:bg-green-950 border-green-500 print-section">
                   <CardContent className="p-4">
                     <p className="text-sm font-semibold text-green-800 dark:text-green-200">
                       Total items to prepare: {combinedItemsArray.length} unique dishes

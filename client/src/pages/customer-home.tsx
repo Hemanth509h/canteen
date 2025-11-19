@@ -120,53 +120,53 @@ export default function CustomerHome() {
           {loadingFood ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <Card key={i} className="overflow-hidden">
-                  <Skeleton className="h-64 w-full" />
-                  <CardHeader>
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          ) : filteredItems && filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item) => (
-                <Card 
-                  key={item.id} 
-                  className="overflow-hidden hover-elevate transition-all duration-300"
-                  data-testid={`card-food-${item.id}`}
-                >
-                  <div className="aspect-[3/2] overflow-hidden bg-muted">
-                    {item.imageUrl && (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                  <CardHeader className="space-y-2 pb-6">
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                        {item.name}
-                      </CardTitle>
-                      <Badge variant="secondary" className="shrink-0">
-                        {categoryMap[item.category]}
-                      </Badge>
+                  <Card key={i} className="overflow-hidden">
+                    <Skeleton className="h-64 w-full" />
+                    <CardHeader>
+                      <Skeleton className="h-6 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-full" />
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredItems && filteredItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredItems.map((item) => (
+                  <Card 
+                    key={item.id} 
+                    className="overflow-hidden hover-elevate transition-all duration-300"
+                    data-testid={`card-food-${item.id}`}
+                  >
+                    <div className="aspect-[3/2] overflow-hidden bg-muted">
+                      {item.imageUrl && (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
-                    <CardDescription className="line-clamp-3">
-                      {item.description}
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">No items found in this category</p>
-            </div>
-          )}
+                    <CardHeader className="space-y-2 pb-6">
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                          {item.name}
+                        </CardTitle>
+                        <Badge variant="secondary" className="shrink-0">
+                          {categoryMap[item.category]}
+                        </Badge>
+                      </div>
+                      <CardDescription className="line-clamp-3">
+                        {item.description}
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">No items found in this category</p>
+              </div>
+            )}
         </div>
       </section>
 
