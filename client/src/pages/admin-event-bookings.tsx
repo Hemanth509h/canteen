@@ -444,7 +444,7 @@ export default function EventBookingsManager() {
                           <SelectValue placeholder="Select a food item to add" />
                         </SelectTrigger>
                         <SelectContent>
-                          {foodItems?.map((item) => (
+                          {foodItems?.filter(item => item.id && item.id.trim() !== '').map((item) => (
                             <SelectItem key={item.id} value={item.id}>
                               {item.name} ({item.category})
                             </SelectItem>

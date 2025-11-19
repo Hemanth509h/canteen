@@ -19,7 +19,9 @@ export default function ChefPrintout() {
     queryKey: ["/api/chef-printout"],
   });
 
-  const dates = groupedBookings ? Object.keys(groupedBookings).sort() : [];
+  const dates = groupedBookings 
+    ? Object.keys(groupedBookings).filter(date => date && date.trim() !== '').sort() 
+    : [];
   const activeDate = selectedDate || dates[0] || "";
   const bookingsForDate = activeDate && groupedBookings ? groupedBookings[activeDate] || [] : [];
 
@@ -97,31 +99,33 @@ export default function ChefPrintout() {
           </CardHeader>
         </Card>
 
-        <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <Select value={activeDate} onValueChange={setSelectedDate}>
-              <SelectTrigger className="w-[200px]" data-testid="select-date">
-                <SelectValue placeholder="Select a date" />
-              </SelectTrigger>
-              <SelectContent>
-                {dates.map(date => (
-                  <SelectItem key={date} value={date}>
-                    {date}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {dates.length > 0 && (
+          <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Select value={activeDate} onValueChange={setSelectedDate}>
+                <SelectTrigger className="w-[200px]" data-testid="select-date">
+                  <SelectValue placeholder="Select a date" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dates.map(date => (
+                    <SelectItem key={date} value={date}>
+                      {date}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              onClick={handlePrint} 
+              variant="default"
+              data-testid="button-print"
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              Print This Sheet
+            </Button>
           </div>
-          <Button 
-            onClick={handlePrint} 
-            variant="default"
-            data-testid="button-print"
-          >
-            <Printer className="mr-2 h-4 w-4" />
-            Print This Sheet
-          </Button>
-        </div>
+        )}
 
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
