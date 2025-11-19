@@ -29,7 +29,7 @@ export default function ChefPrintout() {
     name: string; 
     category: string; 
     totalQuantity: number;
-    members: number;
+    totalGuests: number;
   }> = {};
 
   let totalMembers = 0;
@@ -38,14 +38,22 @@ export default function ChefPrintout() {
     totalMembers += booking.guestCount;
     
     booking.items.forEach(item => {
+      const quantityForBooking = item.quantity * booking.guestCount;
+      const foodItem = item.foodItem;
+      
+      if (!foodItem) {
+        return;
+      }
+      
       if (combinedItems[item.foodItemId]) {
-        combinedItems[item.foodItemId].totalQuantity += item.quantity;
+        combinedItems[item.foodItemId].totalQuantity += quantityForBooking;
+        combinedItems[item.foodItemId].totalGuests += booking.guestCount;
       } else {
         combinedItems[item.foodItemId] = {
-          name: item.foodItem?.name || "Unknown Item",
-          category: item.foodItem?.category || "Unknown",
-          totalQuantity: item.quantity,
-          members: booking.guestCount
+          name: foodItem.name,
+          category: foodItem.category,
+          totalQuantity: quantityForBooking,
+          totalGuests: booking.guestCount
         };
       }
     });
@@ -226,7 +234,7 @@ export default function ChefPrintout() {
                                   {item.totalQuantity}
                                 </td>
                                 <td className="p-3 text-center text-muted-foreground">
-                                  {totalMembers} guests
+                                  {item.totalGuests} guests
                                 </td>
                               </tr>
                             ))}
