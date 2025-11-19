@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Pencil, Trash2, CalendarDays, Printer } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -34,6 +34,7 @@ export default function EventBookingsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<EventBooking | null>(null);
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -44,6 +45,13 @@ export default function EventBookingsManager() {
   const { data: foodItems } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
   });
+
+  const filteredBookings = bookings?.filter((booking) =>
+    booking.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    booking.eventType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    booking.contactEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    booking.status.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const form = useForm<UpdateEventBooking>({
     resolver: zodResolver(editingBooking ? updateEventBookingSchema : insertEventBookingSchema.extend({
@@ -602,6 +610,17 @@ export default function EventBookingsManager() {
           <CardDescription>
             {bookings?.length || 0} total bookings
           </CardDescription>
+          <div className="mt-4 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search bookings..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+              data-testid="input-search-bookings"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -610,8 +629,8 @@ export default function EventBookingsManager() {
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-          ) : bookings && bookings.length > 0 ? (
-            <div className="overflow-x-auto">
+          ) : filteredBookings && filteredBookings.length > 0 ? (
+            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -626,7 +645,7 @@ export default function EventBookingsManager() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {bookings.map((booking) => (
+                  {filteredBookings.map((booking) => (
                     <TableRow key={booking.id} data-testid={`row-booking-${booking.id}`}>
                       <TableCell>
                         <div>
@@ -671,6 +690,11 @@ export default function EventBookingsManager() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          ) : bookings && bookings.length > 0 ? (
+            <div className="text-center py-12">
+              <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No bookings match your search</p>
             </div>
           ) : (
             <div className="text-center py-12">

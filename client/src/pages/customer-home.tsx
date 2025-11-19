@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UtensilsCrossed, Phone, Mail, MapPin, ShieldCheck } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { UtensilsCrossed, Phone, Mail, MapPin, ShieldCheck, Search } from "lucide-react";
 import type { FoodItem, CompanyInfo } from "@shared/schema";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
@@ -21,6 +22,7 @@ const categoryMap: Record<string, string> = {
 
 export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
@@ -30,9 +32,12 @@ export default function CustomerHome() {
     queryKey: ["/api/company-info"],
   });
 
-  const filteredItems = foodItems?.filter(
-    (item) => selectedCategory === "All" || categoryMap[item.category] === selectedCategory
-  );
+  const filteredItems = foodItems?.filter((item) => {
+    const matchesCategory = selectedCategory === "All" || categoryMap[item.category] === selectedCategory;
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,13 +113,24 @@ export default function CustomerHome() {
       {/* Menu Section */}
       <section id="menu" className="py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
               Our Menu
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
               Discover our carefully curated selection of gourmet dishes, perfect for any occasion
             </p>
+            <div className="max-w-md mx-auto relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search for dishes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+                data-testid="input-search-food"
+              />
+            </div>
           </div>
 
           {loadingFood ? (

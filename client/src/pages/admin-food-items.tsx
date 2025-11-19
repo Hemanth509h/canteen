@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Pencil, Trash2, ImagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, ImagePlus, Search } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -28,11 +28,18 @@ const categoryMap: Record<string, string> = {
 export default function FoodItemsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
   const { data: foodItems, isLoading } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
   });
+
+  const filteredFoodItems = foodItems?.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    categoryMap[item.category].toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const form = useForm<InsertFoodItem>({
     resolver: zodResolver(insertFoodItemSchema),
@@ -255,6 +262,17 @@ export default function FoodItemsManager() {
           <CardDescription>
             {foodItems?.length || 0} items in your menu
           </CardDescription>
+          <div className="mt-4 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search menu items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+              data-testid="input-search-admin-food"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -263,8 +281,8 @@ export default function FoodItemsManager() {
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-          ) : foodItems && foodItems.length > 0 ? (
-            <div className="overflow-x-auto">
+          ) : filteredFoodItems && filteredFoodItems.length > 0 ? (
+            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -275,7 +293,7 @@ export default function FoodItemsManager() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {foodItems.map((item) => (
+                  {filteredFoodItems.map((item) => (
                     <TableRow key={item.id} data-testid={`row-food-${item.id}`}>
                       <TableCell>
                         <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
@@ -322,6 +340,11 @@ export default function FoodItemsManager() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          ) : foodItems && foodItems.length > 0 ? (
+            <div className="text-center py-12">
+              <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No items match your search</p>
             </div>
           ) : (
             <div className="text-center py-12">
