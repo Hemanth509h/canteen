@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UtensilsCrossed, Phone, Mail, MapPin } from "lucide-react";
+import { UtensilsCrossed, Phone, Mail, MapPin, ShieldCheck } from "lucide-react";
 import type { FoodItem, CompanyInfo } from "@shared/schema";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
@@ -232,9 +233,22 @@ export default function CustomerHome() {
                 <span className="text-sm">{companyInfo.address}</span>
               </div>
             )}
-            <p className="text-sm text-muted-foreground">
-              © 2024 All rights reserved
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-muted-foreground">
+                © 2024 All rights reserved
+              </p>
+              <Link href="/admin/login">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  data-testid="button-admin-login"
+                  className="text-muted-foreground"
+                >
+                  <ShieldCheck className="w-4 h-4 mr-1" />
+                  Admin
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

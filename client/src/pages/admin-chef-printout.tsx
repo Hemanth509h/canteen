@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { EventBooking, FoodItem, BookingItem } from "@shared/schema";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Printer, Calendar } from "lucide-react";
 
 interface BookingWithItems extends EventBooking {
   items: (BookingItem & { foodItem: FoodItem })[];
@@ -69,327 +73,124 @@ export default function ChefPrintout() {
           .no-print {
             display: none !important;
           }
-          body {
-            margin: 0;
-            padding: 20px;
-          }
-          .print-container {
+          .print-page {
             max-width: none !important;
+            margin: 0 !important;
+            padding: 0.5in !important;
+          }
+          .print-header {
+            background: none !important;
+            border: none !important;
+            padding-bottom: 1rem !important;
           }
         }
-
-        .print-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-          font-family: Arial, sans-serif;
-        }
-
-        .header-section {
-          background-color: #f8f9fa;
-          padding: 20px;
-          border-radius: 8px;
-          margin-bottom: 30px;
-          border: 2px solid #dee2e6;
-        }
-
-        .header-title {
-          font-size: 32px;
-          font-weight: bold;
-          color: #212529;
-          margin: 0 0 10px 0;
-          text-align: center;
-        }
-
-        .header-subtitle {
-          font-size: 18px;
-          color: #6c757d;
-          margin: 0;
-          text-align: center;
-        }
-
-        .controls-section {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
-          gap: 15px;
-          flex-wrap: wrap;
-        }
-
-        .date-selector {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .date-selector label {
-          font-weight: 600;
-          font-size: 14px;
-        }
-
-        .date-selector select {
-          padding: 8px 12px;
-          border: 1px solid #ced4da;
-          border-radius: 4px;
-          font-size: 14px;
-          background-color: white;
-          cursor: pointer;
-        }
-
-        .print-button {
-          padding: 10px 20px;
-          background-color: #007bff;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-
-        .print-button:hover {
-          background-color: #0056b3;
-        }
-
-        .summary-section {
-          background-color: #fff3cd;
-          border: 2px solid #ffc107;
-          border-radius: 8px;
-          padding: 20px;
-          margin-bottom: 30px;
-        }
-
-        .summary-title {
-          font-size: 20px;
-          font-weight: bold;
-          margin: 0 0 15px 0;
-          color: #856404;
-        }
-
-        .summary-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 15px;
-        }
-
-        .summary-item {
-          background-color: white;
-          padding: 12px;
-          border-radius: 6px;
-          border-left: 4px solid #ffc107;
-        }
-
-        .summary-label {
-          font-size: 12px;
-          color: #6c757d;
-          margin-bottom: 4px;
-          text-transform: uppercase;
-          font-weight: 600;
-        }
-
-        .summary-value {
-          font-size: 24px;
-          font-weight: bold;
-          color: #212529;
-        }
-
-        .events-section {
-          margin-bottom: 30px;
-          background-color: #e9ecef;
-          padding: 15px;
-          border-radius: 8px;
-        }
-
-        .events-title {
-          font-size: 18px;
-          font-weight: bold;
-          margin-bottom: 15px;
-          color: #495057;
-        }
-
-        .event-card {
-          background-color: white;
-          border: 1px solid #ced4da;
-          border-radius: 6px;
-          padding: 15px;
-          margin-bottom: 10px;
-        }
-
-        .event-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 5px;
-        }
-
-        .event-name {
-          font-weight: 600;
-          font-size: 16px;
-          color: #212529;
-        }
-
-        .event-details {
-          font-size: 14px;
-          color: #6c757d;
-        }
-
-        .category-section {
-          margin-bottom: 30px;
-          page-break-inside: avoid;
-        }
-
-        .category-title {
-          font-size: 20px;
-          font-weight: bold;
-          color: white;
-          background-color: #28a745;
-          padding: 12px 15px;
-          border-radius: 6px 6px 0 0;
-          margin: 0;
-        }
-
-        .items-table {
-          width: 100%;
-          border-collapse: collapse;
-          background-color: white;
-          border: 2px solid #28a745;
-          border-radius: 0 0 6px 6px;
-          overflow: hidden;
-        }
-
-        .items-table thead {
-          background-color: #f8f9fa;
-        }
-
-        .items-table th {
-          padding: 12px 15px;
-          text-align: left;
-          font-weight: 600;
-          font-size: 14px;
-          color: #495057;
-          border-bottom: 2px solid #dee2e6;
-        }
-
-        .items-table td {
-          padding: 12px 15px;
-          border-bottom: 1px solid #e9ecef;
-          font-size: 14px;
-        }
-
-        .items-table tbody tr:last-child td {
-          border-bottom: none;
-        }
-
-        .items-table tbody tr:hover {
-          background-color: #f8f9fa;
-        }
-
-        .quantity-cell {
-          font-weight: bold;
-          color: #007bff;
-          font-size: 16px;
-          text-align: center;
-        }
-
-        .no-data {
-          text-align: center;
-          padding: 40px 20px;
-          color: #6c757d;
-          font-size: 16px;
-        }
-
-        .loading {
-          text-align: center;
-          padding: 40px 20px;
-          color: #6c757d;
-          font-size: 16px;
-        }
-
         @page {
           margin: 0.5in;
         }
       `}</style>
 
-      <div className="print-container">
-        <div className="header-section">
-          <h1 className="header-title">🍽️ Chef Preparation Sheet</h1>
-          <p className="header-subtitle">Event Menu Planning & Preparation Guide</p>
-        </div>
+      <div className="print-page max-w-6xl mx-auto p-6 space-y-6">
+        <Card className="print-header">
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-3xl">Chef Preparation Sheet</CardTitle>
+            <p className="text-muted-foreground">Event Menu Planning & Preparation Guide</p>
+          </CardHeader>
+        </Card>
 
-        <div className="controls-section no-print">
-          <div className="date-selector">
-            <label htmlFor="date-select">Select Date:</label>
-            <select 
-              id="date-select"
-              value={activeDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              data-testid="select-date"
-            >
-              {dates.map(date => (
-                <option key={date} value={date}>{date}</option>
-              ))}
-            </select>
+        <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Select value={activeDate} onValueChange={setSelectedDate}>
+              <SelectTrigger className="w-[200px]" data-testid="select-date">
+                <SelectValue placeholder="Select a date" />
+              </SelectTrigger>
+              <SelectContent>
+                {dates.map(date => (
+                  <SelectItem key={date} value={date}>
+                    {date}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <button 
+          <Button 
             onClick={handlePrint} 
-            className="print-button"
+            variant="default"
             data-testid="button-print"
           >
-            🖨️ Print This Sheet
-          </button>
+            <Printer className="mr-2 h-4 w-4" />
+            Print This Sheet
+          </Button>
         </div>
 
         {isLoading ? (
-          <div className="loading">Loading chef printout data...</div>
+          <div className="text-center py-12 text-muted-foreground">
+            Loading chef printout data...
+          </div>
         ) : !activeDate ? (
-          <div className="no-data">No bookings found. Create some confirmed bookings to see the chef printout.</div>
+          <div className="text-center py-12 text-muted-foreground">
+            No bookings found. Create some confirmed bookings to see the chef printout.
+          </div>
         ) : (
           <>
-            <div className="summary-section">
-              <h2 className="summary-title">📊 Daily Summary - {activeDate}</h2>
-              <div className="summary-grid">
-                <div className="summary-item">
-                  <div className="summary-label">Total Events</div>
-                  <div className="summary-value">{bookingsForDate.length}</div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Daily Summary - {activeDate}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Total Events
+                    </p>
+                    <p className="text-3xl font-bold">{bookingsForDate.length}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Total Guests
+                    </p>
+                    <p className="text-3xl font-bold">{totalMembers}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Unique Dishes
+                    </p>
+                    <p className="text-3xl font-bold">{combinedItemsArray.length}</p>
+                  </div>
                 </div>
-                <div className="summary-item">
-                  <div className="summary-label">Total Guests</div>
-                  <div className="summary-value">{totalMembers}</div>
-                </div>
-                <div className="summary-item">
-                  <div className="summary-label">Unique Dishes</div>
-                  <div className="summary-value">{combinedItemsArray.length}</div>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="events-section">
-              <h3 className="events-title">📅 Events for {activeDate}</h3>
-              {bookingsForDate.map((booking, idx) => (
-                <div key={booking.id} className="event-card">
-                  <div className="event-header">
-                    <span className="event-name">
-                      Event {idx + 1}: {booking.clientName} - {booking.eventType}
-                    </span>
-                    <span className="event-details">
-                      {booking.guestCount} guests
-                    </span>
-                  </div>
-                  <div className="event-details">
-                    Contact: {booking.contactPhone} | {booking.contactEmail}
-                  </div>
-                  {booking.specialRequests && (
-                    <div className="event-details" style={{ marginTop: '8px', fontStyle: 'italic' }}>
-                      Special Requests: {booking.specialRequests}
+            <Card>
+              <CardHeader>
+                <CardTitle>Events for {activeDate}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {bookingsForDate.map((booking, idx) => (
+                  <div key={booking.id} className="p-4 rounded-md border bg-card space-y-2">
+                    <div className="flex flex-wrap justify-between items-start gap-2">
+                      <span className="font-semibold">
+                        Event {idx + 1}: {booking.clientName} - {booking.eventType}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {booking.guestCount} guests
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    <p className="text-sm text-muted-foreground">
+                      Contact: {booking.contactPhone} | {booking.contactEmail}
+                    </p>
+                    {booking.specialRequests && (
+                      <p className="text-sm text-muted-foreground italic">
+                        Special Requests: {booking.specialRequests}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
 
             {Object.keys(groupedByCategory).length === 0 ? (
-              <div className="no-data">
+              <div className="text-center py-12 text-muted-foreground">
                 No menu items have been selected for these bookings.
                 <br />
                 Please edit the bookings and add menu items.
@@ -397,49 +198,50 @@ export default function ChefPrintout() {
             ) : (
               <>
                 {Object.entries(groupedByCategory).map(([category, items]) => (
-                  <div key={category} className="category-section">
-                    <h2 className="category-title">{category}</h2>
-                    <table className="items-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: '10%' }}>#</th>
-                          <th style={{ width: '50%' }}>Dish Name</th>
-                          <th style={{ width: '20%', textAlign: 'center' }}>Quantity to Prepare</th>
-                          <th style={{ width: '20%', textAlign: 'center' }}>For Guests</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.map((item, idx) => (
-                          <tr key={item.id}>
-                            <td>{idx + 1}</td>
-                            <td style={{ fontWeight: 500 }}>{item.name}</td>
-                            <td className="quantity-cell">{item.totalQuantity}</td>
-                            <td style={{ textAlign: 'center' }}>{totalMembers} guests</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <Card key={category} className="break-inside-avoid">
+                    <CardHeader className="bg-primary text-primary-foreground rounded-t-md">
+                      <CardTitle>{category}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-muted/50">
+                            <tr className="border-b">
+                              <th className="text-left p-3 font-semibold w-[10%]">#</th>
+                              <th className="text-left p-3 font-semibold w-[50%]">Dish Name</th>
+                              <th className="text-center p-3 font-semibold w-[20%]">Quantity to Prepare</th>
+                              <th className="text-center p-3 font-semibold w-[20%]">For Guests</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.map((item, idx) => (
+                              <tr key={item.id} className="border-b last:border-0 hover-elevate">
+                                <td className="p-3">{idx + 1}</td>
+                                <td className="p-3 font-medium">{item.name}</td>
+                                <td className="p-3 text-center font-bold text-primary text-lg">
+                                  {item.totalQuantity}
+                                </td>
+                                <td className="p-3 text-center text-muted-foreground">
+                                  {totalMembers} guests
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
 
-                <div style={{ 
-                  marginTop: '40px', 
-                  padding: '20px', 
-                  backgroundColor: '#d4edda', 
-                  border: '2px solid #28a745',
-                  borderRadius: '8px' 
-                }}>
-                  <p style={{ 
-                    margin: 0, 
-                    fontSize: '14px', 
-                    color: '#155724',
-                    fontWeight: 600
-                  }}>
-                    ✅ Total items to prepare: {combinedItemsArray.length} unique dishes
-                    <br />
-                    👥 Serving: {totalMembers} guests across {bookingsForDate.length} event(s)
-                  </p>
-                </div>
+                <Card className="bg-green-50 dark:bg-green-950 border-green-500">
+                  <CardContent className="p-4">
+                    <p className="text-sm font-semibold text-green-800 dark:text-green-200">
+                      Total items to prepare: {combinedItemsArray.length} unique dishes
+                      <br />
+                      Serving: {totalMembers} guests across {bookingsForDate.length} event(s)
+                    </p>
+                  </CardContent>
+                </Card>
               </>
             )}
           </>

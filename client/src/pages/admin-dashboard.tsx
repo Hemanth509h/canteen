@@ -1,6 +1,6 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
@@ -44,11 +44,22 @@ function AppSidebar({ onLogout }: { onLogout: () => void }) {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-            <div className="mt-4 px-3">
+            <div className="mt-4 px-3 space-y-2">
+              <Link href="/">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  data-testid="button-back-to-home"
+                >
+                  <Home className="w-4 h-4 mr-2" />
+                  Back to Home
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 className="w-full justify-start"
                 onClick={onLogout}
+                data-testid="button-logout"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
