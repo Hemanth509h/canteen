@@ -153,7 +153,13 @@ export default function FoodItemsManager() {
             Manage your menu items and categories
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          if (!open) {
+            handleDialogClose();
+          } else {
+            setIsDialogOpen(true);
+          }
+        }}>
           <DialogTrigger asChild>
             <Button data-testid="button-add-food-item">
               <Plus className="w-4 h-4 mr-2" />
