@@ -1,10 +1,15 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const foodItems = pgTable("food_items", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+// Helper function to generate IDs
+function generateId() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+export const foodItems = sqliteTable("food_items", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   name: text("name").notNull(),
   description: text("description").notNull(),
   category: text("category").notNull(),
@@ -18,8 +23,8 @@ export const insertFoodItemSchema = createInsertSchema(foodItems).omit({
 export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
 export type FoodItem = typeof foodItems.$inferSelect;
 
-export const eventBookings = pgTable("event_bookings", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const eventBookings = sqliteTable("event_bookings", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   clientName: text("client_name").notNull(),
   eventDate: text("event_date").notNull(),
   eventType: text("event_type").notNull(),
@@ -33,10 +38,10 @@ export const eventBookings = pgTable("event_bookings", {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const bookingItems = pgTable("booking_items", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  bookingId: varchar("booking_id").notNull().references(() => eventBookings.id, { onDelete: 'cascade' }),
-  foodItemId: varchar("food_item_id").notNull().references(() => foodItems.id, { onDelete: 'cascade' }),
+export const bookingItems = sqliteTable("booking_items", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
+  bookingId: text("booking_id").notNull().references(() => eventBookings.id, { onDelete: 'cascade' }),
+  foodItemId: text("food_item_id").notNull().references(() => foodItems.id, { onDelete: 'cascade' }),
   quantity: integer("quantity").notNull().default(1),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -63,8 +68,8 @@ export type EventBooking = typeof eventBookings.$inferSelect;
 export type BookingItem = typeof bookingItems.$inferSelect;
 export type InsertBookingItem = z.infer<typeof insertBookingItemSchema>;
 
-export const companyInfo = pgTable("company_info", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const companyInfo = sqliteTable("company_info", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   companyName: text("company_name").notNull(),
   tagline: text("tagline").notNull(),
   description: text("description").notNull(),
@@ -81,14 +86,14 @@ export const insertCompanyInfoSchema = createInsertSchema(companyInfo).omit({
 export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
 export type CompanyInfo = typeof companyInfo.$inferSelect;
 
-export const staff = pgTable("staff", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const staff = sqliteTable("staff", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   name: text("name").notNull(),
-  role: text("role").notNull(), // chef, worker, serving_boy
+  role: text("role").notNull(),
   phone: text("phone").notNull(),
-  experience: text("experience").notNull(), // e.g., "5 years"
+  experience: text("experience").notNull(),
   imageUrl: text("image_url"),
-  salary: integer("salary").notNull(), // monthly salary in rupees
+  salary: integer("salary").notNull(),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
