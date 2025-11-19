@@ -118,10 +118,10 @@ export default function CustomerHome() {
           </div>
 
           {loadingFood ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
               {[...Array(6)].map((_, i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <Skeleton className="h-64 w-full" />
+                  <Card key={i} className="overflow-hidden flex-shrink-0 w-80">
+                    <Skeleton className="h-48 w-full" />
                     <CardHeader>
                       <Skeleton className="h-6 w-3/4 mb-2" />
                       <Skeleton className="h-4 w-full" />
@@ -130,14 +130,14 @@ export default function CustomerHome() {
                 ))}
               </div>
             ) : filteredItems && filteredItems.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                 {filteredItems.map((item) => (
                   <Card 
                     key={item.id} 
-                    className="overflow-hidden hover-elevate transition-all duration-300"
+                    className="overflow-hidden hover-elevate transition-all duration-300 flex-shrink-0 w-80"
                     data-testid={`card-food-${item.id}`}
                   >
-                    <div className="aspect-[3/2] overflow-hidden bg-muted">
+                    <div className="h-48 overflow-hidden bg-muted">
                       {item.imageUrl && (
                         <img
                           src={item.imageUrl}
