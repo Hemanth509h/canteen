@@ -446,20 +446,67 @@ export default function EventBookingsManager() {
                                 <td style={{ padding: '12px' }}>{item.foodItem.name}</td>
                                 <td style={{ padding: '12px' }}>{item.foodItem.category}</td>
                                 <td style={{ padding: '12px', textAlign: 'center' }}>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={item.quantity}
-                                    onChange={(e) => updateItemQuantity(item.foodItemId, parseInt(e.target.value) || 1)}
-                                    style={{
-                                      width: '80px',
-                                      padding: '6px 12px',
-                                      border: '1px solid #e2e8f0',
-                                      borderRadius: '4px',
-                                      textAlign: 'center'
-                                    }}
-                                    data-testid={`input-quantity-${item.foodItemId}`}
-                                  />
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => updateItemQuantity(item.foodItemId, Math.max(1, item.quantity - 1))}
+                                      style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        padding: '0',
+                                        backgroundColor: '#f1f5f9',
+                                        color: '#475569',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '18px',
+                                        fontWeight: 'bold',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                      }}
+                                      data-testid={`button-decrease-${item.foodItemId}`}
+                                    >
+                                      -
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={item.quantity}
+                                      onChange={(e) => updateItemQuantity(item.foodItemId, parseInt(e.target.value) || 1)}
+                                      style={{
+                                        width: '60px',
+                                        padding: '6px 8px',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '4px',
+                                        textAlign: 'center',
+                                        fontSize: '14px'
+                                      }}
+                                      data-testid={`input-quantity-${item.foodItemId}`}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => updateItemQuantity(item.foodItemId, item.quantity + 1)}
+                                      style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        padding: '0',
+                                        backgroundColor: '#f1f5f9',
+                                        color: '#475569',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '18px',
+                                        fontWeight: 'bold',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                      }}
+                                      data-testid={`button-increase-${item.foodItemId}`}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                 </td>
                                 <td style={{ padding: '12px', textAlign: 'right' }}>
                                   <button
