@@ -194,7 +194,8 @@ export default function EventBookingsManager() {
       toast({ title: "Already added", description: "This item is already in the list", variant: "destructive" });
       return;
     }
-    setSelectedItems([...selectedItems, { foodItemId, quantity: 1 }]);
+    const guestCount = form.getValues("guestCount") || 1;
+    setSelectedItems([...selectedItems, { foodItemId, quantity: guestCount }]);
   };
 
   const updateItemQuantity = (foodItemId: string, quantity: number) => {
@@ -234,7 +235,13 @@ export default function EventBookingsManager() {
             <Printer className="w-4 h-4 mr-2" />
             Chef Printout
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (!open) {
+              handleDialogClose();
+            } else {
+              setIsDialogOpen(true);
+            }
+          }}>
             <DialogTrigger asChild>
               <Button data-testid="button-add-booking">
                 <Plus className="w-4 h-4 mr-2" />

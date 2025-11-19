@@ -263,7 +263,8 @@ export default function FoodItemsManager() {
                         <div className="space-y-3">
                           <Input 
                             placeholder="Enter image URL or select from samples below" 
-                            {...field} 
+                            {...field}
+                            value={field.value || ""}
                             data-testid="input-food-image"
                           />
                           <div className="grid grid-cols-3 gap-2">
