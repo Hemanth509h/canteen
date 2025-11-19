@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UtensilsCrossed, Phone, Mail, MapPin } from "lucide-react";
 import type { FoodItem, CompanyInfo } from "@shared/schema";
-import heroImage from "@assets/generated_images/Elegant_catering_buffet_hero_image_05c8db1b.png";
+
+const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
 
 const categories = ["All", "Appetizers", "Main Courses", "Desserts", "Beverages"];
 

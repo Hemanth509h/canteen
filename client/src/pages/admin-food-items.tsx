@@ -17,21 +17,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Plus, Pencil, Trash2, ImagePlus } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import bruschettaImage from "@assets/generated_images/Bruschetta_appetizer_23e7f3dc.png";
-import salmonImage from "@assets/generated_images/Grilled_salmon_main_course_20864aa7.png";
-import beefImage from "@assets/generated_images/Beef_tenderloin_entree_97bfeb8b.png";
-import cakeImage from "@assets/generated_images/Chocolate_lava_cake_dessert_acd92629.png";
-import saladImage from "@assets/generated_images/Caesar_salad_7fbcc3e4.png";
-import sandwichImage from "@assets/generated_images/Gourmet_finger_sandwiches_5945e4cb.png";
-
-const sampleImages = [
-  { url: bruschettaImage, name: "Bruschetta" },
-  { url: salmonImage, name: "Salmon" },
-  { url: beefImage, name: "Beef" },
-  { url: cakeImage, name: "Cake" },
-  { url: saladImage, name: "Salad" },
-  { url: sandwichImage, name: "Sandwiches" },
-];
 
 const categoryMap: Record<string, string> = {
   "appetizer": "Appetizers",
@@ -230,29 +215,12 @@ export default function FoodItemsManager() {
                     <FormItem>
                       <FormLabel>Image URL (optional)</FormLabel>
                       <FormControl>
-                        <div className="space-y-3">
-                          <Input 
-                            placeholder="Enter image URL or select from samples below" 
-                            {...field}
-                            value={field.value || ""}
-                            data-testid="input-food-image"
-                          />
-                          <div className="grid grid-cols-3 gap-2">
-                            {sampleImages.map((img, idx) => (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => field.onChange(img.url)}
-                                className={`relative aspect-[3/2] rounded-md overflow-hidden border-2 transition-all hover-elevate ${
-                                  field.value === img.url ? 'border-primary' : 'border-border'
-                                }`}
-                                data-testid={`button-sample-image-${idx}`}
-                              >
-                                <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                        <Input 
+                          placeholder="Enter image URL" 
+                          {...field}
+                          value={field.value || ""}
+                          data-testid="input-food-image"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
