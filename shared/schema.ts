@@ -33,6 +33,14 @@ export const eventBookings = pgTable("event_bookings", {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const bookingItems = pgTable("booking_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookingId: varchar("booking_id").notNull().references(() => eventBookings.id, { onDelete: 'cascade' }),
+  foodItemId: varchar("food_item_id").notNull().references(() => foodItems.id, { onDelete: 'cascade' }),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const insertEventBookingSchema = createInsertSchema(eventBookings).omit({
   id: true,
   createdAt: true,
@@ -44,9 +52,16 @@ export const updateEventBookingSchema = createInsertSchema(eventBookings).omit({
   createdAt: true,
 }).partial();
 
+export const insertBookingItemSchema = createInsertSchema(bookingItems).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;
 export type UpdateEventBooking = z.infer<typeof updateEventBookingSchema>;
 export type EventBooking = typeof eventBookings.$inferSelect;
+export type BookingItem = typeof bookingItems.$inferSelect;
+export type InsertBookingItem = z.infer<typeof insertBookingItemSchema>;
 
 export const companyInfo = pgTable("company_info", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

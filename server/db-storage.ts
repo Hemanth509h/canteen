@@ -1,6 +1,6 @@
 import { db } from "./db";
-import { foodItems, eventBookings, companyInfo, staff } from "@shared/schema";
-import type { FoodItem, InsertFoodItem, EventBooking, InsertEventBooking, CompanyInfo, InsertCompanyInfo, Staff, InsertStaff } from "@shared/schema";
+import { foodItems, eventBookings, companyInfo, staff, bookingItems } from "@shared/schema";
+import type { FoodItem, InsertFoodItem, EventBooking, InsertEventBooking, CompanyInfo, InsertCompanyInfo, Staff, InsertStaff, BookingItem, InsertBookingItem } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import type { IStorage } from "./storage";
 
@@ -53,6 +53,34 @@ export class DatabaseStorage implements IStorage {
   async deleteBooking(id: string): Promise<boolean> {
     const result = await db.delete(eventBookings).where(eq(eventBookings.id, id));
     return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Booking Items
+  async getBookingItems(bookingId: string): Promise<(BookingItem & { foodItem: FoodItem })[]> {
+    const items = await db
+      .select({
+        id: bookingItems.id,
+        bookingId: bookingItems.bookingId,
+        foodItemId: bookingItems.foodItemId,
+        quantity: bookingItems.quantity,
+        createdAt: bookingItems.createdAt,
+        foodItem: foodItems,
+      })
+      .from(bookingItems)
+      .leftJoin(foodItems, eq(bookingItems.foodItemId, foodItems.id))
+      .where(eq(bookingItems.bookingId, bookingId));
+    
+    return items as (BookingItem & { foodItem: FoodItem })[];
+  }
+
+  async createBookingItem(item: InsertBookingItem): Promise<BookingItem> {
+    const [newItem] = await db.insert(bookingItems).values(item).returning();
+    return newItem!;
+  }
+
+  async deleteBookingItems(bookingId: string): Promise<boolean> {
+    const result = await db.delete(bookingItems).where(eq(bookingItems.bookingId, bookingId));
+    return result.rowCount !== null && result.rowCount >= 0;
   }
 
   // Company Info

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react";
-import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking } from "@shared/schema";
+import { Plus, Pencil, Trash2, CalendarDays, Printer } from "lucide-react";
+import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   pending: "secondary",
@@ -24,13 +25,24 @@ const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   cancelled: "destructive",
 };
 
+interface SelectedItem {
+  foodItemId: string;
+  quantity: number;
+}
+
 export default function EventBookingsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<EventBooking | null>(null);
+  const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const { data: bookings, isLoading } = useQuery<EventBooking[]>({
     queryKey: ["/api/bookings"],
+  });
+
+  const { data: foodItems } = useQuery<FoodItem[]>({
+    queryKey: ["/api/food-items"],
   });
 
   const form = useForm<UpdateEventBooking>({
@@ -55,16 +67,41 @@ export default function EventBookingsManager() {
     },
   });
 
+  useEffect(() => {
+    if (editingBooking) {
+      fetch(`/api/bookings/${editingBooking.id}/items`)
+        .then(res => res.json())
+        .then((items: (BookingItem & { foodItem: FoodItem })[]) => {
+          setSelectedItems(items.map(item => ({
+            foodItemId: item.foodItemId,
+            quantity: item.quantity
+          })));
+        });
+    } else {
+      setSelectedItems([]);
+    }
+  }, [editingBooking]);
+
   const createMutation = useMutation({
     mutationFn: async (data: InsertEventBooking) => {
       const priceInRupees = Math.round(data.pricePerPlate);
-      return apiRequest("POST", "/api/bookings", { ...data, pricePerPlate: priceInRupees });
+      const response = await apiRequest("POST", "/api/bookings", { ...data, pricePerPlate: priceInRupees });
+      return await response.json() as EventBooking;
     },
-    onSuccess: () => {
+    onSuccess: async (booking: EventBooking) => {
+      if (selectedItems.length > 0) {
+        const items = selectedItems.map(item => ({
+          bookingId: booking.id,
+          foodItemId: item.foodItemId,
+          quantity: item.quantity
+        }));
+        await apiRequest("POST", `/api/bookings/${booking.id}/items`, items);
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({ title: "Success", description: "Booking created successfully" });
       setIsDialogOpen(false);
       form.reset();
+      setSelectedItems([]);
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to create booking", variant: "destructive" });
@@ -77,14 +114,24 @@ export default function EventBookingsManager() {
       if (data.pricePerPlate !== undefined) {
         updateData.pricePerPlate = Math.round(data.pricePerPlate);
       }
-      return apiRequest("PATCH", `/api/bookings/${id}`, updateData);
+      const response = await apiRequest("PATCH", `/api/bookings/${id}`, updateData);
+      return await response.json() as EventBooking;
     },
-    onSuccess: () => {
+    onSuccess: async (_booking, variables) => {
+      if (selectedItems.length > 0) {
+        const items = selectedItems.map(item => ({
+          bookingId: variables.id,
+          foodItemId: item.foodItemId,
+          quantity: item.quantity
+        }));
+        await apiRequest("POST", `/api/bookings/${variables.id}/items`, items);
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({ title: "Success", description: "Booking updated successfully" });
       setIsDialogOpen(false);
       setEditingBooking(null);
       form.reset();
+      setSelectedItems([]);
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to update booking", variant: "destructive" });
@@ -139,7 +186,33 @@ export default function EventBookingsManager() {
     setIsDialogOpen(false);
     setEditingBooking(null);
     form.reset();
+    setSelectedItems([]);
   };
+
+  const addItem = (foodItemId: string) => {
+    if (selectedItems.find(item => item.foodItemId === foodItemId)) {
+      toast({ title: "Already added", description: "This item is already in the list", variant: "destructive" });
+      return;
+    }
+    setSelectedItems([...selectedItems, { foodItemId, quantity: 1 }]);
+  };
+
+  const updateItemQuantity = (foodItemId: string, quantity: number) => {
+    setSelectedItems(selectedItems.map(item =>
+      item.foodItemId === foodItemId ? { ...item, quantity } : item
+    ));
+  };
+
+  const removeItem = (foodItemId: string) => {
+    setSelectedItems(selectedItems.filter(item => item.foodItemId !== foodItemId));
+  };
+
+  const selectedFoodItems = selectedItems
+    .map(item => {
+      const foodItem = foodItems?.find(f => f.id === item.foodItemId);
+      return foodItem ? { ...item, foodItem } : null;
+    })
+    .filter(Boolean) as (SelectedItem & { foodItem: FoodItem })[];
 
   return (
     <div className="p-6 sm:p-8 space-y-6">
@@ -152,198 +225,300 @@ export default function EventBookingsManager() {
             Manage upcoming and past event bookings
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
-          <DialogTrigger asChild>
-            <Button data-testid="button-add-booking">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Booking
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingBooking ? "Edit Booking" : "Add New Booking"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingBooking ? "Update booking details" : "Create a new event booking"}
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="clientName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Client Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John Doe" {...field} data-testid="input-client-name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="eventDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Event Date</FormLabel>
-                        <FormControl>
-                          <Input type="date" {...field} data-testid="input-event-date" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="eventType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Event Type</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Wedding, Corporate, etc." {...field} data-testid="input-event-type" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="guestCount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Guest Count</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="50" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                            data-testid="input-guest-count"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="pricePerPlate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price per Plate (₹)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            step="1"
-                            placeholder="500" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            data-testid="input-price-per-plate"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="contactEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Contact Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="client@example.com" {...field} data-testid="input-contact-email" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="contactPhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Contact Phone</FormLabel>
-                        <FormControl>
-                          <Input type="tel" placeholder="+1 (555) 000-0000" {...field} data-testid="input-contact-phone" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {editingBooking && (
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setLocation('/admin/chef-printout')}
+            data-testid="button-chef-printout"
+          >
+            <Printer className="w-4 h-4 mr-2" />
+            Chef Printout
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+            <DialogTrigger asChild>
+              <Button data-testid="button-add-booking">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Booking
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingBooking ? "Edit Booking" : "Add New Booking"}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingBooking ? "Update booking details" : "Create a new event booking"}
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="clientName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Client Name</FormLabel>
                           <FormControl>
-                            <SelectTrigger data-testid="select-booking-status">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
+                            <Input placeholder="John Doe" {...field} data-testid="input-client-name" />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="eventDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Event Date</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} data-testid="input-event-date" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="eventType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Event Type</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Wedding, Corporate, etc." {...field} data-testid="input-event-type" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="guestCount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Guest Count</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="50" 
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              data-testid="input-guest-count"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="pricePerPlate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price per Plate (₹)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              step="1"
+                              placeholder="500" 
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                              data-testid="input-price-per-plate"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="contactEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Contact Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="client@example.com" {...field} data-testid="input-contact-email" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="contactPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Contact Phone</FormLabel>
+                          <FormControl>
+                            <Input type="tel" placeholder="+1 (555) 000-0000" {...field} data-testid="input-contact-phone" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {editingBooking && (
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Status</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-booking-status">
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="confirmed">Confirmed</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  <FormField
+                    control={form.control}
+                    name="specialRequests"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Special Requests (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Any special dietary requirements or requests..." 
+                            {...field}
+                            value={field.value || ""}
+                            data-testid="input-special-requests"
+                            rows={3}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                )}
-                <FormField
-                  control={form.control}
-                  name="specialRequests"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Special Requests (optional)</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Any special dietary requirements or requests..." 
-                          {...field} 
-                          data-testid="input-special-requests"
-                          rows={3}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleDialogClose}
-                    data-testid="button-cancel"
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                    data-testid="button-submit-booking"
-                  >
-                    {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold mb-3">Menu Items to Prepare</h3>
+                    <div className="mb-3">
+                      <label className="text-sm font-medium mb-2 block">Add Items:</label>
+                      <Select onValueChange={addItem}>
+                        <SelectTrigger data-testid="select-add-item">
+                          <SelectValue placeholder="Select a food item to add" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {foodItems?.map((item) => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.name} ({item.category})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {selectedFoodItems.length > 0 ? (
+                      <div style={{ 
+                        border: '1px solid #e2e8f0', 
+                        borderRadius: '6px', 
+                        overflow: 'hidden' 
+                      }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ backgroundColor: '#f8fafc' }}>
+                              <th style={{ padding: '12px', textAlign: 'left', fontWeight: 600 }}>Item</th>
+                              <th style={{ padding: '12px', textAlign: 'left', fontWeight: 600 }}>Category</th>
+                              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 600 }}>Quantity</th>
+                              <th style={{ padding: '12px', textAlign: 'right', fontWeight: 600 }}>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedFoodItems.map((item) => (
+                              <tr key={item.foodItemId} style={{ borderTop: '1px solid #e2e8f0' }}>
+                                <td style={{ padding: '12px' }}>{item.foodItem.name}</td>
+                                <td style={{ padding: '12px' }}>{item.foodItem.category}</td>
+                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={item.quantity}
+                                    onChange={(e) => updateItemQuantity(item.foodItemId, parseInt(e.target.value) || 1)}
+                                    style={{
+                                      width: '80px',
+                                      padding: '6px 12px',
+                                      border: '1px solid #e2e8f0',
+                                      borderRadius: '4px',
+                                      textAlign: 'center'
+                                    }}
+                                    data-testid={`input-quantity-${item.foodItemId}`}
+                                  />
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'right' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeItem(item.foodItemId)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      backgroundColor: '#fee2e2',
+                                      color: '#dc2626',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer',
+                                      fontSize: '14px'
+                                    }}
+                                    data-testid={`button-remove-item-${item.foodItemId}`}
+                                  >
+                                    Remove
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p style={{ 
+                        color: '#64748b', 
+                        fontSize: '14px', 
+                        fontStyle: 'italic',
+                        textAlign: 'center',
+                        padding: '20px'
+                      }}>
+                        No items selected. Add items from the dropdown above.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={handleDialogClose}
+                      data-testid="button-cancel"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={createMutation.isPending || updateMutation.isPending}
+                      data-testid="button-submit-booking"
+                    >
+                      {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>

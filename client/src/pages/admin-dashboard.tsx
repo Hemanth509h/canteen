@@ -8,6 +8,7 @@ import EventBookingsManager from "./admin-event-bookings";
 import CompanySettingsManager from "./admin-company-settings";
 import StaffManager from "./admin-staff";
 import AdminAccount from "./admin-account";
+import ChefPrintout from "./admin-chef-printout";
 import { useEffect, useState } from "react";
 
 const menuItems = [
@@ -112,6 +113,7 @@ export default function AdminDashboard() {
               <Route path="/admin" component={DashboardOverview} />
               <Route path="/admin/food-items" component={FoodItemsManager} />
               <Route path="/admin/bookings" component={EventBookingsManager} />
+              <Route path="/admin/chef-printout" component={ChefPrintout} />
               <Route path="/admin/staff" component={StaffManager} />
               <Route path="/admin/settings" component={CompanySettingsManager} />
               <Route path="/admin/account" component={AdminAccount} />

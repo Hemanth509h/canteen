@@ -1,9 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./db-storage";
-import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema } from "@shared/schema";
+import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { verifyPassword, updatePassword } from "./password-manager";
+import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Login Route
@@ -178,6 +179,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete booking" });
+    }
+  });
+
+  // Booking Items Routes
+  app.get("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const items = await storage.getBookingItems(req.params.id);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch booking items" });
+    }
+  });
+
+  app.post("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const itemsSchema = z.array(insertBookingItemSchema);
+      const result = itemsSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      await storage.deleteBookingItems(req.params.id);
+      
+      const items = [];
+      for (const item of result.data) {
+        const newItem = await storage.createBookingItem(item);
+        items.push(newItem);
+      }
+      
+      res.status(201).json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create booking items" });
+    }
+  });
+
+  // Chef Printout Route - Get bookings grouped by date
+  app.get("/api/chef-printout", async (req, res) => {
+    try {
+      const { date } = req.query;
+      const allBookings = await storage.getBookings();
+      
+      let filteredBookings = allBookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
+      
+      if (date) {
+        filteredBookings = filteredBookings.filter(b => b.eventDate === date);
+      }
+      
+      const bookingsWithItems = [];
+      for (const booking of filteredBookings) {
+        const items = await storage.getBookingItems(booking.id);
+        bookingsWithItems.push({ ...booking, items });
+      }
+      
+      const groupedByDate: Record<string, typeof bookingsWithItems> = {};
+      for (const booking of bookingsWithItems) {
+        if (!groupedByDate[booking.eventDate]) {
+          groupedByDate[booking.eventDate] = [];
+        }
+        groupedByDate[booking.eventDate].push(booking);
+      }
+      
+      res.json(groupedByDate);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch chef printout data" });
     }
   });
 
