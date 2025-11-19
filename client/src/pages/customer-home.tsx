@@ -118,55 +118,67 @@ export default function CustomerHome() {
           </div>
 
           {loadingFood ? (
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-              {[...Array(6)].map((_, i) => (
-                  <Card key={i} className="overflow-hidden flex-shrink-0 w-80">
-                    <Skeleton className="h-48 w-full" />
-                    <CardHeader>
-                      <Skeleton className="h-6 w-3/4 mb-2" />
-                      <Skeleton className="h-4 w-full" />
-                    </CardHeader>
-                  </Card>
-                ))}
-              </div>
-            ) : filteredItems && filteredItems.length > 0 ? (
-              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                {filteredItems.map((item) => (
-                  <Card 
-                    key={item.id} 
-                    className="overflow-hidden hover-elevate transition-all duration-300 flex-shrink-0 w-80"
-                    data-testid={`card-food-${item.id}`}
-                  >
-                    <div className="h-48 overflow-hidden bg-muted">
-                      {item.imageUrl && (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </div>
-                    <CardHeader className="space-y-2 pb-6">
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                          {item.name}
-                        </CardTitle>
-                        <Badge variant="secondary" className="shrink-0">
-                          {categoryMap[item.category]}
-                        </Badge>
-                      </div>
-                      <CardDescription className="line-clamp-3">
-                        {item.description}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">No items found in this category</p>
-              </div>
-            )}
+            <div className="space-y-6">
+              {[...Array(3)].map((_, rowIndex) => (
+                <div key={rowIndex} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+                  {[...Array(6)].map((_, i) => (
+                    <Card key={i} className="overflow-hidden flex-shrink-0 w-80">
+                      <Skeleton className="h-48 w-full" />
+                      <CardHeader>
+                        <Skeleton className="h-6 w-3/4 mb-2" />
+                        <Skeleton className="h-4 w-full" />
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : filteredItems && filteredItems.length > 0 ? (
+            <div className="space-y-6">
+              {Array.from({ length: Math.ceil(filteredItems.length / 8) }, (_, rowIndex) => {
+                const startIdx = rowIndex * 8;
+                const rowItems = filteredItems.slice(startIdx, startIdx + 8);
+                return (
+                  <div key={rowIndex} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+                    {rowItems.map((item) => (
+                      <Card 
+                        key={item.id} 
+                        className="overflow-hidden hover-elevate transition-all duration-300 flex-shrink-0 w-80"
+                        data-testid={`card-food-${item.id}`}
+                      >
+                        <div className="h-48 overflow-hidden bg-muted">
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
+                        <CardHeader className="space-y-2 pb-6">
+                          <div className="flex items-start justify-between gap-2">
+                            <CardTitle className="text-xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                              {item.name}
+                            </CardTitle>
+                            <Badge variant="secondary" className="shrink-0">
+                              {categoryMap[item.category]}
+                            </Badge>
+                          </div>
+                          <CardDescription className="line-clamp-3">
+                            {item.description}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">No items found in this category</p>
+            </div>
+          )}
         </div>
       </section>
 

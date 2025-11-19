@@ -1,19 +1,15 @@
-# Complete Project Setup Guide - Catering Management System
+# 🍽️ Ravi Canteen - Complete Project Setup Guide
 
-This comprehensive guide will teach you how to build this entire project from scratch. Follow every step carefully.
-
----
-
-## Table of Contents
-
+## 📋 Table of Contents
 1. [Project Overview](#project-overview)
-2. [Prerequisites](#prerequisites)
-3. [Initial Setup](#initial-setup)
-4. [Database Schema Design](#database-schema-design)
-5. [Backend Development](#backend-development)
-6. [Frontend Development](#frontend-development)
-7. [Deployment](#deployment)
-8. [Testing](#testing)
+2. [Technology Stack](#technology-stack)
+3. [Project Structure](#project-structure)
+4. [File-by-File Explanation](#file-by-file-explanation)
+5. [How the Application Works](#how-the-application-works)
+6. [Setup Instructions](#setup-instructions)
+7. [Development Workflow](#development-workflow)
+8. [Deployment](#deployment)
+9. [Customization Guide](#customization-guide)
 
 ---
 
