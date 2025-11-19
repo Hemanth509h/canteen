@@ -360,6 +360,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chef Printout Route - Group bookings by date with items
+  app.get("/api/chef-printout", async (_req, res) => {
+    try {
+      const bookings = await storage.getBookings();
+      
+      // Only include confirmed bookings
+      const confirmedBookings = bookings.filter(b => b.status === "confirmed");
+      
+      // Group bookings by date
+      const groupedByDate: Record<string, any[]> = {};
+      
+      for (const booking of confirmedBookings) {
+        if (!groupedByDate[booking.eventDate]) {
+          groupedByDate[booking.eventDate] = [];
+        }
+        
+        // Get booking items
+        const bookingItems = await storage.getBookingItems(booking.id);
+        const itemsWithFoodData = await Promise.all(
+          bookingItems.map(async (item) => {
+            const foodItem = await storage.getFoodItem(item.foodItemId);
+            return {
+              ...item,
+              foodItem,
+            };
+          })
+        );
+        
+        groupedByDate[booking.eventDate].push({
+          ...booking,
+          items: itemsWithFoodData,
+        });
+      }
+      
+      res.json(groupedByDate);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch chef printout data" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

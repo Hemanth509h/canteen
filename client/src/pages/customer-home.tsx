@@ -144,7 +144,7 @@ export default function CustomerHome() {
                       />
                     )}
                   </div>
-                  <CardHeader className="space-y-2">
+                  <CardHeader className="space-y-2 pb-6">
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
                         {item.name}
@@ -153,15 +153,10 @@ export default function CustomerHome() {
                         {categoryMap[item.category]}
                       </Badge>
                     </div>
-                    <CardDescription className="line-clamp-2">
+                    <CardDescription className="line-clamp-3">
                       {item.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardFooter>
-                    <p className="text-2xl font-bold text-primary" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                      ₹{item.price.toLocaleString('en-IN')}
-                    </p>
-                  </CardFooter>
                 </Card>
               ))}
             </div>

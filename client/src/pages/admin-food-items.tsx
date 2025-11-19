@@ -50,15 +50,10 @@ export default function FoodItemsManager() {
   });
 
   const form = useForm<InsertFoodItem>({
-    resolver: zodResolver(insertFoodItemSchema.extend({
-      price: insertFoodItemSchema.shape.price.refine((val) => val > 0, {
-        message: "Price must be greater than 0",
-      }),
-    })),
+    resolver: zodResolver(insertFoodItemSchema),
     defaultValues: {
       name: "",
       description: "",
-      price: 0,
       category: "appetizer",
       imageUrl: "",
     },
@@ -66,8 +61,7 @@ export default function FoodItemsManager() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertFoodItem) => {
-      const priceInRupees = Math.round(data.price);
-      return apiRequest("POST", "/api/food-items", { ...data, price: priceInRupees });
+      return apiRequest("POST", "/api/food-items", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
@@ -82,8 +76,7 @@ export default function FoodItemsManager() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertFoodItem }) => {
-      const priceInRupees = Math.round(data.price);
-      return apiRequest("PATCH", `/api/food-items/${id}`, { ...data, price: priceInRupees });
+      return apiRequest("PATCH", `/api/food-items/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
@@ -115,7 +108,6 @@ export default function FoodItemsManager() {
     form.reset({
       name: item.name,
       description: item.description,
-      price: item.price,
       category: item.category,
       imageUrl: item.imageUrl || "",
     });
@@ -208,51 +200,29 @@ export default function FoodItemsManager() {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price (₹)</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            step="1"
-                            placeholder="0" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            data-testid="input-food-price"
-                          />
+                          <SelectTrigger data-testid="select-food-category">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-food-category">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="appetizer">Appetizers</SelectItem>
-                            <SelectItem value="main">Main Courses</SelectItem>
-                            <SelectItem value="dessert">Desserts</SelectItem>
-                            <SelectItem value="beverage">Beverages</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        <SelectContent>
+                          <SelectItem value="appetizer">Appetizers</SelectItem>
+                          <SelectItem value="main">Main Courses</SelectItem>
+                          <SelectItem value="dessert">Desserts</SelectItem>
+                          <SelectItem value="beverage">Beverages</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="imageUrl"
@@ -333,7 +303,6 @@ export default function FoodItemsManager() {
                     <TableHead>Image</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -359,9 +328,6 @@ export default function FoodItemsManager() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">{categoryMap[item.category]}</Badge>
-                      </TableCell>
-                      <TableCell className="font-semibold">
-                        ₹{item.price.toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

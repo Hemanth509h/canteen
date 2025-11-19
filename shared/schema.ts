@@ -7,7 +7,6 @@ export const foodItems = pgTable("food_items", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description").notNull(),
-  price: integer("price").notNull(),
   category: text("category").notNull(),
   imageUrl: text("image_url"),
 });
@@ -26,6 +25,7 @@ export const eventBookings = pgTable("event_bookings", {
   eventType: text("event_type").notNull(),
   guestCount: integer("guest_count").notNull(),
   pricePerPlate: integer("price_per_plate").notNull(),
+  servingBoysNeeded: integer("serving_boys_needed").notNull().default(2),
   status: text("status").notNull().default("pending"),
   contactEmail: text("contact_email").notNull(),
   contactPhone: text("contact_phone").notNull(),

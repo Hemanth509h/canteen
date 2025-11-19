@@ -60,6 +60,7 @@ export default function EventBookingsManager() {
       eventType: "",
       guestCount: 0,
       pricePerPlate: 0,
+      servingBoysNeeded: 2,
       contactEmail: "",
       contactPhone: "",
       specialRequests: "",
@@ -287,7 +288,7 @@ export default function EventBookingsManager() {
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
                     <FormField
                       control={form.control}
                       name="eventType"
@@ -334,6 +335,26 @@ export default function EventBookingsManager() {
                               {...field}
                               onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                               data-testid="input-price-per-plate"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="servingBoysNeeded"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Serving Boys Needed</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="1"
+                              placeholder="2" 
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value) || 2)}
+                              data-testid="input-serving-boys"
                             />
                           </FormControl>
                           <FormMessage />

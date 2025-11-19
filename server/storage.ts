@@ -56,6 +56,70 @@ export class MemStorage implements IStorage {
       eventsPerYear: 500,
     };
     this.companyInfo = defaultCompany;
+
+    // Add Telangana food items
+    const telanganaFoodItems: InsertFoodItem[] = [
+      // Main Rice Dishes
+      { name: "Hyderabadi Biryani", description: "Signature aromatic rice with mutton/chicken, slow-cooked using dum pukht method", category: "main", imageUrl: null },
+      { name: "Kodi Pulao", description: "Chicken pulao with fresh spices - lighter alternative to biryani", category: "main", imageUrl: null },
+      { name: "Pulihora", description: "Tangy tamarind rice tempered with mustard seeds, curry leaves, and peanuts", category: "main", imageUrl: null },
+      { name: "Kobbari Saddi", description: "Spiced coconut rice, must-have during Bathukamma festival", category: "main", imageUrl: null },
+      
+      // Vegetarian Curries & Sides
+      { name: "Gutti Vankaya", description: "Stuffed brinjal with peanut-spice masala in tangy tomato gravy", category: "main", imageUrl: null },
+      { name: "Mirch Ka Salan", description: "Rich peanut & chilli gravy, traditionally paired with biryani", category: "main", imageUrl: null },
+      { name: "Bagar Baigan", description: "Spiced eggplant preparation with aromatic spices", category: "main", imageUrl: null },
+      { name: "Dalcha", description: "Lentils cooked with vegetables and aromatic spices", category: "main", imageUrl: null },
+      
+      // Dal & Soups
+      { name: "Khatti Dal", description: "Tangy toor dal with tamarind & mild spices, everyday staple", category: "main", imageUrl: null },
+      { name: "Sambar", description: "Drumstick sambar with mixed vegetables", category: "main", imageUrl: null },
+      { name: "Tomato Pappu", description: "Tomato-based lentil soup with traditional tempering", category: "main", imageUrl: null },
+      
+      // Non-Vegetarian
+      { name: "Gongura Mamsam", description: "Mutton cooked with tangy sorrel leaves - Telangana signature dish", category: "main", imageUrl: null },
+      { name: "Talakaya Kura", description: "Traditional fish curry with aromatic spices", category: "main", imageUrl: null },
+      { name: "Royyala Kura", description: "Prawn curry with coconut and spices", category: "main", imageUrl: null },
+      
+      // Breads
+      { name: "Jonna Rotte", description: "Jowar (sorghum) flatbread - traditional Telangana staple", category: "appetizer", imageUrl: null },
+      { name: "Rumali Roti", description: "Thin handkerchief bread, perfect with curries", category: "appetizer", imageUrl: null },
+      { name: "Puri", description: "Fried fluffy bread, wedding essential", category: "appetizer", imageUrl: null },
+      
+      // Chutneys & Pickles
+      { name: "Gongura Pachadi", description: "Tangy sorrel leaf chutney - signature Telangana item", category: "appetizer", imageUrl: null },
+      { name: "Coconut Chutney", description: "Fresh coconut chutney with traditional tempering", category: "appetizer", imageUrl: null },
+      { name: "Avakaya", description: "Spicy mango pickle - Andhra/Telangana special", category: "appetizer", imageUrl: null },
+      
+      // Sweets & Desserts
+      { name: "Bobbatlu (Puran Poli)", description: "Sweet flatbread stuffed with chana dal & jaggery - wedding essential", category: "dessert", imageUrl: null },
+      { name: "Ariselu", description: "Sweet made with rice flour & jaggery, prepared during festivals", category: "dessert", imageUrl: null },
+      { name: "Qubani Ka Meetha", description: "Apricot dessert - Hyderabadi specialty", category: "dessert", imageUrl: null },
+      { name: "Pootharekulu", description: "Paper-thin sweet from Atreyapuram, wedding favorite", category: "dessert", imageUrl: null },
+      { name: "Gulab Jamun", description: "Fried milk balls in sugar syrup", category: "dessert", imageUrl: null },
+      { name: "Semiya Payasam", description: "Vermicelli pudding with nuts and cardamom", category: "dessert", imageUrl: null },
+      
+      // Tiffin/Breakfast
+      { name: "Pesarattu", description: "Green gram dosa with ginger chutney - Telangana breakfast special", category: "appetizer", imageUrl: null },
+      { name: "Idli-Vada-Sambar", description: "Steamed rice cakes and lentil fritters with sambar", category: "appetizer", imageUrl: null },
+      { name: "Upma", description: "Semolina or broken wheat preparation with vegetables", category: "appetizer", imageUrl: null },
+      
+      // Beverages
+      { name: "Chaas (Buttermilk)", description: "Spiced yogurt drink, cooling and refreshing", category: "beverage", imageUrl: null },
+      { name: "Filter Coffee", description: "South Indian style filter coffee", category: "beverage", imageUrl: null },
+      { name: "Masala Tea", description: "Spiced tea with cardamom and ginger", category: "beverage", imageUrl: null },
+      
+      // Snacks
+      { name: "Sakinalu", description: "Crispy rice flour & sesame snack for Sankranti", category: "appetizer", imageUrl: null },
+      { name: "Mirchi Bajji", description: "Chilli fritters with gram flour batter", category: "appetizer", imageUrl: null },
+      { name: "Cut Mirchi", description: "Stuffed chilli fritters", category: "appetizer", imageUrl: null },
+    ];
+
+    telanganaFoodItems.forEach(item => {
+      const id = randomUUID();
+      const foodItem: FoodItem = { ...item, id, imageUrl: item.imageUrl || null };
+      this.foodItems.set(id, foodItem);
+    });
   }
 
   // Food Items
@@ -69,7 +133,7 @@ export class MemStorage implements IStorage {
 
   async createFoodItem(insertItem: InsertFoodItem): Promise<FoodItem> {
     const id = randomUUID();
-    const item: FoodItem = { ...insertItem, id };
+    const item: FoodItem = { ...insertItem, id, imageUrl: insertItem.imageUrl || null };
     this.foodItems.set(id, item);
     return item;
   }
@@ -104,6 +168,8 @@ export class MemStorage implements IStorage {
       ...insertBooking,
       id,
       status: "pending",
+      servingBoysNeeded: insertBooking.servingBoysNeeded || 2,
+      specialRequests: insertBooking.specialRequests || null,
       createdAt: new Date().toISOString(),
     };
     this.bookings.set(id, booking);
@@ -130,7 +196,7 @@ export class MemStorage implements IStorage {
 
   async createCompanyInfo(info: InsertCompanyInfo): Promise<CompanyInfo> {
     const id = randomUUID();
-    const companyInfo: CompanyInfo = { ...info, id };
+    const companyInfo: CompanyInfo = { ...info, id, eventsPerYear: info.eventsPerYear || 500 };
     this.companyInfo = companyInfo;
     return companyInfo;
   }
@@ -158,6 +224,7 @@ export class MemStorage implements IStorage {
     const staffMember: Staff = {
       ...insertStaff,
       id,
+      imageUrl: insertStaff.imageUrl || null,
       createdAt: new Date().toISOString(),
     };
     this.staff.set(id, staffMember);
