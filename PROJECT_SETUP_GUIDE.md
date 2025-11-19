@@ -878,3 +878,445 @@ After building the basic application:
 ---
 
 **Congratulations!** You now have a complete understanding of how to build this catering management system from scratch. Follow each step carefully, and don't hesitate to refer back to this guide as you build.
+- [Shadcn UI](https://ui.shadcn.com)
+- [Wouter](https://github.com/molefrog/wouter)
+
+---
+
+## Detailed Code File Explanations
+
+### Core Backend Files
+
+#### `server/index.ts` - Server Entry Point
+This is the main entry point for the Express server. Key responsibilities:
+- Creates Express application instance
+- Configures JSON body parsing middleware
+- Mounts API routes at `/api/*` prefix
+- In development: Sets up Vite dev server with hot module replacement
+- In production: Serves pre-built static files from `dist/public`
+- Binds to port 5000 on all network interfaces (0.0.0.0)
+
+**Code Flow**:
+1. Import Express and configuration
+2. Create Express app with `express()`
+3. Add middleware: `app.use(express.json())`
+4. Mount routes: `app.use("/api", apiRoutes)`
+5. Conditional setup: Vite middleware (dev) or static serving (prod)
+6. Listen on port 5000
+
+#### `server/storage.ts` - Data Storage Interface
+Implements an in-memory storage system using JavaScript Maps for fast data access.
+
+**IStorage Interface**: Defines contract for all data operations
+- Food Items: CRUD operations (Create, Read, Update, Delete)
+- Event Bookings: Manage catering events
+- Company Info: Business details
+- Staff: Employee management
+
+**MemStorage Class**: Implementation using Map data structures
+- `foodItems: Map<string, FoodItem>`: Stores food items by ID
+- `bookings: Map<string, EventBooking>`: Stores bookings by ID
+- `staff: Map<string, Staff>`: Stores staff by ID
+- `companyInfo: CompanyInfo`: Single company info object
+
+**initializeDefaults()**: Seeds database with 150+ food items including:
+- Indian Main Courses (30+ items): Biryani, curries, rice dishes, dal
+- Appetizers (50+ items): Starters, breads, snacks, breakfast items
+- Desserts (30+ items): Traditional sweets, modern desserts
+- Beverages (20+ items): Hot and cold drinks
+- Chutneys & Condiments (10+ items)
+
+#### `server/routes.ts` - API Route Definitions
+Defines all RESTful API endpoints using Express Router.
+
+**Food Items Routes**:
+- `GET /api/food-items` - Returns all food items
+- `POST /api/food-items` - Creates new food item (validates with Zod)
+- `PATCH /api/food-items/:id` - Updates existing food item
+- `DELETE /api/food-items/:id` - Deletes food item
+
+**Event Bookings Routes**:
+- `GET /api/bookings` - Returns all bookings (sorted by date)
+- `GET /api/bookings/:id` - Returns single booking with details
+- `POST /api/bookings` - Creates new booking
+- `PATCH /api/bookings/:id` - Updates booking
+- `DELETE /api/bookings/:id` - Deletes booking
+
+**Company Info Routes**:
+- `GET /api/company-info` - Returns company information
+- `PATCH /api/company-info/:id` - Updates company info
+
+**Staff Routes**:
+- `GET /api/staff` - Returns all staff members
+- `POST /api/staff` - Creates new staff member
+- `PATCH /api/staff/:id` - Updates staff member
+- `DELETE /api/staff/:id` - Deletes staff member
+
+**Validation**: All POST/PATCH routes validate request body using Zod schemas from `shared/schema.ts`
+
+#### `server/vite.ts` - Vite Integration
+Integrates Vite dev server into Express for development hot-reload.
+
+**setupVite() Function**:
+- Creates Vite dev server in middleware mode
+- Mounts Vite middlewares to handle `.ts`, `.tsx`, `.css` files
+- Transforms TypeScript to JavaScript on-the-fly
+- Injects HMR (Hot Module Replacement) client
+- Serves `index.html` with transformed module imports
+
+**How It Works**:
+1. Request for `/src/App.tsx` arrives
+2. Vite intercepts request
+3. Reads file, transforms TypeScript → JavaScript
+4. Returns transformed code with HMR client
+5. Browser executes code, connects to HMR WebSocket
+6. On file change, HMR pushes updates without full reload
+
+---
+
+### Core Frontend Files
+
+#### `client/src/main.tsx` - React Entry Point
+Bootstrap file that mounts React app to DOM.
+
+**Code Explanation**:
+```typescript
+import { createRoot } from "react-dom/client"; // React 18 API
+import App from "./App"; // Root component
+import "./index.css"; // Global styles
+
+// Find <div id="root"> in index.html
+// Create React root and render <App />
+createRoot(document.getElementById("root")!).render(<App />);
+```
+
+#### `client/src/App.tsx` - Root Component
+Main application component with routing and global providers.
+
+**Component Structure**:
+```
+App
+├── QueryClientProvider (TanStack Query for data fetching)
+│   ├── TooltipProvider (Shadcn UI tooltips)
+│   │   ├── Switch (Wouter router)
+│   │   │   ├── Route path="/" → CustomerHome
+│   │   │   ├── Route path="/admin/login" → AdminLogin
+│   │   │   ├── Route path="/admin/dashboard/*" → AdminDashboard
+│   │   │   └── Route (fallback) → NotFound
+│   │   └── Toaster (Toast notifications)
+```
+
+**Key Providers**:
+- **QueryClientProvider**: Wraps app with TanStack Query context for server state management
+- **TooltipProvider**: Enables tooltips across all child components
+- **Toaster**: Displays toast notifications (success, error messages)
+
+#### `client/src/lib/queryClient.ts` - Data Fetching Configuration
+Configures TanStack Query for API communication.
+
+**queryClient Configuration**:
+```typescript
+new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Default fetch function using queryKey as URL
+      queryFn: async ({ queryKey }) => {
+        const response = await fetch(queryKey[0] as string);
+        if (!response.ok) throw new Error("Network error");
+        return response.json();
+      }
+    }
+  }
+});
+```
+
+**apiRequest() Helper**:
+- Wrapper for POST/PATCH/DELETE requests
+- Adds JSON headers automatically
+- Throws errors for non-OK responses
+- Used by mutations in components
+
+**Usage in Components**:
+```typescript
+// Query (GET)
+const { data } = useQuery({ queryKey: ["/api/food-items"] });
+
+// Mutation (POST/PATCH/DELETE)
+const mutation = useMutation({
+  mutationFn: (data) => apiRequest("/api/food-items", {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+});
+```
+
+#### `client/src/pages/customer-home.tsx` - Customer Homepage
+Main customer-facing page with menu display.
+
+**State Management**:
+- `selectedCategory`: Tracks active category filter
+- Uses `useQuery` to fetch food items and company info
+- Computes `filteredItems` based on selected category
+
+**Layout Sections**:
+1. **Hero Section**: Full-width background with company name, tagline, contact info
+2. **Category Navigation**: Sticky filter bar (All, Appetizers, Main Courses, Desserts, Beverages)
+3. **Menu Section**: Multi-row horizontal scrolling layout
+   - 8 items per row
+   - Multiple rows displaying all filtered items
+   - Each card shows: image (if available), name, description, category badge
+   - Horizontal scrolling per row with hidden scrollbar
+4. **CTA Section**: Call-to-action with phone and email
+5. **Footer**: Company address, social links, admin login
+
+**Horizontal Scrolling Implementation**:
+```typescript
+// Divide items into rows of 8
+Array.from({ length: Math.ceil(filteredItems.length / 8) }, (_, rowIndex) => {
+  const startIdx = rowIndex * 8;
+  const rowItems = filteredItems.slice(startIdx, startIdx + 8);
+  return (
+    <div key={rowIndex} className="flex gap-6 overflow-x-auto scrollbar-hide">
+      {rowItems.map(item => <Card key={item.id}>...</Card>)}
+    </div>
+  );
+})
+```
+
+**Category Mapping**:
+```typescript
+const categoryMap = {
+  "appetizer": "Appetizers",
+  "main": "Main Courses",
+  "dessert": "Desserts",
+  "beverage": "Beverages"
+};
+```
+
+#### `client/src/pages/admin-dashboard.tsx` - Admin Layout
+Container layout for admin panel with sidebar navigation.
+
+**Layout Structure**:
+- Uses Shadcn `SidebarProvider` for collapsible sidebar
+- Header with sidebar toggle and theme switcher
+- Nested router for admin sub-pages
+
+**Sidebar Menu Items**:
+- Dashboard (overview with stats)
+- Food Items (CRUD for menu)
+- Event Bookings (booking management)
+- Chef Printout (kitchen preparation sheets)
+- Staff (employee management)
+- Settings (company information)
+
+#### `client/src/pages/admin-food-items.tsx` - Food Management
+CRUD interface for managing menu items.
+
+**Data Fetching**:
+```typescript
+const { data: foodItems } = useQuery<FoodItem[]>({
+  queryKey: ["/api/food-items"]
+});
+```
+
+**Create Mutation**:
+```typescript
+const createMutation = useMutation({
+  mutationFn: (data: InsertFoodItem) =>
+    apiRequest("/api/food-items", {
+      method: "POST",
+      body: JSON.stringify(data)
+    }),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
+    toast({ title: "Food item created!" });
+  }
+});
+```
+
+**Features**:
+- Data table with sortable columns
+- Search/filter functionality
+- Create dialog with form validation
+- Inline edit for each item
+- Delete with confirmation
+- Real-time UI updates after mutations
+
+---
+
+### Shared Code
+
+#### `shared/schema.ts` - Type Definitions
+Single source of truth for data types and validation.
+
+**Drizzle-style Table Schemas**:
+```typescript
+export const foodItems = {
+  id: { type: String },
+  name: { type: String },
+  description: { type: String },
+  category: { type: String },
+  imageUrl: { type: String, nullable: true }
+};
+```
+
+**Zod Validation Schemas**:
+```typescript
+export const insertFoodItemSchema = createInsertSchema(foodItems);
+```
+
+**TypeScript Types**:
+```typescript
+export type FoodItem = typeof foodItems.$inferSelect;
+export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
+```
+
+**Benefits**:
+- Types shared between client and server
+- Runtime validation with Zod
+- Compile-time type checking with TypeScript
+- No duplication of type definitions
+
+---
+
+### Configuration Files
+
+#### `package.json` - Dependencies and Scripts
+**Key Scripts**:
+- `npm run dev`: Start development server (port 5000)
+- `npm run build`: Build production bundle
+- `npm start`: Run production server
+
+**Critical Dependencies**:
+- `express`: Web server framework
+- `react` + `react-dom`: UI library
+- `@tanstack/react-query`: Data fetching
+- `zod`: Runtime validation
+- `wouter`: Client-side routing
+- `better-sqlite3` + `drizzle-orm`: Database (if using DB mode)
+
+#### `vite.config.ts` - Build Configuration
+**Path Aliases**:
+- `@/`: Maps to `client/src/`
+- `@shared/`: Maps to `shared/`
+- `@assets/`: Maps to `attached_assets/`
+
+**Build Output**:
+- Frontend: `dist/public/` (HTML, CSS, JS bundles)
+- Assets optimized and hashed for caching
+
+#### `tsconfig.json` - TypeScript Configuration
+**Compiler Options**:
+- `strict: true`: Enable all type-checking
+- `jsx: "react-jsx"`: Use React 18 JSX transform
+- `moduleResolution: "bundler"`: Modern module resolution
+- `paths`: Map import aliases to file paths
+
+#### `tailwind.config.ts` - Styling Configuration
+**Content Sources**: Tells Tailwind where to find class names
+- `./client/index.html`
+- `./client/src/**/*.{ts,tsx}`
+
+**Theme Extension**: Custom colors using CSS variables
+- Supports light and dark modes
+- All colors defined in `index.css` as HSL values
+
+---
+
+## 150+ Food Items Database
+
+The application comes pre-loaded with 150+ diverse Indian food items across categories:
+
+### Main Courses (45+ items)
+- **Rice Dishes**: Hyderabadi Biryani, Vegetable Biryani, Kodi Pulao, Pulihora, Lemon Rice, Coconut Rice, Curd Rice, Jeera Rice, Vegetable Pulao, Kashmiri Pulao
+- **Curries**: Paneer Butter Masala, Palak Paneer, Dal Makhani, Chana Masala, Malai Kofta, Kadai Paneer, Butter Chicken, Chicken Tikka Masala, Rogan Josh
+- **Regional Specialties**: Gutti Vankaya, Mirch Ka Salan, Gongura Mamsam, Chettinad Chicken
+- **Dal & Lentils**: Khatti Dal, Sambar, Tomato Pappu, Dal Tadka, Moong Dal Fry
+
+### Appetizers (55+ items)
+- **Tandoor Items**: Paneer Tikka, Chicken Tikka, Tandoori Chicken, Seekh Kabab, Fish Tikka
+- **Fried Snacks**: Samosa, Pakora, Mirchi Bajji, Cut Mirchi, Masala Vada, Medu Vada
+- **Street Food**: Pani Puri, Bhel Puri, Papdi Chaat, Dahi Vada
+- **Breads**: Butter Naan, Garlic Naan, Tandoori Roti, Laccha Paratha, Aloo Paratha, Puri
+- **South Indian**: Masala Dosa, Plain Dosa, Idli, Vada, Pesarattu, Uttapam, Upma, Pongal
+- **Chutneys**: Coconut, Tomato, Gongura, Peanut, Mint, Tamarind
+
+### Desserts (30+ items)
+- **Traditional Sweets**: Gulab Jamun, Rasgulla, Rasmalai, Jalebi, Barfi, Kaju Katli, Ladoo, Peda
+- **Puddings**: Kheer, Phirni, Gajar Halwa, Moong Dal Halwa, Semiya Payasam
+- **Regional**: Bobbatlu, Ariselu, Qubani Ka Meetha, Pootharekulu, Mysore Pak
+- **Modern**: Ice Cream, Fruit Custard, Kulfi
+
+### Beverages (20+ items)
+- **Hot**: Filter Coffee, Masala Chai, Green Tea, Lemon Tea
+- **Cold**: Lassi, Mango Lassi, Chaas, Fresh Lime Soda, Jaljeera
+- **Specialty**: Badam Milk, Rose Milk, Sugarcane Juice, Coconut Water
+- **Juices**: Orange, Apple, Pomegranate, Watermelon
+
+---
+
+## Multi-Row Horizontal Scrolling Menu
+
+### Implementation Details
+
+The menu layout uses a unique multi-row horizontal scrolling design inspired by Amazon's product listings:
+
+**Key Features**:
+1. **8 Items Per Row**: Each row displays 8 food item cards
+2. **Multiple Rows**: Items are divided into rows (e.g., 150 items = ~19 rows)
+3. **Horizontal Scrolling**: Each row scrolls independently
+4. **Hidden Scrollbar**: Clean look with `scrollbar-hide` utility class
+5. **Responsive Cards**: Fixed width (320px) cards that don't shrink
+
+**Code Implementation**:
+```typescript
+// Divide filtered items into rows of 8
+<div className="space-y-6">
+  {Array.from({ length: Math.ceil(filteredItems.length / 8) }, (_, rowIndex) => {
+    const startIdx = rowIndex * 8;
+    const rowItems = filteredItems.slice(startIdx, startIdx + 8);
+    
+    return (
+      <div key={rowIndex} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+        {rowItems.map((item) => (
+          <Card key={item.id} className="flex-shrink-0 w-80">
+            {/* Card content */}
+          </Card>
+        ))}
+      </div>
+    );
+  })}
+</div>
+```
+
+**CSS Classes Explained**:
+- `space-y-6`: Vertical spacing between rows
+- `flex gap-6`: Horizontal flexbox with gaps between cards
+- `overflow-x-auto`: Enable horizontal scrolling
+- `scrollbar-hide`: Custom utility to hide scrollbar
+- `flex-shrink-0`: Prevent cards from shrinking
+- `w-80`: Fixed width (320px) per card
+
+**Benefits**:
+- Displays all 150+ items without overwhelming the page
+- Easy browsing with horizontal scroll (mouse wheel or touch)
+- Category filter works across all rows
+- Performant rendering (React virtualizes off-screen elements)
+
+---
+
+## Conclusion
+
+This guide has covered every aspect of the Ravi Canteen application:
+
+✅ Complete file structure and purpose of each file
+✅ Detailed code explanations for frontend and backend
+✅ Data models and validation schemas
+✅ Multi-row horizontal scrolling menu implementation
+✅ 150+ pre-loaded food items across all categories
+✅ Setup, development, and deployment instructions
+✅ Customization guides for common modifications
+
+The application is production-ready and can be deployed to Replit, Vercel, or any Node.js hosting platform!
+
+Happy coding! 🚀🍽️
