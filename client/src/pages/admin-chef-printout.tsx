@@ -97,29 +97,70 @@ export default function ChefPrintout() {
             border: none !important;
             padding-bottom: 1rem !important;
           }
-          .print-section {
+          
+          /* Allow small sections to avoid page breaks */
+          .print-section-avoid {
             page-break-inside: avoid;
             break-inside: avoid;
           }
+          
+          /* Allow table sections to break across pages */
+          .print-section-table {
+            page-break-inside: auto;
+            break-inside: auto;
+          }
+          
+          /* Tables should break across pages */
           table {
             page-break-inside: auto;
+            width: 100% !important;
           }
+          
+          /* Keep table rows together */
           tr {
             page-break-inside: avoid;
             page-break-after: auto;
           }
+          
+          /* Repeat table headers on each page */
           thead {
             display: table-header-group;
           }
+          
+          tbody {
+            display: table-row-group;
+          }
+          
+          /* Preserve colors and backgrounds */
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             color-adjust: exact !important;
           }
+          
+          /* Remove shadows and unnecessary styles */
+          .shadow-sm, .shadow, .shadow-md, .shadow-lg {
+            box-shadow: none !important;
+          }
+          
+          /* Ensure borders are visible */
+          .border, .border-b {
+            border-color: #000 !important;
+          }
+          
+          /* Make text more readable */
+          body {
+            font-size: 11pt !important;
+          }
+          
+          h1, h2, h3, h4, h5, h6 {
+            page-break-after: avoid;
+          }
         }
+        
         @page {
           margin: 0.5in;
-          size: auto;
+          size: portrait;
         }
       `}</style>
 
@@ -180,7 +221,7 @@ export default function ChefPrintout() {
           </div>
         ) : (
           <>
-            <Card className="print-section">
+            <Card className="print-section-avoid">
               <CardHeader>
                 <CardTitle>Daily Summary - {activeDate}</CardTitle>
               </CardHeader>
@@ -208,13 +249,13 @@ export default function ChefPrintout() {
               </CardContent>
             </Card>
 
-            <Card className="print-section">
+            <Card className="print-section-avoid">
               <CardHeader>
                 <CardTitle>Events for {activeDate}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {bookingsForDate.map((booking, idx) => (
-                  <div key={booking.id} className="p-4 rounded-md border bg-card space-y-2 print-section">
+                  <div key={booking.id} className="p-4 rounded-md border bg-card space-y-2 print-section-avoid">
                     <div className="flex flex-wrap justify-between items-start gap-2">
                       <span className="font-semibold">
                         Event {idx + 1}: {booking.clientName} - {booking.eventType}
@@ -245,7 +286,7 @@ export default function ChefPrintout() {
             ) : (
               <>
                 {Object.entries(groupedByCategory).map(([category, items]) => (
-                  <Card key={category} className="print-section">
+                  <Card key={category} className="print-section-table">
                     <CardHeader className="bg-primary text-primary-foreground rounded-t-md">
                       <CardTitle>{category}</CardTitle>
                     </CardHeader>
@@ -280,7 +321,7 @@ export default function ChefPrintout() {
                   </Card>
                 ))}
 
-                <Card className="bg-green-50 dark:bg-green-950 border-green-500 print-section">
+                <Card className="bg-green-50 dark:bg-green-950 border-green-500 print-section-avoid">
                   <CardContent className="p-4">
                     <p className="text-sm font-semibold text-green-800 dark:text-green-200">
                       Total items to prepare: {combinedItemsArray.length} unique dishes
