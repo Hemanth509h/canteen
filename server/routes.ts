@@ -221,10 +221,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { date } = req.query;
       const allBookings = await storage.getBookings();
       
-      let filteredBookings = allBookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
+      let filteredBookings = allBookings.filter((b: any) => b.status === 'confirmed' || b.status === 'pending');
       
       if (date) {
-        filteredBookings = filteredBookings.filter(b => b.eventDate === date);
+        filteredBookings = filteredBookings.filter((b: any) => b.eventDate === date);
       }
       
       const bookingsWithItems = [];
@@ -357,46 +357,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete staff member" });
-    }
-  });
-
-  // Chef Printout Route - Group bookings by date with items
-  app.get("/api/chef-printout", async (_req, res) => {
-    try {
-      const bookings = await storage.getBookings();
-      
-      // Only include confirmed bookings
-      const confirmedBookings = bookings.filter(b => b.status === "confirmed");
-      
-      // Group bookings by date
-      const groupedByDate: Record<string, any[]> = {};
-      
-      for (const booking of confirmedBookings) {
-        if (!groupedByDate[booking.eventDate]) {
-          groupedByDate[booking.eventDate] = [];
-        }
-        
-        // Get booking items
-        const bookingItems = await storage.getBookingItems(booking.id);
-        const itemsWithFoodData = await Promise.all(
-          bookingItems.map(async (item) => {
-            const foodItem = await storage.getFoodItem(item.foodItemId);
-            return {
-              ...item,
-              foodItem,
-            };
-          })
-        );
-        
-        groupedByDate[booking.eventDate].push({
-          ...booking,
-          items: itemsWithFoodData,
-        });
-      }
-      
-      res.json(groupedByDate);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch chef printout data" });
     }
   });
 

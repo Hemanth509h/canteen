@@ -47,6 +47,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Connect to MongoDB and seed database
+  const { connectToDatabase } = await import("./db");
+  const { seedDatabase } = await import("./seed");
+  await connectToDatabase();
+  await seedDatabase();
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
