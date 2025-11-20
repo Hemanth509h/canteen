@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./db-storage";
+import { storage } from "./db";
 import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { verifyPassword, updatePassword } from "./password-manager";

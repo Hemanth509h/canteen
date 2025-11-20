@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { MongoDBStorage } from "./storage";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/canteen";
 
@@ -27,3 +28,5 @@ mongoose.connection.on("disconnected", () => {
 mongoose.connection.on("error", (error) => {
   console.error("MongoDB error:", error);
 });
+
+export const storage = new MongoDBStorage();
