@@ -1,127 +1,141 @@
-import { db } from "./db";
-import { foodItems, eventBookings, companyInfo, staff, bookingItems } from "@shared/schema";
-import type { FoodItem, InsertFoodItem, EventBooking, InsertEventBooking, CompanyInfo, InsertCompanyInfo, Staff, InsertStaff, BookingItem, InsertBookingItem } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { connectDB } from "./db";
+import { 
+  FoodItemModel, EventBookingModel, BookingItemModel, CompanyInfoModel, StaffModel,
+  type FoodItem, type InsertFoodItem, 
+  type EventBooking, type InsertEventBooking,
+  type CompanyInfo, type InsertCompanyInfo,
+  type Staff, type InsertStaff,
+  type BookingItem, type InsertBookingItem
+} from "@shared/schema";
 import type { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  constructor() {
+    connectDB().catch(err => {
+      console.error("Failed to connect to MongoDB:", err);
+    });
+  }
+
   // Food Items
   async getFoodItems(): Promise<FoodItem[]> {
-    return await db.select().from(foodItems);
+    const items = await FoodItemModel.find();
+    return items.map(item => item.toObject());
   }
 
   async getFoodItem(id: string): Promise<FoodItem | undefined> {
-    const [item] = await db.select().from(foodItems).where(eq(foodItems.id, id));
-    return item;
+    const item = await FoodItemModel.findById(id);
+    return item ? item.toObject() : undefined;
   }
 
   async createFoodItem(item: InsertFoodItem): Promise<FoodItem> {
-    const [newItem] = await db.insert(foodItems).values(item).returning();
-    return newItem!;
+    const newItem = await FoodItemModel.create(item);
+    return newItem.toObject();
   }
 
   async updateFoodItem(id: string, updates: Partial<InsertFoodItem>): Promise<FoodItem | undefined> {
-    const [updated] = await db.update(foodItems).set(updates).where(eq(foodItems.id, id)).returning();
-    return updated;
+    const updated = await FoodItemModel.findByIdAndUpdate(id, updates, { new: true });
+    return updated ? updated.toObject() : undefined;
   }
 
   async deleteFoodItem(id: string): Promise<boolean> {
-    const result = await db.delete(foodItems).where(eq(foodItems.id, id));
-    return result.changes > 0;
+    const result = await FoodItemModel.findByIdAndDelete(id);
+    return result !== null;
   }
 
   // Event Bookings
   async getBookings(): Promise<EventBooking[]> {
-    return await db.select().from(eventBookings).orderBy(desc(eventBookings.createdAt));
+    const bookings = await EventBookingModel.find().sort({ createdAt: -1 });
+    return bookings.map(booking => booking.toObject());
   }
 
   async getBooking(id: string): Promise<EventBooking | undefined> {
-    const [booking] = await db.select().from(eventBookings).where(eq(eventBookings.id, id));
-    return booking;
+    const booking = await EventBookingModel.findById(id);
+    return booking ? booking.toObject() : undefined;
   }
 
   async createBooking(booking: InsertEventBooking): Promise<EventBooking> {
-    const [newBooking] = await db.insert(eventBookings).values(booking).returning();
-    return newBooking!;
+    const newBooking = await EventBookingModel.create(booking);
+    return newBooking.toObject();
   }
 
   async updateBooking(id: string, updates: Partial<EventBooking>): Promise<EventBooking | undefined> {
-    const [updated] = await db.update(eventBookings).set(updates).where(eq(eventBookings.id, id)).returning();
-    return updated;
+    const updated = await EventBookingModel.findByIdAndUpdate(id, updates, { new: true });
+    return updated ? updated.toObject() : undefined;
   }
 
   async deleteBooking(id: string): Promise<boolean> {
-    const result = await db.delete(eventBookings).where(eq(eventBookings.id, id));
-    return result.changes > 0;
+    const result = await EventBookingModel.findByIdAndDelete(id);
+    return result !== null;
   }
 
   // Booking Items
   async getBookingItems(bookingId: string): Promise<(BookingItem & { foodItem: FoodItem })[]> {
-    const items = await db
-      .select({
-        id: bookingItems.id,
-        bookingId: bookingItems.bookingId,
-        foodItemId: bookingItems.foodItemId,
-        quantity: bookingItems.quantity,
-        createdAt: bookingItems.createdAt,
-        foodItem: foodItems,
-      })
-      .from(bookingItems)
-      .leftJoin(foodItems, eq(bookingItems.foodItemId, foodItems.id))
-      .where(eq(bookingItems.bookingId, bookingId));
+    const items = await BookingItemModel.find({ bookingId });
     
-    return items as (BookingItem & { foodItem: FoodItem })[];
+    const itemsWithFood = await Promise.all(
+      items.map(async (item) => {
+        const foodItem = await FoodItemModel.findById(item.foodItemId);
+        const itemObj = item.toObject();
+        return {
+          ...itemObj,
+          foodItem: foodItem ? foodItem.toObject() : null,
+        };
+      })
+    );
+    
+    return itemsWithFood.filter(item => item.foodItem !== null) as (BookingItem & { foodItem: FoodItem })[];
   }
 
   async createBookingItem(item: InsertBookingItem): Promise<BookingItem> {
-    const [newItem] = await db.insert(bookingItems).values(item).returning();
-    return newItem!;
+    const newItem = await BookingItemModel.create(item);
+    return newItem.toObject();
   }
 
   async deleteBookingItems(bookingId: string): Promise<boolean> {
-    const result = await db.delete(bookingItems).where(eq(bookingItems.bookingId, bookingId));
-    return result.changes >= 0;
+    await BookingItemModel.deleteMany({ bookingId });
+    return true;
   }
 
   // Company Info
   async getCompanyInfo(): Promise<CompanyInfo | undefined> {
-    const [info] = await db.select().from(companyInfo).limit(1);
-    return info;
+    const info = await CompanyInfoModel.findOne();
+    return info ? info.toObject() : undefined;
   }
 
   async createCompanyInfo(info: InsertCompanyInfo): Promise<CompanyInfo> {
-    const [newInfo] = await db.insert(companyInfo).values(info).returning();
-    return newInfo!;
+    const newInfo = await CompanyInfoModel.create(info);
+    return newInfo.toObject();
   }
 
   async updateCompanyInfo(id: string, updates: Partial<InsertCompanyInfo>): Promise<CompanyInfo | undefined> {
-    const [updated] = await db.update(companyInfo).set(updates).where(eq(companyInfo.id, id)).returning();
-    return updated;
+    const updated = await CompanyInfoModel.findByIdAndUpdate(id, updates, { new: true });
+    return updated ? updated.toObject() : undefined;
   }
 
   // Staff
   async getStaff(): Promise<Staff[]> {
-    return await db.select().from(staff).orderBy(desc(staff.createdAt));
+    const staff = await StaffModel.find().sort({ createdAt: -1 });
+    return staff.map(member => member.toObject());
   }
 
   async getStaffMember(id: string): Promise<Staff | undefined> {
-    const [member] = await db.select().from(staff).where(eq(staff.id, id));
-    return member;
+    const member = await StaffModel.findById(id);
+    return member ? member.toObject() : undefined;
   }
 
   async createStaffMember(staffMember: InsertStaff): Promise<Staff> {
-    const [newMember] = await db.insert(staff).values(staffMember).returning();
-    return newMember!;
+    const newMember = await StaffModel.create(staffMember);
+    return newMember.toObject();
   }
 
   async updateStaffMember(id: string, updates: Partial<InsertStaff>): Promise<Staff | undefined> {
-    const [updated] = await db.update(staff).set(updates).where(eq(staff.id, id)).returning();
-    return updated;
+    const updated = await StaffModel.findByIdAndUpdate(id, updates, { new: true });
+    return updated ? updated.toObject() : undefined;
   }
 
   async deleteStaffMember(id: string): Promise<boolean> {
-    const result = await db.delete(staff).where(eq(staff.id, id));
-    return result.changes > 0;
+    const result = await StaffModel.findByIdAndDelete(id);
+    return result !== null;
   }
 }
 

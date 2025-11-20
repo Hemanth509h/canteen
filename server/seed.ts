@@ -1,12 +1,15 @@
-import { db } from "./db";
-import { foodItems, companyInfo } from "@shared/schema";
+import { connectDB } from "./db";
+import { FoodItemModel, CompanyInfoModel } from "@shared/schema";
 import type { InsertFoodItem } from "@shared/schema";
 
 async function seed() {
+  console.log("Connecting to MongoDB...");
+  await connectDB();
+  
   console.log("Seeding database...");
   
   // Check if food items already exist
-  const existingFoodItems = await db.select().from(foodItems);
+  const existingFoodItems = await FoodItemModel.find();
   
   if (existingFoodItems.length > 0) {
     console.log(`Database already has ${existingFoodItems.length} food items. Skipping seed to preserve data.`);
@@ -17,11 +20,11 @@ async function seed() {
   console.log("No food items found. Adding Telangana menu...");
   
   // Check if company info already exists
-  const existing = await db.select().from(companyInfo).limit(1);
+  const existing = await CompanyInfoModel.findOne();
   
-  if (existing.length === 0) {
+  if (!existing) {
     // Insert default company info
-    await db.insert(companyInfo).values({
+    await CompanyInfoModel.create({
       companyName: "Ravi canteen",
       tagline: "Exceptional Food for Unforgettable Events",
       description: "We specialize in creating memorable culinary experiences for weddings, corporate events, and special occasions. Our team of expert chefs uses only the finest ingredients to craft dishes that delight your guests.",
@@ -94,10 +97,10 @@ async function seed() {
     { name: "Cut Mirchi", description: "Stuffed chilli fritters", category: "appetizer", imageUrl: null },
   ];
 
-  await db.insert(foodItems).values(telanganaFoodItems);
+  await FoodItemModel.insertMany(telanganaFoodItems);
 
-  const count = await db.select().from(foodItems);
-  console.log(`✓ Added ${count.length} Telangana food items to database`);
+  const count = await FoodItemModel.countDocuments();
+  console.log(`✓ Added ${count} Telangana food items to database`);
   
   console.log("Database seeded successfully");
   process.exit(0);
