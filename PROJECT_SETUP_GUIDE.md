@@ -2,51 +2,71 @@
 
 ## 📋 Table of Contents
 1. [Project Overview](#project-overview)
-2. [Technology Stack](#technology-stack)
-3. [Project Structure](#project-structure)
-4. [File-by-File Explanation](#file-by-file-explanation)
-5. [How the Application Works](#how-the-application-works)
-6. [Setup Instructions](#setup-instructions)
-7. [Development Workflow](#development-workflow)
+2. [Prerequisites](#prerequisites)
+3. [Initial Setup](#initial-setup)
+4. [PHASE 1: Frontend Development](#phase-1-frontend-development)
+5. [PHASE 2: Backend Development](#phase-2-backend-development)
+6. [PHASE 3: Database Setup](#phase-3-database-setup)
+7. [Testing & Running](#testing--running)
 8. [Deployment](#deployment)
-9. [Customization Guide](#customization-guide)
 
 ---
 
 ## Project Overview
 
 ### What We're Building
-A full-stack catering management application with:
-- **Customer-facing website**: Browse menu, view company info
-- **Admin panel**: Manage food items, bookings, staff, company settings
-- **Chef printout**: Daily preparation sheets for kitchen staff
+A full-stack catering management application with three main parts:
+
+1. **Customer Website** - Public-facing site where customers can:
+   - Browse the food menu with images
+   - Filter by categories (appetizers, mains, desserts, beverages)
+   - View company information and contact details
+
+2. **Admin Panel** - Protected dashboard for staff to:
+   - Manage food items (add, edit, delete menu items)
+   - Handle event bookings and reservations
+   - Manage staff members
+   - Update company settings
+   - Generate chef printouts for kitchen prep
+
+3. **Chef Printout** - Special view for kitchen staff showing:
+   - Daily food preparation requirements
+   - Quantities needed based on bookings
 
 ### Technology Stack
-- **Frontend**: React 18 + TypeScript + Vite
-- **Backend**: Express.js + TypeScript
-- **Database**: SQLite with Drizzle ORM
-- **UI Framework**: Radix UI + Tailwind CSS + shadcn/ui
-- **State Management**: TanStack Query (React Query)
-- **Form Handling**: React Hook Form + Zod validation
-- **Routing**: Wouter (lightweight client-side routing)
-- **Authentication**: Simple bcrypt-based password hashing
+
+**Frontend:**
+- React 18 - UI library for building components
+- TypeScript - Type-safe JavaScript
+- Vite - Fast build tool and dev server
+- Tailwind CSS - Utility-first CSS framework
+- shadcn/ui - Pre-built accessible components
+- TanStack Query - Server state management
+- Wouter - Lightweight routing
+
+**Backend:**
+- Express.js - Web server framework
+- TypeScript - Type safety on the server
+- Drizzle ORM - Type-safe database queries
+
+**Database:**
+- SQLite - Lightweight file-based database
+- Drizzle Kit - Database migrations
 
 ---
 
 ## Prerequisites
 
-### Required Knowledge
-- JavaScript/TypeScript fundamentals
-- React basics (components, hooks, state)
-- Basic Node.js and Express.js
-- SQL basics
-- Command line/terminal usage
+### Required Software
+- **Node.js** version 20 or higher
+- **npm** (comes with Node.js)
+- **Code editor** (VS Code recommended)
 
-### Software Requirements
-- **Node.js**: Version 20+ (check with `node --version`)
-- **npm**: Version 10+ (comes with Node.js)
-- **Git**: For version control
-- **Code Editor**: VS Code (recommended) or any text editor
+### Required Knowledge
+- Basic JavaScript/TypeScript
+- Basic React (components, hooks)
+- Basic HTML/CSS
+- Command line basics
 
 ---
 
@@ -55,9 +75,11 @@ A full-stack catering management application with:
 ### Step 1: Create Project Directory
 
 ```bash
-mkdir premium-catering
-cd premium-catering
+mkdir ravi-canteen
+cd ravi-canteen
 ```
+
+**What this does:** Creates a new folder for your project and navigates into it.
 
 ### Step 2: Initialize Node.js Project
 
@@ -65,34 +87,36 @@ cd premium-catering
 npm init -y
 ```
 
-This creates `package.json` with default settings.
+**What this does:** Creates a `package.json` file that tracks your project dependencies and scripts.
 
 ### Step 3: Set Module Type
 
-Edit `package.json` and add:
+Open `package.json` and add this line:
 
 ```json
 {
-  "type": "module"
+  "name": "ravi-canteen",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {}
 }
 ```
 
-This allows you to use ES6 import/export syntax.
+**Explanation:** The `"type": "module"` tells Node.js to use modern ES6 import/export syntax instead of old require() syntax.
 
-### Step 4: Install Core Dependencies
+### Step 4: Install All Dependencies
 
 ```bash
-# Backend dependencies
-npm install express drizzle-orm better-sqlite3 bcryptjs zod drizzle-zod
-npm install express-session memorystore passport passport-local ws
-
-# Frontend dependencies  
+# Frontend dependencies
 npm install react react-dom wouter @tanstack/react-query
 npm install class-variance-authority clsx tailwind-merge
 npm install lucide-react react-icons react-hook-form @hookform/resolvers
-npm install date-fns framer-motion
+npm install date-fns framer-motion next-themes cmdk vaul
+npm install embla-carousel-react react-day-picker input-otp
+npm install react-resizable-panels recharts
 
-# Radix UI components (for accessible UI primitives)
+# Radix UI components (headless accessible components)
 npm install @radix-ui/react-accordion @radix-ui/react-alert-dialog
 npm install @radix-ui/react-aspect-ratio @radix-ui/react-avatar
 npm install @radix-ui/react-checkbox @radix-ui/react-collapsible
@@ -108,226 +132,874 @@ npm install @radix-ui/react-tabs @radix-ui/react-toast
 npm install @radix-ui/react-toggle @radix-ui/react-toggle-group
 npm install @radix-ui/react-tooltip
 
-# Shadcn specific
-npm install next-themes cmdk vaul embla-carousel-react
-npm install react-day-picker input-otp react-resizable-panels
-npm install recharts tw-animate-css tailwindcss-animate
-```
+# Backend dependencies
+npm install express drizzle-orm better-sqlite3 bcryptjs zod drizzle-zod
+npm install express-session memorystore passport passport-local ws
 
-### Step 5: Install Development Dependencies
-
-```bash
-# TypeScript and type definitions
+# Development tools
 npm install -D typescript @types/node @types/react @types/react-dom
 npm install -D @types/express @types/express-session @types/bcryptjs
 npm install -D @types/passport @types/passport-local @types/ws
-npm install -D @types/better-sqlite3
-
-# Build tools
-npm install -D vite @vitejs/plugin-react esbuild tsx
-
-# Tailwind CSS
-npm install -D tailwindcss postcss autoprefixer
-npm install -D @tailwindcss/typography @tailwindcss/vite
-
-# Database tools
-npm install -D drizzle-kit
-
-# Replit plugins (optional - for Replit environment)
-npm install -D @replit/vite-plugin-cartographer
-npm install -D @replit/vite-plugin-dev-banner
-npm install -D @replit/vite-plugin-runtime-error-modal
-
-# Cross-platform compatibility
-npm install -D cross-env
+npm install -D @types/better-sqlite3 vite @vitejs/plugin-react esbuild tsx
+npm install -D tailwindcss postcss autoprefixer @tailwindcss/typography
+npm install -D @tailwindcss/vite drizzle-kit cross-env
+npm install -D tw-animate-css tailwindcss-animate
 ```
 
-### Step 6: Create Project Structure
+**What this does:** Installs all the packages your project needs.
+
+### Step 5: Create Project Structure
 
 ```bash
-# Create directories
-mkdir -p client/src/{components/ui,pages,lib,hooks}
+mkdir -p client/src/components/ui
+mkdir -p client/src/pages
+mkdir -p client/src/lib
+mkdir -p client/src/hooks
 mkdir -p server
 mkdir -p shared
 mkdir -p attached_assets
 ```
 
-Your structure should look like:
+**Final structure:**
 ```
-premium-catering/
+ravi-canteen/
 ├── client/
-│   └── src/
-│       ├── components/
-│       │   └── ui/          # Shadcn UI components
-│       ├── pages/           # Page components
-│       ├── lib/             # Utilities
-│       └── hooks/           # Custom hooks
-├── server/                  # Backend code
-├── shared/                  # Shared types/schemas
-├── attached_assets/         # Static assets
+│   ├── src/
+│   │   ├── components/ui/    # Reusable UI components
+│   │   ├── pages/            # Page components
+│   │   ├── lib/              # Utility functions
+│   │   └── hooks/            # Custom React hooks
+│   └── index.html            # HTML entry point
+├── server/                   # Backend code
+├── shared/                   # Code shared between frontend/backend
+├── attached_assets/          # Images and static files
 └── package.json
 ```
 
 ---
 
-## Database Schema Design
+## PHASE 1: Frontend Development
 
-### Step 1: Create Schema File
+We'll build the frontend first so you can see the UI immediately.
 
-Create `shared/schema.ts`:
+### Step 1: Configure Tailwind CSS
 
-```typescript
-import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-
-// Helper function to generate IDs
-function generateId() {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15);
-}
-
-// Food Items Table
-export const foodItems = sqliteTable("food_items", {
-  id: text("id").primaryKey().$defaultFn(() => generateId()),
-  name: text("name").notNull(),
-  description: text("description").notNull(),
-  category: text("category").notNull(), // appetizer, main, dessert, beverage
-  imageUrl: text("image_url"),
-});
-
-// Event Bookings Table
-export const eventBookings = sqliteTable("event_bookings", {
-  id: text("id").primaryKey().$defaultFn(() => generateId()),
-  clientName: text("client_name").notNull(),
-  eventDate: text("event_date").notNull(),
-  eventType: text("event_type").notNull(),
-  guestCount: integer("guest_count").notNull(),
-  pricePerPlate: integer("price_per_plate").notNull(),
-  servingBoysNeeded: integer("serving_boys_needed").notNull().default(2),
-  status: text("status").notNull().default("pending"),
-  contactEmail: text("contact_email").notNull(),
-  contactPhone: text("contact_phone").notNull(),
-  specialRequests: text("special_requests"),
-  createdAt: text("created_at").notNull().default(sql\`CURRENT_TIMESTAMP\`),
-});
-
-// Booking Items (many-to-many relationship)
-export const bookingItems = sqliteTable("booking_items", {
-  id: text("id").primaryKey().$defaultFn(() => generateId()),
-  bookingId: text("booking_id").notNull()
-    .references(() => eventBookings.id, { onDelete: 'cascade' }),
-  foodItemId: text("food_item_id").notNull()
-    .references(() => foodItems.id, { onDelete: 'cascade' }),
-  quantity: integer("quantity").notNull().default(1),
-  createdAt: text("created_at").notNull().default(sql\`CURRENT_TIMESTAMP\`),
-});
-
-// Company Info Table
-export const companyInfo = sqliteTable("company_info", {
-  id: text("id").primaryKey().$defaultFn(() => generateId()),
-  companyName: text("company_name").notNull(),
-  tagline: text("tagline").notNull(),
-  description: text("description").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone").notNull(),
-  address: text("address").notNull(),
-  eventsPerYear: integer("events_per_year").notNull().default(500),
-});
-
-// Staff Table
-export const staff = sqliteTable("staff", {
-  id: text("id").primaryKey().$defaultFn(() => generateId()),
-  name: text("name").notNull(),
-  role: text("role").notNull(), // chef, worker, serving_boy
-  phone: text("phone").notNull(),
-  experience: text("experience").notNull(),
-  imageUrl: text("image_url"),
-  salary: integer("salary").notNull(),
-  createdAt: text("created_at").notNull().default(sql\`CURRENT_TIMESTAMP\`),
-});
-
-// Zod schemas for validation
-export const insertFoodItemSchema = createInsertSchema(foodItems).omit({ id: true });
-export const insertEventBookingSchema = createInsertSchema(eventBookings).omit({
-  id: true,
-  createdAt: true,
-  status: true,
-});
-export const updateEventBookingSchema = createInsertSchema(eventBookings)
-  .omit({ id: true, createdAt: true }).partial();
-export const insertBookingItemSchema = createInsertSchema(bookingItems).omit({
-  id: true,
-  createdAt: true,
-});
-export const insertCompanyInfoSchema = createInsertSchema(companyInfo).omit({ id: true });
-export const insertStaffSchema = createInsertSchema(staff).omit({
-  id: true,
-  createdAt: true,
-});
-export const updateStaffSchema = createInsertSchema(staff)
-  .omit({ id: true, createdAt: true }).partial();
-
-// Type exports
-export type FoodItem = typeof foodItems.$inferSelect;
-export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
-export type EventBooking = typeof eventBookings.$inferSelect;
-export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;
-export type UpdateEventBooking = z.infer<typeof updateEventBookingSchema>;
-export type BookingItem = typeof bookingItems.$inferSelect;
-export type InsertBookingItem = z.infer<typeof insertBookingItemSchema>;
-export type CompanyInfo = typeof companyInfo.$inferSelect;
-export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
-export type Staff = typeof staff.$inferSelect;
-export type InsertStaff = z.infer<typeof insertStaffSchema>;
-export type UpdateStaff = z.infer<typeof updateStaffSchema>;
-```
-
-### Step 2: Configure Drizzle
-
-Create `drizzle.config.ts`:
+#### Create `tailwind.config.ts`
 
 ```typescript
-import type { Config } from "drizzle-kit";
+import type { Config } from "tailwindcss";
 
 export default {
-  schema: "./shared/schema.ts",
-  out: "./drizzle",
-  driver: "better-sqlite3",
-  dbCredentials: {
-    url: "./sqlite.db",
+  darkMode: ["class"],
+  content: [
+    "./client/index.html",
+    "./client/src/**/*.{ts,tsx}",
+  ],
+  theme: {
+    extend: {
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      colors: {
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        chart: {
+          "1": "hsl(var(--chart-1))",
+          "2": "hsl(var(--chart-2))",
+          "3": "hsl(var(--chart-3))",
+          "4": "hsl(var(--chart-4))",
+          "5": "hsl(var(--chart-5))",
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar-background))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
+        },
+      },
+    },
   },
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
 ```
 
-### Step 3: Add Database Scripts
+**Explanation:**
+- `darkMode: ["class"]` - Dark mode toggles by adding a "dark" class to HTML
+- `content` - Tells Tailwind which files to scan for CSS classes
+- `theme.extend.colors` - Defines color variables that can be customized
+- Uses CSS variables like `var(--background)` so colors can change with themes
 
-Add to `package.json`:
+#### Create `postcss.config.js`
 
-```json
-{
-  "scripts": {
-    "db:push": "drizzle-kit push"
-  }
+```javascript
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
+
+**Explanation:** Configures PostCSS to process Tailwind CSS and add browser prefixes automatically.
+
+#### Create `client/src/index.css`
+
+```css
+@import "tailwindcss";
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --primary: 24 9.8% 10%;
+  --primary-foreground: 60 9.1% 97.8%;
+  --secondary: 60 4.8% 95.9%;
+  --secondary-foreground: 24 9.8% 10%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --accent: 60 4.8% 95.9%;
+  --accent-foreground: 24 9.8% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --ring: 20 14.3% 4.1%;
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+  --radius: 0.5rem;
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+.dark {
+  --background: 20 14.3% 4.1%;
+  --foreground: 60 9.1% 97.8%;
+  --card: 20 14.3% 4.1%;
+  --card-foreground: 60 9.1% 97.8%;
+  --popover: 20 14.3% 4.1%;
+  --popover-foreground: 60 9.1% 97.8%;
+  --primary: 60 9.1% 97.8%;
+  --primary-foreground: 24 9.8% 10%;
+  --secondary: 12 6.5% 15.1%;
+  --secondary-foreground: 60 9.1% 97.8%;
+  --muted: 12 6.5% 15.1%;
+  --muted-foreground: 24 5.4% 63.9%;
+  --accent: 12 6.5% 15.1%;
+  --accent-foreground: 60 9.1% 97.8%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --border: 12 6.5% 15.1%;
+  --input: 12 6.5% 15.1%;
+  --ring: 24 5.7% 82.9%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+.hover-elevate {
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.hover-elevate:hover {
+  filter: brightness(0.95);
+}
+.dark .hover-elevate:hover {
+  filter: brightness(1.1);
+}
+
+.active-elevate-2:active {
+  filter: brightness(0.9);
+}
+.dark .active-elevate-2:active {
+  filter: brightness(1.2);
 }
 ```
 
-### Step 4: Push Schema to Database
+**Explanation:**
+- `:root` - Light mode colors defined as HSL values (Hue, Saturation, Lightness)
+- `.dark` - Dark mode colors that override light mode when dark class is active
+- Custom utility classes like `.hover-elevate` for interactive hover effects
+- Values are in HSL format without the `hsl()` wrapper because Tailwind adds that
 
-```bash
-npm run db:push
+### Step 2: Create Utility Functions
+
+#### Create `client/src/lib/utils.ts`
+
+```typescript
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 ```
 
-This creates `sqlite.db` with all your tables.
+**Explanation:**
+- `cn()` - Utility function to merge CSS class names
+- `clsx` - Conditionally joins class names together
+- `twMerge` - Merges Tailwind classes intelligently (removes conflicts)
+- Example: `cn("px-2 py-1", condition && "bg-blue-500")` safely combines classes
+
+### Step 3: Create shadcn/ui Components
+
+You'll need to create many UI components. Here are the most important ones:
+
+#### Create `client/src/components/ui/button.tsx`
+
+```typescript
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover-elevate active-elevate-2",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground",
+        destructive: "bg-destructive text-destructive-foreground",
+        outline: "border border-input bg-background",
+        secondary: "bg-secondary text-secondary-foreground",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "min-h-9 px-4 py-2",
+        sm: "min-h-8 rounded-md px-3 text-xs",
+        lg: "min-h-10 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
+Button.displayName = "Button";
+
+export { Button, buttonVariants };
+```
+
+**Explanation:**
+- `cva` - Creates variant classes for different button styles
+- `variants.variant` - Different color schemes (default, destructive, outline, etc.)
+- `variants.size` - Different sizes (default, sm, lg, icon)
+- `asChild` - If true, renders child element instead of button (useful for links)
+- `hover-elevate` and `active-elevate-2` - Custom hover/active effects from our CSS
+
+#### Create `client/src/components/ui/card.tsx`
+
+```typescript
+import * as React from "react";
+import { cn } from "@/lib/utils";
+
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-md border bg-card text-card-foreground shadow-sm",
+      className
+    )}
+    {...props}
+  />
+));
+Card.displayName = "Card";
+
+const CardHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col gap-2 p-6", className)}
+    {...props}
+  />
+));
+CardHeader.displayName = "CardHeader";
+
+const CardTitle = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-2xl font-semibold leading-none tracking-tight", className)}
+    {...props}
+  />
+));
+CardTitle.displayName = "CardTitle";
+
+const CardDescription = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+));
+CardDescription.displayName = "CardDescription";
+
+const CardContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+));
+CardContent.displayName = "CardContent";
+
+const CardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+));
+CardFooter.displayName = "CardFooter";
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };
+```
+
+**Explanation:**
+- `Card` - Main container with rounded corners, border, and shadow
+- `CardHeader` - Top section with padding
+- `CardTitle` - Large bold text for card title
+- `CardDescription` - Smaller muted text for descriptions
+- `CardContent` - Main content area
+- `CardFooter` - Bottom section for actions
+- All use `forwardRef` to allow parent components to access the DOM elements
+
+**Note:** You'll need to create many more components (Input, Form, Dialog, Toast, etc.). For brevity, I'm showing the key ones. You can find all shadcn/ui components at https://ui.shadcn.com/ or copy them from the existing project.
+
+### Step 4: Setup React Query
+
+#### Create `client/src/lib/queryClient.ts`
+
+```typescript
+import { QueryClient } from "@tanstack/react-query";
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: async ({ queryKey }) => {
+        const response = await fetch(queryKey[0] as string);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      },
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+    },
+  },
+});
+
+export async function apiRequest(
+  method: string,
+  url: string,
+  data?: any
+): Promise<Response> {
+  const response = await fetch(url, {
+    method,
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `API request failed: ${response.statusText}`);
+  }
+
+  return response;
+}
+```
+
+**Explanation:**
+- `QueryClient` - Manages all data fetching and caching
+- `queryFn` - Default function that fetches data from API endpoints
+- `queryKey[0]` - Uses first element of query key as URL (e.g., "/api/food-items")
+- `staleTime` - Data stays fresh for 5 minutes before refetching
+- `retry: 1` - Only retry failed requests once
+- `apiRequest()` - Helper function for POST/PUT/DELETE requests
+- `credentials: "include"` - Sends cookies with requests (for authentication)
+
+### Step 5: Create Customer Homepage
+
+#### Create `client/src/pages/customer-home.tsx`
+
+```typescript
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { FoodItem, CompanyInfo } from "@shared/schema";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+export default function CustomerHome() {
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+
+  const { data: foodItems, isLoading: itemsLoading } = useQuery<FoodItem[]>({
+    queryKey: ["/api/food-items"],
+  });
+
+  const { data: companyInfo, isLoading: companyLoading } = useQuery<CompanyInfo>({
+    queryKey: ["/api/company-info"],
+  });
+
+  const filteredItems = selectedCategory === "All"
+    ? foodItems
+    : foodItems?.filter(item => item.category === selectedCategory);
+
+  const categories = [
+    { value: "All", label: "All" },
+    { value: "appetizer", label: "Appetizers" },
+    { value: "main", label: "Main Courses" },
+    { value: "dessert", label: "Desserts" },
+    { value: "beverage", label: "Beverages" },
+  ];
+
+  if (itemsLoading || companyLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section
+        className="relative h-[500px] bg-cover bg-center flex items-center justify-center"
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1555244162-803834f70033?w=1600")',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 text-center text-white px-4">
+          <h1 className="text-5xl font-bold mb-4" data-testid="text-company-name">
+            {companyInfo?.companyName || "Ravi canteen"}
+          </h1>
+          <p className="text-xl mb-8" data-testid="text-tagline">
+            {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
+          </p>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Button size="lg" data-testid="button-view-menu">
+              View Our Menu
+            </Button>
+            <Button variant="outline" size="lg" data-testid="button-events">
+              Catering {companyInfo?.eventsPerYear || 500}+ Events Annually
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Category Filter */}
+      <section className="py-8 bg-muted/50">
+        <div className="container mx-auto px-4">
+          <div className="flex gap-2 justify-center flex-wrap">
+            {categories.map((cat) => (
+              <Button
+                key={cat.value}
+                variant={selectedCategory === cat.value ? "default" : "outline"}
+                onClick={() => setSelectedCategory(cat.value)}
+                data-testid={`button-category-${cat.value.toLowerCase()}`}
+              >
+                {cat.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Menu Grid */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Our Menu</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredItems?.map((item) => (
+              <Card key={item.id} className="overflow-hidden" data-testid={`card-food-${item.id}`}>
+                <div className="aspect-video relative bg-muted">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      No image
+                    </div>
+                  )}
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-lg" data-testid={`text-food-name-${item.id}`}>
+                    {item.name}
+                  </CardTitle>
+                  <CardDescription data-testid={`text-food-description-${item.id}`}>
+                    {item.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+          {(!filteredItems || filteredItems.length === 0) && (
+            <p className="text-center text-muted-foreground">
+              No items found in this category.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-muted py-12 border-t">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4">About Us</h3>
+              <p className="text-muted-foreground">
+                {companyInfo?.description || "Professional catering services for all events"}
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Contact</h3>
+              <p className="text-muted-foreground">
+                Email: {companyInfo?.email || "info@ravikanteen.com"}
+              </p>
+              <p className="text-muted-foreground">
+                Phone: {companyInfo?.phone || "+1 234 567 890"}
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Location</h3>
+              <p className="text-muted-foreground">
+                {companyInfo?.address || "123 Main St, City, State"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+```
+
+**Explanation:**
+- `useState` - Tracks which category filter is selected
+- `useQuery` - Fetches food items and company info from API
+- `filteredItems` - Filters menu items based on selected category
+- Hero section uses background image with dark overlay for text readability
+- Category buttons change appearance when selected
+- Grid layout displays food items as cards
+- `data-testid` attributes make it easy to test later
+- Footer shows company contact information
+
+### Step 6: Create Main App Component
+
+#### Create `client/src/App.tsx`
+
+```typescript
+import { Switch, Route } from "wouter";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import CustomerHome from "@/pages/customer-home";
+import NotFound from "@/pages/not-found";
+
+function Router() {
+  return (
+    <Switch>
+      <Route path="/" component={CustomerHome} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Router />
+        <Toaster />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+```
+
+**Explanation:**
+- `QueryClientProvider` - Provides React Query to all child components
+- `TooltipProvider` - Enables tooltips throughout the app
+- `Router` - Defines URL routes and which component to show
+- `Switch` - Renders only the first matching route
+- `Toaster` - Shows toast notifications (success/error messages)
+- `NotFound` - Catch-all route for unknown URLs
+
+#### Create `client/src/pages/not-found.tsx`
+
+```typescript
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+
+export default function NotFound() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+      <h1 className="text-4xl font-bold">404 - Page Not Found</h1>
+      <p className="text-muted-foreground">The page you're looking for doesn't exist.</p>
+      <Link href="/">
+        <Button>Go Home</Button>
+      </Link>
+    </div>
+  );
+}
+```
+
+### Step 7: Create HTML Entry Point
+
+#### Create `client/index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ravi Canteen - Premium Catering Services</title>
+    <meta name="description" content="Professional catering services for all your events. Browse our menu and book your event today.">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+```
+
+**Explanation:**
+- `viewport` meta tag makes site responsive on mobile
+- `description` meta helps with SEO (search engines)
+- `<div id="root">` is where React will render
+- Script tag loads our TypeScript/React code
+
+#### Create `client/src/main.tsx`
+
+```typescript
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
+```
+
+**Explanation:**
+- `createRoot` - Creates React root from DOM element
+- `StrictMode` - Enables extra development checks and warnings
+- `!` - TypeScript assertion that element exists (won't be null)
+- Imports our CSS styles which include Tailwind
 
 ---
 
-## Backend Development
+## PHASE 2: Backend Development
 
-### Step 1: Create Storage Interface
+Now we'll build the server to provide data to the frontend.
 
-Create `server/storage.ts`:
+### Step 1: Configure Vite for Development
+
+#### Create `vite.config.ts`
+
+```typescript
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "client", "src"),
+      "@shared": path.resolve(__dirname, "shared"),
+      "@assets": path.resolve(__dirname, "attached_assets"),
+    },
+  },
+  root: path.resolve(__dirname, "client"),
+  build: {
+    outDir: path.resolve(__dirname, "dist", "public"),
+    emptyOutDir: true,
+  },
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+  },
+});
+```
+
+**Explanation:**
+- `plugins: [react()]` - Enables React JSX transformation
+- `alias` - Allows importing with `@/` instead of `../../`
+  - `@/components/ui/button` instead of `../../../components/ui/button`
+- `root` - Sets client folder as root for Vite
+- `build.outDir` - Where production files go
+- `server.host: "0.0.0.0"` - Makes dev server accessible from any IP (required for Replit)
+- `server.port: 5173` - Vite dev server port (internal)
+
+#### Create `server/vite.ts`
+
+```typescript
+import type { Express } from "express";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export function log(message: string) {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+  console.log(`${formattedTime} [express] ${message}`);
+}
+
+export async function setupVite(app: Express) {
+  const vite = await import("vite");
+  const viteDevServer = await vite.createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  app.use(viteDevServer.middlewares);
+  app.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+    try {
+      const clientPath = path.resolve(__dirname, "..", "client");
+      const template = fs.readFileSync(
+        path.resolve(clientPath, "index.html"),
+        "utf-8"
+      );
+      const html = await viteDevServer.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+    } catch (e) {
+      viteDevServer.ssrFixStacktrace(e as Error);
+      next(e);
+    }
+  });
+}
+
+export function serveStatic(app: Express) {
+  const distPath = path.resolve(__dirname, "..", "dist", "public");
+  app.use(express.static(distPath));
+  app.use("*", (req, res) => {
+    res.sendFile(path.resolve(distPath, "index.html"));
+  });
+}
+```
+
+**Explanation:**
+- `setupVite()` - Development mode: runs Vite dev server with hot reload
+- `viteDevServer.middlewares` - Handles React app requests
+- `transformIndexHtml()` - Injects Vite scripts into HTML
+- `serveStatic()` - Production mode: serves pre-built files
+- `app.use("*")` - Catch-all route sends index.html (for client-side routing)
+
+### Step 2: Create Storage Interface
+
+#### Create `server/storage.ts`
 
 ```typescript
 import type {
@@ -339,20 +1011,20 @@ import type {
 } from "@shared/schema";
 
 export interface IStorage {
-  // Food Items
+  // Food Items CRUD
   getAllFoodItems(): Promise<FoodItem[]>;
   createFoodItem(data: InsertFoodItem): Promise<FoodItem>;
   updateFoodItem(id: string, data: Partial<InsertFoodItem>): Promise<FoodItem | null>;
   deleteFoodItem(id: string): Promise<boolean>;
 
-  // Event Bookings
+  // Event Bookings CRUD
   getAllBookings(): Promise<EventBooking[]>;
   getBookingById(id: string): Promise<EventBooking | null>;
   createBooking(data: InsertEventBooking): Promise<EventBooking>;
   updateBooking(id: string, data: UpdateEventBooking): Promise<EventBooking | null>;
   deleteBooking(id: string): Promise<boolean>;
 
-  // Booking Items
+  // Booking Items (menu items for each booking)
   getBookingItems(bookingId: string): Promise<BookingItem[]>;
   addBookingItems(items: InsertBookingItem[]): Promise<void>;
   deleteBookingItems(bookingId: string): Promise<void>;
@@ -361,7 +1033,7 @@ export interface IStorage {
   getCompanyInfo(): Promise<CompanyInfo | null>;
   updateCompanyInfo(data: InsertCompanyInfo): Promise<CompanyInfo>;
 
-  // Staff
+  // Staff Management
   getAllStaff(): Promise<Staff[]>;
   createStaff(data: InsertStaff): Promise<Staff>;
   updateStaff(id: string, data: UpdateStaff): Promise<Staff | null>;
@@ -369,52 +1041,294 @@ export interface IStorage {
 }
 ```
 
-### Step 2: Implement Database Storage
+**Explanation:**
+- `IStorage` - Interface (contract) that defines all database operations
+- This allows swapping between different storage implementations (SQLite, PostgreSQL, MongoDB)
+- All methods are async (return Promises) because database operations take time
+- CRUD = Create, Read, Update, Delete
+- Type imports from `@shared/schema` ensure frontend and backend use same types
 
-Create `server/db.ts`:
+### Step 3: Create API Routes
 
-```typescript
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import * as schema from "@shared/schema";
-
-const sqlite = new Database("sqlite.db");
-export const db = drizzle(sqlite, { schema });
-```
-
-Create `server/storage-db.ts` (implementation of IStorage using Drizzle - refer to the actual file in your project for full implementation).
-
-### Step 3: Create Express Routes
-
-Create `server/routes.ts`:
+#### Create `server/routes.ts`
 
 ```typescript
 import express from "express";
 import type { IStorage } from "./storage";
+import {
+  insertFoodItemSchema,
+  insertEventBookingSchema,
+  updateEventBookingSchema,
+  insertBookingItemSchema,
+  insertCompanyInfoSchema,
+  insertStaffSchema,
+  updateStaffSchema,
+} from "@shared/schema";
 
 export function createRouter(storage: IStorage) {
   const router = express.Router();
 
-  // Food Items Routes
+  // ============================================
+  // FOOD ITEMS ROUTES
+  // ============================================
+
+  // GET /api/food-items - Get all menu items
   router.get("/food-items", async (req, res) => {
-    const items = await storage.getAllFoodItems();
-    res.json(items);
+    try {
+      const items = await storage.getAllFoodItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching food items:", error);
+      res.status(500).json({ error: "Failed to fetch food items" });
+    }
   });
 
+  // POST /api/food-items - Create new menu item
   router.post("/food-items", async (req, res) => {
-    const item = await storage.createFoodItem(req.body);
-    res.json(item);
+    try {
+      const validatedData = insertFoodItemSchema.parse(req.body);
+      const item = await storage.createFoodItem(validatedData);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Error creating food item:", error);
+      res.status(400).json({ error: "Invalid food item data" });
+    }
   });
 
-  // ... more routes (see actual routes.ts for complete implementation)
+  // PUT /api/food-items/:id - Update menu item
+  router.put("/food-items/:id", async (req, res) => {
+    try {
+      const validatedData = insertFoodItemSchema.partial().parse(req.body);
+      const item = await storage.updateFoodItem(req.params.id, validatedData);
+      if (!item) {
+        return res.status(404).json({ error: "Food item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Error updating food item:", error);
+      res.status(400).json({ error: "Invalid food item data" });
+    }
+  });
+
+  // DELETE /api/food-items/:id - Delete menu item
+  router.delete("/food-items/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteFoodItem(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Food item not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting food item:", error);
+      res.status(500).json({ error: "Failed to delete food item" });
+    }
+  });
+
+  // ============================================
+  // EVENT BOOKINGS ROUTES
+  // ============================================
+
+  // GET /api/bookings - Get all bookings
+  router.get("/bookings", async (req, res) => {
+    try {
+      const bookings = await storage.getAllBookings();
+      res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ error: "Failed to fetch bookings" });
+    }
+  });
+
+  // GET /api/bookings/:id - Get single booking
+  router.get("/bookings/:id", async (req, res) => {
+    try {
+      const booking = await storage.getBookingById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      res.json(booking);
+    } catch (error) {
+      console.error("Error fetching booking:", error);
+      res.status(500).json({ error: "Failed to fetch booking" });
+    }
+  });
+
+  // POST /api/bookings - Create new booking
+  router.post("/bookings", async (req, res) => {
+    try {
+      const validatedData = insertEventBookingSchema.parse(req.body);
+      const booking = await storage.createBooking(validatedData);
+      res.status(201).json(booking);
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      res.status(400).json({ error: "Invalid booking data" });
+    }
+  });
+
+  // PUT /api/bookings/:id - Update booking
+  router.put("/bookings/:id", async (req, res) => {
+    try {
+      const validatedData = updateEventBookingSchema.parse(req.body);
+      const booking = await storage.updateBooking(req.params.id, validatedData);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      res.json(booking);
+    } catch (error) {
+      console.error("Error updating booking:", error);
+      res.status(400).json({ error: "Invalid booking data" });
+    }
+  });
+
+  // DELETE /api/bookings/:id - Delete booking
+  router.delete("/bookings/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteBooking(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      res.status(500).json({ error: "Failed to delete booking" });
+    }
+  });
+
+  // ============================================
+  // BOOKING ITEMS ROUTES
+  // ============================================
+
+  // GET /api/bookings/:id/items - Get menu items for a booking
+  router.get("/bookings/:id/items", async (req, res) => {
+    try {
+      const items = await storage.getBookingItems(req.params.id);
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching booking items:", error);
+      res.status(500).json({ error: "Failed to fetch booking items" });
+    }
+  });
+
+  // POST /api/bookings/:id/items - Add menu items to booking
+  router.post("/bookings/:id/items", async (req, res) => {
+    try {
+      const items = req.body.items.map((item: any) =>
+        insertBookingItemSchema.parse({ ...item, bookingId: req.params.id })
+      );
+      await storage.addBookingItems(items);
+      res.status(201).json({ success: true });
+    } catch (error) {
+      console.error("Error adding booking items:", error);
+      res.status(400).json({ error: "Invalid booking items data" });
+    }
+  });
+
+  // ============================================
+  // COMPANY INFO ROUTES
+  // ============================================
+
+  // GET /api/company-info - Get company information
+  router.get("/company-info", async (req, res) => {
+    try {
+      const info = await storage.getCompanyInfo();
+      res.json(info);
+    } catch (error) {
+      console.error("Error fetching company info:", error);
+      res.status(500).json({ error: "Failed to fetch company info" });
+    }
+  });
+
+  // PUT /api/company-info - Update company information
+  router.put("/company-info", async (req, res) => {
+    try {
+      const validatedData = insertCompanyInfoSchema.parse(req.body);
+      const info = await storage.updateCompanyInfo(validatedData);
+      res.json(info);
+    } catch (error) {
+      console.error("Error updating company info:", error);
+      res.status(400).json({ error: "Invalid company info data" });
+    }
+  });
+
+  // ============================================
+  // STAFF ROUTES
+  // ============================================
+
+  // GET /api/staff - Get all staff members
+  router.get("/staff", async (req, res) => {
+    try {
+      const staff = await storage.getAllStaff();
+      res.json(staff);
+    } catch (error) {
+      console.error("Error fetching staff:", error);
+      res.status(500).json({ error: "Failed to fetch staff" });
+    }
+  });
+
+  // POST /api/staff - Create new staff member
+  router.post("/staff", async (req, res) => {
+    try {
+      const validatedData = insertStaffSchema.parse(req.body);
+      const staff = await storage.createStaff(validatedData);
+      res.status(201).json(staff);
+    } catch (error) {
+      console.error("Error creating staff:", error);
+      res.status(400).json({ error: "Invalid staff data" });
+    }
+  });
+
+  // PUT /api/staff/:id - Update staff member
+  router.put("/staff/:id", async (req, res) => {
+    try {
+      const validatedData = updateStaffSchema.parse(req.body);
+      const staff = await storage.updateStaff(req.params.id, validatedData);
+      if (!staff) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.json(staff);
+    } catch (error) {
+      console.error("Error updating staff:", error);
+      res.status(400).json({ error: "Invalid staff data" });
+    }
+  });
+
+  // DELETE /api/staff/:id - Delete staff member
+  router.delete("/staff/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteStaff(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting staff:", error);
+      res.status(500).json({ error: "Failed to delete staff" });
+    }
+  });
 
   return router;
 }
 ```
 
+**Explanation:**
+- `express.Router()` - Creates modular route handlers
+- Each route uses `try/catch` for error handling
+- `.parse()` - Validates request data using Zod schemas
+- HTTP status codes:
+  - `200` - Success (default)
+  - `201` - Created (for POST requests)
+  - `204` - No content (for DELETE requests)
+  - `400` - Bad request (invalid data)
+  - `404` - Not found
+  - `500` - Server error
+- `req.params.id` - Gets ID from URL (e.g., /api/food-items/123)
+- `req.body` - Gets data sent in request
+- `res.json()` - Sends JSON response
+- Routes follow REST conventions (GET for read, POST for create, PUT for update, DELETE for delete)
+
 ### Step 4: Create Main Server File
 
-Create `server/index.ts`:
+#### Create `server/index.ts`
 
 ```typescript
 import express from "express";
@@ -432,7 +1346,7 @@ app.use(express.urlencoded({ extended: false }));
 const storage = new DatabaseStorage();
 app.use("/api", createRouter(storage));
 
-// Setup Vite or static serving based on environment
+// Setup frontend serving (Vite dev or static files)
 if (process.env.NODE_ENV === "development") {
   await setupVite(app);
 } else {
@@ -440,230 +1354,412 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.listen(PORT, "0.0.0.0", () => {
-  log(\`Server running on port \${PORT}\`);
+  log(`serving on port ${PORT}`);
 });
 ```
 
+**Explanation:**
+- `express()` - Creates Express application
+- `express.json()` - Parses JSON request bodies
+- `express.urlencoded()` - Parses form data
+- `app.use("/api", ...)` - Mounts API routes under /api prefix
+- `DatabaseStorage` - Will implement database operations (created in Phase 3)
+- Development mode: Uses Vite dev server with hot reload
+- Production mode: Serves pre-built static files
+- `"0.0.0.0"` - Listens on all network interfaces (required for Replit)
+- Port 5000 is the only port exposed to the internet
+
 ---
 
-## Frontend Development
+## PHASE 3: Database Setup
 
-### Step 1: Configure Tailwind CSS
+Now we'll create the database schema and implement storage.
 
-Create `tailwind.config.ts`:
+### Step 1: Create Shared Schema
+
+#### Create `shared/schema.ts`
 
 ```typescript
-import type { Config } from "tailwindcss";
+import { sql } from "drizzle-orm";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+// Helper function to generate random IDs
+function generateId() {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
+}
+
+// ============================================
+// FOOD ITEMS TABLE
+// ============================================
+export const foodItems = sqliteTable("food_items", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  imageUrl: text("image_url"),
+});
+
+// ============================================
+// EVENT BOOKINGS TABLE
+// ============================================
+export const eventBookings = sqliteTable("event_bookings", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
+  clientName: text("client_name").notNull(),
+  eventDate: text("event_date").notNull(),
+  eventType: text("event_type").notNull(),
+  guestCount: integer("guest_count").notNull(),
+  pricePerPlate: integer("price_per_plate").notNull(),
+  servingBoysNeeded: integer("serving_boys_needed").notNull().default(2),
+  status: text("status").notNull().default("pending"),
+  contactEmail: text("contact_email").notNull(),
+  contactPhone: text("contact_phone").notNull(),
+  specialRequests: text("special_requests"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// ============================================
+// BOOKING ITEMS TABLE (many-to-many)
+// ============================================
+export const bookingItems = sqliteTable("booking_items", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
+  bookingId: text("booking_id").notNull()
+    .references(() => eventBookings.id, { onDelete: 'cascade' }),
+  foodItemId: text("food_item_id").notNull()
+    .references(() => foodItems.id, { onDelete: 'cascade' }),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// ============================================
+// COMPANY INFO TABLE
+// ============================================
+export const companyInfo = sqliteTable("company_info", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
+  companyName: text("company_name").notNull(),
+  tagline: text("tagline").notNull(),
+  description: text("description").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  address: text("address").notNull(),
+  eventsPerYear: integer("events_per_year").notNull().default(500),
+});
+
+// ============================================
+// STAFF TABLE
+// ============================================
+export const staff = sqliteTable("staff", {
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  phone: text("phone").notNull(),
+  experience: text("experience").notNull(),
+  imageUrl: text("image_url"),
+  salary: integer("salary").notNull(),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// ============================================
+// ZOD SCHEMAS FOR VALIDATION
+// ============================================
+
+// Food Items
+export const insertFoodItemSchema = createInsertSchema(foodItems).omit({ id: true });
+export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
+export type FoodItem = typeof foodItems.$inferSelect;
+
+// Event Bookings
+export const insertEventBookingSchema = createInsertSchema(eventBookings).omit({
+  id: true,
+  createdAt: true,
+  status: true,
+});
+export const updateEventBookingSchema = createInsertSchema(eventBookings)
+  .omit({ id: true, createdAt: true }).partial();
+export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;
+export type UpdateEventBooking = z.infer<typeof updateEventBookingSchema>;
+export type EventBooking = typeof eventBookings.$inferSelect;
+
+// Booking Items
+export const insertBookingItemSchema = createInsertSchema(bookingItems).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertBookingItem = z.infer<typeof insertBookingItemSchema>;
+export type BookingItem = typeof bookingItems.$inferSelect;
+
+// Company Info
+export const insertCompanyInfoSchema = createInsertSchema(companyInfo).omit({ id: true });
+export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
+export type CompanyInfo = typeof companyInfo.$inferSelect;
+
+// Staff
+export const insertStaffSchema = createInsertSchema(staff).omit({
+  id: true,
+  createdAt: true,
+});
+export const updateStaffSchema = createInsertSchema(staff)
+  .omit({ id: true, createdAt: true }).partial();
+export type InsertStaff = z.infer<typeof insertStaffSchema>;
+export type UpdateStaff = z.infer<typeof updateStaffSchema>;
+export type Staff = typeof staff.$inferSelect;
+```
+
+**Explanation:**
+
+**Tables:**
+- `sqliteTable()` - Defines a database table
+- `text()` - Text column
+- `integer()` - Number column
+- `.primaryKey()` - Makes column unique identifier
+- `.notNull()` - Field is required
+- `.default()` - Default value if not provided
+- `.$defaultFn()` - Function to generate default value
+- `.references()` - Foreign key to another table
+- `onDelete: 'cascade'` - Deleting parent deletes children
+
+**Relationships:**
+- `foodItems` → Menu items (appetizers, mains, etc.)
+- `eventBookings` → Customer event reservations
+- `bookingItems` → Links bookings to menu items (many-to-many)
+  - One booking can have many food items
+  - One food item can be in many bookings
+- `companyInfo` → Business information (single row)
+- `staff` → Employees (chefs, workers, serving staff)
+
+**Validation:**
+- `createInsertSchema()` - Converts Drizzle table to Zod schema
+- `.omit()` - Removes fields (like auto-generated id)
+- `.partial()` - Makes all fields optional (for updates)
+- `z.infer<>` - Gets TypeScript type from Zod schema
+- `$inferSelect` - Gets TypeScript type from Drizzle table
+
+### Step 2: Configure Drizzle
+
+#### Create `drizzle.config.ts`
+
+```typescript
+import type { Config } from "drizzle-kit";
 
 export default {
-  darkMode: ["class"],
-  content: ["./client/index.html", "./client/src/**/*.{ts,tsx}"],
-  theme: {
-    extend: {
-      colors: {
-        border: "hsl(var(--border))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        // ... more color tokens
-      }
-    },
+  schema: "./shared/schema.ts",
+  out: "./drizzle",
+  dialect: "sqlite",
+  dbCredentials: {
+    url: "./sqlite.db",
   },
-  plugins: [],
 } satisfies Config;
 ```
 
-Create `client/src/index.css`:
+**Explanation:**
+- `schema` - Where your table definitions are
+- `out` - Where migration files go
+- `dialect` - Database type (SQLite, PostgreSQL, MySQL, etc.)
+- `dbCredentials.url` - Path to database file
+- `satisfies Config` - TypeScript checks configuration is valid
 
-```css
-@import "tailwindcss";
+### Step 3: Create Database Connection
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 20 14.3% 4.1%;
-  /* ... more CSS variables */
-}
-
-.dark {
-  --background: 20 14.3% 4.1%;
-  --foreground: 0 0% 95%;
-  /* ... dark mode variables */
-}
-```
-
-### Step 2: Setup Vite Configuration
-
-Create `vite.config.ts`:
+#### Create `server/db.ts`
 
 ```typescript
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
+import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import * as schema from "@shared/schema";
 
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
-    },
-  },
-  root: path.resolve(import.meta.dirname, "client"),
-  build: {
-    outDir: path.resolve(import.meta.dirname, "dist", "public"),
-    emptyOutDir: true,
-  },
-});
+const sqlite = new Database("sqlite.db");
+export const db = drizzle(sqlite, { schema });
 ```
 
-### Step 3: Create shadcn/ui Components
+**Explanation:**
+- `new Database()` - Opens/creates SQLite database file
+- `drizzle()` - Wraps database with Drizzle ORM
+- `{ schema }` - Provides table definitions to Drizzle
+- Exports `db` for use in storage implementation
 
-Install shadcn components using their CLI or manually create components in `client/src/components/ui/`.
+### Step 4: Implement Database Storage
 
-Key components to create:
-- `button.tsx`
-- `card.tsx`
-- `input.tsx`
-- `form.tsx`
-- `select.tsx`
-- `dialog.tsx`
-- `toast.tsx`
-- ... (see the actual project for all components)
-
-### Step 4: Setup TanStack Query
-
-Create `client/src/lib/queryClient.ts`:
+#### Create `server/storage-db.ts`
 
 ```typescript
-import { QueryClient } from "@tanstack/react-query";
+import { eq, and } from "drizzle-orm";
+import { db } from "./db";
+import {
+  foodItems, eventBookings, bookingItems, companyInfo, staff,
+  type FoodItem, type InsertFoodItem,
+  type EventBooking, type InsertEventBooking, type UpdateEventBooking,
+  type BookingItem, type InsertBookingItem,
+  type CompanyInfo, type InsertCompanyInfo,
+  type Staff, type InsertStaff, type UpdateStaff,
+} from "@shared/schema";
+import type { IStorage } from "./storage";
 
-export const queryClient = new QueryClient();
+export class DatabaseStorage implements IStorage {
+  // ============================================
+  // FOOD ITEMS
+  // ============================================
 
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: any
-): Promise<Response> {
-  const response = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-  });
-
-  if (!response.ok) {
-    throw new Error(\`API request failed: \${response.statusText}\`);
+  async getAllFoodItems(): Promise<FoodItem[]> {
+    return await db.select().from(foodItems);
   }
 
-  return response;
+  async createFoodItem(data: InsertFoodItem): Promise<FoodItem> {
+    const [item] = await db.insert(foodItems).values(data).returning();
+    return item;
+  }
+
+  async updateFoodItem(id: string, data: Partial<InsertFoodItem>): Promise<FoodItem | null> {
+    const [item] = await db
+      .update(foodItems)
+      .set(data)
+      .where(eq(foodItems.id, id))
+      .returning();
+    return item || null;
+  }
+
+  async deleteFoodItem(id: string): Promise<boolean> {
+    const result = await db.delete(foodItems).where(eq(foodItems.id, id));
+    return result.changes > 0;
+  }
+
+  // ============================================
+  // EVENT BOOKINGS
+  // ============================================
+
+  async getAllBookings(): Promise<EventBooking[]> {
+    return await db.select().from(eventBookings);
+  }
+
+  async getBookingById(id: string): Promise<EventBooking | null> {
+    const [booking] = await db
+      .select()
+      .from(eventBookings)
+      .where(eq(eventBookings.id, id));
+    return booking || null;
+  }
+
+  async createBooking(data: InsertEventBooking): Promise<EventBooking> {
+    const [booking] = await db.insert(eventBookings).values(data).returning();
+    return booking;
+  }
+
+  async updateBooking(id: string, data: UpdateEventBooking): Promise<EventBooking | null> {
+    const [booking] = await db
+      .update(eventBookings)
+      .set(data)
+      .where(eq(eventBookings.id, id))
+      .returning();
+    return booking || null;
+  }
+
+  async deleteBooking(id: string): Promise<boolean> {
+    const result = await db.delete(eventBookings).where(eq(eventBookings.id, id));
+    return result.changes > 0;
+  }
+
+  // ============================================
+  // BOOKING ITEMS
+  // ============================================
+
+  async getBookingItems(bookingId: string): Promise<BookingItem[]> {
+    return await db
+      .select()
+      .from(bookingItems)
+      .where(eq(bookingItems.bookingId, bookingId));
+  }
+
+  async addBookingItems(items: InsertBookingItem[]): Promise<void> {
+    if (items.length > 0) {
+      await db.insert(bookingItems).values(items);
+    }
+  }
+
+  async deleteBookingItems(bookingId: string): Promise<void> {
+    await db.delete(bookingItems).where(eq(bookingItems.bookingId, bookingId));
+  }
+
+  // ============================================
+  // COMPANY INFO
+  // ============================================
+
+  async getCompanyInfo(): Promise<CompanyInfo | null> {
+    const [info] = await db.select().from(companyInfo).limit(1);
+    return info || null;
+  }
+
+  async updateCompanyInfo(data: InsertCompanyInfo): Promise<CompanyInfo> {
+    const existing = await this.getCompanyInfo();
+    
+    if (existing) {
+      const [updated] = await db
+        .update(companyInfo)
+        .set(data)
+        .where(eq(companyInfo.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(companyInfo).values(data).returning();
+      return created;
+    }
+  }
+
+  // ============================================
+  // STAFF
+  // ============================================
+
+  async getAllStaff(): Promise<Staff[]> {
+    return await db.select().from(staff);
+  }
+
+  async createStaff(data: InsertStaff): Promise<Staff> {
+    const [member] = await db.insert(staff).values(data).returning();
+    return member;
+  }
+
+  async updateStaff(id: string, data: UpdateStaff): Promise<Staff | null> {
+    const [member] = await db
+      .update(staff)
+      .set(data)
+      .where(eq(staff.id, id))
+      .returning();
+    return member || null;
+  }
+
+  async deleteStaff(id: string): Promise<boolean> {
+    const result = await db.delete(staff).where(eq(staff.id, id));
+    return result.changes > 0;
+  }
 }
 ```
 
-### Step 5: Create Pages
+**Explanation:**
 
-#### Customer Home Page (`client/src/pages/customer-home.tsx`)
+**Drizzle Query Builders:**
+- `db.select()` - Fetch records
+- `db.insert()` - Create new records
+- `db.update()` - Modify existing records
+- `db.delete()` - Remove records
+- `.from(table)` - Which table to query
+- `.where(condition)` - Filter results
+- `.returning()` - Return the affected rows
+- `.limit(1)` - Only return first result
 
-```typescript
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import type { FoodItem, CompanyInfo } from "@shared/schema";
+**Drizzle Operators:**
+- `eq(column, value)` - Equals comparison
+- `and(condition1, condition2)` - Combine conditions
 
-export default function CustomerHome() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+**Patterns:**
+- All methods return Promises (async operations)
+- `.returning()` returns array, we use `[item]` to destructure first element
+- `|| null` converts undefined to null
+- `result.changes > 0` checks if delete was successful
+- Company info uses upsert pattern (update if exists, insert if not)
 
-  const { data: foodItems } = useQuery<FoodItem[]>({
-    queryKey: ["/api/food-items"],
-  });
+### Step 5: Add Database Scripts
 
-  const { data: companyInfo } = useQuery<CompanyInfo>({
-    queryKey: ["/api/company-info"],
-  });
-
-  // Render hero section, menu grid, etc.
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      {/* Menu Grid */}
-      {/* Footer */}
-    </div>
-  );
-}
-```
-
-#### Admin Pages
-
-Create pages for:
-- `admin-login.tsx` - Admin authentication
-- `admin-dashboard.tsx` - Main admin layout with sidebar
-- `admin-food-items.tsx` - Manage menu items
-- `admin-event-bookings.tsx` - Manage bookings
-- `admin-chef-printout.tsx` - Chef preparation sheets
-- `admin-staff.tsx` - Manage staff
-- `admin-company-settings.tsx` - Company information
-
-### Step 6: Create Main App Component
-
-Create `client/src/App.tsx`:
-
-```typescript
-import { Switch, Route } from "wouter";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
-import CustomerHome from "@/pages/customer-home";
-import AdminLogin from "@/pages/admin-login";
-// ... import other pages
-
-export default function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Switch>
-        <Route path="/" component={CustomerHome} />
-        <Route path="/admin/login" component={AdminLogin} />
-        {/* More routes */}
-      </Switch>
-    </QueryClientProvider>
-  );
-}
-```
-
-### Step 7: Create Entry Point
-
-Create `client/src/main.tsx`:
-
-```typescript
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
-
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
-```
-
-Create `client/index.html`:
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Premium Catering Services</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
-```
-
----
-
-## Scripts Configuration
-
-Update `package.json`:
+Edit `package.json` and add scripts:
 
 ```json
 {
@@ -677,11 +1773,29 @@ Update `package.json`:
 }
 ```
 
----
+**Explanation:**
+- `dev` - Starts development server with hot reload
+- `build` - Builds production-ready files
+  - `vite build` - Compiles React app
+  - `esbuild` - Bundles Node.js server
+- `start` - Runs production server
+- `check` - Type-checks TypeScript without building
+- `db:push` - Creates/updates database from schema
 
-## TypeScript Configuration
+### Step 6: Initialize Database
 
-Create `tsconfig.json`:
+```bash
+npm run db:push
+```
+
+**What this does:**
+- Reads `shared/schema.ts`
+- Creates/updates tables in `sqlite.db`
+- No migration files needed for SQLite
+
+### Step 7: Add TypeScript Configuration
+
+#### Create `tsconfig.json` (root)
 
 ```json
 {
@@ -704,7 +1818,17 @@ Create `tsconfig.json`:
 }
 ```
 
-Create `client/tsconfig.json`:
+**Explanation:**
+- `target: "ES2022"` - Output modern JavaScript
+- `module: "ESNext"` - Use latest module system
+- `moduleResolution: "Bundler"` - How to find imports
+- `allowImportingTsExtensions` - Import .ts files
+- `strict: true` - Strict type checking
+- `noEmit: true` - Don't output JS (we use tsx/esbuild)
+- `paths` - Allows `@shared/schema` imports
+- `include` - Which files to type-check
+
+#### Create `client/tsconfig.json`
 
 ```json
 {
@@ -722,601 +1846,153 @@ Create `client/tsconfig.json`:
 }
 ```
 
+**Explanation:**
+- `extends` - Inherits from root config
+- `lib` - Adds DOM types for browser
+- `jsx: "react-jsx"` - Enables JSX transformation
+- Additional paths for frontend imports
+
+---
+
+## Testing & Running
+
+### Development Mode
+
+```bash
+npm run dev
+```
+
+**What happens:**
+1. Starts Express server on port 5000
+2. Starts Vite dev server internally
+3. Frontend auto-reloads on code changes
+4. Backend restarts on code changes
+5. Open browser to your Replit URL or localhost:5000
+
+### Production Build
+
+```bash
+npm run build
+npm start
+```
+
+**What happens:**
+1. `build` creates optimized files in `dist/`
+2. `start` runs production server
+3. Serves static files (no hot reload)
+
+### Type Checking
+
+```bash
+npm run check
+```
+
+Checks TypeScript types without running the app.
+
 ---
 
 ## Deployment
 
-### Deploying to Replit
+### Deploy on Replit
 
-1. Create a new Replit from template or import from Git
-2. Replit automatically detects Node.js and installs dependencies
-3. Configure the "Run" button to execute `npm run dev`
-4. Click "Publish" in Replit to make it publicly accessible
+1. Your app is already set up
+2. Click "Run" button (runs `npm run dev`)
+3. Click "Deploy" button to publish
+4. Replit handles everything automatically
 
-### Deploying to Vercel
+### Deploy on Vercel/Netlify
 
-#### Step 1: Create `vercel.json`
+1. Connect your Git repository
+2. Set build command: `npm run build`
+3. Set output directory: `dist/public`
+4. Deploy!
 
-See the `vercel.json` file created in this project for the complete configuration.
-
-#### Step 2: Build Configuration
-
-Vercel will:
-1. Run `npm install`
-2. Run `npm run build`
-3. Serve the built application
-
-#### Step 3: Deploy
-
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Login
-vercel login
-
-# Deploy
-vercel
-```
-
-Or connect your GitHub repository to Vercel for automatic deployments.
+Note: You'll need to configure serverless functions for the API routes or use a different hosting solution that supports full-stack apps.
 
 ---
 
-## Testing
+## Summary
 
-### Manual Testing Checklist
+**You now have:**
 
-1. **Customer Website**:
-   - [ ] Hero section loads with company info
-   - [ ] Menu items display correctly
-   - [ ] Category filter works
-   - [ ] Scroll behavior is smooth
+✅ **Frontend** - React app with Tailwind CSS and shadcn/ui components  
+✅ **Backend** - Express.js REST API with TypeScript  
+✅ **Database** - SQLite with Drizzle ORM  
+✅ **Type Safety** - Shared types between frontend and backend  
+✅ **Development Setup** - Hot reload with Vite  
+✅ **Production Ready** - Build scripts and deployment config  
 
-2. **Admin Login**:
-   - [ ] Can login with credentials
-   - [ ] Invalid credentials show error
-   - [ ] Redirects to dashboard after login
+**Next steps:**
+- Add more pages (admin dashboard, booking forms)
+- Add authentication
+- Add image uploads
+- Add more features!
 
-3. **Admin Dashboard**:
-   - [ ] All sidebar links work
-   - [ ] Stats display correctly
-   - [ ] Theme toggle works
+---
 
-4. **Food Items Management**:
-   - [ ] Can create new items
-   - [ ] Can edit existing items
-   - [ ] Can delete items
-   - [ ] Images upload correctly
+## Project File Structure Summary
 
-5. **Event Bookings**:
-   - [ ] Can create bookings
-   - [ ] Can add menu items to bookings
-   - [ ] Quantity calculations are correct
-   - [ ] Can update booking status
-
-6. **Chef Printout**:
-   - [ ] Date selector works
-   - [ ] Quantities calculated correctly
-   - [ ] Print functionality works
-   - [ ] All content prints on paper
-
-7. **Staff Management**:
-   - [ ] Can add staff members
-   - [ ] Can edit staff info
-   - [ ] Can delete staff
-
-8. **Company Settings**:
-   - [ ] Can update company info
-   - [ ] Changes reflect on customer website
+```
+ravi-canteen/
+├── client/
+│   ├── src/
+│   │   ├── components/ui/        # shadcn components
+│   │   ├── pages/                # Page components
+│   │   ├── lib/
+│   │   │   ├── utils.ts          # Helper functions
+│   │   │   └── queryClient.ts    # React Query setup
+│   │   ├── hooks/                # Custom hooks
+│   │   ├── App.tsx               # Main app component
+│   │   ├── main.tsx              # React entry point
+│   │   └── index.css             # Global styles
+│   ├── index.html                # HTML template
+│   └── tsconfig.json             # TypeScript config
+├── server/
+│   ├── index.ts                  # Server entry point
+│   ├── routes.ts                 # API endpoints
+│   ├── storage.ts                # Storage interface
+│   ├── storage-db.ts             # Database implementation
+│   ├── db.ts                     # Database connection
+│   └── vite.ts                   # Vite integration
+├── shared/
+│   └── schema.ts                 # Database schema & types
+├── attached_assets/              # Static files
+├── drizzle.config.ts             # Database config
+├── vite.config.ts                # Vite config
+├── tailwind.config.ts            # Tailwind config
+├── postcss.config.js             # PostCSS config
+├── tsconfig.json                 # Root TypeScript config
+└── package.json                  # Dependencies & scripts
+```
 
 ---
 
 ## Common Issues & Solutions
 
-### Issue: "tsx: command not found"
-**Solution**: Install cross-env and use it in scripts:
-```bash
-npm install -D cross-env
-```
+**Issue**: `Cannot find module '@/components/ui/button'`  
+**Solution**: Check `vite.config.ts` has correct alias paths
 
-### Issue: Database migration errors
-**Solution**: Delete `sqlite.db` and run `npm run db:push` again.
+**Issue**: Database errors  
+**Solution**: Run `npm run db:push` to create/update tables
 
-### Issue: Vite not finding modules
-**Solution**: Check `vite.config.ts` alias configuration matches your imports.
+**Issue**: Port 5000 already in use  
+**Solution**: Change `PORT` in `server/index.ts`
 
-### Issue: Print doesn't work correctly
-**Solution**: Check print CSS in `admin-chef-printout.tsx` and ensure `@media print` styles are applied.
+**Issue**: Types not working  
+**Solution**: Run `npm run check` to see TypeScript errors
 
----
-
-## Next Steps
-
-After building the basic application:
-
-1. **Add Authentication Improvements**
-   - Implement JWT tokens
-   - Add password reset functionality
-   - Support multiple admin users
-
-2. **Add Features**
-   - Email notifications for bookings
-   - SMS integration for reminders
-   - Payment gateway integration
-   - Invoice generation
-
-3. **Improve UI/UX**
-   - Add animations
-   - Improve mobile responsiveness
-   - Add loading states
-   - Implement error boundaries
-
-4. **Optimize Performance**
-   - Implement image optimization
-   - Add caching strategies
-   - Lazy load components
-   - Use React.memo where appropriate
-
-5. **Add Testing**
-   - Unit tests with Jest
-   - Integration tests with Testing Library
-   - E2E tests with Playwright
+**Issue**: Styles not loading  
+**Solution**: Make sure `index.css` is imported in `main.tsx`
 
 ---
 
-## Resources
-
-- [React Documentation](https://react.dev)
-- [Vite Documentation](https://vitejs.dev)
-- [Drizzle ORM](https://orm.drizzle.team)
-- [TanStack Query](https://tanstack.com/query)
-- [Tailwind CSS](https://tailwindcss.com)
-- [shadcn/ui](https://ui.shadcn.com)
-- [Radix UI](https://www.radix-ui.com)
-
----
-
-**Congratulations!** You now have a complete understanding of how to build this catering management system from scratch. Follow each step carefully, and don't hesitate to refer back to this guide as you build.
-- [Shadcn UI](https://ui.shadcn.com)
-- [Wouter](https://github.com/molefrog/wouter)
-
----
-
-## Detailed Code File Explanations
-
-### Core Backend Files
-
-#### `server/index.ts` - Server Entry Point
-This is the main entry point for the Express server. Key responsibilities:
-- Creates Express application instance
-- Configures JSON body parsing middleware
-- Mounts API routes at `/api/*` prefix
-- In development: Sets up Vite dev server with hot module replacement
-- In production: Serves pre-built static files from `dist/public`
-- Binds to port 5000 on all network interfaces (0.0.0.0)
-
-**Code Flow**:
-1. Import Express and configuration
-2. Create Express app with `express()`
-3. Add middleware: `app.use(express.json())`
-4. Mount routes: `app.use("/api", apiRoutes)`
-5. Conditional setup: Vite middleware (dev) or static serving (prod)
-6. Listen on port 5000
-
-#### `server/storage.ts` - Data Storage Interface
-Implements an in-memory storage system using JavaScript Maps for fast data access.
-
-**IStorage Interface**: Defines contract for all data operations
-- Food Items: CRUD operations (Create, Read, Update, Delete)
-- Event Bookings: Manage catering events
-- Company Info: Business details
-- Staff: Employee management
-
-**MemStorage Class**: Implementation using Map data structures
-- `foodItems: Map<string, FoodItem>`: Stores food items by ID
-- `bookings: Map<string, EventBooking>`: Stores bookings by ID
-- `staff: Map<string, Staff>`: Stores staff by ID
-- `companyInfo: CompanyInfo`: Single company info object
-
-**initializeDefaults()**: Seeds database with 150+ food items including:
-- Indian Main Courses (30+ items): Biryani, curries, rice dishes, dal
-- Appetizers (50+ items): Starters, breads, snacks, breakfast items
-- Desserts (30+ items): Traditional sweets, modern desserts
-- Beverages (20+ items): Hot and cold drinks
-- Chutneys & Condiments (10+ items)
-
-#### `server/routes.ts` - API Route Definitions
-Defines all RESTful API endpoints using Express Router.
-
-**Food Items Routes**:
-- `GET /api/food-items` - Returns all food items
-- `POST /api/food-items` - Creates new food item (validates with Zod)
-- `PATCH /api/food-items/:id` - Updates existing food item
-- `DELETE /api/food-items/:id` - Deletes food item
-
-**Event Bookings Routes**:
-- `GET /api/bookings` - Returns all bookings (sorted by date)
-- `GET /api/bookings/:id` - Returns single booking with details
-- `POST /api/bookings` - Creates new booking
-- `PATCH /api/bookings/:id` - Updates booking
-- `DELETE /api/bookings/:id` - Deletes booking
-
-**Company Info Routes**:
-- `GET /api/company-info` - Returns company information
-- `PATCH /api/company-info/:id` - Updates company info
-
-**Staff Routes**:
-- `GET /api/staff` - Returns all staff members
-- `POST /api/staff` - Creates new staff member
-- `PATCH /api/staff/:id` - Updates staff member
-- `DELETE /api/staff/:id` - Deletes staff member
-
-**Validation**: All POST/PATCH routes validate request body using Zod schemas from `shared/schema.ts`
-
-#### `server/vite.ts` - Vite Integration
-Integrates Vite dev server into Express for development hot-reload.
-
-**setupVite() Function**:
-- Creates Vite dev server in middleware mode
-- Mounts Vite middlewares to handle `.ts`, `.tsx`, `.css` files
-- Transforms TypeScript to JavaScript on-the-fly
-- Injects HMR (Hot Module Replacement) client
-- Serves `index.html` with transformed module imports
-
-**How It Works**:
-1. Request for `/src/App.tsx` arrives
-2. Vite intercepts request
-3. Reads file, transforms TypeScript → JavaScript
-4. Returns transformed code with HMR client
-5. Browser executes code, connects to HMR WebSocket
-6. On file change, HMR pushes updates without full reload
-
----
-
-### Core Frontend Files
-
-#### `client/src/main.tsx` - React Entry Point
-Bootstrap file that mounts React app to DOM.
-
-**Code Explanation**:
-```typescript
-import { createRoot } from "react-dom/client"; // React 18 API
-import App from "./App"; // Root component
-import "./index.css"; // Global styles
-
-// Find <div id="root"> in index.html
-// Create React root and render <App />
-createRoot(document.getElementById("root")!).render(<App />);
-```
-
-#### `client/src/App.tsx` - Root Component
-Main application component with routing and global providers.
-
-**Component Structure**:
-```
-App
-├── QueryClientProvider (TanStack Query for data fetching)
-│   ├── TooltipProvider (Shadcn UI tooltips)
-│   │   ├── Switch (Wouter router)
-│   │   │   ├── Route path="/" → CustomerHome
-│   │   │   ├── Route path="/admin/login" → AdminLogin
-│   │   │   ├── Route path="/admin/dashboard/*" → AdminDashboard
-│   │   │   └── Route (fallback) → NotFound
-│   │   └── Toaster (Toast notifications)
-```
-
-**Key Providers**:
-- **QueryClientProvider**: Wraps app with TanStack Query context for server state management
-- **TooltipProvider**: Enables tooltips across all child components
-- **Toaster**: Displays toast notifications (success, error messages)
-
-#### `client/src/lib/queryClient.ts` - Data Fetching Configuration
-Configures TanStack Query for API communication.
-
-**queryClient Configuration**:
-```typescript
-new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Default fetch function using queryKey as URL
-      queryFn: async ({ queryKey }) => {
-        const response = await fetch(queryKey[0] as string);
-        if (!response.ok) throw new Error("Network error");
-        return response.json();
-      }
-    }
-  }
-});
-```
-
-**apiRequest() Helper**:
-- Wrapper for POST/PATCH/DELETE requests
-- Adds JSON headers automatically
-- Throws errors for non-OK responses
-- Used by mutations in components
-
-**Usage in Components**:
-```typescript
-// Query (GET)
-const { data } = useQuery({ queryKey: ["/api/food-items"] });
-
-// Mutation (POST/PATCH/DELETE)
-const mutation = useMutation({
-  mutationFn: (data) => apiRequest("/api/food-items", {
-    method: "POST",
-    body: JSON.stringify(data)
-  })
-});
-```
-
-#### `client/src/pages/customer-home.tsx` - Customer Homepage
-Main customer-facing page with menu display.
-
-**State Management**:
-- `selectedCategory`: Tracks active category filter
-- Uses `useQuery` to fetch food items and company info
-- Computes `filteredItems` based on selected category
-
-**Layout Sections**:
-1. **Hero Section**: Full-width background with company name, tagline, contact info
-2. **Category Navigation**: Sticky filter bar (All, Appetizers, Main Courses, Desserts, Beverages)
-3. **Menu Section**: Multi-row horizontal scrolling layout
-   - 8 items per row
-   - Multiple rows displaying all filtered items
-   - Each card shows: image (if available), name, description, category badge
-   - Horizontal scrolling per row with hidden scrollbar
-4. **CTA Section**: Call-to-action with phone and email
-5. **Footer**: Company address, social links, admin login
-
-**Horizontal Scrolling Implementation**:
-```typescript
-// Divide items into rows of 8
-Array.from({ length: Math.ceil(filteredItems.length / 8) }, (_, rowIndex) => {
-  const startIdx = rowIndex * 8;
-  const rowItems = filteredItems.slice(startIdx, startIdx + 8);
-  return (
-    <div key={rowIndex} className="flex gap-6 overflow-x-auto scrollbar-hide">
-      {rowItems.map(item => <Card key={item.id}>...</Card>)}
-    </div>
-  );
-})
-```
-
-**Category Mapping**:
-```typescript
-const categoryMap = {
-  "appetizer": "Appetizers",
-  "main": "Main Courses",
-  "dessert": "Desserts",
-  "beverage": "Beverages"
-};
-```
-
-#### `client/src/pages/admin-dashboard.tsx` - Admin Layout
-Container layout for admin panel with sidebar navigation.
-
-**Layout Structure**:
-- Uses Shadcn `SidebarProvider` for collapsible sidebar
-- Header with sidebar toggle and theme switcher
-- Nested router for admin sub-pages
-
-**Sidebar Menu Items**:
-- Dashboard (overview with stats)
-- Food Items (CRUD for menu)
-- Event Bookings (booking management)
-- Chef Printout (kitchen preparation sheets)
-- Staff (employee management)
-- Settings (company information)
-
-#### `client/src/pages/admin-food-items.tsx` - Food Management
-CRUD interface for managing menu items.
-
-**Data Fetching**:
-```typescript
-const { data: foodItems } = useQuery<FoodItem[]>({
-  queryKey: ["/api/food-items"]
-});
-```
-
-**Create Mutation**:
-```typescript
-const createMutation = useMutation({
-  mutationFn: (data: InsertFoodItem) =>
-    apiRequest("/api/food-items", {
-      method: "POST",
-      body: JSON.stringify(data)
-    }),
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
-    toast({ title: "Food item created!" });
-  }
-});
-```
-
-**Features**:
-- Data table with sortable columns
-- Search/filter functionality
-- Create dialog with form validation
-- Inline edit for each item
-- Delete with confirmation
-- Real-time UI updates after mutations
-
----
-
-### Shared Code
-
-#### `shared/schema.ts` - Type Definitions
-Single source of truth for data types and validation.
-
-**Drizzle-style Table Schemas**:
-```typescript
-export const foodItems = {
-  id: { type: String },
-  name: { type: String },
-  description: { type: String },
-  category: { type: String },
-  imageUrl: { type: String, nullable: true }
-};
-```
-
-**Zod Validation Schemas**:
-```typescript
-export const insertFoodItemSchema = createInsertSchema(foodItems);
-```
-
-**TypeScript Types**:
-```typescript
-export type FoodItem = typeof foodItems.$inferSelect;
-export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
-```
-
-**Benefits**:
-- Types shared between client and server
-- Runtime validation with Zod
-- Compile-time type checking with TypeScript
-- No duplication of type definitions
-
----
-
-### Configuration Files
-
-#### `package.json` - Dependencies and Scripts
-**Key Scripts**:
-- `npm run dev`: Start development server (port 5000)
-- `npm run build`: Build production bundle
-- `npm start`: Run production server
-
-**Critical Dependencies**:
-- `express`: Web server framework
-- `react` + `react-dom`: UI library
-- `@tanstack/react-query`: Data fetching
-- `zod`: Runtime validation
-- `wouter`: Client-side routing
-- `better-sqlite3` + `drizzle-orm`: Database (if using DB mode)
-
-#### `vite.config.ts` - Build Configuration
-**Path Aliases**:
-- `@/`: Maps to `client/src/`
-- `@shared/`: Maps to `shared/`
-- `@assets/`: Maps to `attached_assets/`
-
-**Build Output**:
-- Frontend: `dist/public/` (HTML, CSS, JS bundles)
-- Assets optimized and hashed for caching
-
-#### `tsconfig.json` - TypeScript Configuration
-**Compiler Options**:
-- `strict: true`: Enable all type-checking
-- `jsx: "react-jsx"`: Use React 18 JSX transform
-- `moduleResolution: "bundler"`: Modern module resolution
-- `paths`: Map import aliases to file paths
-
-#### `tailwind.config.ts` - Styling Configuration
-**Content Sources**: Tells Tailwind where to find class names
-- `./client/index.html`
-- `./client/src/**/*.{ts,tsx}`
-
-**Theme Extension**: Custom colors using CSS variables
-- Supports light and dark modes
-- All colors defined in `index.css` as HSL values
-
----
-
-## 150+ Food Items Database
-
-The application comes pre-loaded with 150+ diverse Indian food items across categories:
-
-### Main Courses (45+ items)
-- **Rice Dishes**: Hyderabadi Biryani, Vegetable Biryani, Kodi Pulao, Pulihora, Lemon Rice, Coconut Rice, Curd Rice, Jeera Rice, Vegetable Pulao, Kashmiri Pulao
-- **Curries**: Paneer Butter Masala, Palak Paneer, Dal Makhani, Chana Masala, Malai Kofta, Kadai Paneer, Butter Chicken, Chicken Tikka Masala, Rogan Josh
-- **Regional Specialties**: Gutti Vankaya, Mirch Ka Salan, Gongura Mamsam, Chettinad Chicken
-- **Dal & Lentils**: Khatti Dal, Sambar, Tomato Pappu, Dal Tadka, Moong Dal Fry
-
-### Appetizers (55+ items)
-- **Tandoor Items**: Paneer Tikka, Chicken Tikka, Tandoori Chicken, Seekh Kabab, Fish Tikka
-- **Fried Snacks**: Samosa, Pakora, Mirchi Bajji, Cut Mirchi, Masala Vada, Medu Vada
-- **Street Food**: Pani Puri, Bhel Puri, Papdi Chaat, Dahi Vada
-- **Breads**: Butter Naan, Garlic Naan, Tandoori Roti, Laccha Paratha, Aloo Paratha, Puri
-- **South Indian**: Masala Dosa, Plain Dosa, Idli, Vada, Pesarattu, Uttapam, Upma, Pongal
-- **Chutneys**: Coconut, Tomato, Gongura, Peanut, Mint, Tamarind
-
-### Desserts (30+ items)
-- **Traditional Sweets**: Gulab Jamun, Rasgulla, Rasmalai, Jalebi, Barfi, Kaju Katli, Ladoo, Peda
-- **Puddings**: Kheer, Phirni, Gajar Halwa, Moong Dal Halwa, Semiya Payasam
-- **Regional**: Bobbatlu, Ariselu, Qubani Ka Meetha, Pootharekulu, Mysore Pak
-- **Modern**: Ice Cream, Fruit Custard, Kulfi
-
-### Beverages (20+ items)
-- **Hot**: Filter Coffee, Masala Chai, Green Tea, Lemon Tea
-- **Cold**: Lassi, Mango Lassi, Chaas, Fresh Lime Soda, Jaljeera
-- **Specialty**: Badam Milk, Rose Milk, Sugarcane Juice, Coconut Water
-- **Juices**: Orange, Apple, Pomegranate, Watermelon
-
----
-
-## Multi-Row Horizontal Scrolling Menu
-
-### Implementation Details
-
-The menu layout uses a unique multi-row horizontal scrolling design inspired by Amazon's product listings:
-
-**Key Features**:
-1. **8 Items Per Row**: Each row displays 8 food item cards
-2. **Multiple Rows**: Items are divided into rows (e.g., 150 items = ~19 rows)
-3. **Horizontal Scrolling**: Each row scrolls independently
-4. **Hidden Scrollbar**: Clean look with `scrollbar-hide` utility class
-5. **Responsive Cards**: Fixed width (320px) cards that don't shrink
-
-**Code Implementation**:
-```typescript
-// Divide filtered items into rows of 8
-<div className="space-y-6">
-  {Array.from({ length: Math.ceil(filteredItems.length / 8) }, (_, rowIndex) => {
-    const startIdx = rowIndex * 8;
-    const rowItems = filteredItems.slice(startIdx, startIdx + 8);
-    
-    return (
-      <div key={rowIndex} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-        {rowItems.map((item) => (
-          <Card key={item.id} className="flex-shrink-0 w-80">
-            {/* Card content */}
-          </Card>
-        ))}
-      </div>
-    );
-  })}
-</div>
-```
-
-**CSS Classes Explained**:
-- `space-y-6`: Vertical spacing between rows
-- `flex gap-6`: Horizontal flexbox with gaps between cards
-- `overflow-x-auto`: Enable horizontal scrolling
-- `scrollbar-hide`: Custom utility to hide scrollbar
-- `flex-shrink-0`: Prevent cards from shrinking
-- `w-80`: Fixed width (320px) per card
-
-**Benefits**:
-- Displays all 150+ items without overwhelming the page
-- Easy browsing with horizontal scroll (mouse wheel or touch)
-- Category filter works across all rows
-- Performant rendering (React virtualizes off-screen elements)
-
----
-
-## Conclusion
-
-This guide has covered every aspect of the Ravi Canteen application:
-
-✅ Complete file structure and purpose of each file
-✅ Detailed code explanations for frontend and backend
-✅ Data models and validation schemas
-✅ Multi-row horizontal scrolling menu implementation
-✅ 150+ pre-loaded food items across all categories
-✅ Setup, development, and deployment instructions
-✅ Customization guides for common modifications
-
-The application is production-ready and can be deployed to Replit, Vercel, or any Node.js hosting platform!
-
-Happy coding! 🚀🍽️
+## Congratulations!
+
+You've built a full-stack TypeScript application from scratch. This guide covered:
+- Modern React development with hooks and TypeScript
+- REST API design with Express.js
+- Database modeling with Drizzle ORM
+- Type-safe full-stack development
+- Production deployment
+
+Happy coding! 🚀
