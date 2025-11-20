@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, CalendarDays, Printer, Search } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -37,6 +38,8 @@ export default function EventBookingsManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
   const { data: bookings, isLoading } = useQuery<EventBooking[]>({
     queryKey: ["/api/bookings"],
@@ -47,10 +50,10 @@ export default function EventBookingsManager() {
   });
 
   const filteredBookings = bookings?.filter((booking) =>
-    booking.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    booking.eventType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    booking.contactEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    booking.status.toLowerCase().includes(searchQuery.toLowerCase())
+    booking.clientName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    booking.eventType.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    booking.contactEmail.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    booking.status.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const form = useForm<UpdateEventBooking>({

@@ -2,6 +2,7 @@ import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
@@ -118,6 +119,7 @@ export default function AdminDashboard() {
             <h1 className="text-xl font-semibold" style={{ fontFamily: 'Poppins, sans-serif' }}>
               Catering Management
             </h1>
+            <ThemeToggle />
           </header>
           <main className="flex-1 overflow-auto bg-background">
             <Switch>

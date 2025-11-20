@@ -12,7 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Pencil, Trash2, User } from "lucide-react";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { Plus, Pencil, Trash2, User, Search } from "lucide-react";
 import { insertStaffSchema, updateStaffSchema, type Staff, type InsertStaff, type UpdateStaff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -31,11 +32,19 @@ const roleColors: Record<string, "default" | "secondary" | "destructive"> = {
 export default function StaffManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
   const { data: staffList, isLoading } = useQuery<Staff[]>({
     queryKey: ["/api/staff"],
   });
+
+  const filteredStaffList = staffList?.filter((staff) =>
+    staff.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    roleMap[staff.role].toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    (staff.phone && staff.phone.includes(debouncedSearch))
+  );
 
   const form = useForm<UpdateStaff>({
     resolver: zodResolver(editingStaff ? updateStaffSchema : insertStaffSchema.extend({
@@ -300,10 +309,24 @@ export default function StaffManager() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Staff Members</CardTitle>
-          <CardDescription>
-            {staffList?.length || 0} team members
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>All Staff Members</CardTitle>
+              <CardDescription>
+                {staffList?.length || 0} team members
+              </CardDescription>
+            </div>
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search staff..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+                data-testid="input-search-staff"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -312,7 +335,7 @@ export default function StaffManager() {
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-          ) : staffList && staffList.length > 0 ? (
+          ) : filteredStaffList && filteredStaffList.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -326,7 +349,7 @@ export default function StaffManager() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {staffList.map((staff) => (
+                  {filteredStaffList.map((staff) => (
                     <TableRow key={staff.id} data-testid={`row-staff-${staff.id}`}>
                       <TableCell>
                         <div className="flex items-center gap-3">
