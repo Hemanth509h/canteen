@@ -1,4 +1,3 @@
-import { MongoDBStorage } from "./storage";
+import { MemStorage } from "./mem-storage";
 
-// Use MongoDB storage
-export const storage = new MongoDBStorage();
+export const storage = new MemStorage();
