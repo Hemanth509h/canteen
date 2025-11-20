@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { UtensilsCrossed, Phone, Mail, MapPin, ShieldCheck, Search } from "lucide-react";
 import type { FoodItem, CompanyInfo } from "@shared/schema";
 
@@ -23,6 +25,7 @@ const categoryMap: Record<string, string> = {
 export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
   const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
@@ -34,8 +37,8 @@ export default function CustomerHome() {
 
   const filteredItems = foodItems?.filter((item) => {
     const matchesCategory = selectedCategory === "All" || categoryMap[item.category] === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                         item.description.toLowerCase().includes(debouncedSearch.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -93,19 +96,22 @@ export default function CustomerHome() {
       {/* Category Navigation */}
       <section className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                data-testid={`button-category-${category.toLowerCase().replace(' ', '-')}`}
-                className="whitespace-nowrap"
-              >
-                {category}
-              </Button>
-            ))}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
+                  data-testid={`button-category-${category.toLowerCase().replace(' ', '-')}`}
+                  className="whitespace-nowrap"
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </section>

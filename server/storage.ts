@@ -1,4 +1,4 @@
-import { type FoodItem, type InsertFoodItem, type EventBooking, type InsertEventBooking, type CompanyInfo, type InsertCompanyInfo, type Staff, type InsertStaff } from "@shared/schema";
+import { type FoodItem, type InsertFoodItem, type EventBooking, type InsertEventBooking, type CompanyInfo, type InsertCompanyInfo, type Staff, type InsertStaff, type BookingItem, type InsertBookingItem } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -16,6 +16,11 @@ export interface IStorage {
   updateBooking(id: string, booking: Partial<EventBooking>): Promise<EventBooking | undefined>;
   deleteBooking(id: string): Promise<boolean>;
 
+  // Booking Items
+  getBookingItems(bookingId: string): Promise<(BookingItem & { foodItem: FoodItem })[]>;
+  createBookingItem(item: InsertBookingItem): Promise<BookingItem>;
+  deleteBookingItems(bookingId: string): Promise<boolean>;
+
   // Company Info
   getCompanyInfo(): Promise<CompanyInfo | undefined>;
   createCompanyInfo(info: InsertCompanyInfo): Promise<CompanyInfo>;
@@ -32,12 +37,14 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private foodItems: Map<string, FoodItem>;
   private bookings: Map<string, EventBooking>;
+  private bookingItems: Map<string, BookingItem>;
   private companyInfo: CompanyInfo | undefined;
   private staff: Map<string, Staff>;
 
   constructor() {
     this.foodItems = new Map();
     this.bookings = new Map();
+    this.bookingItems = new Map();
     this.companyInfo = undefined;
     this.staff = new Map();
     this.initializeDefaults();
@@ -303,7 +310,50 @@ export class MemStorage implements IStorage {
   }
 
   async deleteBooking(id: string): Promise<boolean> {
+    // Also delete all associated booking items
+    const itemsToDelete = Array.from(this.bookingItems.values())
+      .filter(item => item.bookingId === id)
+      .map(item => item.id);
+    itemsToDelete.forEach(itemId => this.bookingItems.delete(itemId));
+    
     return this.bookings.delete(id);
+  }
+
+  // Booking Items
+  async getBookingItems(bookingId: string): Promise<(BookingItem & { foodItem: FoodItem })[]> {
+    const items = Array.from(this.bookingItems.values())
+      .filter(item => item.bookingId === bookingId);
+    
+    return items.map(item => {
+      const foodItem = this.foodItems.get(item.foodItemId);
+      if (!foodItem) {
+        return null;
+      }
+      return {
+        ...item,
+        foodItem,
+      };
+    }).filter(item => item !== null) as (BookingItem & { foodItem: FoodItem })[];
+  }
+
+  async createBookingItem(insertItem: InsertBookingItem): Promise<BookingItem> {
+    const id = randomUUID();
+    const item: BookingItem = {
+      ...insertItem,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    this.bookingItems.set(id, item);
+    return item;
+  }
+
+  async deleteBookingItems(bookingId: string): Promise<boolean> {
+    const itemsToDelete = Array.from(this.bookingItems.values())
+      .filter(item => item.bookingId === bookingId)
+      .map(item => item.id);
+    
+    itemsToDelete.forEach(itemId => this.bookingItems.delete(itemId));
+    return true;
   }
 
   // Company Info

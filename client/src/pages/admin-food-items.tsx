@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, ImagePlus, Search } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -29,6 +30,7 @@ export default function FoodItemsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
   const { data: foodItems, isLoading } = useQuery<FoodItem[]>({
@@ -36,9 +38,9 @@ export default function FoodItemsManager() {
   });
 
   const filteredFoodItems = foodItems?.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    categoryMap[item.category].toLowerCase().includes(searchQuery.toLowerCase())
+    item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    categoryMap[item.category].toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const form = useForm<InsertFoodItem>({
