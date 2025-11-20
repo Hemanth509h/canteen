@@ -1,53 +1,43 @@
+import { pgTable, varchar, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // ==================== FOOD ITEMS ====================
 
-export interface FoodItem {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  imageUrl: string | null;
-  dietaryTags?: string[];
-}
-
-export const insertFoodItemSchema = z.object({
-  name: z.string().min(1, "Food item name is required"),
-  description: z.string().min(1, "Description is required"),
-  category: z.string().min(1, "Category is required"),
-  imageUrl: z.string().nullable().optional(),
-  dietaryTags: z.array(z.string()).optional(),
+export const foodItems = pgTable("food_items", {
+  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  imageUrl: text("image_url"),
+  dietaryTags: text("dietary_tags").array(),
 });
 
+export const insertFoodItemSchema = createInsertSchema(foodItems).omit({ id: true });
 export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
+export type FoodItem = typeof foodItems.$inferSelect;
 
 // ==================== EVENT BOOKINGS ====================
 
-export interface EventBooking {
-  id: string;
-  clientName: string;
-  eventDate: string;
-  eventType: string;
-  guestCount: number;
-  pricePerPlate: number;
-  servingBoysNeeded: number;
-  status: string;
-  contactEmail: string;
-  contactPhone: string;
-  specialRequests: string | null;
-  createdAt: string;
-}
+export const eventBookings = pgTable("event_bookings", {
+  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  clientName: text("client_name").notNull(),
+  eventDate: text("event_date").notNull(),
+  eventType: text("event_type").notNull(),
+  guestCount: integer("guest_count").notNull(),
+  pricePerPlate: integer("price_per_plate").notNull(),
+  servingBoysNeeded: integer("serving_boys_needed").notNull().default(2),
+  status: text("status").notNull().default("pending"),
+  contactEmail: text("contact_email").notNull(),
+  contactPhone: text("contact_phone").notNull(),
+  specialRequests: text("special_requests"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
-export const insertEventBookingSchema = z.object({
-  clientName: z.string().min(1, "Client name is required"),
-  eventDate: z.string().min(1, "Event date is required"),
-  eventType: z.string().min(1, "Event type is required"),
-  guestCount: z.number().int().positive("Guest count must be positive"),
-  pricePerPlate: z.number().int().positive("Price per plate must be positive"),
-  servingBoysNeeded: z.number().int().positive().default(2),
-  contactEmail: z.string().email("Valid email is required"),
-  contactPhone: z.string().min(1, "Contact phone is required"),
-  specialRequests: z.string().nullable().optional(),
+export const insertEventBookingSchema = createInsertSchema(eventBookings).omit({ 
+  id: true, 
+  status: true, 
+  createdAt: true 
 });
 
 export const updateEventBookingSchema = insertEventBookingSchema.partial().extend({
@@ -56,73 +46,63 @@ export const updateEventBookingSchema = insertEventBookingSchema.partial().exten
 
 export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;
 export type UpdateEventBooking = z.infer<typeof updateEventBookingSchema>;
+export type EventBooking = typeof eventBookings.$inferSelect;
 
 // ==================== BOOKING ITEMS ====================
 
-export interface BookingItem {
-  id: string;
-  bookingId: string;
-  foodItemId: string;
-  quantity: number;
-  createdAt: string;
-}
+export const bookingItems = pgTable("booking_items", {
+  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  bookingId: varchar("booking_id").notNull().references(() => eventBookings.id, { onDelete: "cascade" }),
+  foodItemId: varchar("food_item_id").notNull().references(() => foodItems.id, { onDelete: "cascade" }),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
-export const insertBookingItemSchema = z.object({
-  bookingId: z.string().min(1, "Booking ID is required"),
-  foodItemId: z.string().min(1, "Food item ID is required"),
-  quantity: z.number().int().positive("Quantity must be positive").default(1),
+export const insertBookingItemSchema = createInsertSchema(bookingItems).omit({ 
+  id: true, 
+  createdAt: true 
 });
 
 export type InsertBookingItem = z.infer<typeof insertBookingItemSchema>;
+export type BookingItem = typeof bookingItems.$inferSelect;
 
 // ==================== COMPANY INFO ====================
 
-export interface CompanyInfo {
-  id: string;
-  companyName: string;
-  tagline: string;
-  description: string;
-  email: string;
-  phone: string;
-  address: string;
-  eventsPerYear: number;
-}
-
-export const insertCompanyInfoSchema = z.object({
-  companyName: z.string().min(1, "Company name is required"),
-  tagline: z.string().min(1, "Tagline is required"),
-  description: z.string().min(1, "Description is required"),
-  email: z.string().email("Valid email is required"),
-  phone: z.string().min(1, "Phone is required"),
-  address: z.string().min(1, "Address is required"),
-  eventsPerYear: z.number().int().positive().default(500),
+export const companyInfo = pgTable("company_info", {
+  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  companyName: text("company_name").notNull(),
+  tagline: text("tagline").notNull(),
+  description: text("description").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  address: text("address").notNull(),
+  eventsPerYear: integer("events_per_year").notNull().default(500),
 });
 
+export const insertCompanyInfoSchema = createInsertSchema(companyInfo).omit({ id: true });
 export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
+export type CompanyInfo = typeof companyInfo.$inferSelect;
 
 // ==================== STAFF ====================
 
-export interface Staff {
-  id: string;
-  name: string;
-  role: string;
-  phone: string;
-  experience: string;
-  imageUrl: string | null;
-  salary: number;
-  createdAt: string;
-}
+export const staff = pgTable("staff", {
+  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  phone: text("phone").notNull(),
+  experience: text("experience").notNull(),
+  imageUrl: text("image_url"),
+  salary: integer("salary").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
-export const insertStaffSchema = z.object({
-  name: z.string().min(1, "Staff name is required"),
-  role: z.string().min(1, "Role is required"),
-  phone: z.string().min(1, "Phone is required"),
-  experience: z.string().min(1, "Experience is required"),
-  imageUrl: z.string().nullable().optional(),
-  salary: z.number().int().positive("Salary must be positive"),
+export const insertStaffSchema = createInsertSchema(staff).omit({ 
+  id: true, 
+  createdAt: true 
 });
 
 export const updateStaffSchema = insertStaffSchema.partial();
 
 export type InsertStaff = z.infer<typeof insertStaffSchema>;
 export type UpdateStaff = z.infer<typeof updateStaffSchema>;
+export type Staff = typeof staff.$inferSelect;
