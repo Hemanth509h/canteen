@@ -8,13 +8,15 @@ import {
   type Staff, 
   type InsertStaff, 
   type BookingItem, 
-  type InsertBookingItem,
+  type InsertBookingItem
+} from "@shared/schema";
+import {
   FoodItemModel,
   EventBookingModel,
   BookingItemModel,
   CompanyInfoModel,
   StaffModel
-} from "@shared/schema";
+} from "./models";
 
 export interface IStorage {
   // Food Items

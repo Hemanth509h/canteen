@@ -1,5 +1,6 @@
 import { connectToDatabase } from "./db";
-import { FoodItemModel, CompanyInfoModel, type InsertFoodItem, type InsertCompanyInfo } from "@shared/schema";
+import { type InsertFoodItem, type InsertCompanyInfo } from "@shared/schema";
+import { FoodItemModel, CompanyInfoModel } from "./models";
 
 export async function seedDatabase() {
   await connectToDatabase();
