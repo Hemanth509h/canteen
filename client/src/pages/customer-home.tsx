@@ -134,7 +134,7 @@ export default function CustomerHome() {
           </div>
 
           {loadingFood ? (
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[800px] overflow-y-auto">
               {[...Array(3)].map((_, rowIndex) => (
                 <div key={rowIndex} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                   {[...Array(6)].map((_, i) => (
@@ -150,7 +150,7 @@ export default function CustomerHome() {
               ))}
             </div>
           ) : filteredItems && filteredItems.length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[1200px] overflow-y-auto pr-2">
               {Array.from({ length: Math.ceil(filteredItems.length / 8) }, (_, rowIndex) => {
                 const startIdx = rowIndex * 8;
                 const rowItems = filteredItems.slice(startIdx, startIdx + 8);
@@ -173,14 +173,14 @@ export default function CustomerHome() {
                         </div>
                         <CardHeader className="space-y-2 pb-6">
                           <div className="flex items-start justify-between gap-2">
-                            <CardTitle className="text-xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                            <CardTitle className="text-xl line-clamp-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
                               {item.name}
                             </CardTitle>
                             <Badge variant="secondary" className="shrink-0">
                               {categoryMap[item.category]}
                             </Badge>
                           </div>
-                          <CardDescription className="line-clamp-3">
+                          <CardDescription className="line-clamp-3 max-h-[72px]">
                             {item.description}
                           </CardDescription>
                         </CardHeader>

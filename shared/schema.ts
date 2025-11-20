@@ -19,7 +19,7 @@ const foodItemSchema = new Schema({
 }, {
   toJSON: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
@@ -28,7 +28,7 @@ const foodItemSchema = new Schema({
   },
   toObject: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
@@ -80,7 +80,7 @@ const eventBookingSchema = new Schema({
 }, {
   toJSON: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       ret.createdAt = ret.createdAt.toISOString();
       delete ret._id;
@@ -90,7 +90,7 @@ const eventBookingSchema = new Schema({
   },
   toObject: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       ret.createdAt = ret.createdAt.toISOString();
       delete ret._id;
@@ -139,7 +139,7 @@ const bookingItemSchema = new Schema({
 }, {
   toJSON: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       ret.createdAt = ret.createdAt.toISOString();
       delete ret._id;
@@ -149,7 +149,7 @@ const bookingItemSchema = new Schema({
   },
   toObject: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       ret.createdAt = ret.createdAt.toISOString();
       delete ret._id;
@@ -193,7 +193,7 @@ const companyInfoSchema = new Schema({
 }, {
   toJSON: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
@@ -202,7 +202,7 @@ const companyInfoSchema = new Schema({
   },
   toObject: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
@@ -249,7 +249,7 @@ const staffSchema = new Schema({
 }, {
   toJSON: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       ret.createdAt = ret.createdAt.toISOString();
       delete ret._id;
@@ -259,7 +259,7 @@ const staffSchema = new Schema({
   },
   toObject: {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc: any, ret: any) => {
       ret.id = ret._id.toString();
       ret.createdAt = ret.createdAt.toISOString();
       delete ret._id;
