@@ -1,3 +1,3 @@
-import { MemStorage } from "./mem-storage";
+import { MongoDBStorage } from "./storage";
 
-export const storage = new MemStorage();
+export const storage = new MongoDBStorage();
