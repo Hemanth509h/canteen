@@ -8,16 +8,16 @@ async function seed() {
   
   console.log("Seeding database...");
   
-  // Check if food items already exist
+  // Clear existing food items to add new expanded menu
   const existingFoodItems = await FoodItemModel.find();
   
   if (existingFoodItems.length > 0) {
-    console.log(`Database already has ${existingFoodItems.length} food items. Skipping seed to preserve data.`);
-    console.log("To reseed, delete food items manually first.");
-    process.exit(0);
+    console.log(`Found ${existingFoodItems.length} existing food items. Clearing to add expanded menu...`);
+    await FoodItemModel.deleteMany({});
+    console.log("Cleared existing food items.");
   }
   
-  console.log("No food items found. Adding Telangana menu...");
+  console.log("Adding comprehensive Telangana menu with 180+ items...");
   
   // Check if company info already exists
   const existing = await CompanyInfoModel.findOne();
