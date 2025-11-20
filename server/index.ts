@@ -48,9 +48,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const { connectToDatabase } = await import("./db");
-  const { seedDatabase } = await import("./seed");
   await connectToDatabase();
-  await seedDatabase();
 
   const server = await registerRoutes(app);
 
