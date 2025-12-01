@@ -803,7 +803,7 @@ export default function CustomerHome() {
               viewport={{ once: true }}
             >
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 space-y-12 p-2">
                   <Form {...reviewForm}>
                     <form 
                       onSubmit={reviewForm.handleSubmit((data) => createReviewMutation.mutate(data))}
