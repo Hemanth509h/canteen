@@ -552,15 +552,15 @@ export default function CustomerHome() {
                 {[...Array(3)].map((_, idx) => (
                   <div key={idx}>
                     <Skeleton className="h-8 w-48 mb-4" />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                       {[...Array(4)].map((_, i) => (
                         <Card key={i}>
-                          <Skeleton className="h-40 w-full" />
-                          <CardHeader className="pb-3">
-                            <Skeleton className="h-5 w-3/4" />
+                          <Skeleton className="h-28 sm:h-40 w-full" />
+                          <CardHeader className="p-2 sm:pb-3 sm:p-4">
+                            <Skeleton className="h-4 sm:h-5 w-3/4" />
                           </CardHeader>
-                          <CardContent>
-                            <Skeleton className="h-4 w-full" />
+                          <CardContent className="p-2 pt-0 sm:p-4 sm:pt-0">
+                            <Skeleton className="h-3 sm:h-4 w-full" />
                           </CardContent>
                         </Card>
                       ))}
@@ -587,7 +587,7 @@ export default function CustomerHome() {
                       </Badge>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                       {items.map((item, index) => (
                         <motion.div
                           key={item.id}
@@ -597,12 +597,12 @@ export default function CustomerHome() {
                           transition={{ delay: index * 0.05 }}
                         >
                           <Card 
-                            className="group cursor-pointer overflow-visible hover-elevate transition-all duration-300"
+                            className="group cursor-pointer overflow-visible hover-elevate transition-all duration-300 h-full"
                             data-testid={`card-food-${item.id}`}
                             onClick={() => setSelectedItem(item)}
                           >
                             {item.imageUrl && (
-                              <div className="relative h-44 overflow-hidden rounded-t-lg">
+                              <div className="relative h-28 sm:h-44 overflow-hidden rounded-t-lg">
                                 <img
                                   src={item.imageUrl}
                                   alt={item.name}
@@ -610,30 +610,30 @@ export default function CustomerHome() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                 <motion.div
-                                  className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100"
+                                  className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 opacity-0 group-hover:opacity-100"
                                   initial={false}
                                   animate={{ scale: 1 }}
                                   whileHover={{ scale: 1.1 }}
                                 >
-                                  <Button size="sm" variant="secondary" className="gap-1">
+                                  <Button size="sm" variant="secondary" className="gap-1 text-xs sm:text-sm">
                                     View <ArrowRight className="w-3 h-3" />
                                   </Button>
                                 </motion.div>
                               </div>
                             )}
-                            <CardHeader className="space-y-1 pb-2">
-                              <CardTitle className="text-lg font-serif line-clamp-1 group-hover:text-primary transition-colors">
+                            <CardHeader className="space-y-1 p-2 sm:p-4 pb-1 sm:pb-2">
+                              <CardTitle className="text-sm sm:text-lg font-serif line-clamp-1 group-hover:text-primary transition-colors">
                                 {item.name}
                               </CardTitle>
                             </CardHeader>
-                            <CardContent className="pt-0">
-                              <CardDescription className="line-clamp-2 text-sm">
+                            <CardContent className="p-2 sm:p-4 pt-0">
+                              <CardDescription className="line-clamp-2 text-xs sm:text-sm">
                                 {item.description}
                               </CardDescription>
                               {item.dietaryTags && item.dietaryTags.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-3">
+                                <div className="flex flex-wrap gap-1 mt-2 sm:mt-3">
                                   {item.dietaryTags.slice(0, 2).map((tag) => (
-                                    <Badge key={tag} variant="outline" className="text-xs">
+                                    <Badge key={tag} variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2">
                                       {tag}
                                     </Badge>
                                   ))}
