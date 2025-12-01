@@ -69,16 +69,14 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Only listen locally, don't listen in serverless environments (Vercel)
-  if (!process.env.VERCEL) {
-    const port = parseInt(process.env.PORT || '5000', 10);
-    server.listen({
-      port,
-      host: "0.0.0.0",
-    }, () => {
-      log(`serving on port ${port}`);
-    });
-  }
+  // Always listen on the port, Vercel will configure it
+  const port = parseInt(process.env.PORT || '5000', 10);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+  }, () => {
+    log(`serving on port ${port}`);
+  });
 })();
 
 // Export for Vercel serverless deployment
