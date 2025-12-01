@@ -21,7 +21,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { 
   UtensilsCrossed, Phone, Mail, MapPin, ShieldCheck, Search, 
   ChefHat, Award, Users, Calendar, Star, Clock, Heart,
-  Sparkles, ArrowRight, Quote, CheckCircle2, Utensils, Send, Settings
+  Sparkles, ArrowRight, Quote, CheckCircle2, Utensils, Send
 } from "lucide-react";
 import type { FoodItem, CompanyInfo, CustomerReview } from "@shared/schema";
 import { insertCustomerReviewSchema } from "@shared/schema";
@@ -275,25 +275,6 @@ export default function CustomerHome() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Floating Admin Button */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Link href="/admin/login">
-            <Button
-              size="icon"
-              variant="secondary"
-              className="fixed bottom-6 right-6 z-50 shadow-lg"
-              data-testid="button-floating-admin"
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent side="left">
-          <p>Admin Portal</p>
-        </TooltipContent>
-      </Tooltip>
 
       <div className="min-h-screen bg-background">
         {/* Hero Section with Parallax */}
