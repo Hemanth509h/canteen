@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -768,6 +768,15 @@ export default function EventBookingsManager() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setLocation(`/payment/${booking.id}`)}
+                            data-testid={`button-view-payment-${booking.id}`}
+                            title="View payment page"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
