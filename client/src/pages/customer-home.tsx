@@ -240,7 +240,7 @@ export default function CustomerHome() {
                 transition={{ delay: 0.5, duration: 0.6 }}
                 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4"
               >
-                {companyInfo?.companyName || "OM Caterers"}
+                {companyInfo?.companyName}
               </motion.h1>
               <motion.div
                 initial={{ opacity: 0, width: 0 }}
@@ -336,7 +336,7 @@ export default function CustomerHome() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 2.9, duration: 0.8 }}
                 >
-                  {companyInfo?.companyName || "OM Caterers"}
+                  {companyInfo?.companyName}
                 </motion.h1>
                 <motion.p 
                   className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-10 font-light px-4"
@@ -733,42 +733,45 @@ export default function CustomerHome() {
             {/* Customer Submitted Reviews */}
             {reviews && reviews.length > 0 && (
               <motion.div
-                className="mt-8 md:mt-12"
+                className="mt-12 md:mt-16"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <h3 className="text-xl md:text-2xl font-serif font-bold mb-4 md:mb-6 text-center">Recent Customer Reviews</h3>
-                <div className="space-y-12 p-2">
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl md:text-3xl font-serif font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">What Customers Say</h3>
+                  <p className="text-muted-foreground">Real reviews from our valued clients</p>
+                </div>
+                <div className="space-y-12 p-2 max-h-[600px] overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {reviews.slice(0, 6).map((review, index) => (
-                    <Card key={review.id} className="hover-elevate" data-testid={`card-customer-review-${index}`}>
-                      <CardHeader className="pb-2">
-                        <div className="flex items-center gap-1 mb-2">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="w-3 h-3 fill-primary text-primary" />
-                          ))}
-                        </div>
-                        <CardDescription className="text-sm text-foreground/80">
-                          "{review.comment}"
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="pt-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-sm font-semibold text-primary">
-                                {review.customerName.charAt(0)}
-                              </span>
+                      <motion.div key={review.id} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
+                        <Card className="hover-elevate h-full flex flex-col" data-testid={`card-customer-review-${index}`}>
+                          <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                                  <span className="text-sm font-bold text-white">
+                                    {review.customerName.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-sm truncate">{review.customerName}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{review.eventType}</p>
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium text-sm">{review.customerName}</p>
-                              <p className="text-xs text-muted-foreground">{review.eventType}</p>
+                            <div className="flex items-center gap-1 mb-3">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} />
+                              ))}
                             </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                            <CardDescription className="text-sm text-foreground/75 line-clamp-3 leading-relaxed">
+                              "{review.comment}"
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -778,22 +781,22 @@ export default function CustomerHome() {
         </section>
 
         {/* Review Submission Section */}
-        <section id="submit-review" className="py-12 md:py-20 bg-muted/30">
+        <section id="submit-review" className="py-16 md:py-24 bg-gradient-to-br from-primary/5 via-background to-background">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              className="text-center mb-8 md:mb-12"
+              className="text-center mb-12"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <Badge variant="secondary" className="mb-4 px-4 py-1">
-                <Send className="w-3 h-3 mr-1" /> Share Your Experience
+              <Badge variant="secondary" className="mb-4 px-4 py-1.5">
+                <Send className="w-3 h-3 mr-1.5" /> Share Your Experience
               </Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 Leave a Review
               </h2>
-              <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
-                We would love to hear about your experience with our catering services
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+                Share your catering experience with us! Your feedback helps us improve and gives other clients confidence in choosing our services.
               </p>
             </motion.div>
 
@@ -802,8 +805,8 @@ export default function CustomerHome() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <Card>
-                <CardContent className="pt-6 space-y-12 p-2">
+              <Card className="border-2">
+                <CardContent className="pt-8 space-y-12 p-4 md:p-8">
                   <Form {...reviewForm}>
                     <form 
                       onSubmit={reviewForm.handleSubmit((data) => createReviewMutation.mutate(data))}
@@ -987,7 +990,7 @@ export default function CustomerHome() {
                     <UtensilsCrossed className="w-6 h-6 text-primary" />
                   </div>
                   <span className="font-serif font-bold text-xl">
-                    {companyInfo?.companyName || "OM Caterers"}
+                    {companyInfo?.companyName}
                   </span>
                 </div>
                 <p className="text-muted-foreground">
