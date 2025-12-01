@@ -656,6 +656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(updatedRequest);
     } catch (error) {
+      console.error("Error updating staff request:", error);
       res.status(500).json({ error: "Failed to update staff request" });
     }
   });

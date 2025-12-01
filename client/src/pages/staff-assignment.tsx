@@ -28,11 +28,12 @@ export default function StaffAssignment() {
 
   const updateMutation = useMutation({
     mutationFn: async (status: "accepted" | "rejected") => {
-      return apiRequest("PATCH", `/api/staff-requests/${token}`, { status });
+      const response = await apiRequest("PATCH", `/api/staff-requests/${token}`, { status });
+      return response.json();
     },
-    onSuccess: (response) => {
+    onSuccess: (data: StaffBookingRequest) => {
       setSubmitted(true);
-      if (response.status === "accepted") {
+      if (data.status === "accepted") {
         toast({
           title: "Accepted!",
           description: "You've been assigned to this event. Thank you!",
@@ -44,7 +45,8 @@ export default function StaffAssignment() {
         });
       }
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Update error:", error);
       toast({
         title: "Error",
         description: "Failed to update your response. Please try again.",

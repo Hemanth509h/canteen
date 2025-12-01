@@ -125,8 +125,14 @@ export default function StaffManager() {
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
-    setEditingStaff(null);
-    form.reset();
+    setTimeout(() => {
+      setEditingStaff(null);
+      form.reset({
+        name: "",
+        role: "chef",
+        phone: "",
+      });
+    }, 0);
   };
 
   return (
