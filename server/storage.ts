@@ -139,9 +139,6 @@ export interface StaffDocument extends Document {
   name: string;
   role: string;
   phone: string;
-  experience: string;
-  imageUrl?: string | null;
-  salary: number;
   createdAt: Date;
 }
 
@@ -149,9 +146,6 @@ const staffSchema = new Schema<StaffDocument>({
   name: { type: String, required: true },
   role: { type: String, required: true },
   phone: { type: String, required: true },
-  experience: { type: String, required: true },
-  imageUrl: { type: String, default: null },
-  salary: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -47,25 +47,17 @@ export default function StaffManager() {
   );
 
   const form = useForm<UpdateStaff>({
-    resolver: zodResolver(editingStaff ? updateStaffSchema : insertStaffSchema.extend({
-      salary: insertStaffSchema.shape.salary.refine((val) => val > 0, {
-        message: "Salary must be greater than 0",
-      }),
-    })),
+    resolver: zodResolver(editingStaff ? updateStaffSchema : insertStaffSchema),
     defaultValues: {
       name: "",
       role: "chef",
       phone: "",
-      experience: "",
-      salary: 0,
-      imageUrl: "",
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertStaff) => {
-      const salaryInRupees = Math.round(data.salary);
-      return apiRequest("POST", "/api/staff", { ...data, salary: salaryInRupees });
+      return apiRequest("POST", "/api/staff", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
@@ -80,11 +72,7 @@ export default function StaffManager() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateStaff }) => {
-      const updateData = { ...data };
-      if (data.salary !== undefined) {
-        updateData.salary = Math.round(data.salary);
-      }
-      return apiRequest("PATCH", `/api/staff/${id}`, updateData);
+      return apiRequest("PATCH", `/api/staff/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
@@ -117,9 +105,6 @@ export default function StaffManager() {
       name: staff.name,
       role: staff.role,
       phone: staff.phone,
-      experience: staff.experience,
-      salary: staff.salary,
-      imageUrl: staff.imageUrl || "",
     });
     setIsDialogOpen(true);
   };
@@ -228,62 +213,6 @@ export default function StaffManager() {
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="experience"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Experience</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="e.g., 5 years" 
-                            {...field} 
-                            data-testid="input-staff-experience"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="salary"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Salary (₹/month)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            step="1"
-                            placeholder="25000" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            data-testid="input-staff-salary"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL (optional)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter image URL" 
-                          {...field} 
-                          data-testid="input-staff-image"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <div className="flex justify-end gap-3 pt-4">
                   <Button 
                     type="button" 
@@ -343,8 +272,6 @@ export default function StaffManager() {
                     <TableHead>Name</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Phone</TableHead>
-                    <TableHead>Experience</TableHead>
-                    <TableHead>Salary</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -354,11 +281,7 @@ export default function StaffManager() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                            {staff.imageUrl ? (
-                              <img src={staff.imageUrl} alt={staff.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <User className="w-5 h-5 text-muted-foreground" />
-                            )}
+                            <User className="w-5 h-5 text-muted-foreground" />
                           </div>
                           <p className="font-semibold" data-testid={`text-staff-name-${staff.id}`}>{staff.name}</p>
                         </div>
@@ -369,10 +292,6 @@ export default function StaffManager() {
                         </Badge>
                       </TableCell>
                       <TableCell data-testid={`text-phone-${staff.id}`}>{staff.phone}</TableCell>
-                      <TableCell data-testid={`text-experience-${staff.id}`}>{staff.experience}</TableCell>
-                      <TableCell className="font-semibold" data-testid={`text-salary-${staff.id}`}>
-                        ₹{staff.salary.toLocaleString('en-IN')}
-                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button

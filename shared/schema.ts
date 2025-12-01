@@ -148,9 +148,6 @@ export interface Staff {
   name: string;
   role: string;
   phone: string;
-  experience: string;
-  imageUrl: string | null;
-  salary: number;
   createdAt: string;
 }
 
@@ -162,9 +159,6 @@ export const insertStaffSchema = z.object({
     .transform(sanitizeName),
   role: z.string().min(1, "Role is required").max(50),
   phone: z.string().min(10, "Phone must be at least 10 digits").transform(sanitizePhone),
-  experience: z.string().min(5, "Experience description must be at least 5 characters").max(500),
-  imageUrl: z.string().url("Invalid image URL").nullable().optional(),
-  salary: z.number().int().min(0, "Salary cannot be negative").max(10000000),
 });
 
 export const updateStaffSchema = insertStaffSchema.partial();

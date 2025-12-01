@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (Dec 1, 2025)
 
+### Simplified Staff Management (Complete):
+- Removed experience, salary, and image fields from staff records
+- Staff now only store: name, role (Chef/Worker/Serving Boy), phone number
+- Cleaner staff form with just 3 essential fields
+- Simplified staff table display
+
 ### Staff Booking Assignment System (In Progress):
 1. **StaffBookingRequest Schema** - Tracks staff responses to booking requests:
    - Fields: bookingId, staffId, status (pending/accepted/rejected), createdAt
