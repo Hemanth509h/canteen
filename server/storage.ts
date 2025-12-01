@@ -14,7 +14,9 @@ import {
   type InsertCustomerReview,
   type CateringPackage,
   type InsertCateringPackage,
-  type UpdateCateringPackage
+  type UpdateCateringPackage,
+  type AdminNotification,
+  type InsertAdminNotification
 } from "@shared/schema";
 
 // ==================== MONGOOSE MODELS ====================
@@ -188,6 +190,27 @@ const cateringPackageSchema = new Schema<CateringPackageDocument>({
 
 export const CateringPackageModel = mongoose.models?.CateringPackage || mongoose.model<CateringPackageDocument>("CateringPackage", cateringPackageSchema);
 
+// Admin Notification Model
+export interface AdminNotificationDocument extends Document {
+  type: "booking" | "payment";
+  title: string;
+  message: string;
+  bookingId?: string;
+  read: boolean;
+  createdAt: Date;
+}
+
+const adminNotificationSchema = new Schema<AdminNotificationDocument>({
+  type: { type: String, enum: ["booking", "payment"], required: true },
+  title: { type: String, required: true },
+  message: { type: String, required: true },
+  bookingId: { type: String, optional: true },
+  read: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const AdminNotificationModel = mongoose.models?.AdminNotification || mongoose.model<AdminNotificationDocument>("AdminNotification", adminNotificationSchema);
+
 // ==================== STORAGE INTERFACE ====================
 
 export interface IStorage {
@@ -233,6 +256,12 @@ export interface IStorage {
   createPackage(pkg: InsertCateringPackage): Promise<CateringPackage>;
   updatePackage(id: string, pkg: UpdateCateringPackage): Promise<CateringPackage | undefined>;
   deletePackage(id: string): Promise<boolean>;
+
+  // Admin Notifications
+  getNotifications(): Promise<AdminNotification[]>;
+  createNotification(notification: InsertAdminNotification): Promise<AdminNotification>;
+  markNotificationAsRead(id: string): Promise<boolean>;
+  deleteNotification(id: string): Promise<boolean>;
 }
 
 // ==================== MONGODB STORAGE IMPLEMENTATION ====================
@@ -495,6 +524,39 @@ export class MongoDBStorage implements IStorage {
 
   async deletePackage(id: string): Promise<boolean> {
     const result = await CateringPackageModel.findByIdAndDelete(id);
+    return result !== null;
+  }
+
+  // Admin Notifications
+  private toAdminNotification(doc: any): AdminNotification {
+    return {
+      id: doc._id.toString(),
+      type: doc.type,
+      title: doc.title,
+      message: doc.message,
+      bookingId: doc.bookingId,
+      read: doc.read,
+      createdAt: doc.createdAt.toISOString(),
+    };
+  }
+
+  async getNotifications(): Promise<AdminNotification[]> {
+    const docs = await AdminNotificationModel.find().sort({ createdAt: -1 }).limit(50).lean();
+    return docs.map(doc => this.toAdminNotification(doc));
+  }
+
+  async createNotification(notification: InsertAdminNotification): Promise<AdminNotification> {
+    const doc = await AdminNotificationModel.create(notification);
+    return this.toAdminNotification(doc);
+  }
+
+  async markNotificationAsRead(id: string): Promise<boolean> {
+    const result = await AdminNotificationModel.findByIdAndUpdate(id, { read: true });
+    return result !== null;
+  }
+
+  async deleteNotification(id: string): Promise<boolean> {
+    const result = await AdminNotificationModel.findByIdAndDelete(id);
     return result !== null;
   }
 }

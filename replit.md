@@ -2,132 +2,11 @@
 
 ## Overview
 
-This is a full-stack catering management application built with React, Express, and SQLite. The platform serves two primary user groups: customers who can browse the menu and book catering services, and administrators who manage food items, event bookings, staff, and company settings. The application features a customer-facing website for browsing services and an admin panel for managing all aspects of the catering business.
+This is a full-stack catering management application built with React, Express, and SQLite. The platform serves customers for browsing menus and booking catering services, and administrators for managing food items, event bookings, staff, and company settings. It features a customer-facing website and a comprehensive admin panel. The project aims to provide an all-in-one solution for catering businesses, streamlining operations from customer interaction to internal management.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-
-## Recent Updates
-
-### Package Showcase on Customer Home (December 01, 2025)
-- **Added:** Complete package showcase section with side-by-side comparison
-  - **Display:** All catering packages shown prominently below features section
-  - **Comparison:** Side-by-side tier display (Budget, Standard, Premium)
-  - **Tier Colors:** Visual distinction with color-coded cards (blue, amber, purple)
-  - **Package Details:** Price per plate, minimum servings, included items
-  - **Quick Selection:** "Select Package" button scrolls to booking/contact section
-  - **Item Preview:** Shows top 4 included items with "+X more" indicator
-- **Features:**
-  - Responsive grid (1 col mobile, 3 col desktop)
-  - Smooth animations and hover effects
-  - Loading skeleton while packages fetch
-  - Navigation link in footer to packages section
-  - Full integration with existing booking system
-- **Frontend Updates:**
-  - New "packages" section ID for navigation
-  - CateringPackage type imported and used
-  - Package query integrated into customer home
-- **Locations:**
-  - Customer Home: New packages section between features and menu
-  - Footer: Quick link to packages section
-
-### Advanced Menu Filtering & Sorting System (December 01, 2025)
-- **Added:** Complete customer menu browsing with advanced features
-  - **Dietary Filters:** Toggle buttons for Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free
-  - **Search Functionality:** Real-time search across dish names, descriptions, and categories
-  - **Sorting Options:** Price (Low to High, High to Low) and Rating (Highest First)
-  - **Category Browsing:** Auto-grouped by category with item counts and headers
-  - **Live Filtering:** All filters work together (dietary + search + category + sorting)
-- **Admin Features:** 
-  - Add price per dish in food item management
-  - Set rating (0-5) for each dish
-  - Select multiple dietary tags per item
-- **Schema Updates:**
-  - Added `price` field to FoodItem (optional, default: 0)
-  - Added `rating` field to FoodItem (optional, 0-5 scale)
-  - Dietary tags support (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free)
-- **Frontend Updates:**
-  - Customer menu displays dietary filter buttons
-  - Sort dropdown with 4 options (Default, Price Low-High, Price High-Low, Rating)
-  - Visual grouping by category with filters applied
-  - Real-time filtering combines all search criteria
-- **Locations:**
-  - Customer Home: Menu section with filters and sorting
-  - Admin Food Items: Price, rating, and dietary tags input fields
-
-### Pre-built Catering Packages System (December 01, 2025)
-- **Added:** Complete package management system with three tiers
-  - **Three Tiers:** Budget, Standard, Premium
-  - **Admin Management:** Full CRUD operations at `/admin/packages`
-  - **Package Features:**
-    - Package name & description
-    - Tier selection (Budget/Standard/Premium)
-    - Price per plate
-    - Minimum servings requirement
-    - List of included menu items (multi-select from food items)
-  - **Admin UI:** Create, edit, and delete packages with visual tier badges
-  - **Database:** MongoDB CateringPackage model with all tier support
-  - **API Endpoints:**
-    - GET `/api/packages` - List all packages
-    - GET `/api/packages/:id` - Get single package
-    - POST `/api/packages` - Create package
-    - PATCH `/api/packages/:id` - Update package
-    - DELETE `/api/packages/:id` - Delete package
-- **Schema:** `CateringPackage` interface with insert and update schemas
-- **Locations:**
-  - Admin Packages Page: Full package management interface
-  - Sidebar Menu: "Catering Packages" link in admin dashboard
-  - Backend Routes: All CRUD operations in `/api/packages`
-
-### Configurable Minimum Advance Booking Days (December 01, 2025)
-- **Added:** Minimum advance booking notice now configurable through admin settings
-  - **Admin Setting:** New "Minimum Advance Booking Days" field in Company Settings
-  - **Range:** 0-30 days (default: 2 days)
-  - **Dynamic Validation:** Booking creation uses company setting instead of hardcoded value
-  - **User Feedback:** Error messages dynamically show configured minimum (e.g., "1 day" vs "2 days")
-  - **Database:** Field stored in CompanyInfo with default value of 2
-- **Removed:** Hardcoded 2-day advance notice requirement
-- **Locations:**
-  - Admin Settings Form: New input field with validation
-  - Booking API: Dynamic validation on POST /api/bookings
-  - Schema: `minAdvanceBookingDays` field in CompanyInfo interface
-
-### UPI Payment Integration with Advance & Final Payment Tracking (December 01, 2025)
-- **Added:** Complete UPI payment system with two-stage payment collection
-  - **Admin can set UPI ID** in Company Settings
-  - **Dynamic QR code generation** for each booking with payment stage info
-  - **Two Payment Stages:**
-    - Advance Payment: 50% of total (before event)
-    - Final Payment: 50% of total (after event)
-  - **Payment Status Tracking:**
-    - Admin can mark each stage as "Pending" or "Paid"
-    - Bookings table shows payment status for both stages
-    - Payment stage buttons disable when marked as paid
-  - **Dynamic amount calculation** - QR code shows correct amount for each stage
-  - **Copy UPI ID button** with visual feedback
-  
-- **Schema Changes:**
-  - Added `advancePaymentStatus` field (pending/paid)
-  - Added `finalPaymentStatus` field (pending/paid)
-  - Both tracked per booking
-  
-- **UI Components:**
-  - Payment stage selection buttons in UPI payment card
-  - Payment status dropdowns in booking edit form
-  - Payment badges in bookings list table
-  - Shows "Adv: pending/paid" and "Final: pending/paid"
-  
-- **Technology:** 
-  - Uses `qrcode` library for QR code generation
-  - Dynamic QR code updates based on payment stage
-  - Real-time payment status updates in admin UI
-  
-- **Locations:** 
-  - Company Settings: `upiId` field
-  - Booking Details: Advance & Final Payment dropdowns + UPI payment card
-  - Bookings List: Payment status column with badges
-  - Component: `client/src/components/upi-payment.tsx`
 
 ## System Architecture
 
@@ -135,23 +14,17 @@ Preferred communication style: Simple, everyday language.
 
 **Technology Stack:**
 - **Framework:** React with TypeScript
-- **Routing:** Wouter (lightweight client-side routing)
-- **UI Components:** Radix UI primitives with shadcn/ui styling system
-- **Styling:** Tailwind CSS with custom design tokens
-- **State Management:** TanStack Query (React Query) for server state
+- **Routing:** Wouter
+- **UI Components:** Radix UI primitives with shadcn/ui styling
+- **Styling:** Tailwind CSS
+- **State Management:** TanStack Query for server state
 - **Form Handling:** React Hook Form with Zod validation
 
 **Design Decisions:**
-- **Component Library Choice:** Uses shadcn/ui for a consistent, accessible component system that's customizable and doesn't add runtime overhead
-- **Routing Strategy:** Wouter chosen over React Router for smaller bundle size and simpler API
-- **State Management:** TanStack Query handles all server state, eliminating need for Redux/Context for data fetching
-- **Form Validation:** Zod schemas shared between client and server ensure type safety and consistent validation
-
-**Directory Structure:**
-- `client/src/pages/` - Route components for both customer and admin views
-- `client/src/components/ui/` - Reusable UI components from shadcn/ui
-- `client/src/hooks/` - Custom React hooks
-- `client/src/lib/` - Utility functions and query client configuration
+- Employs `shadcn/ui` for consistent, accessible, and customizable components.
+- Wouter is chosen for its lightweight nature and simpler API.
+- TanStack Query manages server state efficiently, reducing the need for additional state management libraries.
+- Shared Zod schemas ensure type safety and consistent validation across client and server.
 
 ### Backend Architecture
 
@@ -161,140 +34,77 @@ Preferred communication style: Simple, everyday language.
 - **ORM:** Drizzle ORM
 - **Database:** SQLite (better-sqlite3)
 - **Authentication:** Simple password-based admin authentication with bcrypt
-- **Build Tool:** esbuild for production bundling
+- **Build Tool:** esbuild
 
 **Design Decisions:**
-- **Database Choice:** SQLite selected for simplicity and zero configuration - suitable for small to medium catering businesses without need for separate database server
-- **ORM Selection:** Drizzle ORM chosen for type safety, zero-cost abstractions, and excellent TypeScript support
-- **Authentication Strategy:** Simple file-based password authentication for admin panel - password hash stored in `.admin-password.json` file
-  - Default password is "admin123" (hashed with bcrypt)
-  - Admin can change password through account settings
-  - No session management - relies on localStorage flag (suitable for single admin use case)
-
-**API Structure:**
-- RESTful endpoints under `/api/` prefix
-- Separate routes for:
-  - Food items management (`/api/food-items`)
-  - Event bookings (`/api/bookings`)
-  - Company information (`/api/company-info`)
-  - Staff management (`/api/staff`)
-  - Admin authentication (`/api/admin/login`, `/api/admin/change-password`)
-  - Chef printout generation (`/api/chef-printout`)
-
-**Storage Layer:**
-- Interface-based storage abstraction (`IStorage`) allows for potential future migration
-- `DatabaseStorage` class implements SQLite-based persistence
-- `MemStorage` class provides in-memory fallback (development/testing)
+- SQLite is selected for its simplicity and zero-configuration, suitable for small to medium businesses.
+- Drizzle ORM provides type safety and excellent TypeScript support.
+- Authentication relies on a file-based password hash for the admin panel, suitable for single-admin use cases.
+- API follows a RESTful design under `/api/` prefix.
+- An `IStorage` interface allows for flexible storage implementation.
 
 ### Data Architecture
 
 **Database Schema (SQLite):**
-
-1. **food_items** - Menu items catalog
-   - Stores name, description, category, and optional image URL
-   - Categories: appetizer, main, dessert, beverage
-
-2. **event_bookings** - Customer event bookings
-   - Client details (name, email, phone)
-   - Event information (date, type, guest count)
-   - Pricing (price per plate)
-   - Service requirements (serving boys needed)
-   - Status tracking (pending, confirmed, completed, cancelled)
-   - Special requests field
-
-3. **booking_items** - Many-to-many relationship between bookings and food items
-   - Links bookings to selected food items
-   - Includes quantity for each item
-   - Cascade deletes when booking or food item removed
-
-4. **company_info** - Business information (singleton)
-   - Company name, tagline, description
-   - Contact details (email, phone, address)
-   - Statistics (events per year)
-
-5. **staff** - Staff member records
-   - Name, role (chef, worker, serving_boy)
-   - Contact phone, experience, salary
+- **food_items:** Menu catalog with name, description, category, image, price, rating, and dietary tags.
+- **event_bookings:** Customer booking details including client info, event specifics, pricing, service requirements, status, and special requests. Now includes `advancePaymentStatus` and `finalPaymentStatus`.
+- **booking_items:** Links bookings to selected food items with quantities.
+- **company_info:** Stores business details and configurable settings like `minAdvanceBookingDays` and `upiId`.
+- **staff:** Records for staff members including name, role, contact, experience, and salary.
+- **catering_packages:** Defines pre-built packages with name, description, tier, price per plate, minimum servings, and included items.
+- **admin_notifications:** Stores notifications for admin alerts related to bookings and payments.
 
 **Schema Design Decisions:**
-- Text-based IDs using custom generator for simplicity
-- SQLite's text date storage with ISO format
-- Cascade deletes ensure referential integrity
-- Default values prevent null-related issues
+- Uses text-based IDs and ISO format for dates.
+- Employs cascade deletes for referential integrity.
+- Default values are used to prevent null-related issues.
+- Shared Drizzle table definitions and Zod validation schemas ensure consistent data structures and validation across the stack.
 
-### Shared Code
+### Key Features
 
-**Location:** `shared/schema.ts`
-
-**Purpose:** Type definitions and validation schemas shared between client and server
-
-**Contents:**
-- Drizzle table definitions
-- Zod validation schemas (generated from Drizzle schemas)
-- TypeScript type exports for type safety across stack
-
-**Benefits:**
-- Single source of truth for data structures
-- Compile-time type checking prevents client-server mismatches
-- Validation rules consistent between frontend and backend
-
-### Development Workflow
-
-**Build System:**
-- **Development:** Vite dev server with HMR for frontend, tsx for backend hot reload
-- **Production:** Vite builds client to `dist/public/`, esbuild bundles server to `dist/`
-- Vite configured to serve from `client/` directory with custom alias paths
-
-**Type Checking:**
-- Shared TypeScript configuration across client, server, and shared code
-- Path aliases (`@/`, `@shared/`) for clean imports
-- Strict mode enabled for maximum type safety
+- **Admin Notifications:** Real-time notifications for new bookings and payment status updates.
+- **Package Showcase:** Displays catering packages on the customer home page with comparison features.
+- **Advanced Menu Filtering & Sorting:** Customers can filter by dietary tags, search, sort by price/rating, and browse by category.
+- **Pre-built Catering Packages System:** Admin can manage Budget, Standard, and Premium packages with full CRUD operations.
+- **Configurable Minimum Advance Booking Days:** Admin can set the minimum advance notice required for bookings.
+- **UPI Payment Integration:** Supports two-stage payments (advance and final) with dynamic QR code generation based on admin-set UPI ID.
 
 ## External Dependencies
 
 ### Core Framework Dependencies
-- **Express.js** - Web server framework
-- **React** - UI library
-- **TypeScript** - Type safety across entire stack
+- **Express.js**
+- **React**
+- **TypeScript**
 
 ### Database & ORM
-- **better-sqlite3** - Synchronous SQLite3 bindings (chosen for simplicity and performance)
-- **drizzle-orm** - Type-safe ORM with minimal overhead
-- **drizzle-kit** - Schema migration tooling
+- **better-sqlite3**
+- **drizzle-orm**
+- **drizzle-kit**
 
 ### Authentication & Security
-- **bcryptjs** - Password hashing (bcrypt implementation in pure JavaScript)
-- Password stored in `.admin-password.json` file
+- **bcryptjs**
 
 ### UI Framework
-- **Radix UI** - Headless UI components (20+ primitives)
-- **Tailwind CSS** - Utility-first styling
-- **shadcn/ui** - Pre-built component patterns using Radix + Tailwind
-- **lucide-react** - Icon library
+- **Radix UI**
+- **Tailwind CSS**
+- **shadcn/ui**
+- **lucide-react**
 
 ### Form & Validation
-- **React Hook Form** - Form state management
-- **Zod** - Schema validation
-- **@hookform/resolvers** - Zod integration with React Hook Form
+- **React Hook Form**
+- **Zod**
+- **@hookform/resolvers**
 
 ### Data Fetching
-- **TanStack Query (React Query)** - Server state management with caching
+- **TanStack Query (React Query)**
 
 ### Build Tools
-- **Vite** - Frontend build tool and dev server
-- **esbuild** - Fast JavaScript bundler for production backend
-- **tsx** - TypeScript execution for development
+- **Vite**
+- **esbuild**
+- **tsx**
 
 ### Routing
-- **Wouter** - Lightweight client-side routing
+- **Wouter**
 
-### Development Tools (Replit-specific)
-- **@replit/vite-plugin-runtime-error-modal** - Enhanced error display
-- **@replit/vite-plugin-cartographer** - Code navigation
-- **@replit/vite-plugin-dev-banner** - Development environment indicator
-
-### Design Considerations
-- No external API dependencies - fully self-contained application
-- No cloud services required - runs entirely on local filesystem
-- Minimal production dependencies for smaller bundle size
-- SQLite eliminates need for separate database server
+### Other Libraries
+- **qrcode** (for UPI QR code generation)

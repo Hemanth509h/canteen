@@ -187,3 +187,25 @@ export const updateCateringPackageSchema = insertCateringPackageSchema.partial()
 
 export type InsertCateringPackage = z.infer<typeof insertCateringPackageSchema>;
 export type UpdateCateringPackage = z.infer<typeof updateCateringPackageSchema>;
+
+// ==================== ADMIN NOTIFICATIONS ====================
+
+export interface AdminNotification {
+  id: string;
+  type: "booking" | "payment";
+  title: string;
+  message: string;
+  bookingId?: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export const insertAdminNotificationSchema = z.object({
+  type: z.enum(["booking", "payment"]),
+  title: z.string().min(1),
+  message: z.string().min(1),
+  bookingId: z.string().optional(),
+  read: z.boolean().default(false),
+});
+
+export type InsertAdminNotification = z.infer<typeof insertAdminNotificationSchema>;

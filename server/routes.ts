@@ -172,6 +172,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const booking = await storage.createBooking(result.data);
+      
+      // Create notification for new booking
+      await storage.createNotification({
+        type: "booking",
+        title: "New Booking",
+        message: `New booking from ${result.data.clientName} for ${result.data.eventType} on ${result.data.eventDate}`,
+        bookingId: booking.id
+      });
+      
       res.status(201).json(booking);
     } catch (error) {
       res.status(500).json({ error: "Failed to create booking" });
@@ -186,10 +195,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.message });
       }
 
+      const oldBooking = await storage.getBooking(req.params.id);
       const booking = await storage.updateBooking(req.params.id, result.data);
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
       }
+      
+      // Create notification if payment status changed
+      if (oldBooking && (result.data.advancePaymentStatus !== undefined || result.data.finalPaymentStatus !== undefined)) {
+        const paymentMsg = [];
+        if (result.data.advancePaymentStatus && result.data.advancePaymentStatus !== oldBooking.advancePaymentStatus) {
+          paymentMsg.push(`Advance: ${result.data.advancePaymentStatus}`);
+        }
+        if (result.data.finalPaymentStatus && result.data.finalPaymentStatus !== oldBooking.finalPaymentStatus) {
+          paymentMsg.push(`Final: ${result.data.finalPaymentStatus}`);
+        }
+        if (paymentMsg.length > 0) {
+          await storage.createNotification({
+            type: "payment",
+            title: "Payment Status Updated",
+            message: `Payment updated for ${booking.clientName}: ${paymentMsg.join(", ")}`,
+            bookingId: booking.id
+          });
+        }
+      }
+      
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: "Failed to update booking" });
@@ -487,6 +517,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete package" });
+    }
+  });
+
+  // Admin Notifications Routes
+  app.get("/api/notifications", async (_req, res) => {
+    try {
+      const notifications = await storage.getNotifications();
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+  });
+
+  app.post("/api/notifications", async (req, res) => {
+    try {
+      const { type, title, message, bookingId } = req.body;
+      const notification = await storage.createNotification({ type, title, message, bookingId });
+      res.status(201).json(notification);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create notification" });
+    }
+  });
+
+  app.patch("/api/notifications/:id/read", async (req, res) => {
+    try {
+      const success = await storage.markNotificationAsRead(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to mark notification as read" });
+    }
+  });
+
+  app.delete("/api/notifications/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteNotification(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete notification" });
     }
   });
 
