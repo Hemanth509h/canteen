@@ -9,6 +9,7 @@ import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import PaymentConfirmation from "@/pages/payment-confirmation";
 import AdminPaymentConfirmation from "@/pages/admin-payment-confirmation";
+import StaffAssignment from "@/pages/staff-assignment";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
     <Switch>
       <Route path="/" component={CustomerHome} />
       <Route path="/payment/:bookingId" component={PaymentConfirmation} />
+      <Route path="/staff-assignment/:token" component={StaffAssignment} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
       <Route path="/admin" component={AdminDashboard} />

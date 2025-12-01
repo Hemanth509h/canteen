@@ -242,6 +242,7 @@ export interface StaffBookingRequest {
   bookingId: string;
   staffId: string;
   status: "pending" | "accepted" | "rejected";
+  token: string;
   createdAt: string;
 }
 
@@ -249,6 +250,7 @@ export const insertStaffBookingRequestSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
   staffId: z.string().min(1, "Staff ID is required"),
   status: z.enum(["pending", "accepted", "rejected"]).default("pending"),
+  token: z.string().min(1, "Token is required"),
 });
 
 export const updateStaffBookingRequestSchema = z.object({

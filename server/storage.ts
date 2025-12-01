@@ -219,6 +219,7 @@ export interface StaffBookingRequestDocument extends Document {
   bookingId: string;
   staffId: string;
   status: "pending" | "accepted" | "rejected";
+  token: string;
   createdAt: Date;
 }
 
@@ -226,6 +227,7 @@ const staffBookingRequestSchema = new Schema<StaffBookingRequestDocument>({
   bookingId: { type: String, required: true },
   staffId: { type: String, required: true },
   status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
+  token: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -285,6 +287,7 @@ export interface IStorage {
 
   // Staff Booking Requests
   getStaffBookingRequests(bookingId: string): Promise<StaffBookingRequest[]>;
+  getStaffBookingRequestByToken(token: string): Promise<StaffBookingRequest | undefined>;
   createStaffBookingRequest(request: InsertStaffBookingRequest): Promise<StaffBookingRequest>;
   updateStaffBookingRequest(id: string, request: UpdateStaffBookingRequest): Promise<StaffBookingRequest | undefined>;
   getAcceptedStaffForBooking(bookingId: string): Promise<Staff[]>;
@@ -596,6 +599,7 @@ export class MongoDBStorage implements IStorage {
       bookingId: doc.bookingId,
       staffId: doc.staffId,
       status: doc.status,
+      token: doc.token,
       createdAt: doc.createdAt.toISOString(),
     };
   }
@@ -603,6 +607,11 @@ export class MongoDBStorage implements IStorage {
   async getStaffBookingRequests(bookingId: string): Promise<StaffBookingRequest[]> {
     const docs = await StaffBookingRequestModel.find({ bookingId }).lean();
     return docs.map(doc => this.toStaffBookingRequest(doc));
+  }
+
+  async getStaffBookingRequestByToken(token: string): Promise<StaffBookingRequest | undefined> {
+    const doc = await StaffBookingRequestModel.findOne({ token }).lean();
+    return doc ? this.toStaffBookingRequest(doc) : undefined;
   }
 
   async createStaffBookingRequest(request: InsertStaffBookingRequest): Promise<StaffBookingRequest> {

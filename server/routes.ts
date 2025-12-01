@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { randomUUID } from "crypto";
 import { storage } from "./db";
 import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema, insertCustomerReviewSchema, insertCateringPackageSchema, updateCateringPackageSchema, insertStaffBookingRequestSchema, updateStaffBookingRequestSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
@@ -579,10 +580,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/bookings/:bookingId/staff-requests", async (req, res) => {
     try {
       const { staffId } = req.body;
+      const token = randomUUID();
       const result = insertStaffBookingRequestSchema.safeParse({
         bookingId: req.params.bookingId,
         staffId,
-        status: "pending"
+        status: "pending",
+        token
       });
       if (!result.success) {
         return res.status(400).json({ error: fromZodError(result.error).message });
@@ -616,6 +619,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(staff);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch assigned staff" });
+    }
+  });
+
+  // Staff Assignment Public Routes (by token)
+  app.get("/api/staff-requests/:token", async (req, res) => {
+    try {
+      const request = await storage.getStaffBookingRequestByToken(req.params.token);
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+      const booking = await storage.getBooking(request.bookingId);
+      const staff = await storage.getStaffMember(request.staffId);
+      if (!booking || !staff) {
+        return res.status(404).json({ error: "Booking or staff not found" });
+      }
+      res.json({ request, booking, staff });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch request details" });
+    }
+  });
+
+  app.patch("/api/staff-requests/:token", async (req, res) => {
+    try {
+      const request = await storage.getStaffBookingRequestByToken(req.params.token);
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+      const result = updateStaffBookingRequestSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+      const updatedRequest = await storage.updateStaffBookingRequest(request.id, result.data);
+      if (!updatedRequest) {
+        return res.status(404).json({ error: "Failed to update request" });
+      }
+      res.json(updatedRequest);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update staff request" });
     }
   });
 
