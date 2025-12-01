@@ -13,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -136,12 +135,9 @@ function FoodCardPreview({ item, onClose }: { item: FoodItem; onClose: () => voi
 
 export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
   const [showIntro, setShowIntro] = useState(true);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<"none" | "price-asc" | "price-desc" | "rating-desc">("none");
-  const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
   const dietaryOptions = ["Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
@@ -202,27 +198,13 @@ export default function CustomerHome() {
   }, [foodItems]);
 
   const filteredItems = useMemo(() => {
-    let filtered = foodItems?.filter((item) => {
+    return foodItems?.filter((item) => {
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-      const matchesSearch = item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-                           item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-                           item.category.toLowerCase().includes(debouncedSearch.toLowerCase());
       const matchesDietary = selectedDietary.length === 0 || 
-                            selectedDietary.some(tag => item.dietaryTags?.includes(tag));
-      return matchesCategory && matchesSearch && matchesDietary;
+                            (item.dietaryTags && item.dietaryTags.length > 0 && selectedDietary.some(tag => item.dietaryTags?.includes(tag)));
+      return matchesCategory && matchesDietary;
     }) || [];
-
-    // Sort
-    if (sortBy === "price-asc") {
-      filtered = [...filtered].sort((a, b) => (a.price || 0) - (b.price || 0));
-    } else if (sortBy === "price-desc") {
-      filtered = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
-    } else if (sortBy === "rating-desc") {
-      filtered = [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    }
-
-    return filtered;
-  }, [foodItems, selectedCategory, debouncedSearch, selectedDietary, sortBy]);
+  }, [foodItems, selectedCategory, selectedDietary]);
 
   const groupedByCategory = useMemo(() => {
     if (!filteredItems) return {};
@@ -662,19 +644,6 @@ export default function CustomerHome() {
                 Discover our carefully curated selection of gourmet dishes, crafted to delight every palate
               </p>
               
-              {/* Search Bar */}
-              <div className="max-w-md mx-auto relative mb-6">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search for dishes, categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 py-6 text-base rounded-full border-2"
-                  data-testid="input-search-food"
-                />
-              </div>
-
               {/* Dietary Filters */}
               <div className="flex flex-wrap gap-2 justify-center mb-6">
                 {dietaryOptions.map((option) => (
@@ -695,20 +664,6 @@ export default function CustomerHome() {
                 ))}
               </div>
 
-              {/* Sorting */}
-              <div className="max-w-xs mx-auto">
-                <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-                  <SelectTrigger data-testid="select-sort">
-                    <SelectValue placeholder="Sort by..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Default</SelectItem>
-                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                    <SelectItem value="rating-desc">Rating: Highest First</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </motion.div>
 
             {loadingFood ? (
