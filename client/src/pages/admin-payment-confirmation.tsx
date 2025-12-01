@@ -1,14 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle, MessageCircle, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 
 export default function AdminPaymentConfirmation() {
@@ -16,6 +19,9 @@ export default function AdminPaymentConfirmation() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [customAdvanceAmount, setCustomAdvanceAmount] = useState<number | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editAdvanceStatus, setEditAdvanceStatus] = useState<"pending" | "paid" | null>(null);
+  const [editFinalStatus, setEditFinalStatus] = useState<"pending" | "paid" | null>(null);
 
   const { data: booking, isLoading: bookingLoading } = useQuery<EventBooking>({
     queryKey: ["/api/bookings", bookingId],
@@ -25,6 +31,45 @@ export default function AdminPaymentConfirmation() {
   const { data: companyInfo } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
   });
+
+  const updatePaymentMutation = useMutation({
+    mutationFn: async () => {
+      if (!booking) return;
+      const updateData: Record<string, string> = {};
+      if (editAdvanceStatus !== null && editAdvanceStatus !== booking.advancePaymentStatus) {
+        updateData.advancePaymentStatus = editAdvanceStatus;
+      }
+      if (editFinalStatus !== null && editFinalStatus !== booking.finalPaymentStatus) {
+        updateData.finalPaymentStatus = editFinalStatus;
+      }
+      return apiRequest("PATCH", `/api/bookings/${bookingId}`, updateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
+      toast({
+        title: "Success",
+        description: "Payment status updated successfully",
+      });
+      setIsEditing(false);
+      setEditAdvanceStatus(null);
+      setEditFinalStatus(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update payment status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditClick = () => {
+    if (booking && !isEditing) {
+      setEditAdvanceStatus(booking.advancePaymentStatus as "pending" | "paid");
+      setEditFinalStatus(booking.finalPaymentStatus as "pending" | "paid");
+    }
+    setIsEditing(!isEditing);
+  };
 
   const handleSendWhatsApp = () => {
     if (!booking) return;
@@ -164,30 +209,65 @@ export default function AdminPaymentConfirmation() {
 
             <Card className={booking.advancePaymentStatus === "paid" ? "border-green-200 dark:border-green-800" : "border-amber-200 dark:border-amber-800"}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <span className="text-lg">Advance Payment (50%)</span>
-                  {booking.advancePaymentStatus === "paid" && (
-                    <CheckCircle className="w-5 h-5 text-green-600" data-testid="icon-advance-paid-admin" />
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-3">
+                    <span className="text-lg">Advance Payment (50%)</span>
+                    {!isEditing && booking.advancePaymentStatus === "paid" && (
+                      <CheckCircle className="w-5 h-5 text-green-600" data-testid="icon-advance-paid-admin" />
+                    )}
+                    {!isEditing && booking.advancePaymentStatus === "pending" && (
+                      <Clock className="w-5 h-5 text-amber-600" data-testid="icon-advance-pending-admin" />
+                    )}
+                    {isEditing && editAdvanceStatus === "paid" && (
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    )}
+                    {isEditing && editAdvanceStatus === "pending" && (
+                      <Clock className="w-5 h-5 text-amber-600" />
+                    )}
+                  </CardTitle>
+                  {!isEditing && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleEditClick}
+                      data-testid="button-edit-payment-admin"
+                    >
+                      <Pencil className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
                   )}
-                  {booking.advancePaymentStatus === "pending" && (
-                    <Clock className="w-5 h-5 text-amber-600" data-testid="icon-advance-pending-admin" />
-                  )}
-                </CardTitle>
+                </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <p className="text-2xl font-bold text-primary" data-testid="text-advance-amount-admin">₹{advanceAmount}</p>
-                  <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-advance-status-admin">
-                    {booking.advancePaymentStatus === "paid" ? "Received" : "Pending"}
-                  </Badge>
+                  {!isEditing ? (
+                    <>
+                      <p className="text-2xl font-bold text-primary" data-testid="text-advance-amount-admin">₹{advanceAmount}</p>
+                      <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-advance-status-admin">
+                        {booking.advancePaymentStatus === "paid" ? "Received" : "Pending"}
+                      </Badge>
+                    </>
+                  ) : (
+                    <div className="flex gap-2 w-full">
+                      <Select value={editAdvanceStatus || "pending"} onValueChange={(val) => setEditAdvanceStatus(val as "pending" | "paid")}>
+                        <SelectTrigger className="w-32" data-testid="select-advance-status-edit">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="paid">Received</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {booking.advancePaymentStatus === "pending" ? (
+                {booking.advancePaymentStatus === "pending" && !isEditing ? (
                   <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                     <p className="text-sm text-blue-700 dark:text-blue-200">
                       Awaiting customer payment and screenshot upload. Customer will receive payment details via WhatsApp.
                     </p>
                   </div>
-                ) : (
+                ) : booking.advancePaymentStatus === "paid" && !isEditing ? (
                   <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                     <div>
@@ -195,37 +275,59 @@ export default function AdminPaymentConfirmation() {
                       <p className="text-sm text-green-600 dark:text-green-300">Customer has submitted payment proof.</p>
                     </div>
                   </motion.div>
-                )}
+                ) : null}
               </CardContent>
             </Card>
 
-            {booking.advancePaymentStatus === "paid" && (
-              <Card className={booking.finalPaymentStatus === "paid" ? "border-green-200 dark:border-green-800" : "border-blue-200 dark:border-blue-800"}>
+            {(booking.advancePaymentStatus === "paid" || isEditing) && (
+              <Card className={editFinalStatus === "paid" || booking.finalPaymentStatus === "paid" ? "border-green-200 dark:border-green-800" : "border-blue-200 dark:border-blue-800"}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
                     <span className="text-lg">Final Payment (50%)</span>
-                    {booking.finalPaymentStatus === "paid" && (
+                    {!isEditing && booking.finalPaymentStatus === "paid" && (
                       <CheckCircle className="w-5 h-5 text-green-600" data-testid="icon-final-paid-admin" />
                     )}
-                    {booking.finalPaymentStatus === "pending" && (
+                    {!isEditing && booking.finalPaymentStatus === "pending" && (
                       <Clock className="w-5 h-5 text-blue-600" data-testid="icon-final-pending-admin" />
+                    )}
+                    {isEditing && editFinalStatus === "paid" && (
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    )}
+                    {isEditing && editFinalStatus === "pending" && (
+                      <Clock className="w-5 h-5 text-blue-600" />
                     )}
                   </CardTitle>
                   <div className="flex items-center gap-2 mt-2">
-                    <p className="text-2xl font-bold text-primary" data-testid="text-final-amount-admin">₹{finalAmount}</p>
-                    <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-final-status-admin">
-                      {booking.finalPaymentStatus === "paid" ? "Received" : "Pending"}
-                    </Badge>
+                    {!isEditing ? (
+                      <>
+                        <p className="text-2xl font-bold text-primary" data-testid="text-final-amount-admin">₹{finalAmount}</p>
+                        <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-final-status-admin">
+                          {booking.finalPaymentStatus === "paid" ? "Received" : "Pending"}
+                        </Badge>
+                      </>
+                    ) : (
+                      <div className="flex gap-2 w-full">
+                        <Select value={editFinalStatus || "pending"} onValueChange={(val) => setEditFinalStatus(val as "pending" | "paid")}>
+                          <SelectTrigger className="w-32" data-testid="select-final-status-edit">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="paid">Received</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {booking.finalPaymentStatus === "pending" ? (
+                  {booking.finalPaymentStatus === "pending" && !isEditing ? (
                     <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                       <p className="text-sm text-blue-700 dark:text-blue-200">
                         Awaiting customer final payment and screenshot upload.
                       </p>
                     </div>
-                  ) : (
+                  ) : booking.finalPaymentStatus === "paid" && !isEditing ? (
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                       <div>
@@ -233,7 +335,7 @@ export default function AdminPaymentConfirmation() {
                         <p className="text-sm text-green-600 dark:text-green-300">Customer has submitted final payment proof.</p>
                       </div>
                     </motion.div>
-                  )}
+                  ) : null}
                 </CardContent>
               </Card>
             )}
@@ -264,15 +366,41 @@ export default function AdminPaymentConfirmation() {
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-3">
                   <CardTitle className="text-lg">Payment Summary</CardTitle>
-                  <Button
-                    onClick={handleSendWhatsApp}
-                    className="gap-2 w-full"
-                    data-testid="button-send-whatsapp-admin-payment"
-                    title="Send payment details to customer via WhatsApp"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Send via WhatsApp
-                  </Button>
+                  {isEditing ? (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => updatePaymentMutation.mutate()}
+                        disabled={updatePaymentMutation.isPending}
+                        className="gap-2 flex-1"
+                        data-testid="button-save-payment-changes"
+                      >
+                        <Save className="w-4 h-4" />
+                        {updatePaymentMutation.isPending ? "Saving..." : "Save Changes"}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setIsEditing(false);
+                          setEditAdvanceStatus(null);
+                          setEditFinalStatus(null);
+                        }}
+                        variant="outline"
+                        className="gap-2"
+                        data-testid="button-cancel-edit"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={handleSendWhatsApp}
+                      className="gap-2 w-full"
+                      data-testid="button-send-whatsapp-admin-payment"
+                      title="Send payment details to customer via WhatsApp"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Send via WhatsApp
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
