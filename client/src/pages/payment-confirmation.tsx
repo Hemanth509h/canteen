@@ -99,13 +99,39 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
   };
 
   const handleOpenWhatsApp = () => {
-    const phoneNumber = booking?.contactPhone?.replace(/\D/g, "");
-    if (phoneNumber) {
-      const message = encodeURIComponent(
-        `Hi ${booking?.clientName}, please use this link for your event booking: ${window.location.origin}/payment/${bookingId}`
+    if (!booking) return;
+    
+    const phoneNumber = booking.contactPhone?.replace(/\D/g, "");
+    if (!phoneNumber) return;
+
+    let message = "";
+
+    // Advance payment pending
+    if (booking.advancePaymentStatus === "pending") {
+      message = encodeURIComponent(
+        `Hi ${booking.clientName},\n\n*Advance Payment (50%)*\n- Amount: ₹${advanceAmount}\n- UPI ID: ${companyInfo?.upiId || "N/A"}\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n\nScan the QR code or transfer the amount to complete advance payment.\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
       );
-      window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
     }
+    // Final payment pending (advance already paid)
+    else if (booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "pending") {
+      message = encodeURIComponent(
+        `Hi ${booking.clientName},\n\n*Final Payment (50%)*\n- Amount: ₹${finalAmount}\n- UPI ID: ${companyInfo?.upiId || "N/A"}\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n\nScan the QR code or transfer the amount to complete final payment.\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
+      );
+    }
+    // Both payments completed
+    else if (booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "paid") {
+      message = encodeURIComponent(
+        `Hi ${booking.clientName},\n\nThank you for completing the payment! Your booking is confirmed.\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n- Total Amount: ₹${totalAmount}\n\nWe will contact you soon with event details.`
+      );
+    }
+    // Default
+    else {
+      message = encodeURIComponent(
+        `Hi ${booking.clientName},\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
+      );
+    }
+
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
 
   if (bookingLoading) {
@@ -141,15 +167,6 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
   const advanceAmount = customAdvanceAmount ?? defaultAdvanceAmount;
   const finalAmount = totalAmount - advanceAmount;
 
-  const handleOpenWhatsAppAdvance = () => {
-    const phoneNumber = booking?.contactPhone?.replace(/\D/g, "");
-    if (phoneNumber && companyInfo?.upiId) {
-      const message = encodeURIComponent(
-        `Hi ${booking?.clientName},\n\nAdvance Payment Details:\n- Amount: ₹${advanceAmount}\n- UPI ID: ${companyInfo.upiId}\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n\nPlease scan the QR code on the payment page or transfer the amount to complete the booking.\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
-      );
-      window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4">
@@ -263,7 +280,7 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
                 {booking.advancePaymentStatus === "pending" ? (
                   <>
                     <UPIPayment
-                      upiId={companyInfo?.upiId}
+                      upiId={companyInfo?.upiId || ""}
                       totalAmount={advanceAmount}
                       bookingId={bookingId}
                       clientName={booking.clientName}
@@ -320,7 +337,7 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
                   {booking.finalPaymentStatus === "pending" ? (
                     <>
                       <UPIPayment
-                        upiId={companyInfo?.upiId}
+                        upiId={companyInfo?.upiId || ""}
                         totalAmount={finalAmount}
                         bookingId={bookingId}
                         clientName={booking.clientName}
@@ -387,12 +404,12 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle>Payment Summary</CardTitle>
                   <Button
-                    onClick={booking.advancePaymentStatus === "pending" ? handleOpenWhatsAppAdvance : handleOpenWhatsApp}
+                    onClick={handleOpenWhatsApp}
                     variant="default"
                     size="sm"
                     className="gap-2 whitespace-nowrap"
-                    data-testid={booking.advancePaymentStatus === "pending" ? "button-open-whatsapp-advance" : "button-open-whatsapp"}
-                    title={booking.advancePaymentStatus === "pending" ? "Send advance payment details via WhatsApp" : "Send payment link via WhatsApp"}
+                    data-testid="button-open-whatsapp"
+                    title="Send payment details via WhatsApp"
                   >
                     <MessageCircle className="w-4 h-4" />
                     WhatsApp
