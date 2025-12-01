@@ -19,12 +19,33 @@ import { Plus, Pencil, Trash2, ImagePlus, Search } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
-const categoryMap: Record<string, string> = {
-  "appetizer": "Appetizers",
-  "main": "Main Courses",
-  "dessert": "Desserts",
-  "beverage": "Beverages"
-};
+const defaultCategories = [
+  "Welcome Drinks",
+  "Veg Soup",
+  "Hots",
+  "Veg Starters",
+  "Rotis",
+  "Indian Curries",
+  "Special Gravy Curries",
+  "Special Rice Items",
+  "Roti Chutneys",
+  "Curds",
+  "Papads",
+  "Avakayalu",
+  "Podilu",
+  "Salads",
+  "Chat Items",
+  "Chinese",
+  "Mocktails",
+  "Italian Snacks",
+  "South Indian Tiffins",
+  "Ice Creams",
+  "Veg Biryanis",
+  "Veg Fry Items",
+  "Dal Items",
+  "Liquid Items",
+  "Mutton Snacks"
+];
 
 export default function FoodItemsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -40,15 +61,19 @@ export default function FoodItemsManager() {
   const filteredFoodItems = foodItems?.filter((item) =>
     item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
     item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    categoryMap[item.category].toLowerCase().includes(debouncedSearch.toLowerCase())
+    item.category.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
+
+  const allCategories = foodItems 
+    ? Array.from(new Set([...defaultCategories, ...foodItems.map(item => item.category)])).sort()
+    : defaultCategories;
 
   const form = useForm<InsertFoodItem>({
     resolver: zodResolver(insertFoodItemSchema),
     defaultValues: {
       name: "",
       description: "",
-      category: "appetizer",
+      category: "Veg Starters",
       imageUrl: "",
     },
   });
@@ -200,17 +225,18 @@ export default function FoodItemsManager() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger data-testid="select-food-category">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="appetizer">Appetizers</SelectItem>
-                          <SelectItem value="main">Main Courses</SelectItem>
-                          <SelectItem value="dessert">Desserts</SelectItem>
-                          <SelectItem value="beverage">Beverages</SelectItem>
+                        <SelectContent className="max-h-60">
+                          {allCategories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -315,7 +341,7 @@ export default function FoodItemsManager() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{categoryMap[item.category]}</Badge>
+                        <Badge variant="secondary">{item.category}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

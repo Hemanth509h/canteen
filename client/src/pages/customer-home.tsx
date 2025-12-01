@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,15 +13,6 @@ import type { FoodItem, CompanyInfo } from "@shared/schema";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
 
-const categories = ["All", "Appetizers", "Main Courses", "Desserts", "Beverages"];
-
-const categoryMap: Record<string, string> = {
-  "appetizer": "Appetizers",
-  "main": "Main Courses",
-  "dessert": "Desserts",
-  "beverage": "Beverages"
-};
-
 export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,12 +26,30 @@ export default function CustomerHome() {
     queryKey: ["/api/company-info"],
   });
 
+  const categories = useMemo(() => {
+    if (!foodItems) return ["All"];
+    const uniqueCategories = Array.from(new Set(foodItems.map(item => item.category))).sort();
+    return ["All", ...uniqueCategories];
+  }, [foodItems]);
+
   const filteredItems = foodItems?.filter((item) => {
-    const matchesCategory = selectedCategory === "All" || categoryMap[item.category] === selectedCategory;
+    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
     const matchesSearch = item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-                         item.description.toLowerCase().includes(debouncedSearch.toLowerCase());
+                         item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                         item.category.toLowerCase().includes(debouncedSearch.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const groupedByCategory = useMemo(() => {
+    if (!filteredItems) return {};
+    return filteredItems.reduce((acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    }, {} as Record<string, FoodItem[]>);
+  }, [filteredItems]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,7 +76,7 @@ export default function CustomerHome() {
           ) : (
             <>
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                {companyInfo?.companyName || "Premium Catering Services"}
+                {companyInfo?.companyName || "OM Caterers"}
               </h1>
               <p className="text-xl md:text-2xl text-white/90 mb-8">
                 {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
@@ -96,16 +105,16 @@ export default function CustomerHome() {
       {/* Category Navigation */}
       <section className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1 pb-1">
               {categories.map((category) => (
                 <Button
                   key={category}
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  data-testid={`button-category-${category.toLowerCase().replace(' ', '-')}`}
-                  className="whitespace-nowrap"
+                  data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="whitespace-nowrap flex-shrink-0"
                 >
                   {category}
                 </Button>
@@ -140,65 +149,81 @@ export default function CustomerHome() {
           </div>
 
           {loadingFood ? (
-            <div className="space-y-6 max-h-[800px] overflow-y-auto">
-              {[...Array(3)].map((_, rowIndex) => (
-                <div key={rowIndex} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                  {[...Array(6)].map((_, i) => (
-                    <Card key={i} className="overflow-hidden flex-shrink-0 w-80">
-                      <Skeleton className="h-48 w-full" />
-                      <CardHeader>
-                        <Skeleton className="h-6 w-3/4 mb-2" />
-                        <Skeleton className="h-4 w-full" />
-                      </CardHeader>
-                    </Card>
-                  ))}
+            <div className="space-y-8">
+              {[...Array(3)].map((_, idx) => (
+                <div key={idx}>
+                  <Skeleton className="h-8 w-48 mb-4" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                      <Card key={i} className="overflow-hidden">
+                        <CardHeader className="pb-3">
+                          <Skeleton className="h-5 w-3/4" />
+                        </CardHeader>
+                        <CardContent>
+                          <Skeleton className="h-4 w-full" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           ) : filteredItems && filteredItems.length > 0 ? (
-            <div className="space-y-6 max-h-[1200px] overflow-y-auto pr-2">
-              {Array.from({ length: Math.ceil(filteredItems.length / 8) }, (_, rowIndex) => {
-                const startIdx = rowIndex * 8;
-                const rowItems = filteredItems.slice(startIdx, startIdx + 8);
-                return (
-                  <div key={rowIndex} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                    {rowItems.map((item) => (
+            <div className="space-y-10">
+              {Object.entries(groupedByCategory).sort(([a], [b]) => a.localeCompare(b)).map(([category, items]) => (
+                <div key={category}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <h3 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      {category}
+                    </h3>
+                    <Badge variant="secondary" className="text-sm">
+                      {items.length} items
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {items.map((item) => (
                       <Card 
                         key={item.id} 
-                        className="overflow-hidden hover-elevate transition-all duration-300 flex-shrink-0 w-80"
+                        className="overflow-hidden hover-elevate transition-all duration-300"
                         data-testid={`card-food-${item.id}`}
                       >
-                        <div className="h-48 overflow-hidden bg-muted">
-                          {item.imageUrl && (
+                        {item.imageUrl && (
+                          <div className="h-32 overflow-hidden bg-muted">
                             <img
                               src={item.imageUrl}
                               alt={item.name}
                               className="w-full h-full object-cover"
                             />
-                          )}
-                        </div>
-                        <CardHeader className="space-y-2 pb-6">
-                          <div className="flex items-start justify-between gap-2">
-                            <CardTitle className="text-xl line-clamp-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                              {item.name}
-                            </CardTitle>
-                            <Badge variant="secondary" className="shrink-0">
-                              {categoryMap[item.category]}
-                            </Badge>
                           </div>
-                          <CardDescription className="line-clamp-3 max-h-[72px]">
+                        )}
+                        <CardHeader className="space-y-1 pb-2">
+                          <CardTitle className="text-base line-clamp-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                            {item.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <CardDescription className="line-clamp-2 text-sm">
                             {item.description}
                           </CardDescription>
-                        </CardHeader>
+                          {item.dietaryTags && item.dietaryTags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {item.dietaryTags.slice(0, 2).map((tag) => (
+                                <Badge key={tag} variant="outline" className="text-xs px-2 py-0">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
                       </Card>
                     ))}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">No items found in this category</p>
+              <p className="text-muted-foreground text-lg">No items found matching your search</p>
             </div>
           )}
         </div>
@@ -258,7 +283,7 @@ export default function CustomerHome() {
             <div className="flex items-center gap-2">
               <UtensilsCrossed className="w-6 h-6 text-primary" />
               <span className="font-semibold text-lg" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                {companyInfo?.companyName || "Premium Catering"}
+                {companyInfo?.companyName || "OM Caterers"}
               </span>
             </div>
             {companyInfo?.address && (
