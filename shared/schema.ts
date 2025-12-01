@@ -240,3 +240,26 @@ export const insertAdminNotificationSchema = z.object({
 });
 
 export type InsertAdminNotification = z.infer<typeof insertAdminNotificationSchema>;
+
+// ==================== STAFF BOOKING REQUESTS ====================
+
+export interface StaffBookingRequest {
+  id: string;
+  bookingId: string;
+  staffId: string;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: string;
+}
+
+export const insertStaffBookingRequestSchema = z.object({
+  bookingId: z.string().min(1, "Booking ID is required"),
+  staffId: z.string().min(1, "Staff ID is required"),
+  status: z.enum(["pending", "accepted", "rejected"]).default("pending"),
+});
+
+export const updateStaffBookingRequestSchema = z.object({
+  status: z.enum(["pending", "accepted", "rejected"]),
+});
+
+export type InsertStaffBookingRequest = z.infer<typeof insertStaffBookingRequestSchema>;
+export type UpdateStaffBookingRequest = z.infer<typeof updateStaffBookingRequestSchema>;

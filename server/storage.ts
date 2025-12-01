@@ -16,7 +16,10 @@ import {
   type InsertCateringPackage,
   type UpdateCateringPackage,
   type AdminNotification,
-  type InsertAdminNotification
+  type InsertAdminNotification,
+  type StaffBookingRequest,
+  type InsertStaffBookingRequest,
+  type UpdateStaffBookingRequest
 } from "@shared/schema";
 
 // ==================== MONGOOSE MODELS ====================
@@ -217,6 +220,23 @@ const adminNotificationSchema = new Schema<AdminNotificationDocument>({
 
 export const AdminNotificationModel = mongoose.models?.AdminNotification || mongoose.model<AdminNotificationDocument>("AdminNotification", adminNotificationSchema);
 
+// Staff Booking Request Model
+export interface StaffBookingRequestDocument extends Document {
+  bookingId: string;
+  staffId: string;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: Date;
+}
+
+const staffBookingRequestSchema = new Schema<StaffBookingRequestDocument>({
+  bookingId: { type: String, required: true },
+  staffId: { type: String, required: true },
+  status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const StaffBookingRequestModel = mongoose.models?.StaffBookingRequest || mongoose.model<StaffBookingRequestDocument>("StaffBookingRequest", staffBookingRequestSchema);
+
 // ==================== STORAGE INTERFACE ====================
 
 export interface IStorage {
@@ -268,6 +288,12 @@ export interface IStorage {
   createNotification(notification: InsertAdminNotification): Promise<AdminNotification>;
   markNotificationAsRead(id: string): Promise<boolean>;
   deleteNotification(id: string): Promise<boolean>;
+
+  // Staff Booking Requests
+  getStaffBookingRequests(bookingId: string): Promise<StaffBookingRequest[]>;
+  createStaffBookingRequest(request: InsertStaffBookingRequest): Promise<StaffBookingRequest>;
+  updateStaffBookingRequest(id: string, request: UpdateStaffBookingRequest): Promise<StaffBookingRequest | undefined>;
+  getAcceptedStaffForBooking(bookingId: string): Promise<Staff[]>;
 }
 
 // ==================== MONGODB STORAGE IMPLEMENTATION ====================
@@ -567,5 +593,38 @@ export class MongoDBStorage implements IStorage {
   async deleteNotification(id: string): Promise<boolean> {
     const result = await AdminNotificationModel.findByIdAndDelete(id);
     return result !== null;
+  }
+
+  // Staff Booking Requests
+  private toStaffBookingRequest(doc: any): StaffBookingRequest {
+    return {
+      id: doc._id.toString(),
+      bookingId: doc.bookingId,
+      staffId: doc.staffId,
+      status: doc.status,
+      createdAt: doc.createdAt.toISOString(),
+    };
+  }
+
+  async getStaffBookingRequests(bookingId: string): Promise<StaffBookingRequest[]> {
+    const docs = await StaffBookingRequestModel.find({ bookingId }).lean();
+    return docs.map(doc => this.toStaffBookingRequest(doc));
+  }
+
+  async createStaffBookingRequest(request: InsertStaffBookingRequest): Promise<StaffBookingRequest> {
+    const doc = await StaffBookingRequestModel.create(request);
+    return this.toStaffBookingRequest(doc);
+  }
+
+  async updateStaffBookingRequest(id: string, request: UpdateStaffBookingRequest): Promise<StaffBookingRequest | undefined> {
+    const doc = await StaffBookingRequestModel.findByIdAndUpdate(id, request, { new: true }).lean();
+    return doc ? this.toStaffBookingRequest(doc) : undefined;
+  }
+
+  async getAcceptedStaffForBooking(bookingId: string): Promise<Staff[]> {
+    const requests = await StaffBookingRequestModel.find({ bookingId, status: "accepted" }).lean();
+    const staffIds = requests.map(r => r.staffId);
+    const staffDocs = await StaffModel.find({ _id: { $in: staffIds } }).lean();
+    return staffDocs.map(doc => this.toStaff(doc));
   }
 }
