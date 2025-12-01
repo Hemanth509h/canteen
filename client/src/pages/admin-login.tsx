@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChefHat, Lock } from "lucide-react";
+import { ChefHat, Lock, ArrowLeft, UtensilsCrossed } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
@@ -46,54 +47,128 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-4 text-center">
-          <div className="flex justify-center">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <ChefHat className="w-8 h-8 text-primary" />
-            </div>
-          </div>
-          <div>
-            <CardTitle className="text-2xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Admin Login
-            </CardTitle>
-            <CardDescription>
-              Enter the admin password to access the panel
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Admin Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                data-testid="input-password"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-              data-testid="button-login"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900 p-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-20 animate-float">
+          <UtensilsCrossed className="w-16 h-16 text-white" />
+        </div>
+        <div className="absolute bottom-32 right-20 animate-float-delayed">
+          <ChefHat className="w-20 h-20 text-white" />
+        </div>
+        <div className="absolute top-1/3 right-1/4 animate-float">
+          <UtensilsCrossed className="w-12 h-12 text-white" />
+        </div>
+      </div>
+
+      {/* Back to Home Link */}
+      <motion.div 
+        className="absolute top-6 left-6"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Link href="/">
+          <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </Link>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md relative z-10"
+      >
+        <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-sm">
+          <CardHeader className="space-y-4 text-center pb-2">
+            <motion.div 
+              className="flex justify-center"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             >
-              <Lock className="w-4 h-4 mr-2" />
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-            <div className="text-sm text-muted-foreground text-center mt-4">
-              <p>Default password:</p>
-              <p className="font-mono text-xs mt-1">admin123</p>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20">
+                <ChefHat className="w-10 h-10 text-primary" />
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <CardTitle className="text-2xl font-serif font-bold">
+                Admin Portal
+              </CardTitle>
+              <CardDescription className="mt-2">
+                Enter your credentials to access the management panel
+              </CardDescription>
+            </motion.div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <form onSubmit={handleLogin} className="space-y-5">
+              <motion.div 
+                className="space-y-2"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Label htmlFor="password" className="text-sm font-medium">Admin Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    className="pl-10 py-5"
+                    data-testid="input-password"
+                  />
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Button
+                  type="submit"
+                  className="w-full py-5 text-base font-medium"
+                  disabled={isLoading}
+                  data-testid="button-login"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 mr-2" />
+                      Sign In
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+              <motion.div 
+                className="text-center pt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                <p className="text-xs text-muted-foreground">
+                  Protected area for authorized personnel only
+                </p>
+              </motion.div>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

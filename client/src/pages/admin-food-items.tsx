@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, ImagePlus, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -155,14 +156,24 @@ export default function FoodItemsManager() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            Food Items
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Manage your menu items and categories
-          </p>
+      <motion.div 
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+            <UtensilsCrossed className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold">
+              Food Items
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Manage your menu items and categories
+            </p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           if (!open) {
@@ -282,9 +293,14 @@ export default function FoodItemsManager() {
             </Form>
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
-      <Card>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <Card>
         <CardHeader>
           <CardTitle>Menu Items</CardTitle>
           <CardDescription>
@@ -432,7 +448,8 @@ export default function FoodItemsManager() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
     </div>
   );
 }

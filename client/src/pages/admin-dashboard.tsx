@@ -1,8 +1,10 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { motion } from "framer-motion";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
 import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
@@ -25,50 +27,68 @@ function AppSidebar({ onLogout }: { onLogout: () => void }) {
   const [location] = useLocation();
 
   return (
-    <Sidebar>
-      <SidebarContent>
+    <Sidebar className="border-r border-border/50">
+      <SidebarContent className="bg-gradient-to-b from-sidebar to-sidebar/95">
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-2 text-lg py-4">
-            <ChefHat className="w-5 h-5" />
-            <span style={{ fontFamily: 'Poppins, sans-serif' }}>Admin Panel</span>
+          <SidebarGroupLabel className="flex items-center gap-3 px-4 py-6 mb-2">
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+              <ChefHat className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <span className="font-serif font-bold text-lg block">OM Caterers</span>
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin</Badge>
+            </div>
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="px-2">
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location === item.url}>
-                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+              {menuItems.map((item, index) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={location === item.url}
+                      className="rounded-lg transition-all duration-200"
+                    >
+                      <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`}>
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </motion.div>
               ))}
             </SidebarMenu>
-            <div className="mt-4 px-3 space-y-2">
-              <Link href="/">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  data-testid="button-back-to-home"
-                >
-                  <Home className="w-4 h-4 mr-2" />
-                  Back to Home
-                </Button>
-              </Link>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={onLogout}
-                data-testid="button-logout"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-border/50 p-3 space-y-2">
+        <Link href="/">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-muted-foreground"
+            data-testid="button-back-to-home"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start text-muted-foreground"
+          onClick={onLogout}
+          data-testid="button-logout"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Logout
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }
@@ -91,11 +111,18 @@ export default function AdminDashboard() {
 
   if (isChecking) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <ChefHat className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-amber-900/10 via-background to-orange-900/10">
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ChefHat className="w-8 h-8 text-primary animate-pulse" />
+          </div>
+          <p className="text-muted-foreground font-medium">Loading admin panel...</p>
+        </motion.div>
       </div>
     );
   }
@@ -114,11 +141,11 @@ export default function AdminDashboard() {
       <div className="flex h-screen w-full">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border bg-background">
+          <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background/95 backdrop-blur-sm">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
             <ThemeToggle />
           </header>
-          <main className="flex-1 overflow-auto bg-background">
+          <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20">
             <Switch>
               <Route path="/admin" component={DashboardOverview} />
               <Route path="/admin/food-items" component={FoodItemsManager} />

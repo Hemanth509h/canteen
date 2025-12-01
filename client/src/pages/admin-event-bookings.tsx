@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,7 +175,7 @@ export default function EventBookingsManager() {
       contactEmail: booking.contactEmail,
       contactPhone: booking.contactPhone,
       specialRequests: booking.specialRequests || "",
-      status: booking.status,
+      status: booking.status as "pending" | "confirmed" | "completed" | "cancelled",
     });
     setIsDialogOpen(true);
   };
@@ -229,16 +230,21 @@ export default function EventBookingsManager() {
 
   return (
     <div className="p-6 sm:p-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
-          <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent" style={{ fontFamily: 'Poppins, sans-serif' }}>
             Event Bookings
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             Manage upcoming and past event bookings
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <Button
             variant="outline"
             onClick={() => setLocation('/admin/chef-printout')}
@@ -605,9 +611,14 @@ export default function EventBookingsManager() {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      </motion.div>
 
-      <Card>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <Card>
         <CardHeader>
           <CardTitle>All Bookings</CardTitle>
           <CardDescription>
@@ -710,7 +721,8 @@ export default function EventBookingsManager() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
     </div>
   );
 }
