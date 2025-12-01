@@ -16,27 +16,29 @@ Preferred communication style: Simple, everyday language.
    - Dietary filter buttons (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free)
    - Items show if they match ANY selected dietary filter (using "some" logic)
 
-2. **Enhanced Payment Page UI & Admin/Customer Separation** - Major improvements:
-   - **Step-based Layout**: Clear "Step 1: Advance Payment" and "Step 2: Final Payment" sections
-   - **Professional Status Indicators**: CheckCircle and Clock icons for visual status
-   - **Color-coded Status Badges**: "Completed" or "Pending" states with color coding
-   - **Admin View (No QR Code)**:
-     - QR code hidden for admin users (only customers see payment QR)
-     - Upload screenshot section hidden for admin
-     - Shows "Awaiting customer payment and screenshot upload" message
-     - Back button goes to /admin/bookings, not home
-     - Button text: "Send via WhatsApp" (admin-specific)
-   - **Customer View (With QR Code)**:
+2. **Separate Payment Pages for Admin & Customer** - Complete role-based separation:
+   - **Customer Payment Page** (`/payment/:bookingId`):
      - Full UPI QR code visible for payment scanning
      - Screenshot upload section for proof submission
+     - Shows "Complete your booking payment" heading
      - Back button goes to home page
-     - Button text: "Share via WhatsApp" (customer-specific)
-   - **Improved Payment Summary**: Icons showing payment status with color coding
-   - **Enhanced Typography**: Larger, bolder amounts with hierarchy
-   - **Better Success States**: Animated messages with icons
-   - **Descriptive Help Text**: Clear instructions for customers
-   - **Loading Feedback**: "Uploading..." state for uploads
-   - **All test IDs added**: Complete data-testid attributes (25+ test IDs)
+     - Button text: "Share via WhatsApp"
+     - All customer-focused features and upload functionality
+   - **Admin Payment Page** (`/admin/payment/:bookingId`):
+     - View-only page - no QR code or upload sections
+     - Shows "Booking Payment Details" heading
+     - Back button goes to /admin/bookings
+     - Button text: "Send via WhatsApp"
+     - Displays payment status and awaiting messages
+     - Can send payment links to customers
+   - **Common Features**:
+     - Step-based layout (Step 1: Advance 50%, Step 2: Final 50%)
+     - CheckCircle and Clock icons for status indicators
+     - Color-coded badges for payment states
+     - Improved payment summary with status tracking
+     - Animated success states
+     - Professional typography and visual hierarchy
+     - 25+ test IDs for comprehensive testing
 
 ## System Architecture
 

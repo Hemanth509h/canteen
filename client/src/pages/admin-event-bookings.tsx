@@ -771,7 +771,7 @@ export default function EventBookingsManager() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setLocation(`/payment/${booking.id}`)}
+                            onClick={() => setLocation(`/admin/payment/${booking.id}`)}
                             data-testid={`button-view-payment-${booking.id}`}
                             title="View payment page"
                           >

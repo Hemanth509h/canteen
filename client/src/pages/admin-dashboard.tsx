@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
+import AdminPaymentConfirmation from "./admin-payment-confirmation";
 import CompanySettingsManager from "./admin-company-settings";
 import StaffManager from "./admin-staff";
 import AdminAccount from "./admin-account";
@@ -153,6 +154,7 @@ export default function AdminDashboard() {
               <Route path="/admin/food-items" component={FoodItemsManager} />
               <Route path="/admin/packages" component={CateringPackagesManager} />
               <Route path="/admin/bookings" component={EventBookingsManager} />
+              <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
               <Route path="/admin/chef-printout" component={ChefPrintout} />
               <Route path="/admin/staff" component={StaffManager} />
               <Route path="/admin/settings" component={CompanySettingsManager} />
