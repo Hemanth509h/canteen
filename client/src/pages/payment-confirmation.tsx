@@ -25,9 +25,15 @@ export default function PaymentConfirmation() {
   const [editAdvanceAmount, setEditAdvanceAmount] = useState(false);
   const [customAdvanceAmount, setCustomAdvanceAmount] = useState<number | null>(null);
 
-  const { data: booking, isLoading: bookingLoading } = useQuery<EventBooking>({
+  const { data: booking, isLoading: bookingLoading, isError: bookingError } = useQuery<EventBooking>({
     queryKey: ["/api/bookings", bookingId],
-    queryFn: () => fetch(`/api/bookings/${bookingId}`).then(r => r.json()),
+    queryFn: async () => {
+      if (!bookingId) throw new Error("No booking ID provided");
+      const response = await fetch(`/api/bookings/${bookingId}`);
+      if (!response.ok) throw new Error("Failed to fetch booking");
+      return response.json();
+    },
+    enabled: !!bookingId,
   });
 
   const { data: companyInfo } = useQuery<CompanyInfo>({
@@ -132,6 +138,24 @@ export default function PaymentConfirmation() {
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
 
+  if (!bookingId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">No booking ID provided</p>
+            <Button onClick={() => setLocation("/")} className="w-full">
+              Back to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (bookingLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4">
@@ -143,14 +167,15 @@ export default function PaymentConfirmation() {
     );
   }
 
-  if (!booking) {
+  if (bookingError || !booking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Booking Not Found</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">Could not load booking details. Please check the booking ID and try again.</p>
             <Button onClick={() => setLocation("/")} className="w-full">
               Back to Home
             </Button>
