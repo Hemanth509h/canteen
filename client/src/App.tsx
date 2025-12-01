@@ -8,6 +8,7 @@ import CustomerHome from "@/pages/customer-home";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import PaymentConfirmation from "@/pages/payment-confirmation";
+import AdminPaymentConfirmation from "@/pages/admin-payment-confirmation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/" component={CustomerHome} />
       <Route path="/payment/:bookingId" component={PaymentConfirmation} />
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/:rest*" component={AdminDashboard} />
       <Route component={NotFound} />
