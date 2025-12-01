@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { UPIPayment } from "@/components/upi-payment";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Check } from "lucide-react";
+import { ArrowLeft, Upload, Check, MessageCircle } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
@@ -93,6 +93,16 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
       const reader = new FileReader();
       reader.onload = (e) => setFinalPreview(e.target?.result as string);
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleOpenWhatsApp = () => {
+    const phoneNumber = booking?.contactPhone?.replace(/\D/g, "");
+    if (phoneNumber) {
+      const message = encodeURIComponent(
+        `Hi ${booking?.clientName}, please use this link for your event booking: ${window.location.origin}/payment/${bookingId}`
+      );
+      window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
     }
   };
 
@@ -329,8 +339,19 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
           {/* Summary Card */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <Card className="sticky top-4">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
                 <CardTitle>Payment Summary</CardTitle>
+                <Button
+                  onClick={handleOpenWhatsApp}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  data-testid="button-open-whatsapp"
+                  title="Send payment link via WhatsApp"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="hidden sm:inline">WhatsApp</span>
+                </Button>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">

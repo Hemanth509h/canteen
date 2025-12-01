@@ -2,11 +2,26 @@
 
 ## Overview
 
-This is a full-stack catering management application built with React, Express, and SQLite. The platform serves customers for browsing menus and booking catering services, and administrators for managing food items, event bookings, staff, and company settings. It features a customer-facing website and a comprehensive admin panel. The project aims to provide an all-in-one solution for catering businesses, streamlining operations from customer interaction to internal management.
+This is a full-stack catering management application built with React, Express, and MongoDB. The platform serves customers for browsing menus and booking catering services, and administrators for managing food items, event bookings, staff, and company settings. It features a customer-facing website and a comprehensive admin panel. The project aims to provide an all-in-one solution for catering businesses, streamlining operations from customer interaction to internal management.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Changes (Dec 1, 2025)
+
+### Latest Updates:
+1. **Simplified Menu Filters** - Removed search and price/rating sorting features. Menu now displays only:
+   - Category selection (buttons/dropdown)
+   - Dietary filter buttons (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free)
+   - Items show if they match ANY selected dietary filter (using "some" logic)
+
+2. **WhatsApp Payment Link Integration** - Added WhatsApp button to payment confirmation page:
+   - Button appears in Payment Summary card header
+   - Opens WhatsApp Web with customer's phone number
+   - Includes pre-filled message with payment page link
+   - Customer can manually send the link through WhatsApp
+   - Button is data-testid="button-open-whatsapp"
 
 ## System Architecture
 
@@ -31,28 +46,26 @@ Preferred communication style: Simple, everyday language.
 **Technology Stack:**
 - **Runtime:** Node.js with TypeScript
 - **Framework:** Express.js
-- **ORM:** Drizzle ORM
-- **Database:** SQLite (better-sqlite3)
+- **Database:** MongoDB
 - **Authentication:** Simple password-based admin authentication with bcrypt
 - **Build Tool:** esbuild
 
 **Design Decisions:**
-- SQLite is selected for its simplicity and zero-configuration, suitable for small to medium businesses.
+- MongoDB is used for flexible document storage and scalability.
 - Drizzle ORM provides type safety and excellent TypeScript support.
 - Authentication relies on a file-based password hash for the admin panel, suitable for single-admin use cases.
 - API follows a RESTful design under `/api/` prefix.
-- An `IStorage` interface allows for flexible storage implementation.
 
 ### Data Architecture
 
-**Database Schema (SQLite):**
-- **food_items:** Menu catalog with name, description, category, image, price, rating, and dietary tags.
-- **event_bookings:** Customer booking details including client info, event specifics, pricing, service requirements, status, and special requests. Now includes `advancePaymentStatus` and `finalPaymentStatus`.
-- **booking_items:** Links bookings to selected food items with quantities.
-- **company_info:** Stores business details and configurable settings like `minAdvanceBookingDays` and `upiId`.
+**Database Collections (MongoDB):**
+- **foodItems:** Menu catalog with name, description, category, image, price, rating, and dietary tags.
+- **eventBookings:** Customer booking details including client info, event specifics, pricing, service requirements, status, advance/final payment status, and payment screenshots.
+- **bookingItems:** Links bookings to selected food items with quantities.
+- **companyInfo:** Stores business details and configurable settings like minAdvanceBookingDays and upiId.
 - **staff:** Records for staff members including name, role, contact, experience, and salary.
-- **catering_packages:** Defines pre-built packages with name, description, tier, price per plate, minimum servings, and included items.
-- **admin_notifications:** Stores notifications for admin alerts related to bookings and payments.
+- **cateringPackages:** Defines pre-built packages with name, description, tier, price per plate, minimum servings, and included items.
+- **adminNotifications:** Stores notifications for admin alerts related to bookings and payments.
 
 **Schema Design Decisions:**
 - Uses text-based IDs and ISO format for dates.
@@ -64,10 +77,11 @@ Preferred communication style: Simple, everyday language.
 
 - **Admin Notifications:** Real-time notifications for new bookings and payment status updates.
 - **Package Showcase:** Displays catering packages on the customer home page with comparison features.
-- **Advanced Menu Filtering & Sorting:** Customers can filter by dietary tags, search, sort by price/rating, and browse by category.
+- **Simplified Menu Filtering:** Customers filter items by dietary requirements (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free) and category selection.
 - **Pre-built Catering Packages System:** Admin can manage Budget, Standard, and Premium packages with full CRUD operations.
 - **Configurable Minimum Advance Booking Days:** Admin can set the minimum advance notice required for bookings.
-- **UPI Payment Integration:** Supports two-stage payments (advance and final) with dynamic QR code generation based on admin-set UPI ID.
+- **Two-Stage UPI Payment Integration:** Supports advance (50%) and final (50%) payments with dynamic QR code generation and screenshot proof upload.
+- **WhatsApp Payment Sharing:** Customers can open WhatsApp from payment confirmation page to share the payment link.
 
 ## External Dependencies
 
@@ -76,10 +90,8 @@ Preferred communication style: Simple, everyday language.
 - **React**
 - **TypeScript**
 
-### Database & ORM
-- **better-sqlite3**
-- **drizzle-orm**
-- **drizzle-kit**
+### Database
+- **MongoDB** (via mongoose driver)
 
 ### Authentication & Security
 - **bcryptjs**
@@ -108,3 +120,4 @@ Preferred communication style: Simple, everyday language.
 
 ### Other Libraries
 - **qrcode** (for UPI QR code generation)
+- **framer-motion** (for animations)
