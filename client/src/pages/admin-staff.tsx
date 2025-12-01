@@ -127,16 +127,16 @@ export default function StaffManager() {
     }
   };
 
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-    setTimeout(() => {
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      setIsDialogOpen(false);
       setEditingStaff(null);
       form.reset({
         name: "",
         role: "chef",
         phone: "",
       });
-    }, 0);
+    }
   };
 
   return (
@@ -150,9 +150,15 @@ export default function StaffManager() {
             Manage your team members and their details
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          if (open) {
+            setIsDialogOpen(true);
+          } else {
+            handleDialogClose(false);
+          }
+        }}>
           <DialogTrigger asChild>
-            <Button data-testid="button-add-staff">
+            <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-staff">
               <Plus className="w-4 h-4 mr-2" />
               Add Staff Member
             </Button>
@@ -227,7 +233,7 @@ export default function StaffManager() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={handleDialogClose}
+                    onClick={() => handleDialogClose(false)}
                     data-testid="button-cancel"
                   >
                     Cancel
