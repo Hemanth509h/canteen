@@ -10,6 +10,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### Pre-built Catering Packages System (December 01, 2025)
+- **Added:** Complete package management system with three tiers
+  - **Three Tiers:** Budget, Standard, Premium
+  - **Admin Management:** Full CRUD operations at `/admin/packages`
+  - **Package Features:**
+    - Package name & description
+    - Tier selection (Budget/Standard/Premium)
+    - Price per plate
+    - Minimum servings requirement
+    - List of included menu items (multi-select from food items)
+  - **Admin UI:** Create, edit, and delete packages with visual tier badges
+  - **Database:** MongoDB CateringPackage model with all tier support
+  - **API Endpoints:**
+    - GET `/api/packages` - List all packages
+    - GET `/api/packages/:id` - Get single package
+    - POST `/api/packages` - Create package
+    - PATCH `/api/packages/:id` - Update package
+    - DELETE `/api/packages/:id` - Delete package
+- **Schema:** `CateringPackage` interface with insert and update schemas
+- **Locations:**
+  - Admin Packages Page: Full package management interface
+  - Sidebar Menu: "Catering Packages" link in admin dashboard
+  - Backend Routes: All CRUD operations in `/api/packages`
+
 ### Configurable Minimum Advance Booking Days (December 01, 2025)
 - **Added:** Minimum advance booking notice now configurable through admin settings
   - **Admin Setting:** New "Minimum Advance Booking Days" field in Company Settings

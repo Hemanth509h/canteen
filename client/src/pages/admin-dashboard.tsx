@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -12,11 +12,13 @@ import CompanySettingsManager from "./admin-company-settings";
 import StaffManager from "./admin-staff";
 import AdminAccount from "./admin-account";
 import ChefPrintout from "./admin-chef-printout";
+import CateringPackagesManager from "./admin-catering-packages";
 import { useEffect, useState } from "react";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
+  { title: "Catering Packages", url: "/admin/packages", icon: Package },
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Staff", url: "/admin/staff", icon: Users },
   { title: "Company Settings", url: "/admin/settings", icon: Settings },
@@ -149,6 +151,7 @@ export default function AdminDashboard() {
             <Switch>
               <Route path="/admin" component={DashboardOverview} />
               <Route path="/admin/food-items" component={FoodItemsManager} />
+              <Route path="/admin/packages" component={CateringPackagesManager} />
               <Route path="/admin/bookings" component={EventBookingsManager} />
               <Route path="/admin/chef-printout" component={ChefPrintout} />
               <Route path="/admin/staff" component={StaffManager} />

@@ -156,3 +156,30 @@ export const insertCustomerReviewSchema = z.object({
 });
 
 export type InsertCustomerReview = z.infer<typeof insertCustomerReviewSchema>;
+
+// ==================== CATERING PACKAGES ====================
+
+export interface CateringPackage {
+  id: string;
+  name: string;
+  tier: "budget" | "standard" | "premium";
+  description: string;
+  pricePerPlate: number;
+  items: string[];
+  minServings: number;
+  createdAt: string;
+}
+
+export const insertCateringPackageSchema = z.object({
+  name: z.string().min(1, "Package name is required"),
+  tier: z.enum(["budget", "standard", "premium"]),
+  description: z.string().min(1, "Description is required"),
+  pricePerPlate: z.number().int().positive("Price per plate must be positive"),
+  items: z.array(z.string()).min(1, "Package must include at least one item"),
+  minServings: z.number().int().positive("Minimum servings must be positive").default(20),
+});
+
+export const updateCateringPackageSchema = insertCateringPackageSchema.partial();
+
+export type InsertCateringPackage = z.infer<typeof insertCateringPackageSchema>;
+export type UpdateCateringPackage = z.infer<typeof updateCateringPackageSchema>;

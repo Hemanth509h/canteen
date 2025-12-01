@@ -11,7 +11,10 @@ import {
   type BookingItem, 
   type InsertBookingItem,
   type CustomerReview,
-  type InsertCustomerReview
+  type InsertCustomerReview,
+  type CateringPackage,
+  type InsertCateringPackage,
+  type UpdateCateringPackage
 } from "@shared/schema";
 
 // ==================== MONGOOSE MODELS ====================
@@ -158,6 +161,29 @@ const customerReviewSchema = new Schema<CustomerReviewDocument>({
 
 export const CustomerReviewModel = mongoose.models?.CustomerReview || mongoose.model<CustomerReviewDocument>("CustomerReview", customerReviewSchema);
 
+// Catering Package Model
+export interface CateringPackageDocument extends Document {
+  name: string;
+  tier: "budget" | "standard" | "premium";
+  description: string;
+  pricePerPlate: number;
+  items: string[];
+  minServings: number;
+  createdAt: Date;
+}
+
+const cateringPackageSchema = new Schema<CateringPackageDocument>({
+  name: { type: String, required: true },
+  tier: { type: String, enum: ["budget", "standard", "premium"], required: true },
+  description: { type: String, required: true },
+  pricePerPlate: { type: Number, required: true },
+  items: [{ type: String }],
+  minServings: { type: Number, required: true, default: 20 },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const CateringPackageModel = mongoose.models?.CateringPackage || mongoose.model<CateringPackageDocument>("CateringPackage", cateringPackageSchema);
+
 // ==================== STORAGE INTERFACE ====================
 
 export interface IStorage {
@@ -196,6 +222,13 @@ export interface IStorage {
   getReviews(): Promise<CustomerReview[]>;
   createReview(review: InsertCustomerReview): Promise<CustomerReview>;
   deleteReview(id: string): Promise<boolean>;
+
+  // Catering Packages
+  getPackages(): Promise<CateringPackage[]>;
+  getPackage(id: string): Promise<CateringPackage | undefined>;
+  createPackage(pkg: InsertCateringPackage): Promise<CateringPackage>;
+  updatePackage(id: string, pkg: UpdateCateringPackage): Promise<CateringPackage | undefined>;
+  deletePackage(id: string): Promise<boolean>;
 }
 
 // ==================== MONGODB STORAGE IMPLEMENTATION ====================
@@ -417,6 +450,45 @@ export class MongoDBStorage implements IStorage {
 
   async deleteReview(id: string): Promise<boolean> {
     const result = await CustomerReviewModel.findByIdAndDelete(id);
+    return result !== null;
+  }
+
+  // Catering Packages
+  private toCateringPackage(doc: any): CateringPackage {
+    return {
+      id: doc._id.toString(),
+      name: doc.name,
+      tier: doc.tier,
+      description: doc.description,
+      pricePerPlate: doc.pricePerPlate,
+      items: doc.items || [],
+      minServings: doc.minServings,
+      createdAt: doc.createdAt.toISOString(),
+    };
+  }
+
+  async getPackages(): Promise<CateringPackage[]> {
+    const docs = await CateringPackageModel.find().lean();
+    return docs.map(doc => this.toCateringPackage(doc));
+  }
+
+  async getPackage(id: string): Promise<CateringPackage | undefined> {
+    const doc = await CateringPackageModel.findById(id).lean();
+    return doc ? this.toCateringPackage(doc) : undefined;
+  }
+
+  async createPackage(pkg: InsertCateringPackage): Promise<CateringPackage> {
+    const doc = await CateringPackageModel.create(pkg);
+    return this.toCateringPackage(doc);
+  }
+
+  async updatePackage(id: string, pkg: UpdateCateringPackage): Promise<CateringPackage | undefined> {
+    const doc = await CateringPackageModel.findByIdAndUpdate(id, pkg, { new: true }).lean();
+    return doc ? this.toCateringPackage(doc) : undefined;
+  }
+
+  async deletePackage(id: string): Promise<boolean> {
+    const result = await CateringPackageModel.findByIdAndDelete(id);
     return result !== null;
   }
 }
