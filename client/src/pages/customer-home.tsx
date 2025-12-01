@@ -23,7 +23,7 @@ import {
   ChefHat, Award, Users, Calendar, Star, Clock, Heart,
   Sparkles, ArrowRight, Quote, CheckCircle2, Utensils, Send
 } from "lucide-react";
-import type { FoodItem, CompanyInfo, CustomerReview } from "@shared/schema";
+import type { FoodItem, CompanyInfo, CustomerReview, CateringPackage } from "@shared/schema";
 import { insertCustomerReviewSchema } from "@shared/schema";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
@@ -160,6 +160,10 @@ export default function CustomerHome() {
 
   const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
     queryKey: ["/api/reviews"],
+  });
+
+  const { data: packages, isLoading: loadingPackages } = useQuery<CateringPackage[]>({
+    queryKey: ["/api/packages"],
   });
 
   const reviewForm = useForm({
@@ -436,6 +440,110 @@ export default function CustomerHome() {
               />
             </div>
           </motion.div>
+        </section>
+
+        {/* Catering Packages Section */}
+        <section id="packages" className="py-20 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div 
+              className="text-center mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Badge variant="secondary" className="mb-4 px-4 py-1">
+                <Sparkles className="w-3 h-3 mr-1" /> Catering Packages
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+                Choose Your Perfect Package
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Pre-built packages tailored to your event size and budget
+              </p>
+            </motion.div>
+
+            {loadingPackages ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-96" />
+                ))}
+              </div>
+            ) : packages && packages.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {packages.map((pkg, index) => {
+                  const tierColors = {
+                    budget: "border-blue-200 bg-blue-50 dark:bg-blue-950/30",
+                    standard: "border-amber-200 bg-amber-50 dark:bg-amber-950/30 ring-2 ring-amber-300/50",
+                    premium: "border-purple-200 bg-purple-50 dark:bg-purple-950/30",
+                  };
+                  
+                  return (
+                    <motion.div
+                      key={pkg.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Card 
+                        className={`h-full flex flex-col hover-elevate transition-all duration-300 border-2 ${tierColors[pkg.tier]}`}
+                        data-testid={`card-package-${pkg.id}`}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between mb-2">
+                            <CardTitle className="font-serif text-2xl">{pkg.name}</CardTitle>
+                            <Badge variant={pkg.tier === "premium" ? "default" : pkg.tier === "standard" ? "secondary" : "outline"}>
+                              {pkg.tier.charAt(0).toUpperCase() + pkg.tier.slice(1)}
+                            </Badge>
+                          </div>
+                          <CardDescription className="text-base">{pkg.description}</CardDescription>
+                        </CardHeader>
+                        
+                        <CardContent className="flex-1 space-y-4">
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground">Per Plate Price</p>
+                            <p className="text-3xl font-bold text-primary">₹{pkg.pricePerPlate}</p>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground">Minimum Servings</p>
+                            <p className="font-semibold">{pkg.minServings}+ guests</p>
+                          </div>
+                          
+                          <div className="space-y-2 pt-2 border-t">
+                            <p className="text-sm font-semibold mb-2">Includes:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {pkg.items.slice(0, 4).map((itemId) => (
+                                <Badge key={itemId} variant="outline" className="text-xs">
+                                  {foodItems?.find(f => f.id === itemId)?.name || "Item"}
+                                </Badge>
+                              ))}
+                              {pkg.items.length > 4 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{pkg.items.length - 4} more
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+
+                        <div className="p-4 pt-0 mt-auto">
+                          <Button 
+                            className="w-full"
+                            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+                            data-testid={`button-select-package-${pkg.id}`}
+                          >
+                            Select Package
+                          </Button>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
         </section>
 
         {/* Features Section */}

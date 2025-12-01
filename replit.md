@@ -10,6 +10,28 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### Package Showcase on Customer Home (December 01, 2025)
+- **Added:** Complete package showcase section with side-by-side comparison
+  - **Display:** All catering packages shown prominently below features section
+  - **Comparison:** Side-by-side tier display (Budget, Standard, Premium)
+  - **Tier Colors:** Visual distinction with color-coded cards (blue, amber, purple)
+  - **Package Details:** Price per plate, minimum servings, included items
+  - **Quick Selection:** "Select Package" button scrolls to booking/contact section
+  - **Item Preview:** Shows top 4 included items with "+X more" indicator
+- **Features:**
+  - Responsive grid (1 col mobile, 3 col desktop)
+  - Smooth animations and hover effects
+  - Loading skeleton while packages fetch
+  - Navigation link in footer to packages section
+  - Full integration with existing booking system
+- **Frontend Updates:**
+  - New "packages" section ID for navigation
+  - CateringPackage type imported and used
+  - Package query integrated into customer home
+- **Locations:**
+  - Customer Home: New packages section between features and menu
+  - Footer: Quick link to packages section
+
 ### Advanced Menu Filtering & Sorting System (December 01, 2025)
 - **Added:** Complete customer menu browsing with advanced features
   - **Dietary Filters:** Toggle buttons for Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free
