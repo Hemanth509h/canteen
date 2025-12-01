@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./db";
-import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema, insertCustomerReviewSchema } from "@shared/schema";
+import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema, insertCustomerReviewSchema, insertCateringPackageSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { verifyPassword, updatePassword } from "./password-manager";
 import { z } from "zod";
@@ -143,6 +143,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!result.success) {
         const error = fromZodError(result.error);
         return res.status(400).json({ error: error.message });
+      }
+
+      // Validate minimum advance booking notice (at least 2 days)
+      const bookingDate = new Date(result.data.eventDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const minDate = new Date(today);
+      minDate.setDate(minDate.getDate() + 2);
+      
+      if (bookingDate < minDate) {
+        return res.status(400).json({ error: "Bookings must be made at least 2 days in advance" });
+      }
+
+      // Check for double-booking
+      const allBookings = await storage.getBookings();
+      const existingBooking = allBookings.find(b => 
+        b.eventDate === result.data.eventDate && 
+        (b.status === 'confirmed' || b.status === 'pending')
+      );
+      
+      if (existingBooking) {
+        return res.status(409).json({ error: "This date is already booked. Please select another date" });
       }
 
       const booking = await storage.createBooking(result.data);
@@ -394,6 +416,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
+  // Catering Packages Routes
+  app.get("/api/packages", async (_req, res) => {
+    try {
+      const packages = await storage.getPackages();
+      res.json(packages);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch packages" });
+    }
+  });
+
+  app.get("/api/packages/:id", async (req, res) => {
+    try {
+      const pkg = await storage.getPackage(req.params.id);
+      if (!pkg) {
+        return res.status(404).json({ error: "Package not found" });
+      }
+      res.json(pkg);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch package" });
+    }
+  });
+
+  app.post("/api/packages", async (req, res) => {
+    try {
+      const result = insertCateringPackageSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      const pkg = await storage.createPackage(result.data);
+      res.status(201).json(pkg);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create package" });
+    }
+  });
+
+  app.patch("/api/packages/:id", async (req, res) => {
+    try {
+      const result = insertCateringPackageSchema.partial().safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      const pkg = await storage.updatePackage(req.params.id, result.data);
+      if (!pkg) {
+        return res.status(404).json({ error: "Package not found" });
+      }
+      res.json(pkg);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update package" });
+    }
+  });
+
+  app.delete("/api/packages/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deletePackage(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Package not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete package" });
+    }
+  });
+
+  // Availability Check Route
+  app.get("/api/available-dates", async (_req, res) => {
+    try {
+      const bookings = await storage.getBookings();
+      const bookedDates = bookings
+        .filter(b => b.status === 'confirmed' || b.status === 'pending')
+        .map(b => b.eventDate);
+      
+      res.json({ bookedDates });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch available dates" });
     }
   });
 
