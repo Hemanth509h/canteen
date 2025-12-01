@@ -137,8 +137,21 @@ export default function AdminPaymentConfirmation() {
 
   const baseAmount = booking.guestCount * booking.pricePerPlate;
   const totalAmount = booking.totalAmount ?? editTotalAmount ?? baseAmount;
-  const defaultAdvanceAmount = Math.ceil(totalAmount * 0.5);
-  const advanceAmount = customAdvanceAmount ?? defaultAdvanceAmount;
+  
+  // If advance payment was already paid, keep it fixed at the original 50% of base amount
+  // Only final payment should change when total is adjusted
+  const originalAdvanceAmount = Math.ceil(baseAmount * 0.5);
+  let advanceAmount: number;
+  
+  if (booking.advancePaymentStatus === "paid") {
+    // Advance is paid - keep it fixed at what was originally paid
+    advanceAmount = originalAdvanceAmount;
+  } else {
+    // Advance not paid yet - calculate 50% of current total
+    const defaultAdvanceAmount = Math.ceil(totalAmount * 0.5);
+    advanceAmount = customAdvanceAmount ?? defaultAdvanceAmount;
+  }
+  
   const finalAmount = totalAmount - advanceAmount;
 
   return (
