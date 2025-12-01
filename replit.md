@@ -10,6 +10,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### Advanced Menu Filtering & Sorting System (December 01, 2025)
+- **Added:** Complete customer menu browsing with advanced features
+  - **Dietary Filters:** Toggle buttons for Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free
+  - **Search Functionality:** Real-time search across dish names, descriptions, and categories
+  - **Sorting Options:** Price (Low to High, High to Low) and Rating (Highest First)
+  - **Category Browsing:** Auto-grouped by category with item counts and headers
+  - **Live Filtering:** All filters work together (dietary + search + category + sorting)
+- **Admin Features:** 
+  - Add price per dish in food item management
+  - Set rating (0-5) for each dish
+  - Select multiple dietary tags per item
+- **Schema Updates:**
+  - Added `price` field to FoodItem (optional, default: 0)
+  - Added `rating` field to FoodItem (optional, 0-5 scale)
+  - Dietary tags support (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free)
+- **Frontend Updates:**
+  - Customer menu displays dietary filter buttons
+  - Sort dropdown with 4 options (Default, Price Low-High, Price High-Low, Rating)
+  - Visual grouping by category with filters applied
+  - Real-time filtering combines all search criteria
+- **Locations:**
+  - Customer Home: Menu section with filters and sorting
+  - Admin Food Items: Price, rating, and dietary tags input fields
+
 ### Pre-built Catering Packages System (December 01, 2025)
 - **Added:** Complete package management system with three tiers
   - **Three Tiers:** Budget, Standard, Premium

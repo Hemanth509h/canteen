@@ -123,6 +123,8 @@ export default function FoodItemsManager() {
     },
   });
 
+  const dietaryOptions = ["Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
+
   const handleEdit = (item: FoodItem) => {
     setEditingItem(item);
     form.reset({
@@ -130,6 +132,9 @@ export default function FoodItemsManager() {
       description: item.description,
       category: item.category,
       imageUrl: item.imageUrl || "",
+      price: item.price || 0,
+      rating: item.rating || 0,
+      dietaryTags: item.dietaryTags || [],
     });
     setIsDialogOpen(true);
   };
@@ -268,6 +273,76 @@ export default function FoodItemsManager() {
                           data-testid="input-food-image"
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price (optional)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number"
+                            placeholder="0" 
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            data-testid="input-food-price"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="rating"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rating 0-5 (optional)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number"
+                            placeholder="0" 
+                            min="0"
+                            max="5"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            data-testid="input-food-rating"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="dietaryTags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dietary Tags (optional)</FormLabel>
+                      <div className="flex flex-wrap gap-2">
+                        {dietaryOptions.map((tag) => (
+                          <label key={tag} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={field.value?.includes(tag) || false}
+                              onChange={(e) => {
+                                const newTags = e.target.checked
+                                  ? [...(field.value || []), tag]
+                                  : field.value?.filter(t => t !== tag) || [];
+                                field.onChange(newTags);
+                              }}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm">{tag}</span>
+                          </label>
+                        ))}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}

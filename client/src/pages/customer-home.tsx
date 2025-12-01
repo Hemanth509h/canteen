@@ -139,8 +139,12 @@ export default function CustomerHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<"none" | "price-asc" | "price-desc" | "rating-desc">("none");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
+
+  const dietaryOptions = ["Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -193,13 +197,28 @@ export default function CustomerHome() {
     return ["All", ...uniqueCategories];
   }, [foodItems]);
 
-  const filteredItems = foodItems?.filter((item) => {
-    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-                         item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-                         item.category.toLowerCase().includes(debouncedSearch.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredItems = useMemo(() => {
+    let filtered = foodItems?.filter((item) => {
+      const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+      const matchesSearch = item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                           item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                           item.category.toLowerCase().includes(debouncedSearch.toLowerCase());
+      const matchesDietary = selectedDietary.length === 0 || 
+                            selectedDietary.some(tag => item.dietaryTags?.includes(tag));
+      return matchesCategory && matchesSearch && matchesDietary;
+    }) || [];
+
+    // Sort
+    if (sortBy === "price-asc") {
+      filtered = [...filtered].sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (sortBy === "price-desc") {
+      filtered = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
+    } else if (sortBy === "rating-desc") {
+      filtered = [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    }
+
+    return filtered;
+  }, [foodItems, selectedCategory, debouncedSearch, selectedDietary, sortBy]);
 
   const groupedByCategory = useMemo(() => {
     if (!filteredItems) return {};
@@ -534,7 +553,9 @@ export default function CustomerHome() {
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
                 Discover our carefully curated selection of gourmet dishes, crafted to delight every palate
               </p>
-              <div className="max-w-md mx-auto relative">
+              
+              {/* Search Bar */}
+              <div className="max-w-md mx-auto relative mb-6">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   type="text"
@@ -544,6 +565,41 @@ export default function CustomerHome() {
                   className="pl-12 py-6 text-base rounded-full border-2"
                   data-testid="input-search-food"
                 />
+              </div>
+
+              {/* Dietary Filters */}
+              <div className="flex flex-wrap gap-2 justify-center mb-6">
+                {dietaryOptions.map((option) => (
+                  <Button
+                    key={option}
+                    variant={selectedDietary.includes(option) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedDietary(prev => 
+                      prev.includes(option) 
+                        ? prev.filter(d => d !== option)
+                        : [...prev, option]
+                    )}
+                    className="text-xs sm:text-sm"
+                    data-testid={`button-dietary-${option.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Sorting */}
+              <div className="max-w-xs mx-auto">
+                <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                  <SelectTrigger data-testid="select-sort">
+                    <SelectValue placeholder="Sort by..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Default</SelectItem>
+                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                    <SelectItem value="rating-desc">Rating: Highest First</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </motion.div>
 

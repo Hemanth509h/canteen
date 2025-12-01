@@ -9,6 +9,8 @@ export interface FoodItem {
   category: string;
   imageUrl: string | null;
   dietaryTags?: string[];
+  price?: number;
+  rating?: number;
 }
 
 export const insertFoodItemSchema = z.object({
@@ -17,6 +19,8 @@ export const insertFoodItemSchema = z.object({
   category: z.string().min(1, "Category is required"),
   imageUrl: z.string().nullable().optional(),
   dietaryTags: z.array(z.string()).optional(),
+  price: z.number().int().positive("Price must be positive").optional(),
+  rating: z.number().min(0).max(5, "Rating must be between 0-5").optional(),
 });
 
 export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;

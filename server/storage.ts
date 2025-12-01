@@ -26,6 +26,8 @@ export interface FoodItemDocument extends Document {
   category: string;
   imageUrl?: string | null;
   dietaryTags?: string[];
+  price?: number;
+  rating?: number;
 }
 
 const foodItemSchema = new Schema<FoodItemDocument>({
@@ -34,6 +36,8 @@ const foodItemSchema = new Schema<FoodItemDocument>({
   category: { type: String, required: true },
   imageUrl: { type: String, default: null },
   dietaryTags: [{ type: String }],
+  price: { type: Number, default: 0 },
+  rating: { type: Number, default: 0, min: 0, max: 5 },
 });
 
 export const FoodItemModel = mongoose.models?.FoodItem || mongoose.model<FoodItemDocument>("FoodItem", foodItemSchema);
@@ -242,6 +246,8 @@ export class MongoDBStorage implements IStorage {
       category: doc.category,
       imageUrl: doc.imageUrl || null,
       dietaryTags: doc.dietaryTags || [],
+      price: doc.price || 0,
+      rating: doc.rating || 0,
     };
   }
 
