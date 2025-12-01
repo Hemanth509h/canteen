@@ -10,6 +10,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### Configurable Minimum Advance Booking Days (December 01, 2025)
+- **Added:** Minimum advance booking notice now configurable through admin settings
+  - **Admin Setting:** New "Minimum Advance Booking Days" field in Company Settings
+  - **Range:** 0-30 days (default: 2 days)
+  - **Dynamic Validation:** Booking creation uses company setting instead of hardcoded value
+  - **User Feedback:** Error messages dynamically show configured minimum (e.g., "1 day" vs "2 days")
+  - **Database:** Field stored in CompanyInfo with default value of 2
+- **Removed:** Hardcoded 2-day advance notice requirement
+- **Locations:**
+  - Admin Settings Form: New input field with validation
+  - Booking API: Dynamic validation on POST /api/bookings
+  - Schema: `minAdvanceBookingDays` field in CompanyInfo interface
+
 ### UPI Payment Integration with Advance & Final Payment Tracking (December 01, 2025)
 - **Added:** Complete UPI payment system with two-stage payment collection
   - **Admin can set UPI ID** in Company Settings

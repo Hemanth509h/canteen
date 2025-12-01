@@ -35,6 +35,7 @@ export default function CompanySettingsManager() {
       eventsPerYear: companyInfo.eventsPerYear,
       websiteUrl: companyInfo.websiteUrl || "",
       upiId: companyInfo.upiId || "",
+      minAdvanceBookingDays: companyInfo.minAdvanceBookingDays || 2,
     } : undefined,
   });
 
@@ -234,6 +235,30 @@ export default function CompanySettingsManager() {
                           data-testid="input-upi-id"
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="minAdvanceBookingDays"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Minimum Advance Booking Days</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="2" 
+                          min="0"
+                          max="30"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 2)}
+                          data-testid="input-min-advance-booking-days"
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Number of days in advance customers must book events (0-30 days)
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}

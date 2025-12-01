@@ -145,15 +145,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.message });
       }
 
-      // Validate minimum advance booking notice (at least 2 days)
+      // Get company settings for minimum advance booking days
+      const companyInfo = await storage.getCompanyInfo();
+      const minDays = companyInfo?.minAdvanceBookingDays || 2;
+
+      // Validate minimum advance booking notice
       const bookingDate = new Date(result.data.eventDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const minDate = new Date(today);
-      minDate.setDate(minDate.getDate() + 2);
+      minDate.setDate(minDate.getDate() + minDays);
       
       if (bookingDate < minDate) {
-        return res.status(400).json({ error: "Bookings must be made at least 2 days in advance" });
+        return res.status(400).json({ error: `Bookings must be made at least ${minDays} day${minDays !== 1 ? 's' : ''} in advance` });
       }
 
       // Check for double-booking

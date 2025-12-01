@@ -97,6 +97,8 @@ export interface CompanyInfoDocument extends Document {
   address?: string;
   eventsPerYear?: number;
   websiteUrl?: string;
+  upiId?: string;
+  minAdvanceBookingDays?: number;
 }
 
 const companyInfoSchema = new Schema<CompanyInfoDocument>({
@@ -108,6 +110,8 @@ const companyInfoSchema = new Schema<CompanyInfoDocument>({
   address: { type: String, default: null },
   eventsPerYear: { type: Number, default: 500 },
   websiteUrl: { type: String, default: null },
+  upiId: { type: String, default: null },
+  minAdvanceBookingDays: { type: Number, default: 2 },
 });
 
 export const CompanyInfoModel = mongoose.models?.CompanyInfo || mongoose.model<CompanyInfoDocument>("CompanyInfo", companyInfoSchema);
@@ -247,6 +251,9 @@ export class MongoDBStorage implements IStorage {
       phone: doc.phone,
       address: doc.address,
       eventsPerYear: doc.eventsPerYear,
+      websiteUrl: doc.websiteUrl || undefined,
+      upiId: doc.upiId || undefined,
+      minAdvanceBookingDays: doc.minAdvanceBookingDays || 2,
     };
   }
 

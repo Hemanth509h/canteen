@@ -92,6 +92,7 @@ export interface CompanyInfo {
   eventsPerYear: number;
   websiteUrl?: string;
   upiId?: string;
+  minAdvanceBookingDays?: number;
 }
 
 export const insertCompanyInfoSchema = z.object({
@@ -104,6 +105,7 @@ export const insertCompanyInfoSchema = z.object({
   eventsPerYear: z.number().int().positive().default(500).optional(),
   websiteUrl: z.string().url("Valid URL is required").optional(),
   upiId: z.string().optional(),
+  minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
 });
 
 export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
