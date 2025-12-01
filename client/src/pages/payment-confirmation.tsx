@@ -22,8 +22,6 @@ export default function PaymentConfirmation() {
   const [finalFile, setFinalFile] = useState<File | null>(null);
   const [advancePreview, setAdvancePreview] = useState<string | null>(null);
   const [finalPreview, setFinalPreview] = useState<string | null>(null);
-  const [editAdvanceAmount, setEditAdvanceAmount] = useState(false);
-  const [customAdvanceAmount, setCustomAdvanceAmount] = useState<number | null>(null);
 
   const { data: booking, isLoading: bookingLoading, isError: bookingError } = useQuery<EventBooking>({
     queryKey: ["/api/bookings", bookingId],
@@ -110,8 +108,7 @@ export default function PaymentConfirmation() {
 
     let message = "";
     const totalAmount = booking.guestCount * booking.pricePerPlate;
-    const defaultAdvanceAmount = Math.ceil(totalAmount * 0.5);
-    const advanceAmount = customAdvanceAmount ?? defaultAdvanceAmount;
+    const advanceAmount = Math.ceil(totalAmount * 0.5);
     const finalAmount = totalAmount - advanceAmount;
 
     if (booking.advancePaymentStatus === "pending") {
@@ -186,8 +183,7 @@ export default function PaymentConfirmation() {
   }
 
   const totalAmount = booking.guestCount * booking.pricePerPlate;
-  const defaultAdvanceAmount = Math.ceil(totalAmount * 0.5);
-  const advanceAmount = customAdvanceAmount ?? defaultAdvanceAmount;
+  const advanceAmount = Math.ceil(totalAmount * 0.5);
   const finalAmount = totalAmount - advanceAmount;
 
   return (
@@ -264,7 +260,7 @@ export default function PaymentConfirmation() {
 
             <Card className={booking.advancePaymentStatus === "paid" ? "border-green-200 dark:border-green-800" : "border-amber-200 dark:border-amber-800"}>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div>
                   <CardTitle className="flex items-center gap-3">
                     <span className="text-lg">Step 1: Advance Payment (50%)</span>
                     {booking.advancePaymentStatus === "paid" && (
@@ -274,42 +270,13 @@ export default function PaymentConfirmation() {
                       <Clock className="w-5 h-5 text-amber-600" data-testid="icon-advance-pending" />
                     )}
                   </CardTitle>
-                  {booking.advancePaymentStatus === "pending" && !editAdvanceAmount && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setEditAdvanceAmount(true)}
-                      data-testid="button-edit-advance-amount"
-                    >
-                      Edit Amount
-                    </Button>
-                  )}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <p className="text-2xl font-bold text-primary" data-testid="text-advance-amount">₹{advanceAmount}</p>
+                  <p className="text-2xl font-bold text-primary" data-testid="text-advance-amount">₹{advanceAmount.toLocaleString('en-IN')}</p>
                   <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-advance-status">
                     {booking.advancePaymentStatus === "paid" ? "Completed" : "Pending"}
                   </Badge>
                 </div>
-                {editAdvanceAmount && booking.advancePaymentStatus === "pending" && (
-                  <div className="flex gap-2 mt-3">
-                    <Input
-                      type="number"
-                      value={customAdvanceAmount ?? advanceAmount}
-                      onChange={(e) => setCustomAdvanceAmount(Number(e.target.value))}
-                      data-testid="input-advance-amount"
-                      className="max-w-xs"
-                      placeholder="Enter amount"
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() => setEditAdvanceAmount(false)}
-                      data-testid="button-save-advance-amount"
-                    >
-                      Save
-                    </Button>
-                  </div>
-                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 {booking.advancePaymentStatus === "pending" ? (
@@ -378,7 +345,7 @@ export default function PaymentConfirmation() {
                     </CardTitle>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    <p className="text-2xl font-bold text-primary" data-testid="text-final-amount">₹{finalAmount}</p>
+                    <p className="text-2xl font-bold text-primary" data-testid="text-final-amount">₹{finalAmount.toLocaleString('en-IN')}</p>
                     <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-final-status">
                       {booking.finalPaymentStatus === "paid" ? "Completed" : "Pending"}
                     </Badge>
