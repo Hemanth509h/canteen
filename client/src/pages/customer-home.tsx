@@ -240,7 +240,7 @@ export default function CustomerHome() {
                 transition={{ delay: 0.5, duration: 0.6 }}
                 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4"
               >
-                OM Caterers
+                {companyInfo?.companyName || "OM Caterers"}
               </motion.h1>
               <motion.div
                 initial={{ opacity: 0, width: 0 }}
