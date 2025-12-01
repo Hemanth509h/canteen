@@ -11,10 +11,19 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes (Dec 1, 2025)
 
 ### Latest Updates:
-1. **Dynamic Total Amount Adjustment** - Admin can now modify the total booking amount after payment:
+1. **Manual WhatsApp Staff Reminders** - One-click button to send booking reminders to staff:
+   - Click the WhatsApp icon button (MessageCircle icon) on any booking in the bookings list
+   - Modal opens showing all staff members
+   - Click "Send" button next to staff name to open WhatsApp with pre-filled booking details
+   - Message includes: client name, event type, date, guest count
+   - Opens WhatsApp Web directly - no external API required
+   - Staff can receive reminders instantly for event preparation
+
+2. **Dynamic Total Amount Adjustment Fixed** - Admin can modify booking total with proper payment handling:
    - Click "Edit" button on admin payment page to enter edit mode
    - Modify the total amount in the input field
-   - Advance payment (50%) and final payment (50%) automatically recalculate based on new total
+   - When advance payment is PAID: advance stays fixed, only final payment adjusts
+   - When advance payment is PENDING: both advance and final recalculate as 50/50 split
    - Changes are saved to the database and reflected on customer payment page
    - Useful when: final guest count changes or additional services are added/removed
 
@@ -106,7 +115,8 @@ Preferred communication style: Simple, everyday language.
 - **Configurable Minimum Advance Booking Days:** Admin can set the minimum advance notice required for bookings.
 - **Two-Stage UPI Payment Integration:** Supports advance (50%) and final (50%) payments with dynamic QR code generation and screenshot proof upload.
 - **WhatsApp Payment Sharing:** Customers can open WhatsApp from payment confirmation page to share the payment link.
-- **Dynamic Total Amount Adjustment:** Admin can modify booking total amount after payment, with automatic recalculation of advance and final payments (50% each).
+- **Manual WhatsApp Staff Reminders:** One-click button to send booking reminders to all staff members with event details.
+- **Dynamic Total Amount Adjustment:** Admin can modify booking total amount after payment, with smart recalculation - paid advance stays fixed, only final payment adjusts.
 
 ## External Dependencies
 

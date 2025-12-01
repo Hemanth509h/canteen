@@ -15,8 +15,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye } from "lucide-react";
-import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo } from "@shared/schema";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle } from "lucide-react";
+import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo, type Staff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { UPIPayment } from "@/components/upi-payment";
@@ -38,6 +38,8 @@ export default function EventBookingsManager() {
   const [editingBooking, setEditingBooking] = useState<EventBooking | null>(null);
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
+  const [selectedBookingForWhatsapp, setSelectedBookingForWhatsapp] = useState<EventBooking | null>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -55,12 +57,28 @@ export default function EventBookingsManager() {
     queryKey: ["/api/company-info"],
   });
 
+  const { data: staffList } = useQuery<Staff[]>({
+    queryKey: ["/api/staff"],
+  });
+
   const filteredBookings = bookings?.filter((booking) =>
     booking.clientName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
     booking.eventType.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
     booking.contactEmail.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
     booking.status.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
+
+  const generateWhatsappMessage = (booking: EventBooking) => {
+    const message = `Booking Reminder:\n\nClient: ${booking.clientName}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString()}\nGuests: ${booking.guestCount}\n\nPlease check booking details in admin panel.`;
+    return encodeURIComponent(message);
+  };
+
+  const openWhatsappForStaff = (phone: string, booking: EventBooking) => {
+    const message = generateWhatsappMessage(booking);
+    const cleanPhone = phone.replace(/\D/g, '');
+    window.open(`https://wa.me/91${cleanPhone}?text=${message}`, '_blank');
+    toast({ title: "Opening WhatsApp", description: "Please send the message to staff" });
+  };
 
   const form = useForm<UpdateEventBooking>({
     resolver: zodResolver(editingBooking ? updateEventBookingSchema : insertEventBookingSchema.extend({
@@ -771,6 +789,18 @@ export default function EventBookingsManager() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => {
+                              setSelectedBookingForWhatsapp(booking);
+                              setWhatsappModalOpen(true);
+                            }}
+                            data-testid={`button-whatsapp-${booking.id}`}
+                            title="Send WhatsApp reminder to staff"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => setLocation(`/admin/payment/${booking.id}`)}
                             data-testid={`button-view-payment-${booking.id}`}
                             title="View payment page"
@@ -818,6 +848,44 @@ export default function EventBookingsManager() {
           )}
         </CardContent>
         </Card>
+
+        <Dialog open={whatsappModalOpen} onOpenChange={setWhatsappModalOpen}>
+          <DialogContent data-testid="dialog-whatsapp-staff">
+            <DialogHeader>
+              <DialogTitle>Send WhatsApp Reminder to Staff</DialogTitle>
+              <DialogDescription>
+                {selectedBookingForWhatsapp && `Booking: ${selectedBookingForWhatsapp.clientName} - ${selectedBookingForWhatsapp.eventType}`}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {staffList && staffList.length > 0 ? (
+                staffList.map((staff) => (
+                  <div key={staff.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-semibold">{staff.name}</p>
+                      <p className="text-sm text-muted-foreground">{staff.role}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if (selectedBookingForWhatsapp) {
+                          openWhatsappForStaff(staff.phone, selectedBookingForWhatsapp);
+                          setWhatsappModalOpen(false);
+                        }
+                      }}
+                      data-testid={`button-send-whatsapp-${staff.id}`}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Send
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-8">No staff members found. Add staff first.</p>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </motion.div>
     </div>
   );
