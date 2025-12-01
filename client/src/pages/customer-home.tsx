@@ -739,8 +739,9 @@ export default function CustomerHome() {
                 viewport={{ once: true }}
               >
                 <h3 className="text-xl md:text-2xl font-serif font-bold mb-4 md:mb-6 text-center">Recent Customer Reviews</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {reviews.slice(0, 6).map((review, index) => (
+                <div className="space-y-12 p-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {reviews.slice(0, 6).map((review, index) => (
                     <Card key={review.id} className="hover-elevate" data-testid={`card-customer-review-${index}`}>
                       <CardHeader className="pb-2">
                         <div className="flex items-center gap-1 mb-2">
@@ -768,7 +769,8 @@ export default function CustomerHome() {
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
