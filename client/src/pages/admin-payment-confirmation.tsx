@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { Invoice } from "@/components/invoice";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
@@ -513,6 +514,12 @@ export default function AdminPaymentConfirmation() {
                 )}
               </CardContent>
             </Card>
+
+            {booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "paid" && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                <Invoice booking={booking} companyInfo={companyInfo} isAdmin={true} />
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>

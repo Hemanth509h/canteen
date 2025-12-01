@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { UPIPayment } from "@/components/upi-payment";
+import { Invoice } from "@/components/invoice";
 import { motion } from "framer-motion";
 import { ArrowLeft, Upload, CheckCircle, Clock } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
@@ -400,7 +401,8 @@ export default function PaymentConfirmation() {
             )}
 
             {booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "paid" && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <Invoice booking={booking} companyInfo={companyInfo} isAdmin={false} />
                 <Card className="border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50 to-green-50/50 dark:from-green-950/30 dark:to-green-950/10">
                   <CardContent className="pt-6">
                     <div className="text-center space-y-4">

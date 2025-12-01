@@ -61,6 +61,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (Dec 1, 2025)
 
+### Invoice/Receipt Feature (Complete):
+- Created reusable `Invoice` component showing full payment breakdown
+- Displays both advance (50%) and final (50%) payment status
+- "Print" button - opens browser print dialog for PDF generation
+- "Download" button - saves invoice as HTML file
+- Shows on customer payment page after both payments received
+- Shows on admin payment page after both payments received
+- Includes booking details: client name, event type, date, guests
+- Shows special requests if applicable
+- Thank you message when payment complete
+- Professional styling with dark mode support
+
 ### Latest Updates:
 1. **Manual WhatsApp Staff Reminders** - One-click button to send booking reminders to staff:
    - Click the WhatsApp icon button (MessageCircle icon) on any booking in the bookings list
