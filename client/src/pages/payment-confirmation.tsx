@@ -24,6 +24,8 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
   const [finalFile, setFinalFile] = useState<File | null>(null);
   const [advancePreview, setAdvancePreview] = useState<string | null>(null);
   const [finalPreview, setFinalPreview] = useState<string | null>(null);
+  const [editAdvanceAmount, setEditAdvanceAmount] = useState(false);
+  const [customAdvanceAmount, setCustomAdvanceAmount] = useState<number | null>(null);
 
   const { data: booking, isLoading: bookingLoading } = useQuery<EventBooking>({
     queryKey: ["/api/bookings", bookingId],
@@ -135,8 +137,19 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
   }
 
   const totalAmount = booking.guestCount * booking.pricePerPlate;
-  const advanceAmount = Math.ceil(totalAmount * 0.5);
+  const defaultAdvanceAmount = Math.ceil(totalAmount * 0.5);
+  const advanceAmount = customAdvanceAmount ?? defaultAdvanceAmount;
   const finalAmount = totalAmount - advanceAmount;
+
+  const handleOpenWhatsAppAdvance = () => {
+    const phoneNumber = booking?.contactPhone?.replace(/\D/g, "");
+    if (phoneNumber && companyInfo?.upiId) {
+      const message = encodeURIComponent(
+        `Hi ${booking?.clientName},\n\nAdvance Payment Details:\n- Amount: ₹${advanceAmount}\n- UPI ID: ${companyInfo.upiId}\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n\nPlease scan the QR code on the payment page or transfer the amount to complete the booking.\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
+      );
+      window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4">
@@ -213,7 +226,38 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
                   {booking.advancePaymentStatus === "paid" && <Check className="w-5 h-5 text-green-600" />}
                   Advance Payment (50%)
                 </CardTitle>
-                <CardDescription>₹{advanceAmount}</CardDescription>
+                <div className="flex items-center gap-2">
+                  <CardDescription>₹{advanceAmount}</CardDescription>
+                  {!editAdvanceAmount && booking.advancePaymentStatus === "pending" && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setEditAdvanceAmount(true)}
+                      data-testid="button-edit-advance-amount"
+                    >
+                      Edit
+                    </Button>
+                  )}
+                </div>
+                {editAdvanceAmount && booking.advancePaymentStatus === "pending" && (
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      type="number"
+                      value={customAdvanceAmount ?? advanceAmount}
+                      onChange={(e) => setCustomAdvanceAmount(Number(e.target.value))}
+                      data-testid="input-advance-amount"
+                      className="max-w-xs"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditAdvanceAmount(false)}
+                      data-testid="button-save-advance-amount"
+                    >
+                      Done
+                    </Button>
+                  </div>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 {booking.advancePaymentStatus === "pending" ? (
@@ -343,12 +387,12 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle>Payment Summary</CardTitle>
                   <Button
-                    onClick={handleOpenWhatsApp}
+                    onClick={booking.advancePaymentStatus === "pending" ? handleOpenWhatsAppAdvance : handleOpenWhatsApp}
                     variant="default"
                     size="sm"
                     className="gap-2 whitespace-nowrap"
-                    data-testid="button-open-whatsapp"
-                    title="Send payment link via WhatsApp"
+                    data-testid={booking.advancePaymentStatus === "pending" ? "button-open-whatsapp-advance" : "button-open-whatsapp"}
+                    title={booking.advancePaymentStatus === "pending" ? "Send advance payment details via WhatsApp" : "Send payment link via WhatsApp"}
                   >
                     <MessageCircle className="w-4 h-4" />
                     WhatsApp
