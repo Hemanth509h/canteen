@@ -339,19 +339,21 @@ export default function PaymentConfirmation({ bookingId }: PaymentConfirmationPr
           {/* Summary Card */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <Card className="sticky top-4">
-              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                <CardTitle>Payment Summary</CardTitle>
-                <Button
-                  onClick={handleOpenWhatsApp}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  data-testid="button-open-whatsapp"
-                  title="Send payment link via WhatsApp"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">WhatsApp</span>
-                </Button>
+              <CardHeader className="space-y-3 pb-3">
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle>Payment Summary</CardTitle>
+                  <Button
+                    onClick={handleOpenWhatsApp}
+                    variant="default"
+                    size="sm"
+                    className="gap-2 whitespace-nowrap"
+                    data-testid="button-open-whatsapp"
+                    title="Send payment link via WhatsApp"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
