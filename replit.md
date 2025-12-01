@@ -16,30 +16,48 @@ Preferred communication style: Simple, everyday language.
 - Cleaner staff form with just 3 essential fields
 - Simplified staff table display
 
-### Staff Booking Assignment System (In Progress):
-1. **StaffBookingRequest Schema** - Tracks staff responses to booking requests:
-   - Fields: bookingId, staffId, status (pending/accepted/rejected), createdAt
+### Staff Booking Assignment System (Complete):
+1. **StaffBookingRequest Schema** - Tracks staff responses with unique tokens:
+   - Fields: bookingId, staffId, status (pending/accepted/rejected), **token** (unique identifier), createdAt
    - Zod schemas for insert and update operations
-   - MongoDB model for data persistence
+   - MongoDB model for data persistence with token indexing
    
-2. **API Routes** - Backend infrastructure for staff assignment:
+2. **API Routes** - Full REST API for staff assignment:
    - `GET /api/bookings/:bookingId/staff-requests` - Fetch all requests for a booking
-   - `POST /api/bookings/:bookingId/staff-requests` - Send request to a booking boy
-   - `PATCH /api/staff-requests/:requestId` - Update request status (accept/reject)
+   - `POST /api/bookings/:bookingId/staff-requests` - Send request to staff (auto-generates token)
+   - `PATCH /api/staff-requests/:requestId` - Update request status
    - `GET /api/bookings/:bookingId/assigned-staff` - Get all accepted staff for a booking
+   - **NEW:** `GET /api/staff-requests/:token` - Public endpoint for staff to fetch assignment details
+   - **NEW:** `PATCH /api/staff-requests/:token` - Public endpoint for staff to accept/reject via token
    
-3. **Storage Methods** - MongoDB operations:
-   - getStaffBookingRequests() - Fetch requests for a booking
-   - createStaffBookingRequest() - Send new request to staff
-   - updateStaffBookingRequest() - Update response status
-   - getAcceptedStaffForBooking() - Get assigned staff list
+3. **Public Staff Assignment Page** - `/staff-assignment/:token`:
+   - Beautiful, responsive UI showing event details (client name, date, guests, event type, special requests)
+   - Accept/Reject buttons for staff response
+   - No login required - fully public access
+   - Real-time status updates when staff responds
    
-**Next Steps (UI):**
-- Add "Assign Booking Boys" button on admin booking page
-- Modal showing all staff with send request buttons
-- Track pending/accepted/rejected responses
-- Auto-assign staff when they accept requests
-- Display assigned boys list on booking details
+4. **Admin Serving Boys Assignment UI**:
+   - New "Assign Serving Boys" button (👥 Users icon) on each booking in bookings table
+   - Modal showing available serving boys filtered by role
+   - Shows already-assigned staff in green highlight
+   - One-click "Assign" button generates token + sends WhatsApp message with link
+   - Staff receives message with unique assignment link
+   - Button shows "Assigned" state after successful assignment
+   
+5. **WhatsApp Integration**:
+   - Auto-generates unique URL for each staff: `/staff-assignment/{token}`
+   - Message includes: event type, date, guest count, client name
+   - Deep link direct to staff response page
+   - No API needed - pure WhatsApp Web links (wa.me)
+
+**Workflow:**
+1. Admin clicks "👥 Assign Serving Boys" button on booking
+2. Modal opens showing available serving boys
+3. Admin clicks "Assign" → Creates token + Sends WhatsApp with link
+4. Staff receives WhatsApp with assignment link
+5. Staff opens link → Beautiful page shows event details
+6. Staff clicks "Accept" or "Reject"
+7. Response recorded → Admin sees updated assigned staff list
 
 ## Recent Changes (Dec 1, 2025)
 

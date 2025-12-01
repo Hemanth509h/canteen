@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle, Users } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo, type Staff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -40,6 +40,9 @@ export default function EventBookingsManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [selectedBookingForWhatsapp, setSelectedBookingForWhatsapp] = useState<EventBooking | null>(null);
+  const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
+  const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState<EventBooking | null>(null);
+  const [assignedStaff, setAssignedStaff] = useState<Staff[]>([]);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -79,6 +82,53 @@ export default function EventBookingsManager() {
     window.open(`https://wa.me/91${cleanPhone}?text=${message}`, '_blank');
     toast({ title: "Opening WhatsApp", description: "Please send the message to staff" });
   };
+
+  const getDomain = () => {
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    return 'http://localhost:5000';
+  };
+
+  const sendStaffAssignment = useMutation({
+    mutationFn: async (staffId: string) => {
+      if (!selectedBookingForAssignment) throw new Error("No booking selected");
+      const response = await apiRequest("POST", `/api/bookings/${selectedBookingForAssignment.id}/staff-requests`, { staffId });
+      return response.json();
+    },
+    onSuccess: async (request, staffId) => {
+      const staff = staffList?.find(s => s.id === staffId);
+      if (staff && selectedBookingForAssignment) {
+        const assignmentLink = `${getDomain()}/staff-assignment/${request.token}`;
+        const message = `Hi ${staff.name}, you've been assigned to a catering event:\n\nEvent: ${selectedBookingForAssignment.eventType}\nDate: ${new Date(selectedBookingForAssignment.eventDate).toLocaleDateString()}\nGuests: ${selectedBookingForAssignment.guestCount}\nClient: ${selectedBookingForAssignment.clientName}\n\nPlease confirm your availability:\n${assignmentLink}`;
+        const cleanPhone = staff.phone.replace(/\D/g, '');
+        window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        toast({ title: "Assignment sent!", description: `Staff link sent via WhatsApp` });
+        queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+        fetchAssignedStaff();
+      }
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to send assignment", variant: "destructive" });
+    },
+  });
+
+  const fetchAssignedStaff = async () => {
+    if (!selectedBookingForAssignment) return;
+    try {
+      const res = await fetch(`/api/bookings/${selectedBookingForAssignment.id}/assigned-staff`);
+      const staff = await res.json();
+      setAssignedStaff(staff);
+    } catch (error) {
+      console.error("Failed to fetch assigned staff:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (assignmentModalOpen && selectedBookingForAssignment) {
+      fetchAssignedStaff();
+    }
+  }, [assignmentModalOpen, selectedBookingForAssignment]);
 
   const form = useForm<UpdateEventBooking>({
     resolver: zodResolver(editingBooking ? updateEventBookingSchema : insertEventBookingSchema.extend({
@@ -790,6 +840,18 @@ export default function EventBookingsManager() {
                             size="sm"
                             variant="outline"
                             onClick={() => {
+                              setSelectedBookingForAssignment(booking);
+                              setAssignmentModalOpen(true);
+                            }}
+                            data-testid={`button-assign-staff-${booking.id}`}
+                            title="Assign serving boys to this event"
+                          >
+                            <Users className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
                               setSelectedBookingForWhatsapp(booking);
                               setWhatsappModalOpen(true);
                             }}
@@ -848,6 +910,57 @@ export default function EventBookingsManager() {
           )}
         </CardContent>
         </Card>
+
+        <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
+          <DialogContent data-testid="dialog-assign-staff">
+            <DialogHeader>
+              <DialogTitle>Assign Serving Boys</DialogTitle>
+              <DialogDescription>
+                {selectedBookingForAssignment && `Event: ${selectedBookingForAssignment.clientName} - ${selectedBookingForAssignment.eventType}`}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {assignedStaff.length > 0 && (
+                <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950">
+                  <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">Already Assigned:</p>
+                  <div className="space-y-2">
+                    {assignedStaff.map((staff) => (
+                      <div key={staff.id} className="flex items-center gap-2 text-sm text-green-800 dark:text-green-200">
+                        <span className="w-2 h-2 rounded-full bg-green-600"></span>
+                        {staff.name} - {staff.role}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                <p className="text-sm font-semibold">Available Staff:</p>
+                {staffList && staffList.length > 0 ? (
+                  staffList
+                    .filter(staff => staff.role === 'serving_boy')
+                    .map((staff) => (
+                      <div key={staff.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-semibold">{staff.name}</p>
+                          <p className="text-sm text-muted-foreground">{staff.phone}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => sendStaffAssignment.mutate(staff.id)}
+                          disabled={sendStaffAssignment.isPending || assignedStaff.some(s => s.id === staff.id)}
+                          data-testid={`button-assign-${staff.id}`}
+                        >
+                          {assignedStaff.some(s => s.id === staff.id) ? "Assigned" : "Assign"}
+                        </Button>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">No serving boys found. Add staff first.</p>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={whatsappModalOpen} onOpenChange={setWhatsappModalOpen}>
           <DialogContent data-testid="dialog-whatsapp-staff">
