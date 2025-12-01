@@ -521,11 +521,29 @@ export default function EventBookingsManager() {
                           <SelectValue placeholder="Select a food item to add" />
                         </SelectTrigger>
                         <SelectContent>
-                          {foodItems?.filter(item => item.id && item.id.trim() !== '').map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
-                              {item.name} ({item.category})
-                            </SelectItem>
-                          ))}
+                          {(() => {
+                            const groupedByCategory = foodItems
+                              ?.filter(item => item.id && item.id.trim() !== '')
+                              .reduce((acc, item) => {
+                                const category = item.category || 'Other';
+                                if (!acc[category]) acc[category] = [];
+                                acc[category].push(item);
+                                return acc;
+                              }, {} as Record<string, FoodItem[]>) || {};
+                            
+                            return Object.entries(groupedByCategory).map(([category, items]) => (
+                              <div key={category}>
+                                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                  {category}
+                                </div>
+                                {items.map((item) => (
+                                  <SelectItem key={item.id} value={item.id} className="pl-8">
+                                    {item.name}
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            ));
+                          })()}
                         </SelectContent>
                       </Select>
                     </div>
