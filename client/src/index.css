@@ -292,4 +292,9 @@
   .dark .bg-gradient-warm {
     background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(20 15% 12%) 100%);
   }
+
+  .space-y-12 {
+    max-height: 500px;
+    overflow: scroll;
+  }
 }
