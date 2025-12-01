@@ -8,6 +8,22 @@ This is a full-stack catering management application built with React, Express, 
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Updates
+
+### UPI Payment Integration (December 01, 2025)
+- **Added:** UPI payment support for booking payments
+  - Admin can set UPI ID in Company Settings
+  - Dynamic QR code generation for each booking
+  - Displays total amount due to customers
+  - Shows booking-specific payment details with UPI ID copy functionality
+  - Fully functional in the Booking Details view in Admin Panel
+- **Technology:** Uses `qrcode.react` library for QR code generation
+- **Location:** 
+  - Company Settings: `upiId` field added to admin company settings form
+  - Booking View: UPI payment card appears when viewing existing bookings
+  - Component: `client/src/components/upi-payment.tsx`
+- **Note:** Resend email integration was dismissed by user; email notifications to be implemented separately if needed
+
 ## System Architecture
 
 ### Frontend Architecture

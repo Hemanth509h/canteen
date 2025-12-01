@@ -16,9 +16,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, CalendarDays, Printer, Search } from "lucide-react";
-import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem } from "@shared/schema";
+import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
+import { UPIPayment } from "@/components/upi-payment";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   pending: "secondary",
@@ -48,6 +49,10 @@ export default function EventBookingsManager() {
 
   const { data: foodItems } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
+  });
+
+  const { data: companyInfo } = useQuery<CompanyInfo>({
+    queryKey: ["/api/company-info"],
   });
 
   const filteredBookings = bookings?.filter((booking) =>
@@ -451,6 +456,17 @@ export default function EventBookingsManager() {
                       </FormItem>
                     )}
                   />
+
+                  {editingBooking && companyInfo?.upiId && (
+                    <div className="border-t pt-6 mt-6">
+                      <UPIPayment 
+                        upiId={companyInfo.upiId}
+                        amount={Math.round((form.getValues("pricePerPlate") || 0) * (form.getValues("guestCount") || 1))}
+                        bookingId={editingBooking.id}
+                        clientName={form.getValues("clientName") || "Client"}
+                      />
+                    </div>
+                  )}
 
                   <div className="border-t pt-4">
                     <h3 className="font-semibold mb-3">Menu Items to Prepare</h3>

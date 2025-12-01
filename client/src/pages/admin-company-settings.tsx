@@ -34,6 +34,7 @@ export default function CompanySettingsManager() {
       address: companyInfo.address,
       eventsPerYear: companyInfo.eventsPerYear,
       websiteUrl: companyInfo.websiteUrl || "",
+      upiId: companyInfo.upiId || "",
     } : undefined,
   });
 
@@ -219,6 +220,24 @@ export default function CompanySettingsManager() {
                     )}
                   />
                 </div>
+                <FormField
+                  control={form.control}
+                  name="upiId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UPI ID (for payment collection)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="example@upi" 
+                          {...field}
+                          value={field.value || ""}
+                          data-testid="input-upi-id"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end pt-4">
                   <Button 
                     type="submit" 
