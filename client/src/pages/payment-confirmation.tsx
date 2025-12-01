@@ -42,18 +42,31 @@ export default function PaymentConfirmation() {
     mutationFn: async (type: "advance" | "final") => {
       const file = type === "advance" ? advanceFile : finalFile;
       if (!file) throw new Error("No file selected");
+      if (file.size > 50 * 1024 * 1024) throw new Error("File is too large (max 50MB)");
 
       const reader = new FileReader();
       return new Promise<string>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error("Upload timed out. Please try again."));
+        }, 60000);
+
         reader.onload = async () => {
-          const base64 = reader.result as string;
-          const response = await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
-            [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]: base64,
-            [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
-          });
-          resolve(response);
+          clearTimeout(timeout);
+          try {
+            const base64 = reader.result as string;
+            const response = await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
+              [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]: base64,
+              [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
+            });
+            resolve(response);
+          } catch (error) {
+            reject(error);
+          }
         };
-        reader.onerror = reject;
+        reader.onerror = () => {
+          clearTimeout(timeout);
+          reject(new Error("Failed to read file"));
+        };
         reader.readAsDataURL(file);
       });
     },
@@ -71,10 +84,10 @@ export default function PaymentConfirmation() {
         setFinalPreview(null);
       }
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to upload payment screenshot",
+        description: error?.message || "Failed to upload payment screenshot",
         variant: "destructive",
       });
     },
