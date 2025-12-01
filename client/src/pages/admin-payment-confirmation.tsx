@@ -268,13 +268,21 @@ export default function AdminPaymentConfirmation() {
                     </p>
                   </div>
                 ) : booking.advancePaymentStatus === "paid" && !isEditing ? (
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-700 dark:text-green-200">Payment received</p>
-                      <p className="text-sm text-green-600 dark:text-green-300">Customer has submitted payment proof.</p>
-                    </div>
-                  </motion.div>
+                  <>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-green-700 dark:text-green-200">Payment received</p>
+                        <p className="text-sm text-green-600 dark:text-green-300">Customer has submitted payment proof.</p>
+                      </div>
+                    </motion.div>
+                    {booking.advancePaymentScreenshot && (
+                      <div className="border-t pt-4 mt-4">
+                        <Label className="text-sm font-semibold mb-2 block">Payment Screenshot</Label>
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment proof" className="w-full max-w-sm border rounded-lg" data-testid="img-advance-screenshot-admin" />
+                      </div>
+                    )}
+                  </>
                 ) : null}
               </CardContent>
             </Card>
@@ -328,13 +336,21 @@ export default function AdminPaymentConfirmation() {
                       </p>
                     </div>
                   ) : booking.finalPaymentStatus === "paid" && !isEditing ? (
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                      <div>
-                        <p className="font-semibold text-green-700 dark:text-green-200">Payment received</p>
-                        <p className="text-sm text-green-600 dark:text-green-300">Customer has submitted final payment proof.</p>
-                      </div>
-                    </motion.div>
+                    <>
+                      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-green-700 dark:text-green-200">Payment received</p>
+                          <p className="text-sm text-green-600 dark:text-green-300">Customer has submitted final payment proof.</p>
+                        </div>
+                      </motion.div>
+                      {booking.finalPaymentScreenshot && (
+                        <div className="border-t pt-4 mt-4">
+                          <Label className="text-sm font-semibold mb-2 block">Payment Screenshot</Label>
+                          <img src={booking.finalPaymentScreenshot} alt="Final payment proof" className="w-full max-w-sm border rounded-lg" data-testid="img-final-screenshot-admin" />
+                        </div>
+                      )}
+                    </>
                   ) : null}
                 </CardContent>
               </Card>
