@@ -58,6 +58,8 @@ export interface EventBookingDocument extends Document {
   specialRequests?: string | null;
   advancePaymentStatus?: string;
   finalPaymentStatus?: string;
+  advancePaymentScreenshot?: string | null;
+  finalPaymentScreenshot?: string | null;
   createdAt: Date;
 }
 
@@ -74,6 +76,8 @@ const eventBookingSchema = new Schema<EventBookingDocument>({
   specialRequests: { type: String, default: null },
   advancePaymentStatus: { type: String, default: "pending" },
   finalPaymentStatus: { type: String, default: "pending" },
+  advancePaymentScreenshot: { type: String, default: null },
+  finalPaymentScreenshot: { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 

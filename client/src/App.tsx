@@ -7,12 +7,14 @@ import { ThemeProvider } from "@/components/theme-provider";
 import CustomerHome from "@/pages/customer-home";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
+import PaymentConfirmation from "@/pages/payment-confirmation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
+      <Route path="/payment/:bookingId" component={({ bookingId }) => <PaymentConfirmation bookingId={bookingId} />} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/:rest*" component={AdminDashboard} />
