@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, useParams } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,8 @@ import { type EventBooking, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 
-interface PaymentConfirmationProps {
-  bookingId: string;
-}
-
-export default function PaymentConfirmation({ bookingId }: PaymentConfirmationProps) {
+export default function PaymentConfirmation() {
+  const { bookingId } = useParams<{ bookingId: string }>();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [advanceFile, setAdvanceFile] = useState<File | null>(null);

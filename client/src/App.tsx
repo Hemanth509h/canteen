@@ -14,7 +14,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
-      <Route path="/payment/:bookingId" component={({ bookingId }) => <PaymentConfirmation bookingId={bookingId} />} />
+      <Route path="/payment/:bookingId" component={PaymentConfirmation} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/:rest*" component={AdminDashboard} />
