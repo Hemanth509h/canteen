@@ -63,7 +63,11 @@ export default function StaffManager() {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
       toast({ title: "Success", description: "Staff member created successfully" });
       setIsDialogOpen(false);
-      form.reset();
+      form.reset({
+        name: "",
+        role: "chef",
+        phone: "",
+      });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to create staff member", variant: "destructive" });

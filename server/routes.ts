@@ -646,18 +646,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!request) {
         return res.status(404).json({ error: "Request not found" });
       }
-      const result = updateStaffBookingRequestSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ error: fromZodError(result.error).message });
+      const { status } = req.body;
+      if (!status || !["pending", "accepted", "rejected"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
       }
-      const updatedRequest = await storage.updateStaffBookingRequest(request.id, result.data);
+      const updatedRequest = await storage.updateStaffBookingRequest(request.id, { status });
       if (!updatedRequest) {
         return res.status(404).json({ error: "Failed to update request" });
       }
       res.json(updatedRequest);
     } catch (error) {
       console.error("Error updating staff request:", error);
-      res.status(500).json({ error: "Failed to update staff request" });
+      res.status(500).json({ error: "Failed to update request" });
     }
   });
 
