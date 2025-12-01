@@ -21,7 +21,7 @@ export default function CompanySettingsManager() {
 
   const form = useForm<InsertCompanyInfo>({
     resolver: zodResolver(insertCompanyInfoSchema.extend({
-      eventsPerYear: insertCompanyInfoSchema.shape.eventsPerYear.refine((val) => val > 0, {
+      eventsPerYear: insertCompanyInfoSchema.shape.eventsPerYear.refine((val) => !val || val > 0, {
         message: "Events per year must be greater than 0",
       }),
     })),

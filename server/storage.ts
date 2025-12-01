@@ -85,23 +85,25 @@ export const BookingItemModel = mongoose.models?.BookingItem || mongoose.model<B
 
 // Company Info Model
 export interface CompanyInfoDocument extends Document {
-  companyName: string;
-  tagline: string;
-  description: string;
-  email: string;
-  phone: string;
-  address: string;
-  eventsPerYear: number;
+  companyName?: string;
+  tagline?: string;
+  description?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  eventsPerYear?: number;
+  websiteUrl?: string;
 }
 
 const companyInfoSchema = new Schema<CompanyInfoDocument>({
-  companyName: { type: String, required: true },
-  tagline: { type: String, required: true },
-  description: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
-  address: { type: String, required: true },
-  eventsPerYear: { type: Number, required: true, default: 500 },
+  companyName: { type: String, default: null },
+  tagline: { type: String, default: null },
+  description: { type: String, default: null },
+  email: { type: String, default: null },
+  phone: { type: String, default: null },
+  address: { type: String, default: null },
+  eventsPerYear: { type: Number, default: 500 },
+  websiteUrl: { type: String, default: null },
 });
 
 export const CompanyInfoModel = mongoose.models?.CompanyInfo || mongoose.model<CompanyInfoDocument>("CompanyInfo", companyInfoSchema);
