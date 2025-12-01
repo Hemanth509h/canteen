@@ -54,11 +54,11 @@ export default function PaymentConfirmation() {
           clearTimeout(timeout);
           try {
             const base64 = reader.result as string;
-            const response = await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
+            await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
               [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]: base64,
               [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
             });
-            resolve(response);
+            resolve("success");
           } catch (error) {
             reject(error);
           }
@@ -298,13 +298,21 @@ export default function PaymentConfirmation() {
                     </div>
                   </>
                 ) : (
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-700 dark:text-green-200">Advance payment received</p>
-                      <p className="text-sm text-green-600 dark:text-green-300">Thank you! Proceeding to final payment.</p>
-                    </div>
-                  </motion.div>
+                  <div className="space-y-4">
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-green-700 dark:text-green-200">Advance payment received</p>
+                        <p className="text-sm text-green-600 dark:text-green-300">Thank you! Proceeding to final payment.</p>
+                      </div>
+                    </motion.div>
+                    {booking.advancePaymentScreenshot && (
+                      <div>
+                        <p className="text-sm font-semibold mb-2">Payment Proof</p>
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-sm border rounded-lg" data-testid="img-advance-screenshot-customer" />
+                      </div>
+                    )}
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -371,13 +379,21 @@ export default function PaymentConfirmation() {
                       </div>
                     </>
                   ) : (
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                      <div>
-                        <p className="font-semibold text-green-700 dark:text-green-200">Final payment received</p>
-                        <p className="text-sm text-green-600 dark:text-green-300">Your booking is fully confirmed!</p>
-                      </div>
-                    </motion.div>
+                    <div className="space-y-4">
+                      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-green-700 dark:text-green-200">Final payment received</p>
+                          <p className="text-sm text-green-600 dark:text-green-300">Your booking is fully confirmed!</p>
+                        </div>
+                      </motion.div>
+                      {booking.finalPaymentScreenshot && (
+                        <div>
+                          <p className="text-sm font-semibold mb-2">Payment Proof</p>
+                          <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-sm border rounded-lg" data-testid="img-final-screenshot-customer" />
+                        </div>
+                      )}
+                    </div>
                   )}
                 </CardContent>
               </Card>
