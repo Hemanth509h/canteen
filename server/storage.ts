@@ -299,6 +299,8 @@ export class MongoDBStorage implements IStorage {
       specialRequests: doc.specialRequests || null,
       advancePaymentStatus: doc.advancePaymentStatus || "pending",
       finalPaymentStatus: doc.finalPaymentStatus || "pending",
+      advancePaymentScreenshot: doc.advancePaymentScreenshot || null,
+      finalPaymentScreenshot: doc.finalPaymentScreenshot || null,
       createdAt: doc.createdAt.toISOString(),
     };
   }
