@@ -75,13 +75,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = insertFoodItemSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message, details: result.error.errors });
       }
 
       const item = await storage.createFoodItem(result.data);
       res.status(201).json(item);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create food item" });
+      console.error("Create food item error:", error);
+      res.status(500).json({ error: "Failed to create food item. Please try again." });
     }
   });
 
@@ -90,7 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = insertFoodItemSchema.partial().safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message, details: result.error.errors });
       }
 
       const item = await storage.updateFoodItem(req.params.id, result.data);
@@ -99,7 +100,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(item);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update food item" });
+      console.error("Update food item error:", error);
+      res.status(500).json({ error: "Failed to update food item. Please try again." });
     }
   });
 
@@ -142,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = insertEventBookingSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message, details: result.error.errors });
       }
 
       // Get company settings for minimum advance booking days
@@ -192,7 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = updateEventBookingSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message, details: result.error.errors });
       }
 
       const oldBooking = await storage.getBooking(req.params.id);
@@ -376,7 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = insertStaffSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message, details: result.error.errors });
       }
 
       const staffMember = await storage.createStaffMember(result.data);
@@ -391,7 +393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = updateStaffSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message, details: result.error.errors });
       }
 
       const staffMember = await storage.updateStaffMember(req.params.id, result.data);

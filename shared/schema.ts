@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+// ==================== VALIDATION HELPERS ====================
+
+const sanitizeString = (val: string) => val.trim().slice(0, 500);
+const sanitizeName = (val: string) => val.trim().slice(0, 100);
+const sanitizePhone = (val: string) => val.replace(/\D/g, "").slice(0, 15);
+
 // ==================== FOOD ITEMS ====================
 
 export interface FoodItem {
@@ -14,13 +20,21 @@ export interface FoodItem {
 }
 
 export const insertFoodItemSchema = z.object({
-  name: z.string().min(1, "Food item name is required"),
-  description: z.string().min(1, "Description is required"),
-  category: z.string().min(1, "Category is required"),
-  imageUrl: z.string().nullable().optional(),
+  name: z.string()
+    .min(1, "Food item name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .transform(sanitizeName),
+  description: z.string()
+    .min(1, "Description is required")
+    .min(10, "Description must be at least 10 characters")
+    .max(500, "Description must be less than 500 characters")
+    .transform(sanitizeString),
+  category: z.string().min(1, "Category is required").max(50),
+  imageUrl: z.string().url("Invalid image URL").nullable().optional(),
   dietaryTags: z.array(z.string()).optional(),
-  price: z.number().int().positive("Price must be positive").optional(),
-  rating: z.number().min(0).max(5, "Rating must be between 0-5").optional(),
+  price: z.number().int().min(1, "Price must be at least 1").optional(),
+  rating: z.number().min(0).max(5, "Rating must be between 0 and 5").optional(),
 });
 
 export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
@@ -45,15 +59,22 @@ export interface EventBooking {
 }
 
 export const insertEventBookingSchema = z.object({
-  clientName: z.string().min(1, "Client name is required"),
-  eventDate: z.string().min(1, "Event date is required"),
-  eventType: z.string().min(1, "Event type is required"),
-  guestCount: z.number().int().positive("Guest count must be positive"),
-  pricePerPlate: z.number().int().positive("Price per plate must be positive"),
-  servingBoysNeeded: z.number().int().positive().default(2),
-  contactEmail: z.string().email("Valid email is required"),
-  contactPhone: z.string().min(1, "Contact phone is required"),
-  specialRequests: z.string().nullable().optional(),
+  clientName: z.string()
+    .min(1, "Client name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .transform(sanitizeName),
+  eventDate: z.string().min(1, "Event date is required").refine(
+    (date) => !isNaN(Date.parse(date)),
+    "Invalid date format"
+  ),
+  eventType: z.string().min(1, "Event type is required").max(50),
+  guestCount: z.number().int().min(1, "At least 1 guest is required").max(10000, "Guest count too large"),
+  pricePerPlate: z.number().int().min(1, "Price must be at least 1").max(100000),
+  servingBoysNeeded: z.number().int().min(1, "At least 1 serving staff needed").max(100).default(2),
+  contactEmail: z.string().email("Please enter a valid email address"),
+  contactPhone: z.string().min(10, "Phone number must be at least 10 digits").transform(sanitizePhone),
+  specialRequests: z.string().max(1000, "Special requests must be less than 1000 characters").nullable().optional(),
 });
 
 export const updateEventBookingSchema = insertEventBookingSchema.partial().extend({
@@ -100,15 +121,15 @@ export interface CompanyInfo {
 }
 
 export const insertCompanyInfoSchema = z.object({
-  companyName: z.string().optional(),
-  tagline: z.string().optional(),
-  description: z.string().optional(),
-  email: z.string().email("Valid email is required").optional(),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  eventsPerYear: z.number().int().positive().default(500).optional(),
-  websiteUrl: z.string().url("Valid URL is required").optional(),
-  upiId: z.string().optional(),
+  companyName: z.string().max(100, "Company name too long").optional(),
+  tagline: z.string().max(200, "Tagline too long").optional(),
+  description: z.string().max(2000, "Description too long").optional(),
+  email: z.string().email("Please enter a valid company email").optional(),
+  phone: z.string().refine((val) => val.replace(/\D/g, "").length >= 10, "Phone must have at least 10 digits").transform(sanitizePhone).optional(),
+  address: z.string().max(500, "Address too long").optional(),
+  eventsPerYear: z.number().int().min(0).max(100000).default(500).optional(),
+  websiteUrl: z.string().url("Please enter a valid website URL").optional(),
+  upiId: z.string().regex(/^[\w\-@.]+$/, "Invalid UPI ID format").optional(),
   minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
 });
 
@@ -128,12 +149,16 @@ export interface Staff {
 }
 
 export const insertStaffSchema = z.object({
-  name: z.string().min(1, "Staff name is required"),
-  role: z.string().min(1, "Role is required"),
-  phone: z.string().min(1, "Phone is required"),
-  experience: z.string().min(1, "Experience is required"),
-  imageUrl: z.string().nullable().optional(),
-  salary: z.number().int().positive("Salary must be positive"),
+  name: z.string()
+    .min(1, "Staff name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(100)
+    .transform(sanitizeName),
+  role: z.string().min(1, "Role is required").max(50),
+  phone: z.string().min(10, "Phone must be at least 10 digits").transform(sanitizePhone),
+  experience: z.string().min(5, "Experience description must be at least 5 characters").max(500),
+  imageUrl: z.string().url("Invalid image URL").nullable().optional(),
+  salary: z.number().int().min(0, "Salary cannot be negative").max(10000000),
 });
 
 export const updateStaffSchema = insertStaffSchema.partial();
