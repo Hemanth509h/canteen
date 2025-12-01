@@ -10,6 +10,33 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (Dec 1, 2025)
 
+### Staff Booking Assignment System (In Progress):
+1. **StaffBookingRequest Schema** - Tracks staff responses to booking requests:
+   - Fields: bookingId, staffId, status (pending/accepted/rejected), createdAt
+   - Zod schemas for insert and update operations
+   - MongoDB model for data persistence
+   
+2. **API Routes** - Backend infrastructure for staff assignment:
+   - `GET /api/bookings/:bookingId/staff-requests` - Fetch all requests for a booking
+   - `POST /api/bookings/:bookingId/staff-requests` - Send request to a booking boy
+   - `PATCH /api/staff-requests/:requestId` - Update request status (accept/reject)
+   - `GET /api/bookings/:bookingId/assigned-staff` - Get all accepted staff for a booking
+   
+3. **Storage Methods** - MongoDB operations:
+   - getStaffBookingRequests() - Fetch requests for a booking
+   - createStaffBookingRequest() - Send new request to staff
+   - updateStaffBookingRequest() - Update response status
+   - getAcceptedStaffForBooking() - Get assigned staff list
+   
+**Next Steps (UI):**
+- Add "Assign Booking Boys" button on admin booking page
+- Modal showing all staff with send request buttons
+- Track pending/accepted/rejected responses
+- Auto-assign staff when they accept requests
+- Display assigned boys list on booking details
+
+## Recent Changes (Dec 1, 2025)
+
 ### Latest Updates:
 1. **Manual WhatsApp Staff Reminders** - One-click button to send booking reminders to staff:
    - Click the WhatsApp icon button (MessageCircle icon) on any booking in the bookings list
