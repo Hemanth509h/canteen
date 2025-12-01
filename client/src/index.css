@@ -295,6 +295,25 @@
 
   .space-y-12 {
     max-height: 500px;
-    overflow: scroll;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-right: 4px;
+  }
+
+  .space-y-12::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .space-y-12::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .space-y-12::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.4);
+    border-radius: 3px;
+  }
+
+  .space-y-12::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.6);
   }
 }
