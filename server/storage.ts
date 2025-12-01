@@ -49,6 +49,8 @@ export interface EventBookingDocument extends Document {
   contactEmail: string;
   contactPhone: string;
   specialRequests?: string | null;
+  advancePaymentStatus?: string;
+  finalPaymentStatus?: string;
   createdAt: Date;
 }
 
@@ -63,6 +65,8 @@ const eventBookingSchema = new Schema<EventBookingDocument>({
   contactEmail: { type: String, required: true },
   contactPhone: { type: String, required: true },
   specialRequests: { type: String, default: null },
+  advancePaymentStatus: { type: String, default: "pending" },
+  finalPaymentStatus: { type: String, default: "pending" },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -249,6 +253,8 @@ export class MongoDBStorage implements IStorage {
       contactEmail: doc.contactEmail,
       contactPhone: doc.contactPhone,
       specialRequests: doc.specialRequests || null,
+      advancePaymentStatus: doc.advancePaymentStatus || "pending",
+      finalPaymentStatus: doc.finalPaymentStatus || "pending",
       createdAt: doc.createdAt.toISOString(),
     };
   }
