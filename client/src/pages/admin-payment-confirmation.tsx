@@ -19,6 +19,7 @@ export default function AdminPaymentConfirmation() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [customAdvanceAmount, setCustomAdvanceAmount] = useState<number | null>(null);
+  const [editTotalAmount, setEditTotalAmount] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editAdvanceStatus, setEditAdvanceStatus] = useState<"pending" | "paid" | null>(null);
   const [editFinalStatus, setEditFinalStatus] = useState<"pending" | "paid" | null>(null);
@@ -35,12 +36,15 @@ export default function AdminPaymentConfirmation() {
   const updatePaymentMutation = useMutation({
     mutationFn: async () => {
       if (!booking) return;
-      const updateData: Record<string, string> = {};
+      const updateData: Record<string, any> = {};
       if (editAdvanceStatus !== null && editAdvanceStatus !== booking.advancePaymentStatus) {
         updateData.advancePaymentStatus = editAdvanceStatus;
       }
       if (editFinalStatus !== null && editFinalStatus !== booking.finalPaymentStatus) {
         updateData.finalPaymentStatus = editFinalStatus;
+      }
+      if (editTotalAmount !== null && editTotalAmount !== totalAmount) {
+        updateData.totalAmount = editTotalAmount;
       }
       return apiRequest("PATCH", `/api/bookings/${bookingId}`, updateData);
     },
@@ -67,6 +71,7 @@ export default function AdminPaymentConfirmation() {
     if (booking && !isEditing) {
       setEditAdvanceStatus(booking.advancePaymentStatus as "pending" | "paid");
       setEditFinalStatus(booking.finalPaymentStatus as "pending" | "paid");
+      setEditTotalAmount(totalAmount);
     }
     setIsEditing(!isEditing);
   };
@@ -130,7 +135,8 @@ export default function AdminPaymentConfirmation() {
     );
   }
 
-  const totalAmount = booking.guestCount * booking.pricePerPlate;
+  const baseAmount = booking.guestCount * booking.pricePerPlate;
+  const totalAmount = booking.totalAmount ?? editTotalAmount ?? baseAmount;
   const defaultAdvanceAmount = Math.ceil(totalAmount * 0.5);
   const advanceAmount = customAdvanceAmount ?? defaultAdvanceAmount;
   const finalAmount = totalAmount - advanceAmount;
@@ -201,7 +207,17 @@ export default function AdminPaymentConfirmation() {
                 <div className="pt-4 border-t space-y-3">
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>Total Amount:</span>
-                    <span className="text-primary" data-testid="text-total-amount-admin">₹{totalAmount}</span>
+                    {!isEditing ? (
+                      <span className="text-primary" data-testid="text-total-amount-admin">₹{totalAmount}</span>
+                    ) : (
+                      <Input
+                        type="number"
+                        value={editTotalAmount ?? totalAmount}
+                        onChange={(e) => setEditTotalAmount(Number(e.target.value))}
+                        className="w-32"
+                        data-testid="input-edit-total-amount"
+                      />
+                    )}
                   </div>
                 </div>
               </CardContent>

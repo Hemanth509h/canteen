@@ -57,6 +57,7 @@ export interface EventBooking {
   finalPaymentStatus: string;
   advancePaymentScreenshot?: string | null;
   finalPaymentScreenshot?: string | null;
+  totalAmount?: number;
   createdAt: string;
 }
 
@@ -85,6 +86,7 @@ export const updateEventBookingSchema = insertEventBookingSchema.partial().exten
   finalPaymentStatus: z.enum(["pending", "paid"]).optional(),
   advancePaymentScreenshot: z.string().nullable().optional(),
   finalPaymentScreenshot: z.string().nullable().optional(),
+  totalAmount: z.number().int().positive().optional(),
 });
 
 export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;

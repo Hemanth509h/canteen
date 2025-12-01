@@ -11,12 +11,19 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes (Dec 1, 2025)
 
 ### Latest Updates:
-1. **Simplified Menu Filters** - Removed search and price/rating sorting features. Menu now displays only:
+1. **Dynamic Total Amount Adjustment** - Admin can now modify the total booking amount after payment:
+   - Click "Edit" button on admin payment page to enter edit mode
+   - Modify the total amount in the input field
+   - Advance payment (50%) and final payment (50%) automatically recalculate based on new total
+   - Changes are saved to the database and reflected on customer payment page
+   - Useful when: final guest count changes or additional services are added/removed
+
+2. **Simplified Menu Filters** - Removed search and price/rating sorting features. Menu now displays only:
    - Category selection (buttons/dropdown)
    - Dietary filter buttons (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free)
    - Items show if they match ANY selected dietary filter (using "some" logic)
 
-2. **Separate Payment Pages for Admin & Customer** - Complete role-based separation:
+3. **Separate Payment Pages for Admin & Customer** - Complete role-based separation:
    - **Customer Payment Page** (`/payment/:bookingId`):
      - Full UPI QR code visible for payment scanning
      - Screenshot upload section for proof submission
@@ -77,7 +84,7 @@ Preferred communication style: Simple, everyday language.
 
 **Database Collections (MongoDB):**
 - **foodItems:** Menu catalog with name, description, category, image, price, rating, and dietary tags.
-- **eventBookings:** Customer booking details including client info, event specifics, pricing, service requirements, status, advance/final payment status, and payment screenshots.
+- **eventBookings:** Customer booking details including client info, event specifics, pricing, service requirements, status, advance/final payment status, payment screenshots, and optional custom totalAmount.
 - **bookingItems:** Links bookings to selected food items with quantities.
 - **companyInfo:** Stores business details and configurable settings like minAdvanceBookingDays and upiId.
 - **staff:** Records for staff members including name, role, contact, experience, and salary.
@@ -99,6 +106,7 @@ Preferred communication style: Simple, everyday language.
 - **Configurable Minimum Advance Booking Days:** Admin can set the minimum advance notice required for bookings.
 - **Two-Stage UPI Payment Integration:** Supports advance (50%) and final (50%) payments with dynamic QR code generation and screenshot proof upload.
 - **WhatsApp Payment Sharing:** Customers can open WhatsApp from payment confirmation page to share the payment link.
+- **Dynamic Total Amount Adjustment:** Admin can modify booking total amount after payment, with automatic recalculation of advance and final payments (50% each).
 
 ## External Dependencies
 
