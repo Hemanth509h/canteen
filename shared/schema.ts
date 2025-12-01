@@ -83,8 +83,8 @@ export const updateEventBookingSchema = insertEventBookingSchema.partial().exten
   status: z.enum(["pending", "confirmed", "completed", "cancelled"]).optional(),
   advancePaymentStatus: z.enum(["pending", "paid"]).optional(),
   finalPaymentStatus: z.enum(["pending", "paid"]).optional(),
-  advancePaymentScreenshot: z.string().url().nullable().optional(),
-  finalPaymentScreenshot: z.string().url().nullable().optional(),
+  advancePaymentScreenshot: z.string().nullable().optional(),
+  finalPaymentScreenshot: z.string().nullable().optional(),
 });
 
 export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;

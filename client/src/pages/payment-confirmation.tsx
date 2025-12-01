@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { UPIPayment } from "@/components/upi-payment";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, CheckCircle, MessageCircle, Clock } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle, Clock } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
@@ -100,40 +100,6 @@ export default function PaymentConfirmation() {
     }
   };
 
-  const handleOpenWhatsApp = () => {
-    if (!booking) return;
-    
-    const phoneNumber = booking.contactPhone?.replace(/\D/g, "");
-    if (!phoneNumber) return;
-
-    let message = "";
-    const totalAmount = booking.guestCount * booking.pricePerPlate;
-    const advanceAmount = Math.ceil(totalAmount * 0.5);
-    const finalAmount = totalAmount - advanceAmount;
-
-    if (booking.advancePaymentStatus === "pending") {
-      message = encodeURIComponent(
-        `Hi ${booking.clientName},\n\n*Advance Payment (50%)*\n- Amount: ₹${advanceAmount}\n- UPI ID: ${companyInfo?.upiId || "N/A"}\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n\nScan the QR code or transfer the amount to complete advance payment.\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
-      );
-    }
-    else if (booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "pending") {
-      message = encodeURIComponent(
-        `Hi ${booking.clientName},\n\n*Final Payment (50%)*\n- Amount: ₹${finalAmount}\n- UPI ID: ${companyInfo?.upiId || "N/A"}\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n\nScan the QR code or transfer the amount to complete final payment.\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
-      );
-    }
-    else if (booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "paid") {
-      message = encodeURIComponent(
-        `Hi ${booking.clientName},\n\nThank you for completing the payment! Your booking is confirmed.\n- Event Date: ${new Date(booking.eventDate).toLocaleDateString()}\n- Total Amount: ₹${totalAmount}\n\nWe will contact you soon with event details.`
-      );
-    }
-    else {
-      message = encodeURIComponent(
-        `Hi ${booking.clientName},\n\nPayment Link: ${window.location.origin}/payment/${bookingId}`
-      );
-    }
-
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
-  };
 
   if (!bookingId) {
     return (
@@ -428,18 +394,7 @@ export default function PaymentConfirmation() {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <Card className="sticky top-4">
               <CardHeader className="pb-3">
-                <div className="flex flex-col gap-3">
-                  <CardTitle className="text-lg">Payment Summary</CardTitle>
-                  <Button
-                    onClick={handleOpenWhatsApp}
-                    className="gap-2 w-full"
-                    data-testid="button-open-whatsapp"
-                    title="Send payment details via WhatsApp"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Share via WhatsApp
-                  </Button>
-                </div>
+                <CardTitle className="text-lg">Payment Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-muted/50 p-3 rounded-lg space-y-2">
