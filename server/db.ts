@@ -11,7 +11,16 @@ export async function connectToDatabase() {
   }
 
   try {
-    await mongoose.connect(MONGODB_URI);
+    await Promise.race([
+      mongoose.connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("MongoDB connection timeout after 5 seconds")), 5000)
+      ),
+    ]);
     isConnected = true;
     console.log("✅ Connected to MongoDB");
   } catch (error) {
