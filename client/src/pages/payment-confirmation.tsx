@@ -24,6 +24,8 @@ export default function PaymentConfirmation() {
   const [finalPreview, setFinalPreview] = useState<string | null>(null);
   const [editAdvanceAmount, setEditAdvanceAmount] = useState(false);
   const [customAdvanceAmount, setCustomAdvanceAmount] = useState<number | null>(null);
+  const isAdmin = typeof window !== "undefined" && localStorage.getItem("adminAuthenticated") === "true";
+  const backUrl = isAdmin ? "/admin/bookings" : "/";
 
   const { data: booking, isLoading: bookingLoading } = useQuery<EventBooking>({
     queryKey: ["/api/bookings", bookingId],
@@ -172,15 +174,15 @@ export default function PaymentConfirmation() {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <Button
             variant="ghost"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation(backUrl)}
             className="gap-2 mb-4"
             data-testid="button-back-home"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            {isAdmin ? "Back to Bookings" : "Back to Home"}
           </Button>
           <h1 className="text-3xl font-bold">Payment Confirmation</h1>
-          <p className="text-muted-foreground">Complete your booking payment</p>
+          <p className="text-muted-foreground">{isAdmin ? "Booking Payment Details" : "Complete your booking payment"}</p>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -292,49 +294,61 @@ export default function PaymentConfirmation() {
               <CardContent className="space-y-4">
                 {booking.advancePaymentStatus === "pending" ? (
                   <>
-                    <UPIPayment
-                      upiId={companyInfo?.upiId || ""}
-                      totalAmount={advanceAmount}
-                      bookingId={bookingId}
-                      clientName={booking.clientName}
-                    />
+                    {!isAdmin && (
+                      <UPIPayment
+                        upiId={companyInfo?.upiId || ""}
+                        totalAmount={advanceAmount}
+                        bookingId={bookingId}
+                        clientName={booking.clientName}
+                      />
+                    )}
 
-                    <div className="border-t pt-4">
-                      <Label className="text-base font-semibold mb-3 block">Upload Payment Screenshot</Label>
-                      <p className="text-sm text-muted-foreground mb-3">Once you've made the payment, upload a screenshot of the transaction as proof.</p>
-                      <div className="space-y-3">
-                        {advancePreview && (
-                          <div className="relative w-full max-w-sm">
-                            <img src={advancePreview} alt="Payment preview" className="w-full border rounded-lg" data-testid="img-advance-preview" />
+                    {!isAdmin && (
+                      <div className="border-t pt-4">
+                        <Label className="text-base font-semibold mb-3 block">Upload Payment Screenshot</Label>
+                        <p className="text-sm text-muted-foreground mb-3">Once you've made the payment, upload a screenshot of the transaction as proof.</p>
+                        <div className="space-y-3">
+                          {advancePreview && (
+                            <div className="relative w-full max-w-sm">
+                              <img src={advancePreview} alt="Payment preview" className="w-full border rounded-lg" data-testid="img-advance-preview" />
+                            </div>
+                          )}
+                          <div className="flex gap-2 flex-wrap">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleAdvanceFileChange}
+                              data-testid="input-advance-screenshot"
+                              disabled={uploadScreenshotMutation.isPending}
+                            />
+                            <Button
+                              onClick={() => uploadScreenshotMutation.mutate("advance")}
+                              disabled={!advanceFile || uploadScreenshotMutation.isPending}
+                              data-testid="button-upload-advance"
+                              className="gap-2"
+                            >
+                              <Upload className="w-4 h-4" />
+                              {uploadScreenshotMutation.isPending ? "Uploading..." : "Upload"}
+                            </Button>
                           </div>
-                        )}
-                        <div className="flex gap-2 flex-wrap">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAdvanceFileChange}
-                            data-testid="input-advance-screenshot"
-                            disabled={uploadScreenshotMutation.isPending}
-                          />
-                          <Button
-                            onClick={() => uploadScreenshotMutation.mutate("advance")}
-                            disabled={!advanceFile || uploadScreenshotMutation.isPending}
-                            data-testid="button-upload-advance"
-                            className="gap-2"
-                          >
-                            <Upload className="w-4 h-4" />
-                            {uploadScreenshotMutation.isPending ? "Uploading..." : "Upload"}
-                          </Button>
                         </div>
                       </div>
-                    </div>
+                    )}
+
+                    {isAdmin && (
+                      <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <p className="text-sm text-blue-700 dark:text-blue-200">
+                          Awaiting customer payment and screenshot upload. Customer will receive payment details via WhatsApp.
+                        </p>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-green-700 dark:text-green-200">Advance payment received</p>
-                      <p className="text-sm text-green-600 dark:text-green-300">Thank you! Proceeding to final payment.</p>
+                      <p className="text-sm text-green-600 dark:text-green-300">{isAdmin ? "Customer has submitted payment proof." : "Thank you! Proceeding to final payment."}</p>
                     </div>
                   </motion.div>
                 )}
@@ -366,49 +380,61 @@ export default function PaymentConfirmation() {
                 <CardContent className="space-y-4">
                   {booking.finalPaymentStatus === "pending" ? (
                     <>
-                      <UPIPayment
-                        upiId={companyInfo?.upiId || ""}
-                        totalAmount={finalAmount}
-                        bookingId={bookingId}
-                        clientName={booking.clientName}
-                      />
+                      {!isAdmin && (
+                        <UPIPayment
+                          upiId={companyInfo?.upiId || ""}
+                          totalAmount={finalAmount}
+                          bookingId={bookingId}
+                          clientName={booking.clientName}
+                        />
+                      )}
 
-                      <div className="border-t pt-4">
-                        <Label className="text-base font-semibold mb-3 block">Upload Payment Screenshot</Label>
-                        <p className="text-sm text-muted-foreground mb-3">Once you've made the payment, upload a screenshot of the transaction as proof.</p>
-                        <div className="space-y-3">
-                          {finalPreview && (
-                            <div className="relative w-full max-w-sm">
-                              <img src={finalPreview} alt="Payment preview" className="w-full border rounded-lg" data-testid="img-final-preview" />
+                      {!isAdmin && (
+                        <div className="border-t pt-4">
+                          <Label className="text-base font-semibold mb-3 block">Upload Payment Screenshot</Label>
+                          <p className="text-sm text-muted-foreground mb-3">Once you've made the payment, upload a screenshot of the transaction as proof.</p>
+                          <div className="space-y-3">
+                            {finalPreview && (
+                              <div className="relative w-full max-w-sm">
+                                <img src={finalPreview} alt="Payment preview" className="w-full border rounded-lg" data-testid="img-final-preview" />
+                              </div>
+                            )}
+                            <div className="flex gap-2 flex-wrap">
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFinalFileChange}
+                                data-testid="input-final-screenshot"
+                                disabled={uploadScreenshotMutation.isPending}
+                              />
+                              <Button
+                                onClick={() => uploadScreenshotMutation.mutate("final")}
+                                disabled={!finalFile || uploadScreenshotMutation.isPending}
+                                data-testid="button-upload-final"
+                                className="gap-2"
+                              >
+                                <Upload className="w-4 h-4" />
+                                {uploadScreenshotMutation.isPending ? "Uploading..." : "Upload"}
+                              </Button>
                             </div>
-                          )}
-                          <div className="flex gap-2 flex-wrap">
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFinalFileChange}
-                              data-testid="input-final-screenshot"
-                              disabled={uploadScreenshotMutation.isPending}
-                            />
-                            <Button
-                              onClick={() => uploadScreenshotMutation.mutate("final")}
-                              disabled={!finalFile || uploadScreenshotMutation.isPending}
-                              data-testid="button-upload-final"
-                              className="gap-2"
-                            >
-                              <Upload className="w-4 h-4" />
-                              {uploadScreenshotMutation.isPending ? "Uploading..." : "Upload"}
-                            </Button>
                           </div>
                         </div>
-                      </div>
+                      )}
+
+                      {isAdmin && (
+                        <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <p className="text-sm text-blue-700 dark:text-blue-200">
+                            Awaiting customer final payment and screenshot upload.
+                          </p>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                       <div>
                         <p className="font-semibold text-green-700 dark:text-green-200">Final payment received</p>
-                        <p className="text-sm text-green-600 dark:text-green-300">Your booking is fully confirmed!</p>
+                        <p className="text-sm text-green-600 dark:text-green-300">{isAdmin ? "Customer has submitted final payment proof." : "Your booking is fully confirmed!"}</p>
                       </div>
                     </motion.div>
                   )}
@@ -425,10 +451,10 @@ export default function PaymentConfirmation() {
                         <CheckCircle className="w-16 h-16 text-green-600 mx-auto" data-testid="icon-all-paid" />
                       </motion.div>
                       <h3 className="text-2xl font-bold text-green-700 dark:text-green-200">Payment Complete!</h3>
-                      <p className="text-muted-foreground">All payments have been received. Your booking is confirmed.</p>
-                      <p className="text-sm text-muted-foreground">We'll contact you soon with event details and preparations.</p>
-                      <Button onClick={() => setLocation("/")} data-testid="button-back-home-final" className="w-full mt-4">
-                        Back to Home
+                      <p className="text-muted-foreground">All payments have been received. {isAdmin ? "Booking is confirmed." : "Your booking is confirmed."}</p>
+                      <p className="text-sm text-muted-foreground">{isAdmin ? "You can now proceed with event preparations." : "We'll contact you soon with event details and preparations."}</p>
+                      <Button onClick={() => setLocation(backUrl)} data-testid="button-back-home-final" className="w-full mt-4">
+                        {isAdmin ? "Back to Bookings" : "Back to Home"}
                       </Button>
                     </div>
                   </CardContent>
@@ -443,15 +469,27 @@ export default function PaymentConfirmation() {
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-3">
                   <CardTitle className="text-lg">Payment Summary</CardTitle>
-                  <Button
-                    onClick={handleOpenWhatsApp}
-                    className="gap-2 w-full"
-                    data-testid="button-open-whatsapp"
-                    title="Send payment details via WhatsApp"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Share via WhatsApp
-                  </Button>
+                  {isAdmin ? (
+                    <Button
+                      onClick={handleOpenWhatsApp}
+                      className="gap-2 w-full"
+                      data-testid="button-send-whatsapp-admin"
+                      title="Send payment details to customer via WhatsApp"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Send via WhatsApp
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleOpenWhatsApp}
+                      className="gap-2 w-full"
+                      data-testid="button-open-whatsapp"
+                      title="Send payment details via WhatsApp"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Share via WhatsApp
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">

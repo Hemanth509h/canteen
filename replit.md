@@ -16,18 +16,27 @@ Preferred communication style: Simple, everyday language.
    - Dietary filter buttons (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free)
    - Items show if they match ANY selected dietary filter (using "some" logic)
 
-2. **Enhanced Payment Page UI** - Major design and UX improvements:
+2. **Enhanced Payment Page UI & Admin/Customer Separation** - Major improvements:
    - **Step-based Layout**: Clear "Step 1: Advance Payment" and "Step 2: Final Payment" sections
-   - **Professional Status Indicators**: Replaced emoji checkmarks with CheckCircle and Clock icons
-   - **Color-coded Status Badges**: Visual badges showing "Completed" or "Pending" states
-   - **Improved Payment Summary**: Redesigned sidebar with payment status icons and clear amount breakdowns
-   - **Enhanced Typography**: Larger, bolder amounts (₹20150) with better hierarchy
-   - **Better Success States**: Animated success messages with icons and helpful text
-   - **Full-width WhatsApp Button**: "Share via WhatsApp" button now full-width in Payment Summary
-   - **Descriptive Help Text**: Clear instructions for uploading payment screenshots
-   - **Loading Feedback**: "Uploading..." button state instead of disabled appearance
-   - **Animated Completion**: Smooth animations for success states and completion screen
-   - **All test IDs added**: Complete data-testid attributes for testing (22+ test IDs)
+   - **Professional Status Indicators**: CheckCircle and Clock icons for visual status
+   - **Color-coded Status Badges**: "Completed" or "Pending" states with color coding
+   - **Admin View (No QR Code)**:
+     - QR code hidden for admin users (only customers see payment QR)
+     - Upload screenshot section hidden for admin
+     - Shows "Awaiting customer payment and screenshot upload" message
+     - Back button goes to /admin/bookings, not home
+     - Button text: "Send via WhatsApp" (admin-specific)
+   - **Customer View (With QR Code)**:
+     - Full UPI QR code visible for payment scanning
+     - Screenshot upload section for proof submission
+     - Back button goes to home page
+     - Button text: "Share via WhatsApp" (customer-specific)
+   - **Improved Payment Summary**: Icons showing payment status with color coding
+   - **Enhanced Typography**: Larger, bolder amounts with hierarchy
+   - **Better Success States**: Animated messages with icons
+   - **Descriptive Help Text**: Clear instructions for customers
+   - **Loading Feedback**: "Uploading..." state for uploads
+   - **All test IDs added**: Complete data-testid attributes (25+ test IDs)
 
 ## System Architecture
 
