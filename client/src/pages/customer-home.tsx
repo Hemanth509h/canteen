@@ -471,21 +471,46 @@ export default function CustomerHome() {
 
         {/* Category Navigation */}
         <section className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex flex-wrap gap-2 flex-1">
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    {category}
-                  </Button>
-                ))}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center gap-3">
+              {/* Mobile: Dropdown Select */}
+              <div className="md:hidden flex-1">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="w-full" data-testid="select-category-mobile">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem 
+                        key={category} 
+                        value={category}
+                        data-testid={`select-item-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              
+              {/* Desktop: Scrollable Button Row */}
+              <div className="hidden md:flex flex-1 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 pb-1">
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category)}
+                      className="whitespace-nowrap flex-shrink-0"
+                      data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
               <ThemeToggle />
             </div>
           </div>
