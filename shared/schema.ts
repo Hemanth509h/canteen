@@ -35,6 +35,8 @@ export interface EventBooking {
   contactEmail: string;
   contactPhone: string;
   specialRequests: string | null;
+  advancePaymentStatus: string;
+  finalPaymentStatus: string;
   createdAt: string;
 }
 
@@ -52,6 +54,8 @@ export const insertEventBookingSchema = z.object({
 
 export const updateEventBookingSchema = insertEventBookingSchema.partial().extend({
   status: z.enum(["pending", "confirmed", "completed", "cancelled"]).optional(),
+  advancePaymentStatus: z.enum(["pending", "paid"]).optional(),
+  finalPaymentStatus: z.enum(["pending", "paid"]).optional(),
 });
 
 export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;

@@ -458,12 +458,56 @@ export default function EventBookingsManager() {
                   />
 
                   {editingBooking && companyInfo?.upiId && (
-                    <div className="border-t pt-6 mt-6">
+                    <div className="border-t pt-6 mt-6 space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="advancePaymentStatus"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Advance Payment</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value || "pending"}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-advance-payment">
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="paid">Paid</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="finalPaymentStatus"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Final Payment</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value || "pending"}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-final-payment">
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="paid">Paid</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <UPIPayment 
                         upiId={companyInfo.upiId}
-                        amount={Math.round((form.getValues("pricePerPlate") || 0) * (form.getValues("guestCount") || 1))}
+                        totalAmount={Math.round((form.getValues("pricePerPlate") || 0) * (form.getValues("guestCount") || 1))}
                         bookingId={editingBooking.id}
                         clientName={form.getValues("clientName") || "Client"}
+                        advancePaymentStatus={form.getValues("advancePaymentStatus") || "pending"}
+                        finalPaymentStatus={form.getValues("finalPaymentStatus") || "pending"}
                       />
                     </div>
                   )}
@@ -668,9 +712,9 @@ export default function EventBookingsManager() {
                     <TableHead>Event Type</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Guests</TableHead>
-                    <TableHead>Price/Plate</TableHead>
                     <TableHead>Total</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>Event Status</TableHead>
+                    <TableHead>Payments</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -686,7 +730,6 @@ export default function EventBookingsManager() {
                       <TableCell>{booking.eventType}</TableCell>
                       <TableCell>{booking.eventDate}</TableCell>
                       <TableCell>{booking.guestCount}</TableCell>
-                      <TableCell>₹{booking.pricePerPlate.toLocaleString('en-IN')}</TableCell>
                       <TableCell className="font-semibold">
                         ₹{(booking.pricePerPlate * booking.guestCount).toLocaleString('en-IN')}
                       </TableCell>
@@ -694,6 +737,16 @@ export default function EventBookingsManager() {
                         <Badge variant={statusColors[booking.status]}>
                           {booking.status}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <div className="flex gap-1 flex-col">
+                          <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"}>
+                            Adv: {booking.advancePaymentStatus}
+                          </Badge>
+                          <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"}>
+                            Final: {booking.finalPaymentStatus}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

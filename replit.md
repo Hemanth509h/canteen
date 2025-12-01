@@ -10,19 +10,41 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
-### UPI Payment Integration (December 01, 2025)
-- **Added:** UPI payment support for booking payments
-  - Admin can set UPI ID in Company Settings
-  - Dynamic QR code generation for each booking
-  - Displays total amount due to customers
-  - Shows booking-specific payment details with UPI ID copy functionality
-  - Fully functional in the Booking Details view in Admin Panel
-- **Technology:** Uses `qrcode.react` library for QR code generation
-- **Location:** 
-  - Company Settings: `upiId` field added to admin company settings form
-  - Booking View: UPI payment card appears when viewing existing bookings
+### UPI Payment Integration with Advance & Final Payment Tracking (December 01, 2025)
+- **Added:** Complete UPI payment system with two-stage payment collection
+  - **Admin can set UPI ID** in Company Settings
+  - **Dynamic QR code generation** for each booking with payment stage info
+  - **Two Payment Stages:**
+    - Advance Payment: 50% of total (before event)
+    - Final Payment: 50% of total (after event)
+  - **Payment Status Tracking:**
+    - Admin can mark each stage as "Pending" or "Paid"
+    - Bookings table shows payment status for both stages
+    - Payment stage buttons disable when marked as paid
+  - **Dynamic amount calculation** - QR code shows correct amount for each stage
+  - **Copy UPI ID button** with visual feedback
+  
+- **Schema Changes:**
+  - Added `advancePaymentStatus` field (pending/paid)
+  - Added `finalPaymentStatus` field (pending/paid)
+  - Both tracked per booking
+  
+- **UI Components:**
+  - Payment stage selection buttons in UPI payment card
+  - Payment status dropdowns in booking edit form
+  - Payment badges in bookings list table
+  - Shows "Adv: pending/paid" and "Final: pending/paid"
+  
+- **Technology:** 
+  - Uses `qrcode` library for QR code generation
+  - Dynamic QR code updates based on payment stage
+  - Real-time payment status updates in admin UI
+  
+- **Locations:** 
+  - Company Settings: `upiId` field
+  - Booking Details: Advance & Final Payment dropdowns + UPI payment card
+  - Bookings List: Payment status column with badges
   - Component: `client/src/components/upi-payment.tsx`
-- **Note:** Resend email integration was dismissed by user; email notifications to be implemented separately if needed
 
 ## System Architecture
 
