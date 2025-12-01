@@ -33,6 +33,7 @@ export default function CompanySettingsManager() {
       phone: companyInfo.phone,
       address: companyInfo.address,
       eventsPerYear: companyInfo.eventsPerYear,
+      websiteUrl: companyInfo.websiteUrl || "",
     } : undefined,
   });
 
@@ -178,25 +179,46 @@ export default function CompanySettingsManager() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="eventsPerYear"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Events Per Year</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="500" 
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          data-testid="input-events-per-year"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="eventsPerYear"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Events Per Year</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="500" 
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            data-testid="input-events-per-year"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="websiteUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Website URL</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="url" 
+                            placeholder="https://www.example.com" 
+                            {...field}
+                            value={field.value || ""}
+                            data-testid="input-website-url"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <div className="flex justify-end pt-4">
                   <Button 
                     type="submit" 

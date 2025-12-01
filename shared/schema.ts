@@ -86,6 +86,7 @@ export interface CompanyInfo {
   phone: string;
   address: string;
   eventsPerYear: number;
+  websiteUrl?: string;
 }
 
 export const insertCompanyInfoSchema = z.object({
@@ -96,6 +97,7 @@ export const insertCompanyInfoSchema = z.object({
   phone: z.string().min(1, "Phone is required"),
   address: z.string().min(1, "Address is required"),
   eventsPerYear: z.number().int().positive().default(500),
+  websiteUrl: z.string().url("Valid URL is required").optional(),
 });
 
 export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
