@@ -126,3 +126,23 @@ export const updateStaffSchema = insertStaffSchema.partial();
 
 export type InsertStaff = z.infer<typeof insertStaffSchema>;
 export type UpdateStaff = z.infer<typeof updateStaffSchema>;
+
+// ==================== CUSTOMER REVIEWS ====================
+
+export interface CustomerReview {
+  id: string;
+  customerName: string;
+  eventType: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export const insertCustomerReviewSchema = z.object({
+  customerName: z.string().min(1, "Name is required"),
+  eventType: z.string().min(1, "Event type is required"),
+  rating: z.number().int().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
+  comment: z.string().min(10, "Review must be at least 10 characters"),
+});
+
+export type InsertCustomerReview = z.infer<typeof insertCustomerReviewSchema>;

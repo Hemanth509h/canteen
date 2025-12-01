@@ -54,30 +54,30 @@ export default function DashboardOverview() {
   ];
 
   return (
-    <div className="p-6 sm:p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div>
-        <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-          Dashboard Overview
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          Dashboard
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Welcome to your catering management dashboard
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {metrics.map((metric) => (
           <Card key={metric.title} data-testid={`card-metric-${metric.title.toLowerCase().replace(/\s+/g, '-')}`}>
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 p-3 sm:p-4 pb-1 sm:pb-2">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {metric.title}
               </CardTitle>
-              <metric.icon className={`w-5 h-5 ${metric.color}`} />
+              <metric.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${metric.color}`} />
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-4 pt-0">
               {metric.loading ? (
-                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-6 sm:h-8 w-16 sm:w-24" />
               ) : (
-                <div className="text-2xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                <div className="text-lg sm:text-2xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
                   {metric.value}
                 </div>
               )}

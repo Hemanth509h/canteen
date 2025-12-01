@@ -9,7 +9,9 @@ import {
   type Staff, 
   type InsertStaff, 
   type BookingItem, 
-  type InsertBookingItem
+  type InsertBookingItem,
+  type CustomerReview,
+  type InsertCustomerReview
 } from "@shared/schema";
 
 // ==================== MONGOOSE MODELS ====================
@@ -127,6 +129,25 @@ const staffSchema = new Schema<StaffDocument>({
 
 export const StaffModel = mongoose.models?.Staff || mongoose.model<StaffDocument>("Staff", staffSchema);
 
+// Customer Review Model
+export interface CustomerReviewDocument extends Document {
+  customerName: string;
+  eventType: string;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+}
+
+const customerReviewSchema = new Schema<CustomerReviewDocument>({
+  customerName: { type: String, required: true },
+  eventType: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const CustomerReviewModel = mongoose.models?.CustomerReview || mongoose.model<CustomerReviewDocument>("CustomerReview", customerReviewSchema);
+
 // ==================== STORAGE INTERFACE ====================
 
 export interface IStorage {
@@ -160,6 +181,11 @@ export interface IStorage {
   createStaffMember(staff: InsertStaff): Promise<Staff>;
   updateStaffMember(id: string, staff: Partial<InsertStaff>): Promise<Staff | undefined>;
   deleteStaffMember(id: string): Promise<boolean>;
+
+  // Customer Reviews
+  getReviews(): Promise<CustomerReview[]>;
+  createReview(review: InsertCustomerReview): Promise<CustomerReview>;
+  deleteReview(id: string): Promise<boolean>;
 }
 
 // ==================== MONGODB STORAGE IMPLEMENTATION ====================
@@ -349,6 +375,33 @@ export class MongoDBStorage implements IStorage {
 
   async deleteStaffMember(id: string): Promise<boolean> {
     const result = await StaffModel.findByIdAndDelete(id);
+    return result !== null;
+  }
+
+  // Customer Reviews
+  private toCustomerReview(doc: any): CustomerReview {
+    return {
+      id: doc._id.toString(),
+      customerName: doc.customerName,
+      eventType: doc.eventType,
+      rating: doc.rating,
+      comment: doc.comment,
+      createdAt: doc.createdAt.toISOString(),
+    };
+  }
+
+  async getReviews(): Promise<CustomerReview[]> {
+    const docs = await CustomerReviewModel.find().sort({ createdAt: -1 }).lean();
+    return docs.map(doc => this.toCustomerReview(doc));
+  }
+
+  async createReview(review: InsertCustomerReview): Promise<CustomerReview> {
+    const doc = await CustomerReviewModel.create(review);
+    return this.toCustomerReview(doc);
+  }
+
+  async deleteReview(id: string): Promise<boolean> {
+    const result = await CustomerReviewModel.findByIdAndDelete(id);
     return result !== null;
   }
 }

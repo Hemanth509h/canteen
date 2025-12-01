@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./db";
-import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema } from "@shared/schema";
+import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema, insertCustomerReviewSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { verifyPassword, updatePassword } from "./password-manager";
 import { z } from "zod";
@@ -357,6 +357,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete staff member" });
+    }
+  });
+
+  // Customer Reviews Routes
+  app.get("/api/reviews", async (_req, res) => {
+    try {
+      const reviews = await storage.getReviews();
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  app.post("/api/reviews", async (req, res) => {
+    try {
+      const result = insertCustomerReviewSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      const review = await storage.createReview(result.data);
+      res.status(201).json(review);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+
+  app.delete("/api/reviews/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteReview(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete review" });
     }
   });
 

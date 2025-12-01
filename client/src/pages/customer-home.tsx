@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,15 +7,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { 
   UtensilsCrossed, Phone, Mail, MapPin, ShieldCheck, Search, 
   ChefHat, Award, Users, Calendar, Star, Clock, Heart,
-  Sparkles, ArrowRight, Quote, CheckCircle2, Utensils
+  Sparkles, ArrowRight, Quote, CheckCircle2, Utensils, Send, Settings
 } from "lucide-react";
-import type { FoodItem, CompanyInfo } from "@shared/schema";
+import type { FoodItem, CompanyInfo, CustomerReview } from "@shared/schema";
+import { insertCustomerReviewSchema } from "@shared/schema";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
 
@@ -131,6 +140,7 @@ export default function CustomerHome() {
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
   const [showIntro, setShowIntro] = useState(true);
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
+  const { toast } = useToast();
 
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -142,6 +152,34 @@ export default function CustomerHome() {
 
   const { data: companyInfo, isLoading: loadingCompany } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
+  });
+
+  const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
+    queryKey: ["/api/reviews"],
+  });
+
+  const reviewForm = useForm({
+    resolver: zodResolver(insertCustomerReviewSchema),
+    defaultValues: {
+      customerName: "",
+      eventType: "",
+      rating: 5,
+      comment: "",
+    },
+  });
+
+  const createReviewMutation = useMutation({
+    mutationFn: async (data: { customerName: string; eventType: string; rating: number; comment: string }) => {
+      return apiRequest("POST", "/api/reviews", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
+      toast({ title: "Thank you!", description: "Your review has been submitted successfully." });
+      reviewForm.reset();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to submit review. Please try again.", variant: "destructive" });
+    },
   });
 
   useEffect(() => {
@@ -238,9 +276,28 @@ export default function CustomerHome() {
         )}
       </AnimatePresence>
 
+      {/* Floating Admin Button */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link href="/admin/login">
+            <Button
+              size="icon"
+              variant="secondary"
+              className="fixed bottom-6 right-6 z-50 shadow-lg"
+              data-testid="button-floating-admin"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent side="left">
+          <p>Admin Portal</p>
+        </TooltipContent>
+      </Tooltip>
+
       <div className="min-h-screen bg-background">
         {/* Hero Section with Parallax */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-8">
           <motion.div
             className="absolute inset-0 bg-cover bg-center"
             style={{
@@ -287,13 +344,13 @@ export default function CustomerHome() {
 
             {loadingCompany ? (
               <>
-                <Skeleton className="h-20 w-[500px] mx-auto mb-4 bg-white/20" />
-                <Skeleton className="h-8 w-80 mx-auto mb-8 bg-white/20" />
+                <Skeleton className="h-12 md:h-20 w-64 md:w-[500px] mx-auto mb-4 bg-white/20" />
+                <Skeleton className="h-6 md:h-8 w-48 md:w-80 mx-auto mb-8 bg-white/20" />
               </>
             ) : (
               <>
                 <motion.h1 
-                  className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 leading-tight"
+                  className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-4 md:mb-6 leading-tight px-2"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 2.9, duration: 0.8 }}
@@ -301,7 +358,7 @@ export default function CustomerHome() {
                   {companyInfo?.companyName || "OM Caterers"}
                 </motion.h1>
                 <motion.p 
-                  className="text-xl md:text-2xl lg:text-3xl text-white/90 mb-10 font-light"
+                  className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-10 font-light px-4"
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 3.1, duration: 0.6 }}
@@ -338,30 +395,28 @@ export default function CustomerHome() {
             </motion.div>
 
             <motion.div
-              className="mt-12 flex justify-center gap-8"
+              className="mt-8 md:mt-12 grid grid-cols-3 gap-4 md:gap-8 max-w-md md:max-w-lg mx-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 3.5 }}
             >
               <div className="text-center" data-testid="stat-events">
-                <p className="text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-events">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-events">
                   <AnimatedCounter end={companyInfo?.eventsPerYear || 500} suffix="+" />
                 </p>
-                <p className="text-white/70 text-sm">Events Annually</p>
+                <p className="text-white/70 text-xs sm:text-sm">Events Annually</p>
               </div>
-              <div className="w-px bg-white/20" />
-              <div className="text-center" data-testid="stat-experience">
-                <p className="text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-experience">
+              <div className="text-center border-x border-white/20" data-testid="stat-experience">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-experience">
                   <AnimatedCounter end={15} suffix="+" />
                 </p>
-                <p className="text-white/70 text-sm">Years Experience</p>
+                <p className="text-white/70 text-xs sm:text-sm">Years Experience</p>
               </div>
-              <div className="w-px bg-white/20" />
               <div className="text-center" data-testid="stat-cuisines">
-                <p className="text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-cuisines">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-cuisines">
                   <AnimatedCounter end={50} suffix="+" />
                 </p>
-                <p className="text-white/70 text-sm">Cuisines</p>
+                <p className="text-white/70 text-xs sm:text-sm">Cuisines</p>
               </div>
             </motion.div>
           </motion.div>
@@ -608,10 +663,10 @@ export default function CustomerHome() {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-20 bg-card">
+        <section className="py-12 md:py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div 
-              className="text-center mb-16"
+              className="text-center mb-8 md:mb-16"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -619,15 +674,15 @@ export default function CustomerHome() {
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Star className="w-3 h-3 mr-1" /> Testimonials
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-4">
                 What Our Clients Say
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 Hear from those who have experienced our exceptional catering services
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
               {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={testimonial.name}
@@ -640,27 +695,27 @@ export default function CustomerHome() {
                     className="h-full hover-elevate"
                     data-testid={`card-testimonial-${index}`}
                   >
-                    <CardHeader>
+                    <CardHeader className="pb-2">
                       <div className="flex items-center gap-1 mb-3" data-testid={`rating-${index}`}>
                         {[...Array(testimonial.rating)].map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-primary text-primary" />
                         ))}
                       </div>
-                      <Quote className="w-8 h-8 text-primary/20 mb-2" />
-                      <CardDescription className="text-base text-foreground/80 leading-relaxed">
+                      <Quote className="w-6 h-6 md:w-8 md:h-8 text-primary/20 mb-2" />
+                      <CardDescription className="text-sm md:text-base text-foreground/80 leading-relaxed">
                         "{testimonial.content}"
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-lg font-semibold text-primary" data-testid={`text-testimonial-author-${index}`}>
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-base md:text-lg font-semibold text-primary" data-testid={`text-testimonial-author-${index}`}>
                             {testimonial.name.charAt(0)}
                           </span>
                         </div>
                         <div>
-                          <p className="font-semibold" data-testid={`text-testimonial-name-${index}`}>{testimonial.name}</p>
-                          <p className="text-sm text-muted-foreground" data-testid={`text-testimonial-role-${index}`}>{testimonial.role}</p>
+                          <p className="font-semibold text-sm md:text-base" data-testid={`text-testimonial-name-${index}`}>{testimonial.name}</p>
+                          <p className="text-xs md:text-sm text-muted-foreground" data-testid={`text-testimonial-role-${index}`}>{testimonial.role}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -668,6 +723,203 @@ export default function CustomerHome() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Customer Submitted Reviews */}
+            {reviews && reviews.length > 0 && (
+              <motion.div
+                className="mt-8 md:mt-12"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <h3 className="text-xl md:text-2xl font-serif font-bold mb-4 md:mb-6 text-center">Recent Customer Reviews</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {reviews.slice(0, 6).map((review, index) => (
+                    <Card key={review.id} className="hover-elevate" data-testid={`card-customer-review-${index}`}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center gap-1 mb-2">
+                          {[...Array(review.rating)].map((_, i) => (
+                            <Star key={i} className="w-3 h-3 fill-primary text-primary" />
+                          ))}
+                        </div>
+                        <CardDescription className="text-sm text-foreground/80">
+                          "{review.comment}"
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <span className="text-sm font-semibold text-primary">
+                                {review.customerName.charAt(0)}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-medium text-sm">{review.customerName}</p>
+                              <p className="text-xs text-muted-foreground">{review.eventType}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </section>
+
+        {/* Review Submission Section */}
+        <section id="submit-review" className="py-12 md:py-20 bg-muted/30">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-8 md:mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <Badge variant="secondary" className="mb-4 px-4 py-1">
+                <Send className="w-3 h-3 mr-1" /> Share Your Experience
+              </Badge>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4">
+                Leave a Review
+              </h2>
+              <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
+                We would love to hear about your experience with our catering services
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <Card>
+                <CardContent className="pt-6">
+                  <Form {...reviewForm}>
+                    <form 
+                      onSubmit={reviewForm.handleSubmit((data) => createReviewMutation.mutate(data))}
+                      className="space-y-4 md:space-y-6"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={reviewForm.control}
+                          name="customerName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Your Name</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Enter your name" 
+                                  {...field} 
+                                  data-testid="input-review-name"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={reviewForm.control}
+                          name="eventType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Event Type</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-review-event-type">
+                                    <SelectValue placeholder="Select event type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Wedding">Wedding</SelectItem>
+                                  <SelectItem value="Birthday Party">Birthday Party</SelectItem>
+                                  <SelectItem value="Corporate Event">Corporate Event</SelectItem>
+                                  <SelectItem value="Anniversary">Anniversary</SelectItem>
+                                  <SelectItem value="Religious Ceremony">Religious Ceremony</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={reviewForm.control}
+                        name="rating"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Rating</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center gap-2">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => field.onChange(star)}
+                                    className="p-1 transition-transform hover:scale-110"
+                                    data-testid={`button-rating-${star}`}
+                                  >
+                                    <Star
+                                      className={`w-6 h-6 md:w-8 md:h-8 ${
+                                        star <= field.value
+                                          ? "fill-primary text-primary"
+                                          : "text-muted-foreground"
+                                      }`}
+                                    />
+                                  </button>
+                                ))}
+                                <span className="ml-2 text-sm text-muted-foreground">
+                                  {field.value} out of 5
+                                </span>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={reviewForm.control}
+                        name="comment"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Your Review</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Tell us about your experience..."
+                                className="min-h-[100px] md:min-h-[120px] resize-none"
+                                {...field}
+                                data-testid="textarea-review-comment"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Button 
+                        type="submit" 
+                        className="w-full"
+                        disabled={createReviewMutation.isPending}
+                        data-testid="button-submit-review"
+                      >
+                        {createReviewMutation.isPending ? (
+                          "Submitting..."
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Submit Review
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </section>
 

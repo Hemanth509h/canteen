@@ -114,11 +114,8 @@ export default function AdminDashboard() {
       <div className="flex h-screen w-full">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between p-4 border-b border-border bg-background">
+          <header className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border bg-background">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <h1 className="text-xl font-semibold" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Catering Management
-            </h1>
             <ThemeToggle />
           </header>
           <main className="flex-1 overflow-auto bg-background">

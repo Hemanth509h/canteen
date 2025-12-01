@@ -154,13 +154,13 @@ export default function FoodItemsManager() {
   };
 
   return (
-    <div className="p-6 sm:p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
             Food Items
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Manage your menu items and categories
           </p>
         </div>
@@ -310,65 +310,112 @@ export default function FoodItemsManager() {
               ))}
             </div>
           ) : filteredFoodItems && filteredFoodItems.length > 0 ? (
-            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredFoodItems.map((item) => (
-                    <TableRow key={item.id} data-testid={`row-food-${item.id}`}>
-                      <TableCell>
-                        <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
-                          {item.imageUrl ? (
-                            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <ImagePlus className="w-6 h-6 text-muted-foreground" />
-                            </div>
-                          )}
+            <>
+              {/* Mobile Card View */}
+              <div className="block md:hidden space-y-3 max-h-[500px] overflow-y-auto">
+                {filteredFoodItems.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="flex items-center gap-3 p-3 border border-border rounded-lg"
+                    data-testid={`card-food-mobile-${item.id}`}
+                  >
+                    <div className="w-14 h-14 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImagePlus className="w-5 h-5 text-muted-foreground" />
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-semibold">{item.name}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{item.category}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(item)}
-                            data-testid={`button-edit-${item.id}`}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(item.id)}
-                            disabled={deleteMutation.isPending}
-                            data-testid={`button-delete-${item.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{item.name}</p>
+                      <Badge variant="secondary" className="text-xs mt-1">{item.category}</Badge>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleEdit(item)}
+                        data-testid={`button-edit-mobile-${item.id}`}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={deleteMutation.isPending}
+                        data-testid={`button-delete-mobile-${item.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto max-h-[600px] overflow-y-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Image</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredFoodItems.map((item) => (
+                      <TableRow key={item.id} data-testid={`row-food-${item.id}`}>
+                        <TableCell>
+                          <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
+                            {item.imageUrl ? (
+                              <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ImagePlus className="w-6 h-6 text-muted-foreground" />
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-semibold">{item.name}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{item.category}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(item)}
+                              data-testid={`button-edit-${item.id}`}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDelete(item.id)}
+                              disabled={deleteMutation.isPending}
+                              data-testid={`button-delete-${item.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           ) : foodItems && foodItems.length > 0 ? (
             <div className="text-center py-12">
               <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
