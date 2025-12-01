@@ -90,13 +90,13 @@ export interface CompanyInfo {
 }
 
 export const insertCompanyInfoSchema = z.object({
-  companyName: z.string().min(1, "Company name is required"),
-  tagline: z.string().min(1, "Tagline is required"),
-  description: z.string().min(1, "Description is required"),
-  email: z.string().email("Valid email is required"),
-  phone: z.string().min(1, "Phone is required"),
-  address: z.string().min(1, "Address is required"),
-  eventsPerYear: z.number().int().positive().default(500),
+  companyName: z.string().optional(),
+  tagline: z.string().optional(),
+  description: z.string().optional(),
+  email: z.string().email("Valid email is required").optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  eventsPerYear: z.number().int().positive().default(500).optional(),
   websiteUrl: z.string().url("Valid URL is required").optional(),
 });
 

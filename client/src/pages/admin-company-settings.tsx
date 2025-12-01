@@ -99,7 +99,7 @@ export default function CompanySettingsManager() {
                   name="companyName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company Name</FormLabel>
+                      <FormLabel>Company Name <span className="text-xs text-muted-foreground">(Optional)</span></FormLabel>
                       <FormControl>
                         <Input placeholder="Premium Catering Services" {...field} data-testid="input-company-name" />
                       </FormControl>
@@ -112,7 +112,7 @@ export default function CompanySettingsManager() {
                   name="tagline"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tagline</FormLabel>
+                      <FormLabel>Tagline <span className="text-xs text-muted-foreground">(Optional)</span></FormLabel>
                       <FormControl>
                         <Input placeholder="Exceptional Food for Unforgettable Events" {...field} data-testid="input-tagline" />
                       </FormControl>
@@ -125,7 +125,7 @@ export default function CompanySettingsManager() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Description <span className="text-xs text-muted-foreground">(Optional)</span></FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Tell customers about your catering business..." 
@@ -144,7 +144,7 @@ export default function CompanySettingsManager() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Email <span className="text-xs text-muted-foreground">(Optional)</span></FormLabel>
                         <FormControl>
                           <Input type="email" placeholder="info@catering.com" {...field} data-testid="input-email" />
                         </FormControl>
@@ -157,7 +157,7 @@ export default function CompanySettingsManager() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone</FormLabel>
+                        <FormLabel>Phone <span className="text-xs text-muted-foreground">(Optional)</span></FormLabel>
                         <FormControl>
                           <Input type="tel" placeholder="+1 (555) 123-4567" {...field} data-testid="input-phone" />
                         </FormControl>
@@ -171,7 +171,7 @@ export default function CompanySettingsManager() {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel>Address <span className="text-xs text-muted-foreground">(Optional)</span></FormLabel>
                       <FormControl>
                         <Input placeholder="123 Main St, City, State 12345" {...field} data-testid="input-address" />
                       </FormControl>
@@ -185,13 +185,13 @@ export default function CompanySettingsManager() {
                     name="eventsPerYear"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Events Per Year</FormLabel>
+                        <FormLabel>Events Per Year <span className="text-xs text-muted-foreground">(Optional)</span></FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
                             placeholder="500" 
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
                             data-testid="input-events-per-year"
                           />
                         </FormControl>
