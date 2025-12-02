@@ -642,26 +642,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/staff-requests/:token", async (req, res) => {
     try {
-      console.log("[PATCH] Token:", req.params.token, "Body:", req.body);
+      console.log("[PATCH] Starting - Token:", req.params.token, "Body:", JSON.stringify(req.body));
       const request = await storage.getStaffBookingRequestByToken(req.params.token);
-      console.log("[PATCH] Found request:", request);
+      console.log("[PATCH] Found request:", JSON.stringify(request));
       if (!request) {
+        console.log("[PATCH] Request not found for token:", req.params.token);
         return res.status(404).json({ error: "Request not found" });
       }
       const { status } = req.body;
+      console.log("[PATCH] Received status:", status);
       if (!status || !["pending", "accepted", "rejected"].includes(status)) {
+        console.log("[PATCH] Invalid status:", status);
         return res.status(400).json({ error: "Invalid status" });
       }
-      console.log("[PATCH] Updating with requestId:", request.id, "status:", status);
+      console.log("[PATCH] Updating with ID:", request.id, "Status:", status);
       const updatedRequest = await storage.updateStaffBookingRequest(request.id, { status });
-      console.log("[PATCH] Update result:", updatedRequest);
+      console.log("[PATCH] Updated successfully:", JSON.stringify(updatedRequest));
       if (!updatedRequest) {
+        console.log("[PATCH] Update failed - no result");
         return res.status(404).json({ error: "Failed to update request" });
       }
+      console.log("[PATCH] Sending response:", JSON.stringify(updatedRequest));
       res.json(updatedRequest);
     } catch (error) {
-      console.error("[PATCH] Error updating staff request:", error);
-      res.status(500).json({ error: String(error) });
+      console.error("[PATCH] ERROR:", error instanceof Error ? error.message : String(error));
+      console.error("[PATCH] Full error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Failed to update request" });
     }
   });
 
