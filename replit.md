@@ -10,11 +10,21 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (Dec 2, 2025)
 
-### Staff Assignment Accept/Reject Button Fixed ✅
-- **Root Cause:** `findByIdAndUpdate` was receiving a string ID but needed proper MongoDB ObjectId conversion
-- **Solution:** Updated `updateStaffBookingRequest` method to convert string ID to `new mongoose.Types.ObjectId(id)`
-- **Result:** Accept and Reject buttons now work properly on staff assignment page
-- **Note:** Used `{ $set: request }` operator for clean MongoDB update
+### AuditHistory & Tracking System + Staff Assignment Button Fixed ✅
+- **Staff Assignment Button Fix:**
+  - **Root Cause:** `findByIdAndUpdate` was receiving a string ID but needed proper MongoDB ObjectId conversion
+  - **Solution:** Updated `updateStaffBookingRequest` method to convert string ID to `new mongoose.Types.ObjectId(id)` with proper error handling
+  - **Result:** Accept and Reject buttons now work properly on staff assignment page
+
+- **New AuditHistory Tracking System:**
+  - **Schema:** Created AuditHistory model with action, entityType, entityId, details, and createdAt
+  - **Entity Types:** booking, staff, payment, assignment
+  - **Storage Methods:** `createAuditHistory()` and `getAuditHistory(entityType?, entityId?)`
+  - **API Endpoints:**
+    - `GET /api/audit-history` - Fetch audit logs with optional filtering by entityType/entityId
+    - `POST /api/audit-history` - Log new actions (bookings, staff assignments, payments)
+  - **Features:** Tracks all system changes with timestamps and detailed change information
+  - **Future Integration:** Ready to be called from booking, staff, and payment operations
 
 ## Previous Changes (Dec 1, 2025)
 
