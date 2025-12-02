@@ -620,11 +620,7 @@ export class MongoDBStorage implements IStorage {
   }
 
   async updateStaffBookingRequest(id: string, request: UpdateStaffBookingRequest): Promise<StaffBookingRequest | undefined> {
-    const doc = await StaffBookingRequestModel.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(id), 
-      { $set: request }, 
-      { new: true }
-    ).lean();
+    const doc = await StaffBookingRequestModel.findByIdAndUpdate(id, request, { new: true }).lean();
     return doc ? this.toStaffBookingRequest(doc) : undefined;
   }
 
