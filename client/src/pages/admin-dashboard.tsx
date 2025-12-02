@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import StaffManager from "./admin-staff";
 import AdminAccount from "./admin-account";
 import ChefPrintout from "./admin-chef-printout";
 import CateringPackagesManager from "./admin-catering-packages";
+import AuditHistory from "./admin-audit-history";
 import { useEffect, useState } from "react";
 
 const menuItems = [
@@ -22,6 +23,7 @@ const menuItems = [
   { title: "Catering Packages", url: "/admin/packages", icon: Package },
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Staff", url: "/admin/staff", icon: Users },
+  { title: "Audit History", url: "/admin/audit-history", icon: History },
   { title: "Company Settings", url: "/admin/settings", icon: Settings },
   { title: "Account Settings", url: "/admin/account", icon: UserCog },
 ];
@@ -157,6 +159,7 @@ export default function AdminDashboard() {
               <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
               <Route path="/admin/chef-printout" component={ChefPrintout} />
               <Route path="/admin/staff" component={StaffManager} />
+              <Route path="/admin/audit-history" component={AuditHistory} />
               <Route path="/admin/settings" component={CompanySettingsManager} />
               <Route path="/admin/account" component={AdminAccount} />
             </Switch>

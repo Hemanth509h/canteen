@@ -8,7 +8,7 @@ This is a full-stack catering management application built with React, Express, 
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (Dec 2, 2025)
+## Recent Changes (Dec 2, 2025 - Session 2)
 
 ### AuditHistory & Tracking System + Staff Assignment Button Fixed ✅
 - **Staff Assignment Button Fix:**
@@ -32,6 +32,13 @@ Preferred communication style: Simple, everyday language.
     - `assignment_updated` - When staff accepts/rejects an assignment (tracks status change)
   - **Stored Details:** Each audit entry includes contextual information (names, IDs, status changes, etc.)
   - **Query Support:** View all actions, filter by entity type, or filter by specific entity ID
+  - **Admin UI Page:** New "Audit History" page at `/admin/audit-history` with:
+    - Complete activity log showing all system changes
+    - Filter by entity type (Bookings, Staff, Assignments, Payments)
+    - Detailed timestamps and action descriptions
+    - Color-coded action badges for easy identification
+    - Real-time updates as new actions occur
+  - **Location:** "Audit History" button in admin sidebar navigation
 
 ## Previous Changes (Dec 1, 2025)
 
