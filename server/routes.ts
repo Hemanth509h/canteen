@@ -685,6 +685,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Audit History Routes
+  app.get("/api/audit-history", async (req, res) => {
+    try {
+      const { entityType, entityId } = req.query;
+      const history = await storage.getAuditHistory(entityType as string, entityId as string);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch audit history" });
+    }
+  });
+
+  app.post("/api/audit-history", async (req, res) => {
+    try {
+      const history = await storage.createAuditHistory(req.body);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create audit history" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

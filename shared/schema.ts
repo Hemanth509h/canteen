@@ -259,3 +259,23 @@ export const updateStaffBookingRequestSchema = z.object({
 
 export type InsertStaffBookingRequest = z.infer<typeof insertStaffBookingRequestSchema>;
 export type UpdateStaffBookingRequest = z.infer<typeof updateStaffBookingRequestSchema>;
+
+// ==================== AUDIT HISTORY ====================
+
+export interface AuditHistory {
+  id: string;
+  action: string;
+  entityType: "booking" | "staff" | "payment" | "assignment";
+  entityId: string;
+  details: Record<string, unknown>;
+  createdAt: string;
+}
+
+export const insertAuditHistorySchema = z.object({
+  action: z.string().min(1, "Action is required"),
+  entityType: z.enum(["booking", "staff", "payment", "assignment"]),
+  entityId: z.string().min(1, "Entity ID is required"),
+  details: z.record(z.unknown()).default({}),
+});
+
+export type InsertAuditHistory = z.infer<typeof insertAuditHistorySchema>;

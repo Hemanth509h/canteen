@@ -19,7 +19,9 @@ import {
   type InsertAdminNotification,
   type StaffBookingRequest,
   type InsertStaffBookingRequest,
-  type UpdateStaffBookingRequest
+  type UpdateStaffBookingRequest,
+  type AuditHistory,
+  type InsertAuditHistory
 } from "@shared/schema";
 
 // ==================== MONGOOSE MODELS ====================
@@ -232,6 +234,25 @@ const staffBookingRequestSchema = new Schema<StaffBookingRequestDocument>({
 });
 
 export const StaffBookingRequestModel = mongoose.models?.StaffBookingRequest || mongoose.model<StaffBookingRequestDocument>("StaffBookingRequest", staffBookingRequestSchema);
+
+// Audit History Model
+export interface AuditHistoryDocument extends Document {
+  action: string;
+  entityType: "booking" | "staff" | "payment" | "assignment";
+  entityId: string;
+  details: Record<string, unknown>;
+  createdAt: Date;
+}
+
+const auditHistorySchema = new Schema<AuditHistoryDocument>({
+  action: { type: String, required: true },
+  entityType: { type: String, enum: ["booking", "staff", "payment", "assignment"], required: true },
+  entityId: { type: String, required: true },
+  details: { type: Schema.Types.Mixed, default: {} },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const AuditHistoryModel = mongoose.models?.AuditHistory || mongoose.model<AuditHistoryDocument>("AuditHistory", auditHistorySchema);
 
 // ==================== STORAGE INTERFACE ====================
 
@@ -620,8 +641,17 @@ export class MongoDBStorage implements IStorage {
   }
 
   async updateStaffBookingRequest(id: string, request: UpdateStaffBookingRequest): Promise<StaffBookingRequest | undefined> {
-    const doc = await StaffBookingRequestModel.findByIdAndUpdate(id, request, { new: true }).lean();
-    return doc ? this.toStaffBookingRequest(doc) : undefined;
+    try {
+      const doc = await StaffBookingRequestModel.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(id), 
+        { $set: { status: request.status } }, 
+        { new: true }
+      ).lean();
+      return doc ? this.toStaffBookingRequest(doc) : undefined;
+    } catch (err) {
+      console.error("updateStaffBookingRequest error:", err, "ID:", id);
+      return undefined;
+    }
   }
 
   async getAcceptedStaffForBooking(bookingId: string): Promise<Staff[]> {
@@ -629,5 +659,36 @@ export class MongoDBStorage implements IStorage {
     const staffIds = requests.map(r => r.staffId);
     const staffDocs = await StaffModel.find({ _id: { $in: staffIds } }).lean();
     return staffDocs.map(doc => this.toStaff(doc));
+  }
+
+  // Audit History
+  async createAuditHistory(history: InsertAuditHistory): Promise<AuditHistory> {
+    const doc = await AuditHistoryModel.create({
+      ...history,
+      createdAt: new Date(),
+    });
+    return {
+      id: doc._id.toString(),
+      action: doc.action,
+      entityType: doc.entityType,
+      entityId: doc.entityId,
+      details: doc.details || {},
+      createdAt: doc.createdAt.toISOString(),
+    };
+  }
+
+  async getAuditHistory(entityType?: string, entityId?: string): Promise<AuditHistory[]> {
+    const query: any = {};
+    if (entityType) query.entityType = entityType;
+    if (entityId) query.entityId = entityId;
+    const docs = await AuditHistoryModel.find(query).sort({ createdAt: -1 }).limit(100).lean();
+    return docs.map(doc => ({
+      id: doc._id.toString(),
+      action: doc.action,
+      entityType: doc.entityType,
+      entityId: doc.entityId,
+      details: doc.details || {},
+      createdAt: doc.createdAt.toISOString(),
+    }));
   }
 }
