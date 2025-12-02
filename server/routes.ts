@@ -642,7 +642,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/staff-requests/:token", async (req, res) => {
     try {
+      console.log("[PATCH] Token:", req.params.token, "Body:", req.body);
       const request = await storage.getStaffBookingRequestByToken(req.params.token);
+      console.log("[PATCH] Found request:", request);
       if (!request) {
         return res.status(404).json({ error: "Request not found" });
       }
@@ -650,14 +652,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!status || !["pending", "accepted", "rejected"].includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
+      console.log("[PATCH] Updating with requestId:", request.id, "status:", status);
       const updatedRequest = await storage.updateStaffBookingRequest(request.id, { status });
+      console.log("[PATCH] Update result:", updatedRequest);
       if (!updatedRequest) {
         return res.status(404).json({ error: "Failed to update request" });
       }
       res.json(updatedRequest);
     } catch (error) {
-      console.error("Error updating staff request:", error);
-      res.status(500).json({ error: "Failed to update request" });
+      console.error("[PATCH] Error updating staff request:", error);
+      res.status(500).json({ error: String(error) });
     }
   });
 

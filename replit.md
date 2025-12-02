@@ -8,7 +8,15 @@ This is a full-stack catering management application built with React, Express, 
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (Dec 1, 2025)
+## Recent Changes (Dec 2, 2025)
+
+### Staff Assignment Accept/Reject Button Fixed ✅
+- **Root Cause:** `findByIdAndUpdate` was receiving a string ID but needed proper MongoDB ObjectId conversion
+- **Solution:** Updated `updateStaffBookingRequest` method to convert string ID to `new mongoose.Types.ObjectId(id)`
+- **Result:** Accept and Reject buttons now work properly on staff assignment page
+- **Note:** Used `{ $set: request }` operator for clean MongoDB update
+
+## Previous Changes (Dec 1, 2025)
 
 ### Simplified Staff Management (Complete):
 - Removed experience, salary, and image fields from staff records
