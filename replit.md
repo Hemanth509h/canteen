@@ -16,15 +16,22 @@ Preferred communication style: Simple, everyday language.
   - **Solution:** Updated `updateStaffBookingRequest` method to convert string ID to `new mongoose.Types.ObjectId(id)` with proper error handling
   - **Result:** Accept and Reject buttons now work properly on staff assignment page
 
-- **New AuditHistory Tracking System:**
+- **New AuditHistory Tracking System (Complete & Integrated):**
   - **Schema:** Created AuditHistory model with action, entityType, entityId, details, and createdAt
   - **Entity Types:** booking, staff, payment, assignment
   - **Storage Methods:** `createAuditHistory()` and `getAuditHistory(entityType?, entityId?)`
   - **API Endpoints:**
     - `GET /api/audit-history` - Fetch audit logs with optional filtering by entityType/entityId
     - `POST /api/audit-history` - Log new actions (bookings, staff assignments, payments)
-  - **Features:** Tracks all system changes with timestamps and detailed change information
-  - **Future Integration:** Ready to be called from booking, staff, and payment operations
+  - **Automatic Logging Integrated:**
+    - `booking_created` - When a new event booking is created
+    - `booking_updated` - When booking status, payments, or details change
+    - `staff_created` - When a new staff member is added
+    - `staff_updated` - When staff details are modified
+    - `assignment_created` - When a serving boy is assigned to an event
+    - `assignment_updated` - When staff accepts/rejects an assignment (tracks status change)
+  - **Stored Details:** Each audit entry includes contextual information (names, IDs, status changes, etc.)
+  - **Query Support:** View all actions, filter by entity type, or filter by specific entity ID
 
 ## Previous Changes (Dec 1, 2025)
 

@@ -430,12 +430,29 @@ export class MongoDBStorage implements IStorage {
 
   async createBooking(booking: InsertEventBooking): Promise<EventBooking> {
     const doc = await EventBookingModel.create(booking);
-    return this.toEventBooking(doc);
+    const result = this.toEventBooking(doc);
+    await this.createAuditHistory({
+      action: "booking_created",
+      entityType: "booking",
+      entityId: result.id,
+      details: { clientName: booking.clientName, eventType: booking.eventType, guestCount: booking.guestCount, eventDate: booking.eventDate },
+    });
+    return result;
   }
 
   async updateBooking(id: string, booking: Partial<EventBooking>): Promise<EventBooking | undefined> {
     const doc = await EventBookingModel.findByIdAndUpdate(id, booking, { new: true }).lean();
-    return doc ? this.toEventBooking(doc) : undefined;
+    if (doc) {
+      const result = this.toEventBooking(doc);
+      await this.createAuditHistory({
+        action: "booking_updated",
+        entityType: "booking",
+        entityId: id,
+        details: { changes: booking, status: booking.status, advancePaymentStatus: booking.advancePaymentStatus, finalPaymentStatus: booking.finalPaymentStatus },
+      });
+      return result;
+    }
+    return undefined;
   }
 
   async deleteBooking(id: string): Promise<boolean> {
@@ -501,12 +518,29 @@ export class MongoDBStorage implements IStorage {
 
   async createStaffMember(staff: InsertStaff): Promise<Staff> {
     const doc = await StaffModel.create(staff);
-    return this.toStaff(doc);
+    const result = this.toStaff(doc);
+    await this.createAuditHistory({
+      action: "staff_created",
+      entityType: "staff",
+      entityId: result.id,
+      details: { name: staff.name, role: staff.role, phone: staff.phone },
+    });
+    return result;
   }
 
   async updateStaffMember(id: string, staff: Partial<InsertStaff>): Promise<Staff | undefined> {
     const doc = await StaffModel.findByIdAndUpdate(id, staff, { new: true }).lean();
-    return doc ? this.toStaff(doc) : undefined;
+    if (doc) {
+      const result = this.toStaff(doc);
+      await this.createAuditHistory({
+        action: "staff_updated",
+        entityType: "staff",
+        entityId: id,
+        details: { changes: staff, name: doc.name, role: doc.role },
+      });
+      return result;
+    }
+    return undefined;
   }
 
   async deleteStaffMember(id: string): Promise<boolean> {
@@ -637,7 +671,14 @@ export class MongoDBStorage implements IStorage {
 
   async createStaffBookingRequest(request: InsertStaffBookingRequest): Promise<StaffBookingRequest> {
     const doc = await StaffBookingRequestModel.create(request);
-    return this.toStaffBookingRequest(doc);
+    const result = this.toStaffBookingRequest(doc);
+    await this.createAuditHistory({
+      action: "assignment_created",
+      entityType: "assignment",
+      entityId: result.id,
+      details: { bookingId: request.bookingId, staffId: request.staffId, token: request.token },
+    });
+    return result;
   }
 
   async updateStaffBookingRequest(id: string, request: UpdateStaffBookingRequest): Promise<StaffBookingRequest | undefined> {
@@ -647,7 +688,17 @@ export class MongoDBStorage implements IStorage {
         { $set: { status: request.status } }, 
         { new: true }
       ).lean();
-      return doc ? this.toStaffBookingRequest(doc) : undefined;
+      if (doc) {
+        const result = this.toStaffBookingRequest(doc);
+        await this.createAuditHistory({
+          action: "assignment_updated",
+          entityType: "assignment",
+          entityId: id,
+          details: { oldStatus: doc.status, newStatus: request.status, bookingId: doc.bookingId, staffId: doc.staffId },
+        });
+        return result;
+      }
+      return undefined;
     } catch (err) {
       console.error("updateStaffBookingRequest error:", err, "ID:", id);
       return undefined;
