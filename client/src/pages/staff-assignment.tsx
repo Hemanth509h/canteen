@@ -28,8 +28,8 @@ export default function StaffAssignment() {
 
   const updateMutation = useMutation({
     mutationFn: async (status: "accepted" | "rejected") => {
-      const response = await apiRequest("PATCH", `/api/staff-requests/${token}`, { status });
-      return response.json();
+      const data = await apiRequest("PATCH", `/api/staff-requests/${token}`, { status });
+      return data as StaffBookingRequest;
     },
     onSuccess: (data: StaffBookingRequest) => {
       setSubmitted(true);
