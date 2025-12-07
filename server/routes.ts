@@ -597,22 +597,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/staff-requests/:requestId", async (req, res) => {
-    try {
-      const result = updateStaffBookingRequestSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ error: fromZodError(result.error).message });
-      }
-      const request = await storage.updateStaffBookingRequest(req.params.requestId, result.data);
-      if (!request) {
-        return res.status(404).json({ error: "Request not found" });
-      }
-      res.json(request);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update staff request" });
-    }
-  });
-
   app.get("/api/bookings/:bookingId/assigned-staff", async (req, res) => {
     try {
       const staff = await storage.getAcceptedStaffForBooking(req.params.bookingId);
