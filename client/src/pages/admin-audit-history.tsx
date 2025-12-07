@@ -25,6 +25,7 @@ const actionColorMap: Record<string, { bg: string; text: string }> = {
   staff_updated: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-300" },
   assignment_created: { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-300" },
   assignment_updated: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-300" },
+  assignment_deleted: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-300" },
 };
 
 const actionIcons: Record<string, any> = {
@@ -34,6 +35,7 @@ const actionIcons: Record<string, any> = {
   staff_updated: <Clock className="w-4 h-4" />,
   assignment_created: <CheckCircle className="w-4 h-4" />,
   assignment_updated: <CheckCircle className="w-4 h-4" />,
+  assignment_deleted: <AlertCircle className="w-4 h-4" />,
 };
 
 export default function AuditHistory() {
@@ -161,9 +163,47 @@ export default function AuditHistory() {
                         <TableCell className="font-mono text-sm text-muted-foreground">
                           {entry.entityId.slice(0, 8)}...
                         </TableCell>
-                        <TableCell className="text-sm max-w-xs">
-                          <div className="bg-muted/50 p-2 rounded text-xs font-mono overflow-hidden text-ellipsis whitespace-nowrap">
-                            {String(entry.details.clientName || entry.details.name || entry.details.newStatus || JSON.stringify(entry.details).slice(0, 50))}
+                        <TableCell className="text-sm max-w-md">
+                          <div className="bg-muted/50 p-2 rounded text-xs space-y-1">
+                            {entry.details.clientName && (
+                              <div><span className="font-semibold">Client:</span> {String(entry.details.clientName)}</div>
+                            )}
+                            {entry.details.eventType && (
+                              <div><span className="font-semibold">Event:</span> {String(entry.details.eventType)}</div>
+                            )}
+                            {entry.details.eventDate && (
+                              <div><span className="font-semibold">Date:</span> {String(entry.details.eventDate)}</div>
+                            )}
+                            {entry.details.guestCount && (
+                              <div><span className="font-semibold">Guests:</span> {String(entry.details.guestCount)}</div>
+                            )}
+                            {entry.details.name && (
+                              <div><span className="font-semibold">Name:</span> {String(entry.details.name)}</div>
+                            )}
+                            {entry.details.role && (
+                              <div><span className="font-semibold">Role:</span> {String(entry.details.role)}</div>
+                            )}
+                            {entry.details.status && (
+                              <div><span className="font-semibold">Status:</span> {String(entry.details.status)}</div>
+                            )}
+                            {entry.details.newStatus && (
+                              <div><span className="font-semibold">New Status:</span> {String(entry.details.newStatus)}</div>
+                            )}
+                            {entry.details.advancePaymentStatus && (
+                              <div><span className="font-semibold">Advance:</span> {String(entry.details.advancePaymentStatus)}</div>
+                            )}
+                            {entry.details.finalPaymentStatus && (
+                              <div><span className="font-semibold">Final:</span> {String(entry.details.finalPaymentStatus)}</div>
+                            )}
+                            {(() => {
+                              const hasKnownField = entry.details.clientName || entry.details.eventType || 
+                                entry.details.eventDate || entry.details.guestCount || entry.details.name || 
+                                entry.details.role || entry.details.status || entry.details.newStatus || 
+                                entry.details.advancePaymentStatus || entry.details.finalPaymentStatus;
+                              return !hasKnownField ? (
+                                <div className="font-mono text-muted-foreground">{JSON.stringify(entry.details).slice(0, 150)}</div>
+                              ) : null;
+                            })()}
                           </div>
                         </TableCell>
                       </motion.tr>

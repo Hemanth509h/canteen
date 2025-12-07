@@ -606,6 +606,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/bookings/:bookingId/staff-requests/:staffId", async (req, res) => {
+    try {
+      const deleted = await storage.deleteStaffBookingRequest(req.params.bookingId, req.params.staffId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Staff assignment not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove staff assignment" });
+    }
+  });
+
   // Staff Assignment Public Routes (by token)
   app.get("/api/staff-requests/:token", async (req, res) => {
     try {

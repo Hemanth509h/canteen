@@ -312,6 +312,7 @@ export interface IStorage {
   createStaffBookingRequest(request: InsertStaffBookingRequest): Promise<StaffBookingRequest>;
   updateStaffBookingRequest(id: string, request: UpdateStaffBookingRequest): Promise<StaffBookingRequest | undefined>;
   getAcceptedStaffForBooking(bookingId: string): Promise<Staff[]>;
+  deleteStaffBookingRequest(bookingId: string, staffId: string): Promise<boolean>;
 }
 
 // ==================== MONGODB STORAGE IMPLEMENTATION ====================
@@ -710,6 +711,29 @@ export class MongoDBStorage implements IStorage {
     const staffIds = requests.map(r => r.staffId);
     const staffDocs = await StaffModel.find({ _id: { $in: staffIds } }).lean();
     return staffDocs.map(doc => this.toStaff(doc));
+  }
+
+  async deleteStaffBookingRequest(bookingId: string, staffId: string): Promise<boolean> {
+    const result = await StaffBookingRequestModel.findOneAndDelete({ bookingId, staffId });
+    if (result) {
+      const booking = await EventBookingModel.findById(bookingId).lean();
+      const staff = await StaffModel.findById(staffId).lean();
+      await this.createAuditHistory({
+        action: "assignment_deleted",
+        entityType: "assignment",
+        entityId: result._id.toString(),
+        details: { 
+          bookingId, 
+          staffId,
+          clientName: booking?.clientName || "Unknown",
+          eventType: booking?.eventType || "Unknown",
+          eventDate: booking?.eventDate || "Unknown",
+          name: staff?.name || "Unknown",
+          role: staff?.role || "Unknown",
+        },
+      });
+    }
+    return result !== null;
   }
 
   // Audit History

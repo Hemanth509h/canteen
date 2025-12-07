@@ -100,6 +100,21 @@ export default function EventBookingsManager() {
     },
   });
 
+  const removeStaffAssignment = useMutation({
+    mutationFn: async (staffId: string) => {
+      if (!selectedBookingForAssignment) throw new Error("No booking selected");
+      await apiRequest("DELETE", `/api/bookings/${selectedBookingForAssignment.id}/staff-requests/${staffId}`, undefined);
+    },
+    onSuccess: () => {
+      toast({ title: "Staff removed", description: "Staff member has been removed from this booking" });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      fetchAssignedStaff();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to remove staff assignment", variant: "destructive" });
+    },
+  });
+
   const fetchAssignedStaff = async () => {
     if (!selectedBookingForAssignment) return;
     try {
@@ -909,9 +924,24 @@ export default function EventBookingsManager() {
                   <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">Already Assigned:</p>
                   <div className="space-y-2">
                     {assignedStaff.map((staff) => (
-                      <div key={staff.id} className="flex items-center gap-2 text-sm text-green-800 dark:text-green-200">
-                        <span className="w-2 h-2 rounded-full bg-green-600"></span>
-                        {staff.name} - {staff.role}
+                      <div key={staff.id} className="flex items-center justify-between gap-2 text-sm text-green-800 dark:text-green-200">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-green-600"></span>
+                          {staff.name} - {staff.role}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            if (confirm(`Remove ${staff.name} from this booking?`)) {
+                              removeStaffAssignment.mutate(staff.id);
+                            }
+                          }}
+                          disabled={removeStaffAssignment.isPending}
+                          data-testid={`button-remove-staff-${staff.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
                       </div>
                     ))}
                   </div>
