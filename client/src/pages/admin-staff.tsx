@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, User, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, User, Search, RefreshCw } from "lucide-react";
 import { insertStaffSchema, updateStaffSchema, type Staff, type InsertStaff, type UpdateStaff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -36,7 +36,7 @@ export default function StaffManager() {
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
-  const { data: staffList, isLoading } = useQuery<Staff[]>({
+  const { data: staffList, isLoading, isFetching, refetch } = useQuery<Staff[]>({
     queryKey: ["/api/staff"],
   });
 
@@ -150,19 +150,29 @@ export default function StaffManager() {
             Manage your team members and their details
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          if (open) {
-            setIsDialogOpen(true);
-          } else {
-            handleDialogClose(false);
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-staff">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Staff Member
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            data-testid="button-refresh-staff"
+          >
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (open) {
+              setIsDialogOpen(true);
+            } else {
+              handleDialogClose(false);
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-staff">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Staff Member
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>

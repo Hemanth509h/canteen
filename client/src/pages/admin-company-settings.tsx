@@ -8,14 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Building2 } from "lucide-react";
+import { Building2, RefreshCw } from "lucide-react";
 import { insertCompanyInfoSchema, type CompanyInfo, type InsertCompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function CompanySettingsManager() {
   const { toast } = useToast();
 
-  const { data: companyInfo, isLoading } = useQuery<CompanyInfo>({
+  const { data: companyInfo, isLoading, isFetching, refetch } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
   });
 

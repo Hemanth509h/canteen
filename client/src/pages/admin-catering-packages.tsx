@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Edit2, Plus, Package } from "lucide-react";
+import { Trash2, Edit2, Plus, Package, RefreshCw } from "lucide-react";
 import { insertCateringPackageSchema, type CateringPackage, type InsertCateringPackage } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
@@ -20,7 +20,7 @@ export default function CateringPackagesManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  const { data: packages, isLoading: packagesLoading } = useQuery<CateringPackage[]>({
+  const { data: packages, isLoading: packagesLoading, isFetching, refetch } = useQuery<CateringPackage[]>({
     queryKey: ["/api/packages"],
   });
 

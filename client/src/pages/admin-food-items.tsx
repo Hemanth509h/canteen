@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed } from "lucide-react";
+import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -55,7 +55,7 @@ export default function FoodItemsManager() {
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
-  const { data: foodItems, isLoading } = useQuery<FoodItem[]>({
+  const { data: foodItems, isLoading, isFetching, refetch } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
   });
 
@@ -180,19 +180,29 @@ export default function FoodItemsManager() {
             </p>
           </div>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          if (!open) {
-            handleDialogClose();
-          } else {
-            setIsDialogOpen(true);
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button data-testid="button-add-food-item">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Food Item
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            data-testid="button-refresh-food-items"
+          >
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (!open) {
+              handleDialogClose();
+            } else {
+              setIsDialogOpen(true);
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button data-testid="button-add-food-item">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Food Item
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
@@ -367,7 +377,8 @@ export default function FoodItemsManager() {
               </form>
             </Form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </motion.div>
 
       <motion.div

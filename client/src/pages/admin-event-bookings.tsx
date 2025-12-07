@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle, Users, RefreshCw } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo, type Staff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -46,7 +46,7 @@ export default function EventBookingsManager() {
   
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
-  const { data: bookings, isLoading } = useQuery<EventBooking[]>({
+  const { data: bookings, isLoading, isFetching, refetch } = useQuery<EventBooking[]>({
     queryKey: ["/api/bookings"],
   });
 
@@ -305,6 +305,15 @@ export default function EventBookingsManager() {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            data-testid="button-refresh-bookings"
+          >
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+          </Button>
           <Button
             variant="outline"
             onClick={() => setLocation('/admin/chef-printout')}
