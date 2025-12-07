@@ -62,13 +62,24 @@ export default function CompanySettingsManager() {
 
   return (
     <div className="p-6 sm:p-8 space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-          Company Settings
-        </h2>
-        <p className="text-muted-foreground">
-          Update your business information and contact details
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            Company Settings
+          </h2>
+          <p className="text-muted-foreground">
+            Update your business information and contact details
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          data-testid="button-refresh-settings"
+        >
+          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+        </Button>
       </div>
 
       <Card>

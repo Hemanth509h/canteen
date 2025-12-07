@@ -124,13 +124,24 @@ export default function CateringPackagesManager() {
 
   return (
     <div className="p-6 sm:p-8 space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>
-          Catering Packages
-        </h2>
-        <p className="text-muted-foreground">
-          Create and manage pre-built catering packages for your customers
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>
+            Catering Packages
+          </h2>
+          <p className="text-muted-foreground">
+            Create and manage pre-built catering packages for your customers
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          data-testid="button-refresh-packages"
+        >
+          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+        </Button>
       </div>
 
       {/* Form Section */}

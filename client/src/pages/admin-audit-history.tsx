@@ -6,7 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState } from "react";
-import { History, CheckCircle, AlertCircle, Clock, Plus } from "lucide-react";
+import { History, CheckCircle, AlertCircle, Clock, Plus, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AuditHistoryEntry {
   id: string;
@@ -38,7 +39,7 @@ const actionIcons: Record<string, any> = {
 export default function AuditHistory() {
   const [entityTypeFilter, setEntityTypeFilter] = useState<string>("all");
 
-  const { data: auditHistory, isLoading } = useQuery<AuditHistoryEntry[]>({
+  const { data: auditHistory, isLoading, isFetching, refetch } = useQuery<AuditHistoryEntry[]>({
     queryKey: ["/api/audit-history", entityTypeFilter],
     queryFn: async () => {
       const params = entityTypeFilter !== "all" ? `?entityType=${entityTypeFilter}` : "";
@@ -71,7 +72,7 @@ export default function AuditHistory() {
       transition={{ duration: 0.3 }}
       className="space-y-6 p-6"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <History className="w-8 h-8 text-primary" />
@@ -79,6 +80,15 @@ export default function AuditHistory() {
           </h1>
           <p className="text-muted-foreground mt-1">Track all system changes and actions</p>
         </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          data-testid="button-refresh-audit"
+        >
+          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+        </Button>
       </div>
 
       <Card className="border border-border/50 shadow-sm">
@@ -153,7 +163,7 @@ export default function AuditHistory() {
                         </TableCell>
                         <TableCell className="text-sm max-w-xs">
                           <div className="bg-muted/50 p-2 rounded text-xs font-mono overflow-hidden text-ellipsis whitespace-nowrap">
-                            {entry.details.clientName || entry.details.name || entry.details.newStatus || JSON.stringify(entry.details).slice(0, 50)}
+                            {String(entry.details.clientName || entry.details.name || entry.details.newStatus || JSON.stringify(entry.details).slice(0, 50))}
                           </div>
                         </TableCell>
                       </motion.tr>

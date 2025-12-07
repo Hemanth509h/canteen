@@ -1,17 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp } from "lucide-react";
+import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp, RefreshCw } from "lucide-react";
 import type { FoodItem, EventBooking } from "@shared/schema";
 
 export default function DashboardOverview() {
-  const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
+  const { data: foodItems, isLoading: loadingFood, isFetching: fetchingFood, refetch: refetchFood } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
   });
 
-  const { data: bookings, isLoading: loadingBookings } = useQuery<EventBooking[]>({
+  const { data: bookings, isLoading: loadingBookings, isFetching: fetchingBookings, refetch: refetchBookings } = useQuery<EventBooking[]>({
     queryKey: ["/api/bookings"],
   });
+
+  const isFetching = fetchingFood || fetchingBookings;
+  const handleRefresh = () => {
+    refetchFood();
+    refetchBookings();
+  };
 
   const totalRevenue = bookings?.reduce((sum, booking) => {
     if (booking.status === "confirmed") {
@@ -55,13 +62,24 @@ export default function DashboardOverview() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      <div>
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
-          Dashboard
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Welcome to your catering management dashboard
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            Dashboard
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Welcome to your catering management dashboard
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleRefresh}
+          disabled={isFetching}
+          data-testid="button-refresh-dashboard"
+        >
+          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

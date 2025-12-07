@@ -260,6 +260,7 @@ export default function StaffManager() {
             </Form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card>
