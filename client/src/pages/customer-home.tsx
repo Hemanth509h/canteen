@@ -138,6 +138,7 @@ export default function CustomerHome() {
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
   const [showIntro, setShowIntro] = useState(true);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
   const dietaryOptions = ["Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
@@ -202,9 +203,12 @@ export default function CustomerHome() {
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
       const matchesDietary = selectedDietary.length === 0 || 
                             (item.dietaryTags && item.dietaryTags.length > 0 && selectedDietary.some(tag => item.dietaryTags?.includes(tag)));
-      return matchesCategory && matchesDietary;
+      const matchesSearch = searchQuery === "" || 
+                           item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           item.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesDietary && matchesSearch;
     }) || [];
-  }, [foodItems, selectedCategory, selectedDietary]);
+  }, [foodItems, selectedCategory, selectedDietary, searchQuery]);
 
   const groupedByCategory = useMemo(() => {
     if (!filteredItems) return {};
@@ -776,7 +780,7 @@ export default function CustomerHome() {
                 <p className="text-muted-foreground text-lg">No items found matching your search</p>
                 <Button 
                   variant="ghost" 
-                  onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+                  onClick={() => { setSearchQuery(""); setSelectedCategory("All"); setSelectedDietary([]); }}
                   className="mt-2 underline"
                   data-testid="button-clear-filters"
                 >
