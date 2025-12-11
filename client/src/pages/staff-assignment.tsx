@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
 import { useParams } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, Calendar, Users, MapPin } from "lucide-react";
@@ -19,21 +17,23 @@ interface StaffAssignmentData {
 export default function StaffAssignment() {
   const { token } = useParams<{ token: string }>();
   const { toast } = useToast();
-  const [submitted, setSubmitted] = useState(false);
 
   const { data, isLoading, error } = useQuery<StaffAssignmentData>({
     queryKey: ["/api/staff-requests", token],
     enabled: !!token,
   });
+  
+  const currentStatus = data?.request.status ?? 'pending';
+  const hasResponded = currentStatus === 'accepted' || currentStatus === 'rejected';
 
   const updateMutation = useMutation({
     mutationFn: async (status: "accepted" | "rejected") => {
       const response = await apiRequest("PATCH", `/api/staff-requests/${token}`, { status });
       return response.json() as Promise<StaffBookingRequest>;
     },
-    onSuccess: (data: StaffBookingRequest) => {
-      setSubmitted(true);
-      if (data.status === "accepted") {
+    onSuccess: async (responseData: StaffBookingRequest) => {
+      await queryClient.invalidateQueries({ queryKey: ["/api/staff-requests", token], refetchType: 'all' });
+      if (responseData.status === "accepted") {
         toast({
           title: "Accepted!",
           description: "You've been assigned to this event. Thank you!",
@@ -95,7 +95,7 @@ export default function StaffAssignment() {
         <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
           <CardTitle className="text-2xl">Event Assignment Request</CardTitle>
           <CardDescription>
-            {submitted ? "Your response has been recorded." : "Please review the event details below and accept or reject this assignment."}
+            {hasResponded ? "Your response has been recorded." : "Please review the event details below and accept or reject this assignment."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
@@ -159,14 +159,18 @@ export default function StaffAssignment() {
           </div>
 
           {/* Status Badge */}
-          {submitted && (
-            <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+          {hasResponded && (
+            <div className={`p-4 rounded-lg border ${currentStatus === 'accepted' ? 'bg-primary/10 border-primary/20' : 'bg-muted border-muted-foreground/20'}`}>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-primary" />
+                {currentStatus === 'accepted' ? (
+                  <CheckCircle2 className="w-5 h-5 text-primary" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-muted-foreground" />
+                )}
                 <div>
-                  <p className="font-semibold text-primary">Response Recorded</p>
-                  <p className="text-sm text-primary/80">
-                    {request.status === "accepted"
+                  <p className={`font-semibold ${currentStatus === 'accepted' ? 'text-primary' : 'text-muted-foreground'}`}>Response Recorded</p>
+                  <p className={`text-sm ${currentStatus === 'accepted' ? 'text-primary/80' : 'text-muted-foreground'}`}>
+                    {currentStatus === "accepted"
                       ? "You've accepted this assignment. Thank you!"
                       : "You've rejected this assignment."}
                   </p>
@@ -176,7 +180,7 @@ export default function StaffAssignment() {
           )}
 
           {/* Action Buttons */}
-          {!submitted && (
+          {!hasResponded && (
             <div className="flex gap-3 pt-4">
               <Button
                 variant="outline"
