@@ -141,7 +141,7 @@ export default function CustomerHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
-  const dietaryOptions = ["Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
+  const dietaryOptions = ["Vegetarian", "Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -202,7 +202,13 @@ export default function CustomerHome() {
     return foodItems?.filter((item) => {
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
       const matchesDietary = selectedDietary.length === 0 || 
-                            (item.dietaryTags && item.dietaryTags.length > 0 && selectedDietary.some(tag => item.dietaryTags?.includes(tag)));
+                            (item.dietaryTags && item.dietaryTags.length > 0 && 
+                              selectedDietary.some(tag => 
+                                item.dietaryTags?.some(itemTag => 
+                                  itemTag.toLowerCase() === tag.toLowerCase()
+                                )
+                              )
+                            );
       const matchesSearch = searchQuery === "" || 
                            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            item.description.toLowerCase().includes(searchQuery.toLowerCase());
