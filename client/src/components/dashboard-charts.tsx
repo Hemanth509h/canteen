@@ -1,13 +1,17 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from "recharts";
-import { TrendingUp, PieChartIcon, BarChart3 } from "lucide-react";
-import type { EventBooking } from "@shared/schema";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
+import { TrendingUp, PieChartIcon, BarChart3, Calendar } from "lucide-react";
+import type { EventBooking, FoodItem } from "@shared/schema";
 import { format, parseISO, startOfMonth, subMonths, isAfter, isBefore, endOfMonth } from "date-fns";
 
 interface DashboardChartsProps {
   bookings: EventBooking[];
+}
+
+interface FoodItemsChartsProps {
+  foodItems: FoodItem[];
 }
 
 const COLORS = [
@@ -276,6 +280,127 @@ export function MonthlyBookingsChart({ bookings }: DashboardChartsProps) {
                 fill="hsl(var(--primary))" 
                 radius={[4, 4, 0, 0]}
               />
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function EventTypeChart({ bookings }: DashboardChartsProps) {
+  const eventTypeData = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    bookings.forEach((booking) => {
+      const type = booking.eventType || "Other";
+      counts[type] = (counts[type] || 0) + 1;
+    });
+
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+  }, [bookings]);
+
+  if (eventTypeData.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center gap-2 pb-2">
+        <Calendar className="w-5 h-5 text-primary" />
+        <CardTitle className="text-lg">Event Types</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="h-[200px]"
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={eventTypeData}
+                cx="50%"
+                cy="50%"
+                innerRadius={40}
+                outerRadius={70}
+                paddingAngle={3}
+                dataKey="value"
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                labelLine={false}
+              >
+                {eventTypeData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px",
+                  color: "hsl(var(--popover-foreground))"
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </motion.div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function CategoryDistributionChart({ foodItems }: FoodItemsChartsProps) {
+  const categoryData = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    foodItems.forEach((item) => {
+      const category = item.category || "Uncategorized";
+      counts[category] = (counts[category] || 0) + 1;
+    });
+
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+  }, [foodItems]);
+
+  if (categoryData.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center gap-2 pb-2">
+        <BarChart3 className="w-5 h-5 text-primary" />
+        <CardTitle className="text-lg">Menu Categories</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="h-[200px]"
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={categoryData} layout="vertical">
+              <XAxis type="number" axisLine={false} tickLine={false} />
+              <YAxis
+                type="category"
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                width={100}
+                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px",
+                  color: "hsl(var(--popover-foreground))"
+                }}
+              />
+              <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>

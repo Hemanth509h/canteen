@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { GlobalSearch } from "@/components/global-search";
+import { ErrorBoundary } from "@/components/error-boundary";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
@@ -17,6 +18,7 @@ import ChefPrintout from "./admin-chef-printout";
 import CateringPackagesManager from "./admin-catering-packages";
 import AuditHistory from "./admin-audit-history";
 import { useEffect, useState } from "react";
+import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
@@ -105,13 +107,22 @@ export default function AdminDashboard() {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const authStatus = localStorage.getItem("adminAuthenticated");
-    setIsAuthenticated(authStatus === "true");
+    setIsAuthenticated(isAdminAuthenticated());
     setIsChecking(false);
+    
+    // Refresh session on activity
+    const handleActivity = () => refreshSession();
+    window.addEventListener("click", handleActivity);
+    window.addEventListener("keypress", handleActivity);
+    
+    return () => {
+      window.removeEventListener("click", handleActivity);
+      window.removeEventListener("keypress", handleActivity);
+    };
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("adminAuthenticated");
+    clearAdminSession();
     setLocation("/admin/login");
   };
 
@@ -155,18 +166,20 @@ export default function AdminDashboard() {
             </div>
           </header>
           <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20">
-            <Switch>
-              <Route path="/admin" component={DashboardOverview} />
-              <Route path="/admin/food-items" component={FoodItemsManager} />
-              <Route path="/admin/packages" component={CateringPackagesManager} />
-              <Route path="/admin/bookings" component={EventBookingsManager} />
-              <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
-              <Route path="/admin/chef-printout" component={ChefPrintout} />
-              <Route path="/admin/staff" component={StaffManager} />
-              <Route path="/admin/audit-history" component={AuditHistory} />
-              <Route path="/admin/settings" component={CompanySettingsManager} />
-              <Route path="/admin/account" component={AdminAccount} />
-            </Switch>
+            <ErrorBoundary>
+              <Switch>
+                <Route path="/admin" component={DashboardOverview} />
+                <Route path="/admin/food-items" component={FoodItemsManager} />
+                <Route path="/admin/packages" component={CateringPackagesManager} />
+                <Route path="/admin/bookings" component={EventBookingsManager} />
+                <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
+                <Route path="/admin/chef-printout" component={ChefPrintout} />
+                <Route path="/admin/staff" component={StaffManager} />
+                <Route path="/admin/audit-history" component={AuditHistory} />
+                <Route path="/admin/settings" component={CompanySettingsManager} />
+                <Route path="/admin/account" component={AdminAccount} />
+              </Switch>
+            </ErrorBoundary>
           </main>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChefHat, Lock, ArrowLeft, UtensilsCrossed } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { setAdminSession } from "@/lib/auth";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
@@ -26,7 +27,7 @@ export default function AdminLogin() {
       });
 
       if (response.ok) {
-        localStorage.setItem("adminAuthenticated", "true");
+        setAdminSession();
         setLocation("/admin");
       } else {
         toast({

@@ -6,10 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Building2, RefreshCw } from "lucide-react";
-import { insertCompanyInfoSchema, type CompanyInfo, type InsertCompanyInfo } from "@shared/schema";
+import { type CompanyInfo, type InsertCompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function CompanySettingsManager() {
@@ -20,11 +19,6 @@ export default function CompanySettingsManager() {
   });
 
   const form = useForm<InsertCompanyInfo>({
-    resolver: zodResolver(insertCompanyInfoSchema.extend({
-      eventsPerYear: insertCompanyInfoSchema.shape.eventsPerYear.refine((val) => !val || val > 0, {
-        message: "Events per year must be greater than 0",
-      }),
-    })),
     values: companyInfo ? {
       companyName: companyInfo.companyName,
       tagline: companyInfo.tagline,
