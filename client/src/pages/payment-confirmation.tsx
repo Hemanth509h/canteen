@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { UPIPayment } from "@/components/upi-payment";
 import { Invoice } from "@/components/invoice";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Calendar, Utensils } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
@@ -117,14 +117,13 @@ export default function PaymentConfirmation() {
 
   if (!bookingId) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Error</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="pt-6 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
+            <h2 className="text-xl font-semibold">No Booking Found</h2>
             <p className="text-muted-foreground">No booking ID provided</p>
-            <Button onClick={() => setLocation("/")} className="w-full">
+            <Button onClick={() => setLocation("/")} className="w-full" data-testid="button-back-home-error">
               Back to Home
             </Button>
           </CardContent>
@@ -135,10 +134,16 @@ export default function PaymentConfirmation() {
 
   if (bookingLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4">
-        <div className="max-w-2xl mx-auto space-y-4">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-96 w-full" />
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <Skeleton className="h-10 w-48" />
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-96 w-full" />
+            </div>
+            <Skeleton className="h-64 w-full" />
+          </div>
         </div>
       </div>
     );
@@ -146,14 +151,13 @@ export default function PaymentConfirmation() {
 
   if (bookingError || !booking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Booking Not Found</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="pt-6 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
+            <h2 className="text-xl font-semibold">Booking Not Found</h2>
             <p className="text-muted-foreground">Could not load booking details. Please check the booking ID and try again.</p>
-            <Button onClick={() => setLocation("/")} className="w-full">
+            <Button onClick={() => setLocation("/")} className="w-full" data-testid="button-back-home-error">
               Back to Home
             </Button>
           </CardContent>
@@ -162,13 +166,17 @@ export default function PaymentConfirmation() {
     );
   }
 
-  const totalAmount = booking.guestCount * booking.pricePerPlate;
+  const baseAmount = booking.guestCount * booking.pricePerPlate;
+  const totalAmount = booking.totalAmount ?? baseAmount;
   const advanceAmount = Math.ceil(totalAmount * 0.5);
   const finalAmount = totalAmount - advanceAmount;
+  const advancePaid = booking.advancePaymentStatus === "paid";
+  const finalPaid = booking.finalPaymentStatus === "paid";
+  const allPaid = advancePaid && finalPaid;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
+      <div className="max-w-5xl mx-auto">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <Button
             variant="ghost"
@@ -179,112 +187,127 @@ export default function PaymentConfirmation() {
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Button>
-          <h1 className="text-3xl font-bold">Payment Confirmation</h1>
-          <p className="text-muted-foreground">Complete your booking payment</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold">Payment</h1>
+              <p className="text-muted-foreground">Complete your booking payment</p>
+            </div>
+            <Badge 
+              variant={allPaid ? "default" : "secondary"} 
+              className="w-fit text-sm px-3 py-1"
+              data-testid="badge-booking-status"
+            >
+              {allPaid ? "Fully Paid" : advancePaid ? "Advance Paid" : "Payment Pending"}
+            </Badge>
+          </div>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-2 space-y-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-2 space-y-6">
+            
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Booking Details</span>
-                  <Badge variant="secondary" data-testid="badge-booking-status">
-                    {booking.status}
-                  </Badge>
-                </CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Booking Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">Client Name</Label>
-                    <p className="font-semibold" data-testid="text-client-name">{booking.clientName}</p>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <Users className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+                    <p className="text-2xl font-bold" data-testid="text-guest-count">{booking.guestCount}</p>
+                    <p className="text-xs text-muted-foreground">Guests</p>
                   </div>
-                  <div>
-                    <Label className="text-muted-foreground">Email</Label>
-                    <p className="font-semibold text-sm" data-testid="text-client-email">{booking.contactEmail}</p>
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <Utensils className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+                    <p className="text-2xl font-bold" data-testid="text-price-per-plate">₹{booking.pricePerPlate}</p>
+                    <p className="text-xs text-muted-foreground">Per Plate</p>
                   </div>
-                  <div>
-                    <Label className="text-muted-foreground">Event Date</Label>
-                    <p className="font-semibold" data-testid="text-event-date">{new Date(booking.eventDate).toLocaleDateString()}</p>
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <Calendar className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+                    <p className="text-lg font-bold" data-testid="text-event-date">{new Date(booking.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p>
+                    <p className="text-xs text-muted-foreground">Event Date</p>
                   </div>
-                  <div>
-                    <Label className="text-muted-foreground">Event Type</Label>
-                    <p className="font-semibold" data-testid="text-event-type">{booking.eventType}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Guest Count</Label>
-                    <p className="font-semibold" data-testid="text-guest-count">{booking.guestCount}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Price per Plate</Label>
-                    <p className="font-semibold" data-testid="text-price-per-plate">₹{booking.pricePerPlate}</p>
+                  <div className="bg-primary/10 rounded-lg p-3 text-center border border-primary/20">
+                    <p className="text-xs text-muted-foreground mb-1">Total Amount</p>
+                    <p className="text-2xl font-bold text-primary" data-testid="text-total-amount">₹{totalAmount.toLocaleString('en-IN')}</p>
                   </div>
                 </div>
-
-                {booking.specialRequests && (
-                  <div>
-                    <Label className="text-muted-foreground">Special Requests</Label>
-                    <p className="text-sm">{booking.specialRequests}</p>
-                  </div>
-                )}
-
-                <div className="pt-4 border-t space-y-3">
-                  <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Total Amount:</span>
-                    <span className="text-primary" data-testid="text-total-amount">₹{totalAmount}</span>
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Client: <span className="font-medium text-foreground" data-testid="text-client-name">{booking.clientName}</span></span>
+                    <span className="text-muted-foreground">Event: <span className="font-medium text-foreground" data-testid="text-event-type">{booking.eventType}</span></span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className={booking.advancePaymentStatus === "paid" ? "border-green-200 dark:border-green-800" : "border-amber-200 dark:border-amber-800"}>
-              <CardHeader>
-                <div>
-                  <CardTitle className="flex items-center gap-3">
-                    <span className="text-lg">Step 1: Advance Payment (50%)</span>
-                    {booking.advancePaymentStatus === "paid" && (
-                      <CheckCircle className="w-5 h-5 text-green-600" data-testid="icon-advance-paid" />
-                    )}
-                    {booking.advancePaymentStatus === "pending" && (
-                      <Clock className="w-5 h-5 text-amber-600" data-testid="icon-advance-pending" />
-                    )}
-                  </CardTitle>
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <p className="text-2xl font-bold text-primary" data-testid="text-advance-amount">₹{advanceAmount.toLocaleString('en-IN')}</p>
-                  <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-advance-status">
-                    {booking.advancePaymentStatus === "paid" ? "Completed" : "Pending"}
-                  </Badge>
+            <Card className={advancePaid ? "border-green-300 dark:border-green-800" : "border-amber-300 dark:border-amber-800"}>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${advancePaid ? 'bg-green-600' : 'bg-amber-500'}`}>
+                      {advancePaid ? <CheckCircle className="w-5 h-5" /> : '1'}
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Advance Payment</CardTitle>
+                      <p className="text-sm text-muted-foreground">50% of total amount</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-primary" data-testid="text-advance-amount">₹{advanceAmount.toLocaleString('en-IN')}</p>
+                    <Badge variant={advancePaid ? "default" : "secondary"} data-testid="badge-advance-status">
+                      {advancePaid ? "Paid" : "Pending"}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {booking.advancePaymentStatus === "pending" ? (
+              <CardContent className="space-y-6">
+                {!advancePaid ? (
                   <>
                     <UPIPayment
                       upiId={companyInfo?.upiId || ""}
                       totalAmount={advanceAmount}
                       bookingId={bookingId}
                       clientName={booking.clientName}
+                      paymentType="advance"
                     />
 
-                    <div className="border-t pt-4">
-                      <Label className="text-base font-semibold mb-3 block">Upload Payment Screenshot</Label>
-                      <p className="text-sm text-muted-foreground mb-3">Once you've made the payment, upload a screenshot of the transaction as proof.</p>
-                      <div className="space-y-3">
+                    <div className="border-t pt-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Camera className="w-5 h-5 text-muted-foreground" />
+                        <Label className="text-base font-semibold">Upload Payment Screenshot</Label>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4">After completing payment, upload a screenshot as proof.</p>
+                      
+                      <div className="space-y-4">
                         {advancePreview && (
-                          <div className="relative w-full max-w-sm">
-                            <img src={advancePreview} alt="Payment preview" className="w-full border rounded-lg" data-testid="img-advance-preview" />
-                          </div>
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="relative w-full max-w-xs mx-auto"
+                          >
+                            <img src={advancePreview} alt="Payment preview" className="w-full border-2 rounded-lg shadow-md" data-testid="img-advance-preview" />
+                            <Button 
+                              size="sm" 
+                              variant="secondary" 
+                              className="absolute top-2 right-2"
+                              onClick={() => { setAdvanceFile(null); setAdvancePreview(null); }}
+                            >
+                              Change
+                            </Button>
+                          </motion.div>
                         )}
-                        <div className="flex gap-2 flex-wrap">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAdvanceFileChange}
-                            data-testid="input-advance-screenshot"
-                            disabled={uploadScreenshotMutation.isPending}
-                          />
+                        
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <div className="flex-1">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleAdvanceFileChange}
+                              data-testid="input-advance-screenshot"
+                              disabled={uploadScreenshotMutation.isPending}
+                              className="cursor-pointer"
+                            />
+                          </div>
                           <Button
                             onClick={() => uploadScreenshotMutation.mutate("advance")}
                             disabled={!advanceFile || uploadScreenshotMutation.isPending}
@@ -292,127 +315,165 @@ export default function PaymentConfirmation() {
                             className="gap-2"
                           >
                             <Upload className="w-4 h-4" />
-                            {uploadScreenshotMutation.isPending ? "Uploading..." : "Upload"}
+                            {uploadScreenshotMutation.isPending ? "Uploading..." : "Submit Payment"}
                           </Button>
                         </div>
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="space-y-4">
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    className="space-y-4"
+                  >
+                    <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
+                      <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-green-700 dark:text-green-200">Advance payment received</p>
-                        <p className="text-sm text-green-600 dark:text-green-300">Thank you! Proceeding to final payment.</p>
+                        <p className="font-semibold text-green-700 dark:text-green-200">Payment Received</p>
+                        <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your advance payment has been confirmed.</p>
                       </div>
-                    </motion.div>
+                    </div>
                     {booking.advancePaymentScreenshot && (
                       <div>
-                        <p className="text-sm font-semibold mb-2">Payment Proof</p>
-                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-sm border rounded-lg" data-testid="img-advance-screenshot-customer" />
+                        <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 )}
               </CardContent>
             </Card>
 
-            {booking.advancePaymentStatus === "paid" && (
-              <Card className={booking.finalPaymentStatus === "paid" ? "border-green-200 dark:border-green-800" : "border-blue-200 dark:border-blue-800"}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-3">
-                      <span className="text-lg">Step 2: Final Payment (50%)</span>
-                      {booking.finalPaymentStatus === "paid" && (
-                        <CheckCircle className="w-5 h-5 text-green-600" data-testid="icon-final-paid" />
-                      )}
-                      {booking.finalPaymentStatus === "pending" && (
-                        <Clock className="w-5 h-5 text-blue-600" data-testid="icon-final-pending" />
-                      )}
-                    </CardTitle>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <p className="text-2xl font-bold text-primary" data-testid="text-final-amount">₹{finalAmount.toLocaleString('en-IN')}</p>
-                    <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"} data-testid="badge-final-status">
-                      {booking.finalPaymentStatus === "paid" ? "Completed" : "Pending"}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {booking.finalPaymentStatus === "pending" ? (
-                    <>
-                      <UPIPayment
-                        upiId={companyInfo?.upiId || ""}
-                        totalAmount={finalAmount}
-                        bookingId={bookingId}
-                        clientName={booking.clientName}
-                      />
-
-                      <div className="border-t pt-4">
-                        <Label className="text-base font-semibold mb-3 block">Upload Payment Screenshot</Label>
-                        <p className="text-sm text-muted-foreground mb-3">Once you've made the payment, upload a screenshot of the transaction as proof.</p>
-                        <div className="space-y-3">
-                          {finalPreview && (
-                            <div className="relative w-full max-w-sm">
-                              <img src={finalPreview} alt="Payment preview" className="w-full border rounded-lg" data-testid="img-final-preview" />
-                            </div>
-                          )}
-                          <div className="flex gap-2 flex-wrap">
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFinalFileChange}
-                              data-testid="input-final-screenshot"
-                              disabled={uploadScreenshotMutation.isPending}
-                            />
-                            <Button
-                              onClick={() => uploadScreenshotMutation.mutate("final")}
-                              disabled={!finalFile || uploadScreenshotMutation.isPending}
-                              data-testid="button-upload-final"
-                              className="gap-2"
-                            >
-                              <Upload className="w-4 h-4" />
-                              {uploadScreenshotMutation.isPending ? "Uploading..." : "Upload"}
-                            </Button>
-                          </div>
+            {advancePaid && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                <Card className={finalPaid ? "border-green-300 dark:border-green-800" : "border-blue-300 dark:border-blue-800"}>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${finalPaid ? 'bg-green-600' : 'bg-blue-600'}`}>
+                          {finalPaid ? <CheckCircle className="w-5 h-5" /> : '2'}
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">Final Payment</CardTitle>
+                          <p className="text-sm text-muted-foreground">Remaining 50% amount</p>
                         </div>
                       </div>
-                    </>
-                  ) : (
-                    <div className="space-y-4">
-                      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-green-700 dark:text-green-200">Final payment received</p>
-                          <p className="text-sm text-green-600 dark:text-green-300">Your booking is fully confirmed!</p>
-                        </div>
-                      </motion.div>
-                      {booking.finalPaymentScreenshot && (
-                        <div>
-                          <p className="text-sm font-semibold mb-2">Payment Proof</p>
-                          <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-sm border rounded-lg" data-testid="img-final-screenshot-customer" />
-                        </div>
-                      )}
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-primary" data-testid="text-final-amount">₹{finalAmount.toLocaleString('en-IN')}</p>
+                        <Badge variant={finalPaid ? "default" : "secondary"} data-testid="badge-final-status">
+                          {finalPaid ? "Paid" : "Pending"}
+                        </Badge>
+                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {!finalPaid ? (
+                      <>
+                        <UPIPayment
+                          upiId={companyInfo?.upiId || ""}
+                          totalAmount={finalAmount}
+                          bookingId={bookingId}
+                          clientName={booking.clientName}
+                          paymentType="final"
+                        />
+
+                        <div className="border-t pt-6">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Camera className="w-5 h-5 text-muted-foreground" />
+                            <Label className="text-base font-semibold">Upload Payment Screenshot</Label>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-4">After completing payment, upload a screenshot as proof.</p>
+                          
+                          <div className="space-y-4">
+                            {finalPreview && (
+                              <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="relative w-full max-w-xs mx-auto"
+                              >
+                                <img src={finalPreview} alt="Payment preview" className="w-full border-2 rounded-lg shadow-md" data-testid="img-final-preview" />
+                                <Button 
+                                  size="sm" 
+                                  variant="secondary" 
+                                  className="absolute top-2 right-2"
+                                  onClick={() => { setFinalFile(null); setFinalPreview(null); }}
+                                >
+                                  Change
+                                </Button>
+                              </motion.div>
+                            )}
+                            
+                            <div className="flex flex-col sm:flex-row gap-3">
+                              <div className="flex-1">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleFinalFileChange}
+                                  data-testid="input-final-screenshot"
+                                  disabled={uploadScreenshotMutation.isPending}
+                                  className="cursor-pointer"
+                                />
+                              </div>
+                              <Button
+                                onClick={() => uploadScreenshotMutation.mutate("final")}
+                                disabled={!finalFile || uploadScreenshotMutation.isPending}
+                                data-testid="button-upload-final"
+                                className="gap-2"
+                              >
+                                <Upload className="w-4 h-4" />
+                                {uploadScreenshotMutation.isPending ? "Uploading..." : "Submit Payment"}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        className="space-y-4"
+                      >
+                        <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
+                          <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-green-700 dark:text-green-200">Payment Received</p>
+                            <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your final payment has been confirmed.</p>
+                          </div>
+                        </div>
+                        {booking.finalPaymentScreenshot && (
+                          <div>
+                            <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
+                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
 
-            {booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "paid" && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+            {allPaid && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <Invoice booking={booking} companyInfo={companyInfo} isAdmin={false} />
-                <Card className="border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50 to-green-50/50 dark:from-green-950/30 dark:to-green-950/10">
-                  <CardContent className="pt-6">
+                <Card className="border-green-300 dark:border-green-800 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/10 overflow-hidden">
+                  <CardContent className="pt-8 pb-8">
                     <div className="text-center space-y-4">
-                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }}>
-                        <CheckCircle className="w-16 h-16 text-green-600 mx-auto" data-testid="icon-all-paid" />
+                      <motion.div 
+                        initial={{ scale: 0 }} 
+                        animate={{ scale: 1 }} 
+                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                        className="relative"
+                      >
+                        <div className="absolute inset-0 bg-green-400/20 blur-xl rounded-full" />
+                        <CheckCircle className="w-20 h-20 text-green-600 mx-auto relative" data-testid="icon-all-paid" />
                       </motion.div>
-                      <h3 className="text-2xl font-bold text-green-700 dark:text-green-200">Payment Complete!</h3>
-                      <p className="text-muted-foreground">All payments have been received. Your booking is confirmed.</p>
-                      <p className="text-sm text-muted-foreground">We'll contact you soon with event details and preparations.</p>
-                      <Button onClick={() => setLocation("/")} data-testid="button-back-home-final" className="w-full mt-4">
+                      <h3 className="text-2xl font-bold text-green-700 dark:text-green-200">All Payments Complete!</h3>
+                      <p className="text-muted-foreground max-w-md mx-auto">
+                        Your booking is fully confirmed. We'll contact you soon with event details and preparations.
+                      </p>
+                      <Button onClick={() => setLocation("/")} data-testid="button-back-home-final" className="mt-4">
                         Back to Home
                       </Button>
                     </div>
@@ -422,70 +483,89 @@ export default function PaymentConfirmation() {
             )}
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
             <Card className="sticky top-4">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Payment Summary</CardTitle>
+                <CardTitle className="text-lg">Payment Breakdown</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-muted/50 p-3 rounded-lg space-y-2">
+                <div className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Base Amount</span>
-                    <span className="font-medium" data-testid="text-summary-subtotal">₹{totalAmount}</span>
+                    <span className="text-muted-foreground">Base Calculation</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{booking.guestCount} guests × ₹{booking.pricePerPlate}/plate</p>
+                  <div className="bg-muted/50 p-3 rounded-lg space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span>{booking.guestCount} guests</span>
+                      <span>× ₹{booking.pricePerPlate}</span>
+                    </div>
+                    <div className="flex justify-between font-medium border-t pt-1 mt-1">
+                      <span>Subtotal</span>
+                      <span data-testid="text-summary-subtotal">₹{baseAmount.toLocaleString('en-IN')}</span>
+                    </div>
+                    {booking.totalAmount && booking.totalAmount !== baseAmount && (
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>Adjusted Total</span>
+                        <span>₹{totalAmount.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="border-t pt-3 space-y-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {booking.advancePaymentStatus === "paid" ? (
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <Clock className="w-4 h-4 text-amber-600" />
-                        )}
+                <div className="border-t pt-4 space-y-3">
+                  <div className={`flex items-center justify-between p-3 rounded-lg ${advancePaid ? 'bg-green-50 dark:bg-green-950/30' : 'bg-amber-50 dark:bg-amber-950/30'}`}>
+                    <div className="flex items-center gap-2">
+                      {advancePaid ? (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-amber-600" />
+                      )}
+                      <div>
                         <span className="text-sm font-medium">Advance (50%)</span>
+                        <p className={`text-xs ${advancePaid ? 'text-green-600' : 'text-amber-600'}`} data-testid="text-advance-summary-status">
+                          {advancePaid ? "Paid" : "Awaiting"}
+                        </p>
                       </div>
-                      <span className={`font-semibold ${booking.advancePaymentStatus === "paid" ? "text-green-600" : ""}`} data-testid="text-advance-summary">
-                        ₹{advanceAmount}
-                      </span>
                     </div>
-                    <p className={`text-xs ml-6 ${booking.advancePaymentStatus === "paid" ? "text-green-600" : "text-amber-600"}`} data-testid="text-advance-summary-status">
-                      {booking.advancePaymentStatus === "paid" ? "Received" : "Awaiting payment"}
-                    </p>
+                    <span className={`font-semibold ${advancePaid ? 'text-green-600' : ''}`} data-testid="text-advance-summary">
+                      ₹{advanceAmount.toLocaleString('en-IN')}
+                    </span>
                   </div>
 
-                  {booking.advancePaymentStatus === "paid" && (
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {booking.finalPaymentStatus === "paid" ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Clock className="w-4 h-4 text-blue-600" />
-                          )}
-                          <span className="text-sm font-medium">Final (50%)</span>
-                        </div>
-                        <span className={`font-semibold ${booking.finalPaymentStatus === "paid" ? "text-green-600" : ""}`} data-testid="text-final-summary">
-                          ₹{finalAmount}
-                        </span>
+                  <div className={`flex items-center justify-between p-3 rounded-lg ${finalPaid ? 'bg-green-50 dark:bg-green-950/30' : advancePaid ? 'bg-blue-50 dark:bg-blue-950/30' : 'bg-muted/50'}`}>
+                    <div className="flex items-center gap-2">
+                      {finalPaid ? (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      ) : advancePaid ? (
+                        <Clock className="w-5 h-5 text-blue-600" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30" />
+                      )}
+                      <div>
+                        <span className="text-sm font-medium">Final (50%)</span>
+                        <p className={`text-xs ${finalPaid ? 'text-green-600' : advancePaid ? 'text-blue-600' : 'text-muted-foreground'}`} data-testid="text-final-summary-status">
+                          {finalPaid ? "Paid" : advancePaid ? "Awaiting" : "After advance"}
+                        </p>
                       </div>
-                      <p className={`text-xs ml-6 ${booking.finalPaymentStatus === "paid" ? "text-green-600" : "text-blue-600"}`} data-testid="text-final-summary-status">
-                        {booking.finalPaymentStatus === "paid" ? "Received" : "Awaiting payment"}
-                      </p>
+                    </div>
+                    <span className={`font-semibold ${finalPaid ? 'text-green-600' : ''}`} data-testid="text-final-summary">
+                      ₹{finalAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Total</span>
+                    <span className="text-xl font-bold text-primary" data-testid="text-total-summary">
+                      ₹{totalAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  {allPaid && (
+                    <div className="mt-2 text-center">
+                      <Badge variant="default" className="bg-green-600">Fully Paid</Badge>
                     </div>
                   )}
                 </div>
-
-                {booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "paid" && (
-                  <div className="border-t pt-3 bg-green-50 dark:bg-green-950/20 p-3 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold">Total Paid</span>
-                      <span className="text-lg font-bold text-green-600" data-testid="text-total-paid">₹{totalAmount}</span>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </motion.div>

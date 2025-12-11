@@ -1,33 +1,37 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, Copy, Check } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Smartphone, Copy, Check, QrCode, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface UPIPaymentProps {
   upiId: string;
   totalAmount: number;
   bookingId: string;
   clientName: string;
-  advancePaymentStatus?: string;
-  finalPaymentStatus?: string;
+  paymentType?: "advance" | "final";
 }
 
-export function UPIPayment({ upiId, totalAmount, bookingId, clientName, advancePaymentStatus = "pending", finalPaymentStatus = "pending" }: UPIPaymentProps) {
+export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentType = "advance" }: UPIPaymentProps) {
   const [copied, setCopied] = useState(false);
+  const [amountCopied, setAmountCopied] = useState(false);
   const [qrCode, setQrCode] = useState<string>("");
-  const [paymentStage, setPaymentStage] = useState<"advance" | "final">("advance");
-  
-  const advanceAmount = Math.round(totalAmount * 0.5);
-  const finalAmount = totalAmount - advanceAmount;
-  const currentAmount = paymentStage === "advance" ? advanceAmount : finalAmount;
 
-  const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(clientName)}&tn=${paymentStage === "advance" ? "Advance" : "Final"}%20Payment%20${bookingId}&am=${currentAmount}&tr=${bookingId}`;
+  const paymentLabel = paymentType === "advance" ? "Advance" : "Final";
+  const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(clientName)}&tn=${paymentLabel}%20Payment%20${bookingId}&am=${totalAmount}&tr=${bookingId}-${paymentType}`;
 
   useEffect(() => {
     const generateQR = async () => {
       try {
         const qr = await import("qrcode");
-        const dataUrl = await qr.toDataURL(upiString);
+        const dataUrl = await qr.toDataURL(upiString, {
+          width: 280,
+          margin: 2,
+          color: {
+            dark: '#1a1a1a',
+            light: '#ffffff'
+          }
+        });
         setQrCode(dataUrl);
       } catch (error) {
         console.error("QR Code generation failed:", error);
@@ -36,84 +40,135 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, advanceP
     generateQR();
   }, [upiString]);
 
-  const copyToClipboard = () => {
+  const copyUpiId = () => {
     navigator.clipboard.writeText(upiId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const copyAmount = () => {
+    navigator.clipboard.writeText(totalAmount.toString());
+    setAmountCopied(true);
+    setTimeout(() => setAmountCopied(false), 2000);
+  };
+
   return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <CreditCard className="w-5 h-5 text-primary" />
-          <CardTitle>Payment Details</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-2 gap-2 mb-6">
-          <Button 
-            variant={paymentStage === "advance" ? "default" : "outline"}
-            onClick={() => setPaymentStage("advance")}
-            data-testid="button-advance-payment"
-            disabled={advancePaymentStatus === "paid"}
-          >
-            Advance Payment {advancePaymentStatus === "paid" && "✓"}
-          </Button>
-          <Button 
-            variant={paymentStage === "final" ? "default" : "outline"}
-            onClick={() => setPaymentStage("final")}
-            data-testid="button-final-payment"
-            disabled={finalPaymentStatus === "paid"}
-          >
-            Final Payment {finalPaymentStatus === "paid" && "✓"}
-          </Button>
-        </div>
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
+        >
+          <IndianRupee className="w-4 h-4" />
+          {paymentLabel} Payment via UPI
+        </motion.div>
+        <p className="text-sm text-muted-foreground">Scan QR code or use UPI ID to complete {paymentLabel.toLowerCase()} payment</p>
+      </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="bg-white p-4 rounded-lg border-2 border-primary/10">
+      <div className="grid md:grid-cols-2 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex flex-col items-center"
+        >
+          <div className="relative">
+            <div className="absolute -inset-3 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-xl opacity-50" />
+            <Card className="relative p-3 bg-white dark:bg-white shadow-xl border-2">
               {qrCode ? (
-                <img src={qrCode} alt="UPI QR Code" width={200} height={200} />
+                <motion.img 
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }}
+                  src={qrCode} 
+                  alt="UPI QR Code" 
+                  className="w-[220px] h-[220px] md:w-[260px] md:h-[260px]"
+                  data-testid="img-qr-code"
+                />
               ) : (
-                <div className="w-[200px] h-[200px] bg-muted animate-pulse rounded" />
+                <div className="w-[220px] h-[220px] md:w-[260px] md:h-[260px] bg-muted animate-pulse rounded flex items-center justify-center">
+                  <QrCode className="w-16 h-16 text-muted-foreground/30" />
+                </div>
               )}
-            </div>
-            <p className="text-sm text-muted-foreground">Scan to pay via UPI</p>
+            </Card>
           </div>
-          
-          <div className="flex flex-col gap-4 md:border-l-2 md:border-primary/20 md:pl-6">
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                {paymentStage === "advance" ? "Advance Payment (50%)" : "Final Payment (50%)"}
-              </p>
-              <p className="text-3xl font-bold text-primary">₹{currentAmount.toLocaleString('en-IN')}</p>
-              <p className="text-xs text-muted-foreground">Total: ₹{totalAmount.toLocaleString('en-IN')}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">UPI ID</p>
-              <div className="flex items-center gap-2">
-                <code className="bg-muted px-3 py-2 rounded font-mono text-sm">{upiId}</code>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  onClick={copyToClipboard}
-                  data-testid="button-copy-upi"
-                >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </Button>
-              </div>
-            </div>
+          <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-full">
+            <Smartphone className="w-4 h-4" />
+            <span>Scan with any UPI app</span>
+          </div>
+        </motion.div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-md border border-blue-200 dark:border-blue-800">
-              <p className="text-xs text-blue-900 dark:text-blue-100">
-                <strong>Transfer:</strong> ₹{currentAmount.toLocaleString('en-IN')} to {upiId}
-              </p>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex flex-col justify-center space-y-6"
+        >
+          <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl p-5 border border-primary/20">
+            <p className="text-sm text-muted-foreground font-medium mb-1">{paymentLabel} Amount to Pay</p>
+            <div className="flex items-center justify-between">
+              <span className="text-4xl font-bold text-foreground">₹{totalAmount.toLocaleString('en-IN')}</span>
+              <Button 
+                size="sm"
+                variant="ghost"
+                onClick={copyAmount}
+                data-testid="button-copy-amount"
+                className="gap-1"
+              >
+                {amountCopied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                {amountCopied ? "Copied" : "Copy"}
+              </Button>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground font-medium">UPI ID</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-muted border rounded-lg px-4 py-3 font-mono text-base overflow-hidden text-ellipsis">
+                {upiId || "Loading..."}
+              </div>
+              <Button 
+                size="icon"
+                variant="outline"
+                onClick={copyUpiId}
+                data-testid="button-copy-upi"
+                className="h-12 w-12 shrink-0"
+              >
+                {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5" />}
+              </Button>
+            </div>
+            {copied && (
+              <motion.p 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-xs text-green-600 font-medium"
+              >
+                UPI ID copied to clipboard
+              </motion.p>
+            )}
+          </div>
+
+          <Card className="bg-blue-50/80 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 overflow-hidden">
+            <CardContent className="p-4 space-y-3">
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Payment Steps:</p>
+              <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
+                  <span>Open any UPI app (GPay, PhonePe, Paytm)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
+                  <span>Scan QR code or enter UPI ID</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
+                  <span>Pay ₹{totalAmount.toLocaleString('en-IN')} and upload screenshot below</span>
+                </li>
+              </ol>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
   );
 }
