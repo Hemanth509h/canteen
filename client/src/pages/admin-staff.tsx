@@ -94,8 +94,8 @@ export default function StaffManager() {
     mutationFn: async (id: string) => {
       return apiRequest("DELETE", `/api/staff/${id}`, undefined);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["/api/staff"], refetchType: 'all' });
       toast({ title: "Success", description: "Staff member deleted successfully" });
     },
     onError: () => {
