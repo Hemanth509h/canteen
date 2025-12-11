@@ -648,6 +648,21 @@ export default function CustomerHome() {
                 Discover our carefully curated selection of gourmet dishes, crafted to delight every palate
               </p>
               
+              {/* Search Bar */}
+              <div className="max-w-md mx-auto mb-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search dishes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                    data-testid="input-search-menu"
+                  />
+                </div>
+              </div>
+              
               {/* Dietary Filters */}
               <div className="flex flex-wrap gap-2 justify-center mb-6">
                 {dietaryOptions.map((option) => (
