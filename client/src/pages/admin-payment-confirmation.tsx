@@ -21,6 +21,7 @@ export default function AdminPaymentConfirmation() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editTotalAmount, setEditTotalAmount] = useState<number | null>(null);
+  const [editAdvanceAmount, setEditAdvanceAmount] = useState<number | null>(null);
   const [editAdvanceStatus, setEditAdvanceStatus] = useState<"pending" | "paid" | null>(null);
   const [editFinalStatus, setEditFinalStatus] = useState<"pending" | "paid" | null>(null);
 
@@ -53,6 +54,9 @@ export default function AdminPaymentConfirmation() {
       if (editTotalAmount !== null && editTotalAmount !== totalAmount) {
         updateData.totalAmount = editTotalAmount;
       }
+      if (editAdvanceAmount !== null) {
+        updateData.advanceAmount = editAdvanceAmount;
+      }
       return apiRequest("PATCH", `/api/bookings/${bookingId}`, updateData);
     },
     onSuccess: () => {
@@ -63,6 +67,7 @@ export default function AdminPaymentConfirmation() {
       });
       setIsEditing(false);
       setEditTotalAmount(null);
+      setEditAdvanceAmount(null);
     },
     onError: () => {
       toast({
@@ -78,6 +83,7 @@ export default function AdminPaymentConfirmation() {
       setEditAdvanceStatus(booking.advancePaymentStatus as "pending" | "paid");
       setEditFinalStatus(booking.finalPaymentStatus as "pending" | "paid");
       setEditTotalAmount(totalAmount);
+      setEditAdvanceAmount(booking.advanceAmount ?? Math.ceil(totalAmount * 0.5));
     }
     setIsEditing(!isEditing);
   };
@@ -87,6 +93,7 @@ export default function AdminPaymentConfirmation() {
     setEditAdvanceStatus(null);
     setEditFinalStatus(null);
     setEditTotalAmount(null);
+    setEditAdvanceAmount(null);
   };
 
   const handleSendWhatsApp = () => {
@@ -160,7 +167,8 @@ export default function AdminPaymentConfirmation() {
   const baseAmount = booking.guestCount * booking.pricePerPlate;
   const totalAmount = booking.totalAmount ?? baseAmount;
   const displayTotal = isEditing && editTotalAmount !== null ? editTotalAmount : totalAmount;
-  const advanceAmount = Math.ceil(displayTotal * 0.5);
+  const storedAdvanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
+  const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
   const finalAmount = displayTotal - advanceAmount;
   const advancePaid = isEditing ? editAdvanceStatus === "paid" : booking.advancePaymentStatus === "paid";
   const finalPaid = isEditing ? editFinalStatus === "paid" : booking.finalPaymentStatus === "paid";
@@ -287,8 +295,21 @@ export default function AdminPaymentConfirmation() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-3xl font-bold" data-testid="text-advance-amount-admin">₹{advanceAmount.toLocaleString('en-IN')}</p>
+                  <div className="flex items-center justify-between gap-2">
+                    {isEditing ? (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xl font-bold">₹</span>
+                        <Input 
+                          type="number" 
+                          value={editAdvanceAmount ?? advanceAmount}
+                          onChange={(e) => setEditAdvanceAmount(Number(e.target.value))}
+                          className="text-xl font-bold w-28"
+                          data-testid="input-edit-advance-amount"
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-3xl font-bold" data-testid="text-advance-amount-admin">₹{advanceAmount.toLocaleString('en-IN')}</p>
+                    )}
                     {isEditing ? (
                       <Select value={editAdvanceStatus || "pending"} onValueChange={(val) => setEditAdvanceStatus(val as "pending" | "paid")}>
                         <SelectTrigger className="w-28" data-testid="select-advance-status-edit">
