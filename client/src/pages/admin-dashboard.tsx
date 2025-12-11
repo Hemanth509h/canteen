@@ -5,6 +5,7 @@ import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, User
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
+import { GlobalSearch } from "@/components/global-search";
 import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
@@ -148,7 +149,10 @@ export default function AdminDashboard() {
         <div className="flex flex-col flex-1 overflow-hidden">
           <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background/95 backdrop-blur-sm">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <GlobalSearch />
+              <ThemeToggle />
+            </div>
           </header>
           <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20">
             <Switch>

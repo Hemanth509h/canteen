@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,16 +10,20 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle, Users, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle, Users, RefreshCw, List } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo, type Staff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { UPIPayment } from "@/components/upi-payment";
+import { ExportButton } from "@/components/export-button";
+import { BookingCalendar } from "@/components/booking-calendar";
+import { TableSkeleton } from "@/components/loading-spinner";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   pending: "secondary",
@@ -41,6 +45,7 @@ export default function EventBookingsManager() {
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState<EventBooking | null>(null);
   const [assignedStaff, setAssignedStaff] = useState<Staff[]>([]);
+  const [viewType, setViewType] = useState<"list" | "calendar">("list");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -329,6 +334,27 @@ export default function EventBookingsManager() {
           >
             <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
           </Button>
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={viewType === "list" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("list")}
+              className="rounded-r-none"
+              data-testid="button-view-list"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewType === "calendar" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("calendar")}
+              className="rounded-l-none"
+              data-testid="button-view-calendar"
+            >
+              <CalendarDays className="w-4 h-4" />
+            </Button>
+          </div>
+          {bookings && <ExportButton bookings={bookings} />}
           <Button
             variant="outline"
             onClick={() => setLocation('/admin/chef-printout')}
@@ -770,37 +796,68 @@ export default function EventBookingsManager() {
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        <Card>
-        <CardHeader>
-          <CardTitle>All Bookings</CardTitle>
-          <CardDescription>
-            {bookings?.length || 0} total bookings
-          </CardDescription>
-          <div className="mt-4 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search bookings..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-              data-testid="input-search-bookings"
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : filteredBookings && filteredBookings.length > 0 ? (
+      <AnimatePresence mode="wait">
+        {viewType === "calendar" ? (
+          <motion.div
+            key="calendar"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {isLoading ? (
+              <Card>
+                <CardContent className="py-12">
+                  <TableSkeleton rows={5} />
+                </CardContent>
+              </Card>
+            ) : bookings && bookings.length > 0 ? (
+              <BookingCalendar 
+                bookings={bookings} 
+                onSelectBooking={(booking) => handleEdit(booking)} 
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Create your first booking to see it here.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="list"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>All Bookings</CardTitle>
+                <CardDescription>
+                  {bookings?.length || 0} total bookings
+                </CardDescription>
+                <div className="mt-4 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search bookings..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                    data-testid="input-search-bookings"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <TableSkeleton rows={5} />
+                ) : filteredBookings && filteredBookings.length > 0 ? (
             <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
               <Table>
                 <TableHeader>
@@ -892,25 +949,28 @@ export default function EventBookingsManager() {
                 </TableBody>
               </Table>
             </div>
-          ) : bookings && bookings.length > 0 ? (
-            <div className="text-center py-12">
-              <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No bookings match your search</p>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground mb-4">No bookings yet</p>
-              <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-booking">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Booking
-              </Button>
-            </div>
-          )}
-        </CardContent>
-        </Card>
+                ) : bookings && bookings.length > 0 ? (
+                  <div className="text-center py-12">
+                    <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No bookings match your search</p>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">No bookings yet</p>
+                    <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-booking">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Your First Booking
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
+      <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
           <DialogContent data-testid="dialog-assign-staff">
             <DialogHeader>
               <DialogTitle>Assign Serving Boys</DialogTitle>
@@ -975,8 +1035,6 @@ export default function EventBookingsManager() {
             </div>
           </DialogContent>
         </Dialog>
-
-      </motion.div>
     </div>
   );
 }

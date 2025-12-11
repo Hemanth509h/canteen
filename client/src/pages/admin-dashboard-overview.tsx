@@ -1,8 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp, RefreshCw } from "lucide-react";
+import { RevenueChart, BookingStatusChart, MonthlyBookingsChart } from "@/components/dashboard-charts";
+import { BookingCalendar } from "@/components/booking-calendar";
+import { PageLoader } from "@/components/loading-spinner";
 import type { FoodItem, EventBooking } from "@shared/schema";
 
 export default function DashboardOverview() {
@@ -104,77 +108,70 @@ export default function DashboardOverview() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loadingBookings ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            ) : bookings && bookings.length > 0 ? (
-              <div className="space-y-3">
-                {bookings.slice(0, 5).map((booking) => (
-                  <div 
-                    key={booking.id} 
-                    className="flex items-center justify-between p-3 border border-border rounded-md hover-elevate"
-                    data-testid={`item-booking-${booking.id}`}
-                  >
-                    <div>
-                      <p className="font-semibold">{booking.clientName}</p>
-                      <p className="text-sm text-muted-foreground">{booking.eventType}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{booking.eventDate}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{booking.status}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">No bookings yet</p>
-            )}
-          </CardContent>
-        </Card>
+      {loadingBookings ? (
+        <PageLoader text="Loading charts..." />
+      ) : bookings && bookings.length > 0 ? (
+        <>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+          >
+            <RevenueChart bookings={bookings} />
+            <BookingStatusChart bookings={bookings} />
+            <MonthlyBookingsChart bookings={bookings} />
+          </motion.div>
 
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          >
+            <BookingCalendar bookings={bookings} />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Bookings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {bookings.slice(0, 5).map((booking, index) => (
+                    <motion.div 
+                      key={booking.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="flex items-center justify-between gap-4 p-3 border border-border rounded-md hover-elevate"
+                      data-testid={`item-booking-${booking.id}`}
+                    >
+                      <div className="min-w-0">
+                        <p className="font-semibold truncate">{booking.clientName}</p>
+                        <p className="text-sm text-muted-foreground truncate">{booking.eventType}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-medium">{booking.eventDate}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{booking.status}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </>
+      ) : (
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Stats</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Food Categories</span>
-                <span className="font-semibold">4</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Pending Bookings</span>
-                <span className="font-semibold">
-                  {bookings?.filter(b => b.status === "pending").length || 0}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Confirmed Events</span>
-                <span className="font-semibold">
-                  {bookings?.filter(b => b.status === "confirmed").length || 0}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Average Guest Count</span>
-                <span className="font-semibold">
-                  {bookings && bookings.length > 0
-                    ? Math.round(bookings.reduce((sum, b) => sum + b.guestCount, 0) / bookings.length)
-                    : 0}
-                </span>
-              </div>
-            </div>
+          <CardContent className="py-12 text-center">
+            <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
+            <p className="text-muted-foreground text-sm">
+              Your booking statistics and charts will appear here once you have bookings.
+            </p>
           </CardContent>
         </Card>
-      </div>
+      )}
     </div>
   );
 }

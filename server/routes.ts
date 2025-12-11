@@ -128,6 +128,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/bookings/lookup", async (req, res) => {
+    try {
+      const { email, phone } = req.query;
+      
+      if (!email && !phone) {
+        return res.status(400).json({ error: "Email or phone is required" });
+      }
+
+      const bookings = await storage.getBookings();
+      
+      let booking = null;
+      if (email) {
+        booking = bookings.find(b => 
+          b.contactEmail.toLowerCase() === String(email).toLowerCase()
+        );
+      } else if (phone) {
+        const cleanPhone = String(phone).replace(/\D/g, "");
+        booking = bookings.find(b => 
+          b.contactPhone.replace(/\D/g, "").includes(cleanPhone) ||
+          cleanPhone.includes(b.contactPhone.replace(/\D/g, ""))
+        );
+      }
+
+      if (!booking) {
+        return res.status(404).json({ error: "No booking found" });
+      }
+
+      res.json(booking);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to lookup booking" });
+    }
+  });
+
   app.get("/api/bookings/:id", async (req, res) => {
     try {
       const booking = await storage.getBooking(req.params.id);

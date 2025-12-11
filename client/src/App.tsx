@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import CustomerHome from "@/pages/customer-home";
+import CustomerBookingLookup from "@/pages/customer-booking-lookup";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import PaymentConfirmation from "@/pages/payment-confirmation";
@@ -16,6 +17,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
+      <Route path="/check-booking" component={CustomerBookingLookup} />
       <Route path="/payment/:bookingId" component={PaymentConfirmation} />
       <Route path="/staff-assignment/:token" component={StaffAssignment} />
       <Route path="/admin/login" component={AdminLogin} />
