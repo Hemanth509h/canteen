@@ -333,8 +333,8 @@ export default function PaymentConfirmation() {
                     <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
                       <Clock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-blue-700 dark:text-blue-200">Payment Waiting for Verification</p>
-                        <p className="text-sm text-blue-600 dark:text-blue-300">Your payment screenshot has been received. Our team is reviewing it and will confirm shortly.</p>
+                        <p className="font-semibold text-blue-700 dark:text-blue-200">Waiting for Admin Approval</p>
+                        <p className="text-sm text-blue-600 dark:text-blue-300">Your payment screenshot has been received. The admin will review and approve it shortly. You'll be notified once approved.</p>
                       </div>
                     </div>
                     {booking.advancePaymentScreenshot && (
@@ -451,6 +451,26 @@ export default function PaymentConfirmation() {
                           </div>
                         </div>
                       </>
+                    ) : finalUploaded ? (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        className="space-y-4"
+                      >
+                        <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
+                          <Clock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-blue-700 dark:text-blue-200">Waiting for Admin Approval</p>
+                            <p className="text-sm text-blue-600 dark:text-blue-300">Your final payment screenshot has been received. The admin will review and approve it shortly.</p>
+                          </div>
+                        </div>
+                        {booking.finalPaymentScreenshot && (
+                          <div>
+                            <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
+                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
+                          </div>
+                        )}
+                      </motion.div>
                     ) : (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }} 
@@ -460,8 +480,8 @@ export default function PaymentConfirmation() {
                         <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
                           <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
                           <div>
-                            <p className="font-semibold text-green-700 dark:text-green-200">Payment Received</p>
-                            <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your final payment has been confirmed.</p>
+                            <p className="font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
+                            <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your final payment has been confirmed and approved by the admin.</p>
                           </div>
                         </div>
                         {booking.finalPaymentScreenshot && (

@@ -357,10 +357,23 @@ export default function AdminPaymentConfirmation() {
                       </Badge>
                     )}
                   </div>
-                  {booking.advancePaymentScreenshot && (
-                    <div className="border-t pt-3 space-y-3">
-                      <Label className="text-xs text-muted-foreground mb-2 block">Payment Proof</Label>
-                      <img src={booking.advancePaymentScreenshot} alt="Advance payment proof" className="w-full max-h-48 object-contain border rounded-lg" data-testid="img-advance-screenshot-admin" />
+                  <div className="border-t pt-3 space-y-3">
+                    {booking.advancePaymentScreenshot && (
+                      <>
+                        <Label className="text-xs text-muted-foreground mb-2 block">Payment Proof</Label>
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment proof" className="w-full max-h-48 object-contain border rounded-lg" data-testid="img-advance-screenshot-admin" />
+                      </>
+                    )}
+                    <div className="space-y-2">
+                      {!booking.advancePaymentScreenshot ? (
+                        <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                          Awaiting payment screenshot from customer
+                        </div>
+                      ) : advanceUploaded ? (
+                        <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                          <p className="text-sm font-semibold text-amber-700 dark:text-amber-200 mb-2">Payment Pending Your Approval</p>
+                        </div>
+                      ) : null}
                       {advanceUploaded && !isEditing && (
                         <div className="flex gap-2">
                           <Button 
@@ -372,7 +385,7 @@ export default function AdminPaymentConfirmation() {
                             data-testid="button-approve-advance"
                           >
                             <CheckIcon className="w-4 h-4" />
-                            Approve
+                            Approve Payment
                           </Button>
                           <Button 
                             size="sm" 
@@ -386,7 +399,7 @@ export default function AdminPaymentConfirmation() {
                         </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -427,10 +440,23 @@ export default function AdminPaymentConfirmation() {
                       </Badge>
                     )}
                   </div>
-                  {booking.finalPaymentScreenshot && (
-                    <div className="border-t pt-3 space-y-3">
-                      <Label className="text-xs text-muted-foreground mb-2 block">Payment Proof</Label>
-                      <img src={booking.finalPaymentScreenshot} alt="Final payment proof" className="w-full max-h-48 object-contain border rounded-lg" data-testid="img-final-screenshot-admin" />
+                  <div className="border-t pt-3 space-y-3">
+                    {booking.finalPaymentScreenshot && (
+                      <>
+                        <Label className="text-xs text-muted-foreground mb-2 block">Payment Proof</Label>
+                        <img src={booking.finalPaymentScreenshot} alt="Final payment proof" className="w-full max-h-48 object-contain border rounded-lg" data-testid="img-final-screenshot-admin" />
+                      </>
+                    )}
+                    <div className="space-y-2">
+                      {!booking.finalPaymentScreenshot ? (
+                        <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                          Awaiting payment screenshot from customer
+                        </div>
+                      ) : finalUploaded ? (
+                        <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                          <p className="text-sm font-semibold text-amber-700 dark:text-amber-200 mb-2">Payment Pending Your Approval</p>
+                        </div>
+                      ) : null}
                       {finalUploaded && !isEditing && (
                         <div className="flex gap-2">
                           <Button 
@@ -442,7 +468,7 @@ export default function AdminPaymentConfirmation() {
                             data-testid="button-approve-final"
                           >
                             <CheckIcon className="w-4 h-4" />
-                            Approve
+                            Approve Payment
                           </Button>
                           <Button 
                             size="sm" 
@@ -456,7 +482,7 @@ export default function AdminPaymentConfirmation() {
                         </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
