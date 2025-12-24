@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Invoice } from "@/components/invoice";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon } from "lucide-react";
+import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon, RefreshCw } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
@@ -209,15 +209,27 @@ export default function AdminPaymentConfirmation() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
       <div className="max-w-5xl mx-auto">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => setLocation("/admin/bookings")}
-            className="gap-2 mb-4"
-            data-testid="button-back-bookings-admin"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Bookings
-          </Button>
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant="ghost"
+              onClick={() => setLocation("/admin/bookings")}
+              className="gap-2"
+              data-testid="button-back-bookings-admin"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Bookings
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] })}
+              className="gap-2"
+              data-testid="button-refresh-admin-payment"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+          </div>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">Payment Management</h1>
