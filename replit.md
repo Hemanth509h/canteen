@@ -19,6 +19,13 @@ Preferred communication style: Simple, everyday language.
 - **Button Stacking:** Confirmation dialog buttons now stack vertically on mobile using `flex-col-reverse sm:flex-row`
 - **Text Sizing:** Dialog titles and descriptions now have responsive font sizes
 
+### Empty States & Loading States
+- **EmptyState Component:** Created reusable `client/src/components/empty-state.tsx` for consistent empty state messaging
+- **Consistent Loading Spinners:** All data fetching uses `TableSkeleton`, `PageLoader`, and `CardSkeleton` for visual feedback
+- **Better Visual Feedback:** Loading states implemented on all mutations (create, update, delete operations)
+- **Empty State Messages:** All admin pages show helpful messages when lists are empty with optional action buttons
+- **Mutation Loading States:** Form submissions and delete operations show loading text ("Saving...", "Deleting...") to prevent duplicate submissions
+
 ## System Architecture
 
 ### Frontend Architecture

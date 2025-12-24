@@ -25,6 +25,7 @@ import { ExportButton } from "@/components/export-button";
 import { BookingCalendar } from "@/components/booking-calendar";
 import { TableSkeleton } from "@/components/loading-spinner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { EmptyState } from "@/components/empty-state";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   pending: "secondary",
@@ -877,12 +878,15 @@ export default function EventBookingsManager() {
               />
             ) : (
               <Card>
-                <CardContent className="py-12 text-center">
-                  <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Create your first booking to see it here.
-                  </p>
+                <CardContent className="py-12">
+                  <EmptyState
+                    icon={<CalendarDays className="w-12 h-12 mx-auto text-muted-foreground" />}
+                    title="No bookings yet"
+                    description="Create your first booking to see it here."
+                    actionLabel="Add Booking"
+                    onAction={() => setIsDialogOpen(true)}
+                    data_testid="empty-state-bookings"
+                  />
                 </CardContent>
               </Card>
             )}
