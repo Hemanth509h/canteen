@@ -19,6 +19,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const defaultCategories = [
   "Welcome Drinks",
@@ -55,6 +56,9 @@ export default function FoodItemsManager() {
   const [sortBy, setSortBy] = useState<"name" | "price" | "category">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleteTargetName, setDeleteTargetName] = useState<string>("");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -98,14 +102,21 @@ export default function FoodItemsManager() {
     mutationFn: async (data: InsertFoodItem) => {
       return apiRequest("POST", "/api/food-items", data);
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
-      toast({ title: "Success", description: "Food item created successfully" });
+      toast({ 
+        title: "Item Added", 
+        description: `${data.name} has been added to your menu` 
+      });
       setIsDialogOpen(false);
       form.reset();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create food item", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Failed to Add Item", 
+        description: error?.message || "Please check that all required fields are filled correctly.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -115,13 +126,20 @@ export default function FoodItemsManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
-      toast({ title: "Success", description: "Food item updated successfully" });
+      toast({ 
+        title: "Updated", 
+        description: "Food item details have been updated successfully" 
+      });
       setIsDialogOpen(false);
       setEditingItem(null);
       form.reset();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update food item", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Update Failed", 
+        description: error?.message || "Unable to update food item. Please try again.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -131,10 +149,18 @@ export default function FoodItemsManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
-      toast({ title: "Success", description: "Food item deleted successfully" });
+      toast({ 
+        title: "Removed", 
+        description: `${deleteTargetName} has been removed from your menu` 
+      });
+      setDeleteTargetId(null);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete food item", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Delete Failed", 
+        description: error?.message || "Unable to remove this food item.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -154,9 +180,15 @@ export default function FoodItemsManager() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this food item?")) {
-      deleteMutation.mutate(id);
+  const handleDelete = (id: string, name: string) => {
+    setDeleteTargetId(id);
+    setDeleteTargetName(name);
+    setConfirmDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId) {
+      deleteMutation.mutate(deleteTargetId);
     }
   };
 
@@ -509,7 +541,7 @@ export default function FoodItemsManager() {
                       <Button
                         size="icon"
                         variant="ghost"
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(item.id, item.name)}
                         disabled={deleteMutation.isPending}
                         data-testid={`button-delete-mobile-${item.id}`}
                       >
@@ -567,7 +599,7 @@ export default function FoodItemsManager() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleDelete(item.id)}
+                              onClick={() => handleDelete(item.id, item.name)}
                               disabled={deleteMutation.isPending}
                               data-testid={`button-delete-${item.id}`}
                             >
@@ -599,6 +631,18 @@ export default function FoodItemsManager() {
         </CardContent>
         </Card>
       </motion.div>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        title="Remove Food Item"
+        description={`Are you sure you want to remove "${deleteTargetName}" from your menu? This action cannot be undone.`}
+        confirmText="Remove"
+        cancelText="Keep"
+        variant="destructive"
+        onConfirm={confirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

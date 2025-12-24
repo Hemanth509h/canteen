@@ -16,6 +16,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, User, Search, RefreshCw } from "lucide-react";
 import { insertStaffSchema, updateStaffSchema, type Staff, type InsertStaff, type UpdateStaff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const roleMap: Record<string, string> = {
   "chef": "Chef",
@@ -36,6 +37,9 @@ export default function StaffManager() {
   const [sortBy, setSortBy] = useState<"name" | "role">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [roleFilter, setRoleFilter] = useState<string>("");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleteTargetName, setDeleteTargetName] = useState<string>("");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -72,9 +76,12 @@ export default function StaffManager() {
     mutationFn: async (data: InsertStaff) => {
       return apiRequest("POST", "/api/staff", data);
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
-      toast({ title: "Success", description: "Staff member created successfully" });
+      toast({ 
+        title: "Staff Added", 
+        description: `${data.name} has been added to your team` 
+      });
       setIsDialogOpen(false);
       form.reset({
         name: "",
@@ -82,8 +89,12 @@ export default function StaffManager() {
         phone: "",
       });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create staff member", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Failed to Add Staff", 
+        description: error?.message || "Please check that all required fields are filled correctly.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -93,13 +104,20 @@ export default function StaffManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
-      toast({ title: "Success", description: "Staff member updated successfully" });
+      toast({ 
+        title: "Updated", 
+        description: "Staff member details have been updated successfully" 
+      });
       setIsDialogOpen(false);
       setEditingStaff(null);
       form.reset();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update staff member", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Update Failed", 
+        description: error?.message || "Unable to update staff member. Please try again.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -109,10 +127,18 @@ export default function StaffManager() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["/api/staff"], refetchType: 'all' });
-      toast({ title: "Success", description: "Staff member deleted successfully" });
+      toast({ 
+        title: "Removed", 
+        description: `${deleteTargetName} has been removed from the team` 
+      });
+      setDeleteTargetId(null);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete staff member", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Delete Failed", 
+        description: error?.message || "Unable to remove this staff member.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -126,9 +152,15 @@ export default function StaffManager() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this staff member?")) {
-      deleteMutation.mutate(id);
+  const handleDelete = (id: string, name: string) => {
+    setDeleteTargetId(id);
+    setDeleteTargetName(name);
+    setConfirmDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId) {
+      deleteMutation.mutate(deleteTargetId);
     }
   };
 
@@ -388,7 +420,7 @@ export default function StaffManager() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDelete(staff.id)}
+                            onClick={() => handleDelete(staff.id, staff.name)}
                             disabled={deleteMutation.isPending}
                             data-testid={`button-delete-${staff.id}`}
                           >
@@ -414,6 +446,18 @@ export default function StaffManager() {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        title="Remove Staff Member"
+        description={`Are you sure you want to remove ${deleteTargetName} from the team? This action cannot be undone.`}
+        confirmText="Remove"
+        cancelText="Keep"
+        variant="destructive"
+        onConfirm={confirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

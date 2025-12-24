@@ -24,6 +24,7 @@ import { UPIPayment } from "@/components/upi-payment";
 import { ExportButton } from "@/components/export-button";
 import { BookingCalendar } from "@/components/booking-calendar";
 import { TableSkeleton } from "@/components/loading-spinner";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   pending: "secondary",
@@ -51,6 +52,8 @@ export default function EventBookingsManager() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -218,13 +221,21 @@ export default function EventBookingsManager() {
         await apiRequest("POST", `/api/bookings/${booking.id}/items`, items);
       }
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
-      toast({ title: "Success", description: "Booking created successfully" });
+      toast({ 
+        title: "Booking Created", 
+        description: `New booking for ${booking.clientName} has been created successfully`,
+        variant: "default"
+      });
       setIsDialogOpen(false);
       form.reset();
       setSelectedItems([]);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create booking", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Creation Failed", 
+        description: error?.message || "Unable to create booking. Please check all required fields.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -247,14 +258,21 @@ export default function EventBookingsManager() {
         await apiRequest("POST", `/api/bookings/${variables.id}/items`, items);
       }
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
-      toast({ title: "Success", description: "Booking updated successfully" });
+      toast({ 
+        title: "Updated", 
+        description: "Booking details have been updated successfully" 
+      });
       setIsDialogOpen(false);
       setEditingBooking(null);
       form.reset();
       setSelectedItems([]);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update booking", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Update Failed", 
+        description: error?.message || "Unable to update booking. Please try again.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -264,10 +282,19 @@ export default function EventBookingsManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
-      toast({ title: "Success", description: "Booking deleted successfully" });
+      toast({ 
+        title: "Deleted", 
+        description: "Booking has been removed from the system",
+        variant: "default"
+      });
+      setDeleteTargetId(null);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete booking", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ 
+        title: "Delete Failed", 
+        description: error?.message || "Unable to delete this booking. Please check if it's still in use.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -288,8 +315,13 @@ export default function EventBookingsManager() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this booking?")) {
-      deleteMutation.mutate(id);
+    setDeleteTargetId(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId) {
+      deleteMutation.mutate(deleteTargetId);
     }
   };
 
@@ -1133,6 +1165,18 @@ export default function EventBookingsManager() {
             </div>
           </DialogContent>
         </Dialog>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        title="Delete Booking"
+        description="Are you sure you want to delete this booking? This action cannot be undone and will remove all associated booking data."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }
