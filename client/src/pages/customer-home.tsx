@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import type { FoodItem, CompanyInfo, CustomerReview, CateringPackage } from "@shared/schema";
 import { insertCustomerReviewSchema } from "@shared/schema";
+import { EmptyState } from "@/components/empty-state";
+import { CardSkeleton } from "@/components/loading-spinner";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
 
@@ -789,6 +791,12 @@ export default function CustomerHome() {
                       ))}
                     </div>
                   </motion.div>
+                ))}
+              </div>
+            ) : loadingFood ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <CardSkeleton key={i} />
                 ))}
               </div>
             ) : (

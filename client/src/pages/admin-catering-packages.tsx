@@ -14,6 +14,8 @@ import { Trash2, Edit2, Plus, Package, RefreshCw } from "lucide-react";
 import { insertCateringPackageSchema, type CateringPackage, type InsertCateringPackage } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
+import { EmptyState } from "@/components/empty-state";
+import { CardSkeleton } from "@/components/loading-spinner";
 
 export default function CateringPackagesManager() {
   const { toast } = useToast();
@@ -317,7 +319,7 @@ export default function CateringPackagesManager() {
         {packagesLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-64" />
+              <CardSkeleton key={i} />
             ))}
           </div>
         ) : packages && packages.length > 0 ? (

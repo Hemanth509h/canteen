@@ -19,6 +19,8 @@ import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } f
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { EmptyState } from "@/components/empty-state";
+import { PageLoader, TableSkeleton } from "@/components/loading-spinner";
 
 const defaultCategories = [
   "Welcome Drinks",

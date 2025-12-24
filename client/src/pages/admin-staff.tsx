@@ -17,6 +17,8 @@ import { Plus, Pencil, Trash2, User, Search, RefreshCw } from "lucide-react";
 import { insertStaffSchema, updateStaffSchema, type Staff, type InsertStaff, type UpdateStaff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { EmptyState } from "@/components/empty-state";
+import { PageLoader, TableSkeleton } from "@/components/loading-spinner";
 
 const roleMap: Record<string, string> = {
   "chef": "Chef",
@@ -374,11 +376,7 @@ export default function StaffManager() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
+            <TableSkeleton rows={5} />
           ) : filteredStaffList && filteredStaffList.length > 0 ? (
             <>
               {/* Mobile Card View */}
