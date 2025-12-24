@@ -57,6 +57,7 @@ export default function PaymentConfirmation() {
             const base64 = reader.result as string;
             await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
               [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]: base64,
+              [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
               [type === "advance" ? "advancePaymentApprovalStatus" : "finalPaymentApprovalStatus"]: "pending",
             });
             resolve("success");
@@ -263,7 +264,7 @@ export default function PaymentConfirmation() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                {!advancePaid ? (
+                {booking.advancePaymentStatus !== "paid" ? (
                   <>
                     <UPIPayment
                       upiId={companyInfo?.upiId || ""}
@@ -323,6 +324,26 @@ export default function PaymentConfirmation() {
                       </div>
                     </div>
                   </>
+                ) : advanceUploaded ? (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    className="space-y-4"
+                  >
+                    <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
+                      <Clock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-blue-700 dark:text-blue-200">Payment Waiting for Verification</p>
+                        <p className="text-sm text-blue-600 dark:text-blue-300">Your payment screenshot has been received. Our team is reviewing it and will confirm shortly.</p>
+                      </div>
+                    </div>
+                    {booking.advancePaymentScreenshot && (
+                      <div>
+                        <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
+                      </div>
+                    )}
+                  </motion.div>
                 ) : (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} 
@@ -332,8 +353,8 @@ export default function PaymentConfirmation() {
                     <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
                       <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-green-700 dark:text-green-200">Payment Received</p>
-                        <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your advance payment has been confirmed.</p>
+                        <p className="font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
+                        <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your advance payment has been confirmed by our team.</p>
                       </div>
                     </div>
                     {booking.advancePaymentScreenshot && (
@@ -347,7 +368,7 @@ export default function PaymentConfirmation() {
               </CardContent>
             </Card>
 
-            {advancePaid && (
+            {booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved" && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <Card className={finalPaid ? "border-green-300 dark:border-green-800" : "border-blue-300 dark:border-blue-800"}>
                   <CardHeader className="pb-4">
@@ -370,7 +391,7 @@ export default function PaymentConfirmation() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {!finalPaid ? (
+                    {booking.finalPaymentStatus !== "paid" ? (
                       <>
                         <UPIPayment
                           upiId={companyInfo?.upiId || ""}
