@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp, RefreshCw, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { RevenueChart, BookingStatusChart, MonthlyBookingsChart } from "@/components/dashboard-charts";
 import { BookingCalendar } from "@/components/booking-calendar";
 import { PageLoader } from "@/components/loading-spinner";
@@ -33,34 +34,43 @@ export default function DashboardOverview() {
 
   const activeEvents = bookings?.filter(b => b.status === "confirmed" || b.status === "pending").length || 0;
 
+  const pendingPayments = bookings?.filter(b => 
+    b.advancePaymentStatus === "pending" || b.finalPaymentStatus === "pending"
+  ).length || 0;
+
+  const upcomingBookings = bookings?.filter(b => {
+    const eventDate = new Date(b.eventDate);
+    return eventDate >= new Date() && b.status !== "cancelled";
+  }).length || 0;
+
   const metrics = [
     {
-      title: "Total Food Items",
-      value: foodItems?.length || 0,
-      icon: UtensilsCrossed,
-      color: "text-primary",
-      loading: loadingFood,
-    },
-    {
-      title: "Active Events",
-      value: activeEvents,
-      icon: CalendarDays,
-      color: "text-blue-500",
-      loading: loadingBookings,
-    },
-    {
-      title: "Total Bookings",
-      value: bookings?.length || 0,
-      icon: TrendingUp,
-      color: "text-green-500",
-      loading: loadingBookings,
-    },
-    {
-      title: "Estimated Revenue",
+      title: "Total Revenue",
       value: `₹${totalRevenue.toLocaleString('en-IN')}`,
       icon: IndianRupee,
-      color: "text-amber-500",
+      color: "text-green-600",
       loading: loadingBookings,
+    },
+    {
+      title: "Upcoming Bookings",
+      value: upcomingBookings,
+      icon: CalendarDays,
+      color: "text-blue-600",
+      loading: loadingBookings,
+    },
+    {
+      title: "Pending Payments",
+      value: pendingPayments,
+      icon: AlertCircle,
+      color: "text-orange-600",
+      loading: loadingBookings,
+    },
+    {
+      title: "Total Menu Items",
+      value: foodItems?.length || 0,
+      icon: UtensilsCrossed,
+      color: "text-purple-600",
+      loading: loadingFood,
     },
   ];
 
@@ -133,29 +143,54 @@ export default function DashboardOverview() {
             
             <Card>
               <CardHeader>
-                <CardTitle>Recent Bookings</CardTitle>
+                <CardTitle className="text-lg">Activity Timeline</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {bookings.slice(0, 5).map((booking, index) => (
-                    <motion.div 
-                      key={booking.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="flex items-center justify-between gap-4 p-3 border border-border rounded-md hover-elevate"
-                      data-testid={`item-booking-${booking.id}`}
-                    >
-                      <div className="min-w-0">
-                        <p className="font-semibold truncate">{booking.clientName}</p>
-                        <p className="text-sm text-muted-foreground truncate">{booking.eventType}</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-sm font-medium">{booking.eventDate}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{booking.status}</p>
-                      </div>
-                    </motion.div>
-                  ))}
+                <div className="space-y-4">
+                  {bookings.slice(0, 5).map((booking, index) => {
+                    const isPending = booking.advancePaymentStatus === "pending" || booking.finalPaymentStatus === "pending";
+                    const isCompleted = booking.status === "completed";
+                    const isUpcoming = new Date(booking.eventDate) >= new Date();
+                    
+                    let icon = Clock;
+                    let color = "text-blue-500";
+                    let bgColor = "bg-blue-100 dark:bg-blue-900/30";
+                    
+                    if (isCompleted) {
+                      icon = CheckCircle2;
+                      color = "text-green-500";
+                      bgColor = "bg-green-100 dark:bg-green-900/30";
+                    } else if (isPending) {
+                      icon = AlertCircle;
+                      color = "text-orange-500";
+                      bgColor = "bg-orange-100 dark:bg-orange-900/30";
+                    }
+                    
+                    const IconComponent = icon;
+                    
+                    return (
+                      <motion.div 
+                        key={booking.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex gap-3 p-3 border border-border/50 rounded-lg hover-elevate"
+                        data-testid={`timeline-item-${booking.id}`}
+                      >
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-full ${bgColor} flex items-center justify-center`}>
+                          <IconComponent className={`w-5 h-5 ${color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{booking.clientName}</p>
+                          <p className="text-xs text-muted-foreground">{booking.eventType} • {booking.eventDate}</p>
+                          <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                            <Badge variant="outline" className="text-xs capitalize">{booking.status}</Badge>
+                            {isPending && <Badge variant="secondary" className="text-xs">Payment Pending</Badge>}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
