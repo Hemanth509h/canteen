@@ -250,12 +250,12 @@ export default function FoodItemsManager() {
                 Add Food Item
               </Button>
             </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-lg sm:text-xl">
                 {editingItem ? "Edit Food Item" : "Add New Food Item"}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-sm">
                 {editingItem ? "Update the food item details" : "Add a new item to your menu"}
               </DialogDescription>
             </DialogHeader>

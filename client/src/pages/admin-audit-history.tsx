@@ -94,13 +94,13 @@ export default function AuditHistory() {
       </div>
 
       <Card className="border border-border/50 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
+        <CardHeader className="pb-4 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Activity Log</CardTitle>
-              <CardDescription>Complete history of all bookings, staff, and assignments</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Activity Log</CardTitle>
+              <CardDescription className="text-sm">Complete history of all bookings, staff, and assignments</CardDescription>
             </div>
-            <div className="w-48">
+            <div className="w-full sm:w-48">
               <Select value={entityTypeFilter} onValueChange={setEntityTypeFilter}>
                 <SelectTrigger data-testid="select-entity-type-filter">
                   <SelectValue placeholder="Filter by type..." />
@@ -124,7 +124,29 @@ export default function AuditHistory() {
               ))}
             </div>
           ) : auditHistory && auditHistory.length > 0 ? (
-            <div className="overflow-x-auto">
+            <div className="space-y-3">
+              {/* Mobile View */}
+              <div className="block md:hidden space-y-2">
+                {auditHistory.map((entry, index) => {
+                  const colors = actionColorMap[entry.action] || { bg: "bg-gray-100", text: "text-gray-700" };
+                  return (
+                    <div key={entry.id} className="p-3 border border-border rounded-lg bg-card/50">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <Badge className={`${colors.bg} ${colors.text} border-0 text-xs flex items-center gap-1`}>
+                          {actionIcons[entry.action]}
+                          {getActionLabel(entry.action)}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs capitalize">{entry.entityType}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">{formatDate(entry.createdAt)}</p>
+                      <p className="text-xs font-mono text-muted-foreground">ID: {entry.entityId.slice(0, 8)}...</p>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {/* Desktop View */}
+              <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-b border-border/50">
@@ -211,6 +233,7 @@ export default function AuditHistory() {
                   })}
                 </TableBody>
               </Table>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">

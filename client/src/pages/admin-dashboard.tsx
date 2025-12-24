@@ -149,8 +149,8 @@ export default function AdminDashboard() {
   }
 
   const style = {
-    "--sidebar-width": "16rem",
-    "--sidebar-width-icon": "3rem",
+    "--sidebar-width": "14rem",
+    "--sidebar-width-icon": "2.5rem",
   };
 
   return (
@@ -158,10 +158,12 @@ export default function AdminDashboard() {
       <div className="flex h-screen w-full">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background/95 backdrop-blur-sm">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <div className="flex items-center gap-2">
-              <GlobalSearch />
+          <header className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border/50 bg-background/95 backdrop-blur-sm flex-wrap">
+            <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9" />
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="hidden sm:block">
+                <GlobalSearch />
+              </div>
               <ThemeToggle />
             </div>
           </header>

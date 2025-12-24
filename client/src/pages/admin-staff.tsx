@@ -218,12 +218,12 @@ export default function StaffManager() {
                 Add Staff Member
               </Button>
             </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-lg sm:text-xl">
                 {editingStaff ? "Edit Staff Member" : "Add New Staff Member"}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-sm">
                 {editingStaff ? "Update staff member details" : "Add a new team member"}
               </DialogDescription>
             </DialogHeader>
@@ -242,7 +242,7 @@ export default function StaffManager() {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="role"

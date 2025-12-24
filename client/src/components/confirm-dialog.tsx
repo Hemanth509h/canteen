@@ -26,17 +26,18 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle className="text-lg sm:text-base">{title}</DialogTitle>
+          <DialogDescription className="text-sm">{description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex gap-3 flex-row justify-end">
+        <DialogFooter className="flex gap-2 flex-col-reverse sm:flex-row sm:justify-end">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
             data-testid="button-cancel-confirm"
+            className="w-full sm:w-auto"
           >
             {cancelText}
           </Button>
@@ -48,6 +49,7 @@ export function ConfirmDialog({
             }}
             disabled={isLoading}
             data-testid="button-confirm-action"
+            className="w-full sm:w-auto"
           >
             {isLoading ? "Please wait..." : confirmText}
           </Button>
