@@ -2,245 +2,22 @@
 
 ## Overview
 
-This is a full-stack catering management application built with React, Express, and MongoDB. The platform serves customers for browsing menus and booking catering services, and administrators for managing food items, event bookings, staff, and company settings. It features a customer-facing website and a comprehensive admin panel. The project aims to provide an all-in-one solution for catering businesses, streamlining operations from customer interaction to internal management.
+This is a full-stack catering management application built with React, Express, and MongoDB. The platform serves customers for browsing menus and booking catering services, and administrators for managing food items, event bookings, staff, and company settings. It features a customer-facing website and a comprehensive admin panel. The project aims to provide an all-in-one solution for catering businesses, streamlining operations from customer interaction to internal management. Key capabilities include comprehensive admin data management with search, sorting, and filtering, robust error handling, an audit history tracking system, and a streamlined staff assignment and communication workflow.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (Dec 24, 2025 - Session 3)
+## Recent Enhancements (December 24, 2025)
 
-### Enhanced Data Visibility & Search - Admin Pages ✅
-Comprehensive search, sorting, and filtering added to three key admin pages for faster data management:
-
-**Admin Event Bookings Page:**
-- Full-text search by client name, event type, email, or status
-- Sort options: Event Date, Client Name, Status, or Total Amount
-- Sort order toggle: Ascending/Descending
-- Status filter: Quick filter by Pending, Confirmed, Completed, or Cancelled
-- Date range filters: Filter bookings between specific dates (From Date / To Date)
-- Results counter showing filtered vs total bookings
-- Clear Filters button for quick reset
-
-**Admin Staff Management Page:**
-- Search staff by name, role, or phone number
-- Sort options: By Name or Role
-- Sort order toggle: Ascending/Descending
-- Role filter: Quick filter by Chef, Worker, or Serving Boy
-- Clear Filter button
-- Results counter showing filtered vs total staff
-
-**Admin Food Items Management Page:**
-- Search items by name, description, or category
-- Sort options: By Name, Price, or Category
-- Sort order toggle: Ascending/Descending
-- Category filter: Dynamic dropdown with all menu categories
-- Clear Filter button
-- Results counter showing filtered vs total items
-
-All controls are fully responsive, mobile-friendly, and work seamlessly together. Uses local state filtering for instant results without extra API calls.
-
-### Better Error Handling & Feedback ✅
-Comprehensive error handling and user notifications added throughout the app:
-
-**Confirmation Dialogs for Destructive Actions:**
-- New reusable `ConfirmDialog` component for consistent UX
-- Modal confirmation before deleting any bookings, staff members, or food items
-- Shows context-aware descriptions (e.g., staff member name, item name)
-- Prevents accidental deletions with clear "Cancel" and "Delete/Remove" options
-- Visual destructive variant (red) to highlight high-risk actions
-
-**User-Friendly Error Messages:**
-- **Create Operations:** Context-specific success messages (e.g., "New booking for [name] has been created successfully")
-- **Update Operations:** Clear feedback on successful updates
-- **Delete Operations:** Confirmation before deletion with item context
-- **Error Messages:** Detailed, actionable error descriptions instead of generic "Failed" messages
-- All error messages include helpful fallbacks (e.g., "Please check all required fields")
-
-**Success Notifications:**
-- Clear toast notifications for all successful operations
-- Contextual messaging (e.g., showing client/staff names in success messages)
-- Consistent styling and placement across all admin pages
-- Loading states during async operations
-
-**Form Validation Feedback:**
-- React Hook Form integration with Zod validation on all forms
-- Real-time field validation with error messages displayed inline
-- FormMessage components show validation errors for invalid fields
-- Form submission prevents if validation fails
-
-### Better Mobile Responsiveness ✅
-Optimized mobile experience across all admin pages and modals:
-
-**Improved Table Layouts on Mobile:**
-- **Bookings & Staff Pages:** Added mobile card views that replace tables on screens under 768px
-- Mobile cards display essential information in a compact, vertical layout
-- Cards show client/staff name, phone, event type, and status as compact badges
-- Actions condensed to icon buttons on mobile
-- Full table view returns on desktop for better data comparison
-- All data remains accessible without horizontal scrolling
-
-**Mobile-Friendly Modals:**
-- Dialog modals now use `w-[95vw]` on mobile for full-width usage
-- Maximum height set to `max-h-[90vh]` to prevent overflow on small screens
-- Content is scrollable if needed with `overflow-y-auto`
-- Padding reduced on mobile (`p-4`) and increased on desktop (`sm:p-6`)
-- All modals remain centered and functional on small screens (iPhone, tablets)
-
-**Sidebar Navigation Optimization:**
-- Sidebar automatically collapses on mobile using Shadcn SidebarTrigger
-- Menu items properly spaced and readable on small screens
-- Sidebar footer buttons ("Back to Home", "Logout") remain accessible
-- Logo and branding info stays visible when sidebar is expanded
-
-**Responsive Filters & Controls:**
-- Search input and filter dropdowns stack vertically on mobile
-- Sort buttons adjust width to fit mobile screens (`w-full sm:w-auto`)
-- Date range filters display in single column on mobile, two columns on desktop
-- All controls remain fully functional without horizontal scroll
-
-## Previous Changes (Dec 2, 2025 - Session 2)
-
-### AuditHistory & Tracking System + Staff Assignment Button Fixed ✅
-- **Staff Assignment Button Fix:**
-  - **Root Cause:** `findByIdAndUpdate` was receiving a string ID but needed proper MongoDB ObjectId conversion
-  - **Solution:** Updated `updateStaffBookingRequest` method to convert string ID to `new mongoose.Types.ObjectId(id)` with proper error handling
-  - **Result:** Accept and Reject buttons now work properly on staff assignment page
-
-- **New AuditHistory Tracking System (Complete & Integrated):**
-  - **Schema:** Created AuditHistory model with action, entityType, entityId, details, and createdAt
-  - **Entity Types:** booking, staff, payment, assignment
-  - **Storage Methods:** `createAuditHistory()` and `getAuditHistory(entityType?, entityId?)`
-  - **API Endpoints:**
-    - `GET /api/audit-history` - Fetch audit logs with optional filtering by entityType/entityId
-    - `POST /api/audit-history` - Log new actions (bookings, staff assignments, payments)
-  - **Automatic Logging Integrated:**
-    - `booking_created` - When a new event booking is created
-    - `booking_updated` - When booking status, payments, or details change
-    - `staff_created` - When a new staff member is added
-    - `staff_updated` - When staff details are modified
-    - `assignment_created` - When a serving boy is assigned to an event
-    - `assignment_updated` - When staff accepts/rejects an assignment (tracks status change)
-  - **Stored Details:** Each audit entry includes contextual information (names, IDs, status changes, etc.)
-  - **Query Support:** View all actions, filter by entity type, or filter by specific entity ID
-  - **Admin UI Page:** New "Audit History" page at `/admin/audit-history` with:
-    - Complete activity log showing all system changes
-    - Filter by entity type (Bookings, Staff, Assignments, Payments)
-    - Detailed timestamps and action descriptions
-    - Color-coded action badges for easy identification
-    - Real-time updates as new actions occur
-  - **Location:** "Audit History" button in admin sidebar navigation
-
-## Previous Changes (Dec 1, 2025)
-
-### Simplified Staff Management (Complete):
-- Removed experience, salary, and image fields from staff records
-- Staff now only store: name, role (Chef/Worker/Serving Boy), phone number
-- Cleaner staff form with just 3 essential fields
-- Simplified staff table display
-
-### Staff Booking Assignment System (Complete):
-1. **StaffBookingRequest Schema** - Tracks staff responses with unique tokens:
-   - Fields: bookingId, staffId, status (pending/accepted/rejected), **token** (unique identifier), createdAt
-   - Zod schemas for insert and update operations
-   - MongoDB model for data persistence with token indexing
-   
-2. **API Routes** - Full REST API for staff assignment:
-   - `GET /api/bookings/:bookingId/staff-requests` - Fetch all requests for a booking
-   - `POST /api/bookings/:bookingId/staff-requests` - Send request to staff (auto-generates token)
-   - `PATCH /api/staff-requests/:requestId` - Update request status
-   - `GET /api/bookings/:bookingId/assigned-staff` - Get all accepted staff for a booking
-   - **NEW:** `GET /api/staff-requests/:token` - Public endpoint for staff to fetch assignment details
-   - **NEW:** `PATCH /api/staff-requests/:token` - Public endpoint for staff to accept/reject via token
-   
-3. **Public Staff Assignment Page** - `/staff-assignment/:token`:
-   - Beautiful, responsive UI showing event details (client name, date, guests, event type, special requests)
-   - Accept/Reject buttons for staff response
-   - No login required - fully public access
-   - Real-time status updates when staff responds
-   
-4. **Admin Serving Boys Assignment UI**:
-   - New "Assign Serving Boys" button (👥 Users icon) on each booking in bookings table
-   - Modal showing available serving boys filtered by role
-   - Shows already-assigned staff in green highlight
-   - One-click "Assign" button generates token + sends WhatsApp message with link
-   - Staff receives message with unique assignment link
-   - Button shows "Assigned" state after successful assignment
-   
-5. **WhatsApp Integration**:
-   - Auto-generates unique URL for each staff: `/staff-assignment/{token}`
-   - Message includes: event type, date, guest count, client name
-   - Deep link direct to staff response page
-   - No API needed - pure WhatsApp Web links (wa.me)
-
-**Workflow:**
-1. Admin clicks "👥 Assign Serving Boys" button on booking
-2. Modal opens showing available serving boys
-3. Admin clicks "Assign" → Creates token + Sends WhatsApp with link
-4. Staff receives WhatsApp with assignment link
-5. Staff opens link → Beautiful page shows event details
-6. Staff clicks "Accept" or "Reject"
-7. Response recorded → Admin sees updated assigned staff list
-
-## Recent Changes (Dec 1, 2025)
-
-### Invoice/Receipt Feature (Complete):
-- Created reusable `Invoice` component showing full payment breakdown
-- Displays both advance (50%) and final (50%) payment status
-- "Print" button - opens browser print dialog for PDF generation
-- "Download" button - saves invoice as HTML file
-- Shows on customer payment page after both payments received
-- Shows on admin payment page after both payments received
-- Includes booking details: client name, event type, date, guests
-- Shows special requests if applicable
-- Thank you message when payment complete
-- Professional styling with dark mode support
-
-### Latest Updates:
-1. **Manual WhatsApp Staff Reminders** - One-click button to send booking reminders to staff:
-   - Click the WhatsApp icon button (MessageCircle icon) on any booking in the bookings list
-   - Modal opens showing all staff members
-   - Click "Send" button next to staff name to open WhatsApp with pre-filled booking details
-   - Message includes: client name, event type, date, guest count
-   - Opens WhatsApp Web directly - no external API required
-   - Staff can receive reminders instantly for event preparation
-
-2. **Dynamic Total Amount Adjustment Fixed** - Admin can modify booking total with proper payment handling:
-   - Click "Edit" button on admin payment page to enter edit mode
-   - Modify the total amount in the input field
-   - When advance payment is PAID: advance stays fixed, only final payment adjusts
-   - When advance payment is PENDING: both advance and final recalculate as 50/50 split
-   - Changes are saved to the database and reflected on customer payment page
-   - Useful when: final guest count changes or additional services are added/removed
-
-2. **Simplified Menu Filters** - Removed search and price/rating sorting features. Menu now displays only:
-   - Category selection (buttons/dropdown)
-   - Dietary filter buttons (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free)
-   - Items show if they match ANY selected dietary filter (using "some" logic)
-
-3. **Separate Payment Pages for Admin & Customer** - Complete role-based separation:
-   - **Customer Payment Page** (`/payment/:bookingId`):
-     - Full UPI QR code visible for payment scanning
-     - Screenshot upload section for proof submission
-     - Shows "Complete your booking payment" heading
-     - Back button goes to home page
-     - Button text: "Share via WhatsApp"
-     - All customer-focused features and upload functionality
-   - **Admin Payment Page** (`/admin/payment/:bookingId`):
-     - View-only page - no QR code or upload sections
-     - Shows "Booking Payment Details" heading
-     - Back button goes to /admin/bookings
-     - Button text: "Send via WhatsApp"
-     - Displays payment status and awaiting messages
-     - Can send payment links to customers
-   - **Common Features**:
-     - Step-based layout (Step 1: Advance 50%, Step 2: Final 50%)
-     - CheckCircle and Clock icons for status indicators
-     - Color-coded badges for payment states
-     - Improved payment summary with status tracking
-     - Animated success states
-     - Professional typography and visual hierarchy
-     - 25+ test IDs for comprehensive testing
+### Mobile Responsiveness Improvements
+- **Responsive Modals:** All dialog boxes now adapt to mobile screens with `w-[95vw]` on phones and appropriate max-width on desktop
+- **Mobile Card Views:** Audit history and other tables now display as cards on mobile and tables on desktop using `block md:hidden` / `hidden md:block` pattern
+- **Form Grids:** All form grids updated to be `grid-cols-1` on mobile, `grid-cols-2` on tablets, and `grid-cols-4` on desktop where appropriate
+- **Sidebar Optimization:** Admin sidebar width optimized for mobile screens (reduced from 16rem to 14rem)
+- **Header Responsiveness:** Admin header redesigned with better mobile spacing and hidden search on mobile
+- **Button Stacking:** Confirmation dialog buttons now stack vertically on mobile using `flex-col-reverse sm:flex-row`
+- **Text Sizing:** Dialog titles and descriptions now have responsive font sizes
 
 ## System Architecture
 
@@ -259,6 +36,7 @@ Optimized mobile experience across all admin pages and modals:
 - Wouter is chosen for its lightweight nature and simpler API.
 - TanStack Query manages server state efficiently, reducing the need for additional state management libraries.
 - Shared Zod schemas ensure type safety and consistent validation across client and server.
+- Optimized for mobile responsiveness across all admin pages and modals, including table layouts and sidebar navigation.
 
 ### Backend Architecture
 
@@ -274,17 +52,20 @@ Optimized mobile experience across all admin pages and modals:
 - Drizzle ORM provides type safety and excellent TypeScript support.
 - Authentication relies on a file-based password hash for the admin panel, suitable for single-admin use cases.
 - API follows a RESTful design under `/api/` prefix.
+- Implements comprehensive error handling and user notifications, including confirmation dialogs for destructive actions, user-friendly error messages, success notifications, and real-time form validation feedback.
 
 ### Data Architecture
 
 **Database Collections (MongoDB):**
-- **foodItems:** Menu catalog with name, description, category, image, price, rating, and dietary tags.
-- **eventBookings:** Customer booking details including client info, event specifics, pricing, service requirements, status, advance/final payment status, payment screenshots, and optional custom totalAmount.
-- **bookingItems:** Links bookings to selected food items with quantities.
-- **companyInfo:** Stores business details and configurable settings like minAdvanceBookingDays and upiId.
-- **staff:** Records for staff members including name, role, contact, experience, and salary.
-- **cateringPackages:** Defines pre-built packages with name, description, tier, price per plate, minimum servings, and included items.
-- **adminNotifications:** Stores notifications for admin alerts related to bookings and payments.
+- **foodItems:** Menu catalog.
+- **eventBookings:** Customer booking details, payment status, and custom totalAmount.
+- **bookingItems:** Links bookings to selected food items.
+- **companyInfo:** Business details and configurable settings (e.g., minAdvanceBookingDays, upiId).
+- **staff:** Staff member records (name, role, phone number).
+- **cateringPackages:** Pre-built packages with details.
+- **adminNotifications:** Notifications for admin alerts.
+- **auditHistory:** Tracks system changes (action, entityType, entityId, details, createdAt).
+- **staffBookingRequest:** Tracks staff responses to assignment requests with unique tokens.
 
 **Schema Design Decisions:**
 - Uses text-based IDs and ISO format for dates.
@@ -294,15 +75,17 @@ Optimized mobile experience across all admin pages and modals:
 
 ### Key Features
 
-- **Admin Notifications:** Real-time notifications for new bookings and payment status updates.
-- **Package Showcase:** Displays catering packages on the customer home page with comparison features.
-- **Simplified Menu Filtering:** Customers filter items by dietary requirements (Vegan, Gluten-Free, Non-Veg, Spicy, Nut-Free, Dairy-Free) and category selection.
-- **Pre-built Catering Packages System:** Admin can manage Budget, Standard, and Premium packages with full CRUD operations.
-- **Configurable Minimum Advance Booking Days:** Admin can set the minimum advance notice required for bookings.
-- **Two-Stage UPI Payment Integration:** Supports advance (50%) and final (50%) payments with dynamic QR code generation and screenshot proof upload.
-- **WhatsApp Payment Sharing:** Customers can open WhatsApp from payment confirmation page to share the payment link.
-- **Manual WhatsApp Staff Reminders:** One-click button to send booking reminders to all staff members with event details.
-- **Dynamic Total Amount Adjustment:** Admin can modify booking total amount after payment, with smart recalculation - paid advance stays fixed, only final payment adjusts.
+- **Admin Data Management:** Comprehensive search, sorting, and filtering on admin event bookings, staff management, and food items pages.
+- **Audit History Tracking:** A complete system to log and view all system changes and actions, accessible via an admin page.
+- **Staff Assignment System:** Admin UI to assign serving boys to bookings, generating unique links for staff to accept/reject assignments via WhatsApp.
+- **Two-Stage UPI Payment Integration:** Supports advance (50%) and final (50%) payments with dynamic QR code generation, screenshot proof upload (customer), and payment status tracking.
+- **Invoice/Receipt Feature:** Generates printable/downloadable invoices with payment breakdown.
+- **Admin Notifications:** Real-time notifications for new bookings and payment updates.
+- **Catering Packages:** Management and display of pre-built catering packages.
+- **Configurable Minimum Advance Booking Days:** Admin can set booking notice requirements.
+- **WhatsApp Integration:** Facilitates sending payment links to customers and assignment links/reminders to staff.
+- **Dynamic Total Amount Adjustment:** Admin can modify booking totals with intelligent recalculation of advance and final payments.
+- **Simplified Menu Filtering:** Customers can filter menu items by dietary requirements and category.
 
 ## External Dependencies
 
