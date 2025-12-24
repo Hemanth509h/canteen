@@ -174,8 +174,8 @@ export default function PaymentConfirmation() {
   const advancePaid = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
   const finalPaid = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
   const allPaid = advancePaid && finalPaid;
-  const advanceUploaded = booking.advancePaymentApprovalStatus === "pending";
-  const finalUploaded = booking.finalPaymentApprovalStatus === "pending";
+  const advanceUploaded = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "pending";
+  const finalUploaded = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "pending";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
