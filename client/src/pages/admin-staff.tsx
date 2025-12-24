@@ -33,6 +33,9 @@ export default function StaffManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "role">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [roleFilter, setRoleFilter] = useState<string>("");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -40,11 +43,21 @@ export default function StaffManager() {
     queryKey: ["/api/staff"],
   });
 
-  const filteredStaffList = staffList?.filter((staff) =>
-    staff.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    roleMap[staff.role].toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    (staff.phone && staff.phone.includes(debouncedSearch))
-  );
+  const filteredStaffList = staffList?.filter((staff) => {
+    const matchesSearch = staff.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      roleMap[staff.role].toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (staff.phone && staff.phone.includes(debouncedSearch));
+    const matchesRole = !roleFilter || staff.role === roleFilter;
+    return matchesSearch && matchesRole;
+  }).sort((a, b) => {
+    let compareValue = 0;
+    if (sortBy === "name") {
+      compareValue = a.name.localeCompare(b.name);
+    } else if (sortBy === "role") {
+      compareValue = roleMap[a.role].localeCompare(roleMap[b.role]);
+    }
+    return sortOrder === "asc" ? compareValue : -compareValue;
+  });
 
   const form = useForm<UpdateStaff>({
     resolver: zodResolver(editingStaff ? updateStaffSchema : insertStaffSchema),
@@ -265,14 +278,16 @@ export default function StaffManager() {
 
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>All Staff Members</CardTitle>
-              <CardDescription>
-                {staffList?.length || 0} team members
-              </CardDescription>
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>All Staff Members</CardTitle>
+                <CardDescription>
+                  {filteredStaffList?.length || 0} of {staffList?.length || 0} team members
+                </CardDescription>
+              </div>
             </div>
-            <div className="relative w-full sm:w-72">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search staff..."
@@ -281,6 +296,47 @@ export default function StaffManager() {
                 className="pl-9"
                 data-testid="input-search-staff"
               />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)} data-testid="select-sort-staff">
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="role">Role</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                data-testid="button-toggle-sort-staff"
+                className="w-full sm:w-auto"
+              >
+                {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
+              </Button>
+              <Select value={roleFilter} onValueChange={setRoleFilter} data-testid="select-role-filter">
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Filter by role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Roles</SelectItem>
+                  <SelectItem value="chef">Chef</SelectItem>
+                  <SelectItem value="worker">Worker</SelectItem>
+                  <SelectItem value="serving_boy">Serving Boy</SelectItem>
+                </SelectContent>
+              </Select>
+              {roleFilter && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRoleFilter("")}
+                  data-testid="button-clear-role-filter"
+                >
+                  Clear Filter
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>

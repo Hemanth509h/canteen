@@ -46,6 +46,11 @@ export default function EventBookingsManager() {
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState<EventBooking | null>(null);
   const [assignedStaff, setAssignedStaff] = useState<Staff[]>([]);
   const [viewType, setViewType] = useState<"list" | "calendar">("list");
+  const [sortBy, setSortBy] = useState<"date" | "status" | "amount" | "client">("date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -67,12 +72,34 @@ export default function EventBookingsManager() {
     queryKey: ["/api/staff"],
   });
 
-  const filteredBookings = bookings?.filter((booking) =>
-    booking.clientName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    booking.eventType.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    booking.contactEmail.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    booking.status.toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
+  const filteredBookings = bookings?.filter((booking) => {
+    const matchesSearch = booking.clientName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      booking.eventType.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      booking.contactEmail.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      booking.status.toLowerCase().includes(debouncedSearch.toLowerCase());
+    
+    const matchesStatus = !statusFilter || booking.status === statusFilter;
+    
+    const bookingDate = new Date(booking.eventDate);
+    const matchesDateFrom = !dateFrom || bookingDate >= new Date(dateFrom);
+    const matchesDateTo = !dateTo || bookingDate <= new Date(dateTo);
+    
+    return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
+  }).sort((a, b) => {
+    let compareValue = 0;
+    
+    if (sortBy === "date") {
+      compareValue = new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime();
+    } else if (sortBy === "status") {
+      compareValue = a.status.localeCompare(b.status);
+    } else if (sortBy === "amount") {
+      compareValue = (a.totalAmount || 0) - (b.totalAmount || 0);
+    } else if (sortBy === "client") {
+      compareValue = a.clientName.localeCompare(b.clientName);
+    }
+    
+    return sortOrder === "asc" ? compareValue : -compareValue;
+  });
 
 
   const getDomain = () => {
@@ -840,18 +867,89 @@ export default function EventBookingsManager() {
               <CardHeader>
                 <CardTitle>All Bookings</CardTitle>
                 <CardDescription>
-                  {bookings?.length || 0} total bookings
+                  {filteredBookings?.length || 0} of {bookings?.length || 0} bookings
                 </CardDescription>
-                <div className="mt-4 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Search bookings..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                    data-testid="input-search-bookings"
-                  />
+                <div className="mt-4 space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search bookings..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9"
+                      data-testid="input-search-bookings"
+                    />
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)} data-testid="select-sort-bookings">
+                      <SelectTrigger className="w-full sm:w-48">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="date">Event Date</SelectItem>
+                        <SelectItem value="client">Client Name</SelectItem>
+                        <SelectItem value="status">Status</SelectItem>
+                        <SelectItem value="amount">Total Amount</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                      data-testid="button-toggle-sort-order"
+                      className="w-full sm:w-auto"
+                    >
+                      {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
+                    </Button>
+                    <Select value={statusFilter} onValueChange={setStatusFilter} data-testid="select-status-filter">
+                      <SelectTrigger className="w-full sm:w-48">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Statuses</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <label className="text-sm text-muted-foreground">From Date</label>
+                      <Input
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        data-testid="input-date-from"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-sm text-muted-foreground">To Date</label>
+                      <Input
+                        type="date"
+                        value={dateTo}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        data-testid="input-date-to"
+                      />
+                    </div>
+                    {(statusFilter || dateFrom || dateTo) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setStatusFilter("");
+                          setDateFrom("");
+                          setDateTo("");
+                        }}
+                        data-testid="button-clear-filters"
+                        className="sm:mt-auto"
+                      >
+                        Clear Filters
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>

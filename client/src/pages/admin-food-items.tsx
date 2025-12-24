@@ -52,6 +52,9 @@ export default function FoodItemsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "price" | "category">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -59,11 +62,23 @@ export default function FoodItemsManager() {
     queryKey: ["/api/food-items"],
   });
 
-  const filteredFoodItems = foodItems?.filter((item) =>
-    item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    item.category.toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
+  const filteredFoodItems = foodItems?.filter((item) => {
+    const matchesSearch = item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      item.category.toLowerCase().includes(debouncedSearch.toLowerCase());
+    const matchesCategory = !categoryFilter || item.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  }).sort((a, b) => {
+    let compareValue = 0;
+    if (sortBy === "name") {
+      compareValue = a.name.localeCompare(b.name);
+    } else if (sortBy === "price") {
+      compareValue = (a.price || 0) - (b.price || 0);
+    } else if (sortBy === "category") {
+      compareValue = a.category.localeCompare(b.category);
+    }
+    return sortOrder === "asc" ? compareValue : -compareValue;
+  });
 
   const allCategories = foodItems 
     ? Array.from(new Set([...defaultCategories, ...foodItems.map(item => item.category)])).sort()
@@ -388,20 +403,68 @@ export default function FoodItemsManager() {
       >
         <Card>
         <CardHeader>
-          <CardTitle>Menu Items</CardTitle>
-          <CardDescription>
-            {foodItems?.length || 0} items in your menu
-          </CardDescription>
-          <div className="mt-4 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search menu items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-              data-testid="input-search-admin-food"
-            />
+          <div className="space-y-4">
+            <div>
+              <CardTitle>Menu Items</CardTitle>
+              <CardDescription>
+                {filteredFoodItems?.length || 0} of {foodItems?.length || 0} items in your menu
+              </CardDescription>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search menu items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+                data-testid="input-search-admin-food"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)} data-testid="select-sort-food">
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="price">Price</SelectItem>
+                  <SelectItem value="category">Category</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                data-testid="button-toggle-sort-food"
+                className="w-full sm:w-auto"
+              >
+                {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
+              </Button>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter} data-testid="select-category-filter">
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Filter by category" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="">All Categories</SelectItem>
+                  {allCategories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {categoryFilter && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCategoryFilter("")}
+                  data-testid="button-clear-category-filter"
+                >
+                  Clear Filter
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
