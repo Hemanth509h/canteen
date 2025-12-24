@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Invoice } from "@/components/invoice";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator } from "lucide-react";
+import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon } from "lucide-react";
 import { type EventBooking, type CompanyInfo } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
@@ -24,6 +24,8 @@ export default function AdminPaymentConfirmation() {
   const [editAdvanceAmount, setEditAdvanceAmount] = useState<number | null>(null);
   const [editAdvanceStatus, setEditAdvanceStatus] = useState<"pending" | "paid" | null>(null);
   const [editFinalStatus, setEditFinalStatus] = useState<"pending" | "paid" | null>(null);
+  const [approvingAdvance, setApprovingAdvance] = useState(false);
+  const [approvingFinal, setApprovingFinal] = useState(false);
 
   const { data: booking, isLoading: bookingLoading } = useQuery<EventBooking>({
     queryKey: ["/api/bookings", bookingId],
@@ -95,6 +97,33 @@ export default function AdminPaymentConfirmation() {
     setEditTotalAmount(null);
     setEditAdvanceAmount(null);
   };
+
+  const approvePaymentMutation = useMutation({
+    mutationFn: async (type: "advance" | "final") => {
+      return apiRequest("PATCH", `/api/bookings/${bookingId}`, {
+        [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
+        [type === "advance" ? "advancePaymentApprovalStatus" : "finalPaymentApprovalStatus"]: "approved",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
+      toast({
+        title: "Success",
+        description: "Payment approved successfully",
+      });
+      setApprovingAdvance(false);
+      setApprovingFinal(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to approve payment",
+        variant: "destructive",
+      });
+      setApprovingAdvance(false);
+      setApprovingFinal(false);
+    },
+  });
 
   const handleSendWhatsApp = () => {
     if (!booking) return;
@@ -170,9 +199,11 @@ export default function AdminPaymentConfirmation() {
   const storedAdvanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
   const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
   const finalAmount = displayTotal - advanceAmount;
-  const advancePaid = isEditing ? editAdvanceStatus === "paid" : booking.advancePaymentStatus === "paid";
-  const finalPaid = isEditing ? editFinalStatus === "paid" : booking.finalPaymentStatus === "paid";
+  const advancePaid = isEditing ? editAdvanceStatus === "paid" : booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
+  const finalPaid = isEditing ? editFinalStatus === "paid" : booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
   const allPaid = advancePaid && finalPaid;
+  const advanceUploaded = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "pending";
+  const finalUploaded = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "pending";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
@@ -327,9 +358,33 @@ export default function AdminPaymentConfirmation() {
                     )}
                   </div>
                   {booking.advancePaymentScreenshot && (
-                    <div className="border-t pt-3">
+                    <div className="border-t pt-3 space-y-3">
                       <Label className="text-xs text-muted-foreground mb-2 block">Payment Proof</Label>
                       <img src={booking.advancePaymentScreenshot} alt="Advance payment proof" className="w-full max-h-48 object-contain border rounded-lg" data-testid="img-advance-screenshot-admin" />
+                      {advanceUploaded && !isEditing && (
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="default"
+                            onClick={() => { setApprovingAdvance(true); approvePaymentMutation.mutate("advance"); }}
+                            disabled={approvePaymentMutation.isPending}
+                            className="gap-2 flex-1"
+                            data-testid="button-approve-advance"
+                          >
+                            <CheckIcon className="w-4 h-4" />
+                            Approve
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            className="gap-2 flex-1"
+                            data-testid="button-reject-advance"
+                          >
+                            <XIcon className="w-4 h-4" />
+                            Reject
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -373,9 +428,33 @@ export default function AdminPaymentConfirmation() {
                     )}
                   </div>
                   {booking.finalPaymentScreenshot && (
-                    <div className="border-t pt-3">
+                    <div className="border-t pt-3 space-y-3">
                       <Label className="text-xs text-muted-foreground mb-2 block">Payment Proof</Label>
                       <img src={booking.finalPaymentScreenshot} alt="Final payment proof" className="w-full max-h-48 object-contain border rounded-lg" data-testid="img-final-screenshot-admin" />
+                      {finalUploaded && !isEditing && (
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="default"
+                            onClick={() => { setApprovingFinal(true); approvePaymentMutation.mutate("final"); }}
+                            disabled={approvePaymentMutation.isPending}
+                            className="gap-2 flex-1"
+                            data-testid="button-approve-final"
+                          >
+                            <CheckIcon className="w-4 h-4" />
+                            Approve
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            className="gap-2 flex-1"
+                            data-testid="button-reject-final"
+                          >
+                            <XIcon className="w-4 h-4" />
+                            Reject
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>

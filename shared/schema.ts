@@ -55,6 +55,8 @@ export interface EventBooking {
   specialRequests: string | null;
   advancePaymentStatus: string;
   finalPaymentStatus: string;
+  advancePaymentApprovalStatus?: "pending" | "approved" | "rejected";
+  finalPaymentApprovalStatus?: "pending" | "approved" | "rejected";
   advancePaymentScreenshot?: string | null;
   finalPaymentScreenshot?: string | null;
   totalAmount?: number;
@@ -85,6 +87,8 @@ export const updateEventBookingSchema = insertEventBookingSchema.partial().exten
   status: z.enum(["pending", "confirmed", "completed", "cancelled"]).optional(),
   advancePaymentStatus: z.enum(["pending", "paid"]).optional(),
   finalPaymentStatus: z.enum(["pending", "paid"]).optional(),
+  advancePaymentApprovalStatus: z.enum(["pending", "approved", "rejected"]).optional(),
+  finalPaymentApprovalStatus: z.enum(["pending", "approved", "rejected"]).optional(),
   advancePaymentScreenshot: z.string().nullable().optional(),
   finalPaymentScreenshot: z.string().nullable().optional(),
   totalAmount: z.number().int().positive().optional(),

@@ -57,7 +57,7 @@ export default function PaymentConfirmation() {
             const base64 = reader.result as string;
             await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
               [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]: base64,
-              [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
+              [type === "advance" ? "advancePaymentApprovalStatus" : "finalPaymentApprovalStatus"]: "pending",
             });
             resolve("success");
           } catch (error) {
@@ -170,9 +170,11 @@ export default function PaymentConfirmation() {
   const totalAmount = booking.totalAmount ?? baseAmount;
   const advanceAmount = Math.ceil(totalAmount * 0.5);
   const finalAmount = totalAmount - advanceAmount;
-  const advancePaid = booking.advancePaymentStatus === "paid";
-  const finalPaid = booking.finalPaymentStatus === "paid";
+  const advancePaid = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
+  const finalPaid = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
   const allPaid = advancePaid && finalPaid;
+  const advanceUploaded = booking.advancePaymentApprovalStatus === "pending";
+  const finalUploaded = booking.finalPaymentApprovalStatus === "pending";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
