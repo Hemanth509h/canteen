@@ -316,12 +316,12 @@ export default function StaffManager() {
               >
                 {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
               </Button>
-              <Select value={roleFilter} onValueChange={setRoleFilter} data-testid="select-role-filter">
+              <Select value={roleFilter || "none"} onValueChange={(value) => setRoleFilter(value === "none" ? "" : value)} data-testid="select-role-filter">
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter by role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Roles</SelectItem>
+                  <SelectItem value="none">All Roles</SelectItem>
                   <SelectItem value="chef">Chef</SelectItem>
                   <SelectItem value="worker">Worker</SelectItem>
                   <SelectItem value="serving_boy">Serving Boy</SelectItem>

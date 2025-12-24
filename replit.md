@@ -8,7 +8,39 @@ This is a full-stack catering management application built with React, Express, 
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (Dec 2, 2025 - Session 2)
+## Recent Changes (Dec 24, 2025 - Session 3)
+
+### Enhanced Data Visibility & Search - Admin Pages ✅
+Comprehensive search, sorting, and filtering added to three key admin pages for faster data management:
+
+**Admin Event Bookings Page:**
+- Full-text search by client name, event type, email, or status
+- Sort options: Event Date, Client Name, Status, or Total Amount
+- Sort order toggle: Ascending/Descending
+- Status filter: Quick filter by Pending, Confirmed, Completed, or Cancelled
+- Date range filters: Filter bookings between specific dates (From Date / To Date)
+- Results counter showing filtered vs total bookings
+- Clear Filters button for quick reset
+
+**Admin Staff Management Page:**
+- Search staff by name, role, or phone number
+- Sort options: By Name or Role
+- Sort order toggle: Ascending/Descending
+- Role filter: Quick filter by Chef, Worker, or Serving Boy
+- Clear Filter button
+- Results counter showing filtered vs total staff
+
+**Admin Food Items Management Page:**
+- Search items by name, description, or category
+- Sort options: By Name, Price, or Category
+- Sort order toggle: Ascending/Descending
+- Category filter: Dynamic dropdown with all menu categories
+- Clear Filter button
+- Results counter showing filtered vs total items
+
+All controls are fully responsive, mobile-friendly, and work seamlessly together. Uses local state filtering for instant results without extra API calls.
+
+## Previous Changes (Dec 2, 2025 - Session 2)
 
 ### AuditHistory & Tracking System + Staff Assignment Button Fixed ✅
 - **Staff Assignment Button Fix:**

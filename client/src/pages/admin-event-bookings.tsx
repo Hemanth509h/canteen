@@ -902,12 +902,12 @@ export default function EventBookingsManager() {
                     >
                       {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
                     </Button>
-                    <Select value={statusFilter} onValueChange={setStatusFilter} data-testid="select-status-filter">
+                    <Select value={statusFilter || "none"} onValueChange={(value) => setStatusFilter(value === "none" ? "" : value)} data-testid="select-status-filter">
                       <SelectTrigger className="w-full sm:w-48">
                         <SelectValue placeholder="Filter by status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Statuses</SelectItem>
+                        <SelectItem value="none">All Statuses</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="confirmed">Confirmed</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>

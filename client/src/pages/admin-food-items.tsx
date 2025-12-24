@@ -441,12 +441,12 @@ export default function FoodItemsManager() {
               >
                 {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
               </Button>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter} data-testid="select-category-filter">
+              <Select value={categoryFilter || "none"} onValueChange={(value) => setCategoryFilter(value === "none" ? "" : value)} data-testid="select-category-filter">
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="none">All Categories</SelectItem>
                   {allCategories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
