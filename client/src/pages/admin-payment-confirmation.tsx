@@ -373,14 +373,18 @@ export default function AdminPaymentConfirmation() {
                         <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
                           <p className="text-sm font-semibold text-amber-700 dark:text-amber-200 mb-2">Payment Pending Your Approval</p>
                         </div>
+                      ) : advancePaid ? (
+                        <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                          <p className="text-sm font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
+                        </div>
                       ) : null}
-                      {advanceUploaded && !isEditing && (
+                      {!isEditing && (
                         <div className="flex gap-2">
                           <Button 
                             size="sm" 
                             variant="default"
                             onClick={() => { setApprovingAdvance(true); approvePaymentMutation.mutate("advance"); }}
-                            disabled={approvePaymentMutation.isPending}
+                            disabled={approvePaymentMutation.isPending || !advanceUploaded}
                             className="gap-2 flex-1"
                             data-testid="button-approve-advance"
                           >
@@ -390,6 +394,7 @@ export default function AdminPaymentConfirmation() {
                           <Button 
                             size="sm" 
                             variant="destructive"
+                            disabled={!advanceUploaded}
                             className="gap-2 flex-1"
                             data-testid="button-reject-advance"
                           >
@@ -456,14 +461,18 @@ export default function AdminPaymentConfirmation() {
                         <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
                           <p className="text-sm font-semibold text-amber-700 dark:text-amber-200 mb-2">Payment Pending Your Approval</p>
                         </div>
+                      ) : finalPaid ? (
+                        <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                          <p className="text-sm font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
+                        </div>
                       ) : null}
-                      {finalUploaded && !isEditing && (
+                      {!isEditing && (
                         <div className="flex gap-2">
                           <Button 
                             size="sm" 
                             variant="default"
                             onClick={() => { setApprovingFinal(true); approvePaymentMutation.mutate("final"); }}
-                            disabled={approvePaymentMutation.isPending}
+                            disabled={approvePaymentMutation.isPending || !finalUploaded}
                             className="gap-2 flex-1"
                             data-testid="button-approve-final"
                           >
@@ -473,6 +482,7 @@ export default function AdminPaymentConfirmation() {
                           <Button 
                             size="sm" 
                             variant="destructive"
+                            disabled={!finalUploaded}
                             className="gap-2 flex-1"
                             data-testid="button-reject-final"
                           >
