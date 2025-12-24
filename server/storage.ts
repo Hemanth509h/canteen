@@ -63,9 +63,12 @@ export interface EventBookingDocument extends Document {
   specialRequests?: string | null;
   advancePaymentStatus?: string;
   finalPaymentStatus?: string;
+  advancePaymentApprovalStatus?: "pending" | "approved" | "rejected";
+  finalPaymentApprovalStatus?: "pending" | "approved" | "rejected";
   advancePaymentScreenshot?: string | null;
   finalPaymentScreenshot?: string | null;
   totalAmount?: number | null;
+  advanceAmount?: number | null;
   createdAt: Date;
 }
 
@@ -82,9 +85,12 @@ const eventBookingSchema = new Schema<EventBookingDocument>({
   specialRequests: { type: String, default: null },
   advancePaymentStatus: { type: String, default: "pending" },
   finalPaymentStatus: { type: String, default: "pending" },
+  advancePaymentApprovalStatus: { type: String, enum: ["pending", "approved", "rejected"], default: undefined },
+  finalPaymentApprovalStatus: { type: String, enum: ["pending", "approved", "rejected"], default: undefined },
   advancePaymentScreenshot: { type: String, default: null },
   finalPaymentScreenshot: { type: String, default: null },
   totalAmount: { type: Number, default: null },
+  advanceAmount: { type: Number, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -346,9 +352,12 @@ export class MongoDBStorage implements IStorage {
       specialRequests: doc.specialRequests || null,
       advancePaymentStatus: doc.advancePaymentStatus || "pending",
       finalPaymentStatus: doc.finalPaymentStatus || "pending",
+      advancePaymentApprovalStatus: doc.advancePaymentApprovalStatus || undefined,
+      finalPaymentApprovalStatus: doc.finalPaymentApprovalStatus || undefined,
       advancePaymentScreenshot: doc.advancePaymentScreenshot || null,
       finalPaymentScreenshot: doc.finalPaymentScreenshot || null,
       totalAmount: doc.totalAmount || undefined,
+      advanceAmount: doc.advanceAmount || undefined,
       createdAt: doc.createdAt.toISOString(),
     };
   }
