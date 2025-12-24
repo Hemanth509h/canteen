@@ -19,6 +19,9 @@ import CateringPackagesManager from "./admin-catering-packages";
 import AuditHistory from "./admin-audit-history";
 import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
+import type { CompanyInfo } from "@shared/schema";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
@@ -33,6 +36,9 @@ const menuItems = [
 
 function AppSidebar({ onLogout }: { onLogout: () => void }) {
   const [location] = useLocation();
+  const { data: companyInfo, isLoading } = useQuery<CompanyInfo>({
+    queryKey: ["/api/company-info"],
+  });
 
   return (
     <Sidebar className="border-r border-border/50">
@@ -42,8 +48,14 @@ function AppSidebar({ onLogout }: { onLogout: () => void }) {
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <ChefHat className="w-5 h-5 text-primary" />
             </div>
-            <div>
-              <span className="font-serif font-bold text-lg block">OM Caterers</span>
+            <div className="flex-1">
+              {isLoading ? (
+                <Skeleton className="h-5 w-24 mb-1" />
+              ) : (
+                <span className="font-serif font-bold text-lg block" data-testid="text-sidebar-company-name">
+                  {companyInfo?.companyName || "OM Caterers"}
+                </span>
+              )}
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin</Badge>
             </div>
           </SidebarGroupLabel>
