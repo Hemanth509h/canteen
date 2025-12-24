@@ -69,6 +69,36 @@ Comprehensive error handling and user notifications added throughout the app:
 - FormMessage components show validation errors for invalid fields
 - Form submission prevents if validation fails
 
+### Better Mobile Responsiveness ✅
+Optimized mobile experience across all admin pages and modals:
+
+**Improved Table Layouts on Mobile:**
+- **Bookings & Staff Pages:** Added mobile card views that replace tables on screens under 768px
+- Mobile cards display essential information in a compact, vertical layout
+- Cards show client/staff name, phone, event type, and status as compact badges
+- Actions condensed to icon buttons on mobile
+- Full table view returns on desktop for better data comparison
+- All data remains accessible without horizontal scrolling
+
+**Mobile-Friendly Modals:**
+- Dialog modals now use `w-[95vw]` on mobile for full-width usage
+- Maximum height set to `max-h-[90vh]` to prevent overflow on small screens
+- Content is scrollable if needed with `overflow-y-auto`
+- Padding reduced on mobile (`p-4`) and increased on desktop (`sm:p-6`)
+- All modals remain centered and functional on small screens (iPhone, tablets)
+
+**Sidebar Navigation Optimization:**
+- Sidebar automatically collapses on mobile using Shadcn SidebarTrigger
+- Menu items properly spaced and readable on small screens
+- Sidebar footer buttons ("Back to Home", "Logout") remain accessible
+- Logo and branding info stays visible when sidebar is expanded
+
+**Responsive Filters & Controls:**
+- Search input and filter dropdowns stack vertically on mobile
+- Sort buttons adjust width to fit mobile screens (`w-full sm:w-auto`)
+- Date range filters display in single column on mobile, two columns on desktop
+- All controls remain fully functional without horizontal scroll
+
 ## Previous Changes (Dec 2, 2025 - Session 2)
 
 ### AuditHistory & Tracking System + Staff Assignment Button Fixed ✅

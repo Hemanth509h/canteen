@@ -380,59 +380,91 @@ export default function StaffManager() {
               ))}
             </div>
           ) : filteredStaffList && filteredStaffList.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredStaffList.map((staff) => (
-                    <TableRow key={staff.id} data-testid={`row-staff-${staff.id}`}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                            <User className="w-5 h-5 text-muted-foreground" />
-                          </div>
-                          <p className="font-semibold" data-testid={`text-staff-name-${staff.id}`}>{staff.name}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={roleColors[staff.role]} data-testid={`badge-role-${staff.id}`}>
+            <>
+              {/* Mobile Card View */}
+              <div className="block md:hidden space-y-3">
+                {filteredStaffList.map((staff) => (
+                  <div key={staff.id} className="p-3 border border-border rounded-lg flex items-center gap-3 justify-between" data-testid={`card-staff-mobile-${staff.id}`}>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center">
+                        <User className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm" data-testid={`text-staff-name-${staff.id}`}>{staff.name}</p>
+                        <p className="text-xs text-muted-foreground" data-testid={`text-phone-${staff.id}`}>{staff.phone}</p>
+                        <Badge variant={roleColors[staff.role]} className="text-xs mt-1" data-testid={`badge-role-${staff.id}`}>
                           {roleMap[staff.role]}
                         </Badge>
-                      </TableCell>
-                      <TableCell data-testid={`text-phone-${staff.id}`}>{staff.phone}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(staff)}
-                            data-testid={`button-edit-${staff.id}`}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(staff.id, staff.name)}
-                            disabled={deleteMutation.isPending}
-                            data-testid={`button-delete-${staff.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleEdit(staff)} data-testid={`button-edit-mobile-${staff.id}`}>
+                        <Pencil className="w-3 h-3" />
+                      </Button>
+                      <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleDelete(staff.id, staff.name)} disabled={deleteMutation.isPending} data-testid={`button-delete-mobile-${staff.id}`}>
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStaffList.map((staff) => (
+                      <TableRow key={staff.id} data-testid={`row-staff-${staff.id}`}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                              <User className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                            <p className="font-semibold" data-testid={`text-staff-name-${staff.id}`}>{staff.name}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={roleColors[staff.role]} data-testid={`badge-role-${staff.id}`}>
+                            {roleMap[staff.role]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell data-testid={`text-phone-${staff.id}`}>{staff.phone}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(staff)}
+                              data-testid={`button-edit-${staff.id}`}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDelete(staff.id, staff.name)}
+                              disabled={deleteMutation.isPending}
+                              data-testid={`button-delete-${staff.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+
           ) : (
             <div className="text-center py-12">
               <User className="w-12 h-12 mx-auto text-muted-foreground mb-4" />

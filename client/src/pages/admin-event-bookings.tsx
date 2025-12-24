@@ -988,97 +988,144 @@ export default function EventBookingsManager() {
                 {isLoading ? (
                   <TableSkeleton rows={5} />
                 ) : filteredBookings && filteredBookings.length > 0 ? (
-            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Event Type</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Guests</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Event Status</TableHead>
-                    <TableHead>Payments</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredBookings.map((booking) => (
-                    <TableRow key={booking.id} data-testid={`row-booking-${booking.id}`}>
-                      <TableCell>
-                        <div>
-                          <p className="font-semibold">{booking.clientName}</p>
-                          <p className="text-sm text-muted-foreground">{booking.contactEmail}</p>
+                  <>
+                    {/* Mobile Card View */}
+                    <div className="block md:hidden space-y-3 max-h-[600px] overflow-y-auto">
+                      {filteredBookings.map((booking) => (
+                        <div key={booking.id} className="p-3 border border-border rounded-lg space-y-2" data-testid={`card-booking-mobile-${booking.id}`}>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold text-sm">{booking.clientName}</p>
+                              <p className="text-xs text-muted-foreground">{booking.contactEmail}</p>
+                            </div>
+                            <Badge variant={statusColors[booking.status]} className="text-xs">
+                              {booking.status}
+                            </Badge>
+                          </div>
+                          <div className="text-xs space-y-1">
+                            <p><span className="text-muted-foreground">Event:</span> {booking.eventType} • {booking.eventDate}</p>
+                            <p><span className="text-muted-foreground">Guests:</span> {booking.guestCount} • <span className="font-semibold">₹{(booking.pricePerPlate * booking.guestCount).toLocaleString('en-IN')}</span></p>
+                            <div className="flex gap-1 flex-wrap">
+                              <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"} className="text-xs">
+                                Adv: {booking.advancePaymentStatus}
+                              </Badge>
+                              <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"} className="text-xs">
+                                Final: {booking.finalPaymentStatus}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="flex gap-1 flex-wrap">
+                            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => { setSelectedBookingForAssignment(booking); setAssignmentModalOpen(true); }} data-testid={`button-assign-staff-mobile-${booking.id}`} title="Assign serving boys">
+                              <Users className="w-3 h-3" />
+                            </Button>
+                            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setLocation(`/admin/payment/${booking.id}`)} data-testid={`button-view-payment-mobile-${booking.id}`} title="View payment">
+                              <Eye className="w-3 h-3" />
+                            </Button>
+                            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleEdit(booking)} data-testid={`button-edit-mobile-${booking.id}`} title="Edit">
+                              <Pencil className="w-3 h-3" />
+                            </Button>
+                            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleDelete(booking.id)} disabled={deleteMutation.isPending} data-testid={`button-delete-mobile-${booking.id}`} title="Delete">
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
-                      </TableCell>
-                      <TableCell>{booking.eventType}</TableCell>
-                      <TableCell>{booking.eventDate}</TableCell>
-                      <TableCell>{booking.guestCount}</TableCell>
-                      <TableCell className="font-semibold">
-                        ₹{(booking.pricePerPlate * booking.guestCount).toLocaleString('en-IN')}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={statusColors[booking.status]}>
-                          {booking.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        <div className="flex gap-1 flex-col">
-                          <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"}>
-                            Adv: {booking.advancePaymentStatus}
-                          </Badge>
-                          <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"}>
-                            Final: {booking.finalPaymentStatus}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedBookingForAssignment(booking);
-                              setAssignmentModalOpen(true);
-                            }}
-                            data-testid={`button-assign-staff-${booking.id}`}
-                            title="Assign serving boys to this event"
-                          >
-                            <Users className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setLocation(`/admin/payment/${booking.id}`)}
-                            data-testid={`button-view-payment-${booking.id}`}
-                            title="View payment page"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(booking)}
-                            data-testid={`button-edit-${booking.id}`}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(booking.id)}
-                            disabled={deleteMutation.isPending}
-                            data-testid={`button-delete-${booking.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto max-h-[600px] overflow-y-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Client</TableHead>
+                            <TableHead>Event Type</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Guests</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Event Status</TableHead>
+                            <TableHead>Payments</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredBookings.map((booking) => (
+                            <TableRow key={booking.id} data-testid={`row-booking-${booking.id}`}>
+                              <TableCell>
+                                <div>
+                                  <p className="font-semibold">{booking.clientName}</p>
+                                  <p className="text-sm text-muted-foreground">{booking.contactEmail}</p>
+                                </div>
+                              </TableCell>
+                              <TableCell>{booking.eventType}</TableCell>
+                              <TableCell>{booking.eventDate}</TableCell>
+                              <TableCell>{booking.guestCount}</TableCell>
+                              <TableCell className="font-semibold">
+                                ₹{(booking.pricePerPlate * booking.guestCount).toLocaleString('en-IN')}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={statusColors[booking.status]}>
+                                  {booking.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-xs">
+                                <div className="flex gap-1 flex-col">
+                                  <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"}>
+                                    Adv: {booking.advancePaymentStatus}
+                                  </Badge>
+                                  <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"}>
+                                    Final: {booking.finalPaymentStatus}
+                                  </Badge>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedBookingForAssignment(booking);
+                                      setAssignmentModalOpen(true);
+                                    }}
+                                    data-testid={`button-assign-staff-${booking.id}`}
+                                    title="Assign serving boys to this event"
+                                  >
+                                    <Users className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setLocation(`/admin/payment/${booking.id}`)}
+                                    data-testid={`button-view-payment-${booking.id}`}
+                                    title="View payment page"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleEdit(booking)}
+                                    data-testid={`button-edit-${booking.id}`}
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleDelete(booking.id)}
+                                    disabled={deleteMutation.isPending}
+                                    data-testid={`button-delete-${booking.id}`}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
+                
                 ) : bookings && bookings.length > 0 ? (
                   <div className="text-center py-12">
                     <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
