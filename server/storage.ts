@@ -394,9 +394,6 @@ export class MongoDBStorage implements IStorage {
       name: doc.name,
       role: doc.role,
       phone: doc.phone,
-      experience: doc.experience,
-      imageUrl: doc.imageUrl || null,
-      salary: doc.salary,
       createdAt: doc.createdAt.toISOString(),
     };
   }
@@ -522,8 +519,13 @@ export class MongoDBStorage implements IStorage {
   }
 
   async getStaffMember(id: string): Promise<Staff | undefined> {
-    const doc = await StaffModel.findById(id).lean();
-    return doc ? this.toStaff(doc) : undefined;
+    try {
+      const doc = await StaffModel.findById(id).lean();
+      return doc ? this.toStaff(doc) : undefined;
+    } catch (error) {
+      console.error(`Error fetching staff member ${id}:`, error);
+      return undefined;
+    }
   }
 
   async createStaffMember(staff: InsertStaff): Promise<Staff> {
@@ -539,7 +541,7 @@ export class MongoDBStorage implements IStorage {
   }
 
   async updateStaffMember(id: string, staff: Partial<InsertStaff>): Promise<Staff | undefined> {
-    const doc = await StaffModel.findByIdAndUpdate(id, staff, { new: true }).lean();
+    const doc = await StaffModel.findByIdAndUpdate(id, staff, { new: true }).lean() as any;
     if (doc) {
       const result = this.toStaff(doc);
       await this.createAuditHistory({
@@ -697,7 +699,7 @@ export class MongoDBStorage implements IStorage {
         new mongoose.Types.ObjectId(id), 
         { $set: { status: request.status } }, 
         { new: true }
-      ).lean();
+      ).lean() as any;
       if (doc) {
         const result = this.toStaffBookingRequest(doc);
         await this.createAuditHistory({
@@ -723,10 +725,10 @@ export class MongoDBStorage implements IStorage {
   }
 
   async deleteStaffBookingRequest(bookingId: string, staffId: string): Promise<boolean> {
-    const result = await StaffBookingRequestModel.findOneAndDelete({ bookingId, staffId });
+    const result = await StaffBookingRequestModel.findOneAndDelete({ bookingId, staffId }) as any;
     if (result) {
-      const booking = await EventBookingModel.findById(bookingId).lean();
-      const staff = await StaffModel.findById(staffId).lean();
+      const booking = await EventBookingModel.findById(bookingId).lean() as any;
+      const staff = await StaffModel.findById(staffId).lean() as any;
       await this.createAuditHistory({
         action: "assignment_deleted",
         entityType: "assignment",
@@ -765,7 +767,7 @@ export class MongoDBStorage implements IStorage {
     const query: any = {};
     if (entityType) query.entityType = entityType;
     if (entityId) query.entityId = entityId;
-    const docs = await AuditHistoryModel.find(query).sort({ createdAt: -1 }).limit(100).lean();
+    const docs = await AuditHistoryModel.find(query).sort({ createdAt: -1 }).limit(100).lean() as any[];
     return docs.map(doc => ({
       id: doc._id.toString(),
       action: doc.action,

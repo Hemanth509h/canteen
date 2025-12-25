@@ -214,7 +214,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: "booking",
         title: "New Booking",
         message: `New booking from ${result.data.clientName} for ${result.data.eventType} on ${result.data.eventDate}`,
-        bookingId: booking.id
+        bookingId: booking.id,
+        read: false
       });
       
       res.status(201).json(booking);
@@ -251,7 +252,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             type: "payment",
             title: "Payment Status Updated",
             message: `Payment updated for ${booking.clientName}: ${paymentMsg.join(", ")}`,
-            bookingId: booking.id
+            bookingId: booking.id,
+            read: false
           });
         }
       }
@@ -569,7 +571,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/notifications", async (req, res) => {
     try {
       const { type, title, message, bookingId } = req.body;
-      const notification = await storage.createNotification({ type, title, message, bookingId });
+      const notification = await storage.createNotification({ 
+        type, 
+        title, 
+        message, 
+        bookingId,
+        read: false 
+      });
       res.status(201).json(notification);
     } catch (error) {
       res.status(500).json({ error: "Failed to create notification" });
