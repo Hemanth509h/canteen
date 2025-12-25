@@ -1138,7 +1138,7 @@ export default function EventBookingsManager() {
             </Card>
           </div>
         )}
-      </AnimatePresence>
+      
 
       <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
           <DialogContent data-testid="dialog-assign-staff">

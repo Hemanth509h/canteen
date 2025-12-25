@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -105,7 +104,7 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
             const isSelected = selectedDate && isSameDay(day, selectedDate);
 
             return (
-              <motion.button
+              <div class="animate-in fade-in duration-300" button
                 key={day.toISOString()}
                 onClick={() => setSelectedDate(day)}
                 className={cn(
@@ -134,14 +133,14 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
                     ))}
                   </div>
                 )}
-              </motion.button>
+              </div>button>
             );
           })}
         </div>
 
         <AnimatePresence mode="wait">
           {selectedDate && (
-            <motion.div
+            <div class="animate-in fade-in duration-300" div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
@@ -154,7 +153,7 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
               {selectedDateBookings.length > 0 ? (
                 <div className="space-y-2 max-h-[200px] overflow-y-auto">
                   {selectedDateBookings.map((booking) => (
-                    <motion.div
+                    <div class="animate-in fade-in duration-300" div
                       key={booking.id}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -179,7 +178,7 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
                           {booking.status}
                         </Badge>
                       </div>
-                    </motion.div>
+                    </div>div>
                   ))}
                 </div>
               ) : (
@@ -187,9 +186,9 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
                   No bookings on this date
                 </p>
               )}
-            </motion.div>
+            </div>div>
           )}
-        </AnimatePresence>
+        
       </CardContent>
     </Card>
   );

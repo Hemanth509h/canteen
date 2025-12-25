@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -151,32 +150,32 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
         <div className="p-4 pt-2">
           <AnimatePresence mode="wait">
             {query.length < 2 ? (
-              <motion.div
+              <div class="animate-in fade-in duration-300" div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="text-sm text-muted-foreground text-center py-8"
               >
                 Type at least 2 characters to search
-              </motion.div>
+              </div>div>
             ) : results.length === 0 ? (
-              <motion.div
+              <div class="animate-in fade-in duration-300" div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="text-sm text-muted-foreground text-center py-8"
               >
                 No results found for "{query}"
-              </motion.div>
+              </div>div>
             ) : (
-              <motion.div
+              <div class="animate-in fade-in duration-300" div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="space-y-1 max-h-[300px] overflow-y-auto"
               >
                 {results.slice(0, 10).map((result, i) => (
-                  <motion.button
+                  <div class="animate-in fade-in duration-300" button
                     key={`${result.type}-${result.id}`}
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -209,11 +208,11 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                     <Badge variant="outline" className="shrink-0 text-xs">
                       {result.type === "booking" ? "Booking" : "Staff"}
                     </Badge>
-                  </motion.button>
+                  </div>button>
                 ))}
-              </motion.div>
+              </div>div>
             )}
-          </AnimatePresence>
+          
         </div>
       </DialogContent>
     </Dialog>

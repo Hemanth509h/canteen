@@ -306,7 +306,7 @@ export default function CustomerBookingLookup() {
               </Card>
             </div>
           )}
-        </AnimatePresence>
+        
       </div>
     </div>
   );

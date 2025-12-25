@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Smartphone, Copy, Check, QrCode, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
 
 interface UPIPaymentProps {
   upiId: string;
@@ -55,19 +54,19 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <motion.div 
+        <div class="animate-in fade-in duration-300" div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
         >
           <IndianRupee className="w-4 h-4" />
           {paymentLabel} Payment via UPI
-        </motion.div>
+        </div>div>
         <p className="text-sm text-muted-foreground">Scan QR code or use UPI ID to complete {paymentLabel.toLowerCase()} payment</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        <motion.div 
+        <div class="animate-in fade-in duration-300" div 
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -77,7 +76,7 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
             <div className="absolute -inset-3 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-xl opacity-50" />
             <Card className="relative p-3 bg-white dark:bg-white shadow-xl border-2">
               {qrCode ? (
-                <motion.img 
+                <div class="animate-in fade-in duration-300" img 
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }}
                   src={qrCode} 
@@ -96,9 +95,9 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
             <Smartphone className="w-4 h-4" />
             <span>Scan with any UPI app</span>
           </div>
-        </motion.div>
+        </div>div>
 
-        <motion.div 
+        <div class="animate-in fade-in duration-300" div 
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -138,13 +137,13 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
               </Button>
             </div>
             {copied && (
-              <motion.p 
+              <div class="animate-in fade-in duration-300" p 
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-xs text-green-600 font-medium"
               >
                 UPI ID copied to clipboard
-              </motion.p>
+              </div>p>
             )}
           </div>
 
@@ -167,7 +166,7 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
               </ol>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>div>
       </div>
     </div>
   );

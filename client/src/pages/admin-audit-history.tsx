@@ -158,7 +158,7 @@ export default function AuditHistory() {
                   {auditHistory.map((entry, index) => {
                     const colors = actionColorMap[entry.action] || { bg: "bg-gray-100", text: "text-gray-700" };
                     return (
-                      <motion.tr
+                      <div class="animate-in fade-in duration-300" tr
                         key={entry.id}
                         className="border-b border-border/30 hover:bg-muted/40 transition-colors"
                       >
@@ -222,7 +222,7 @@ export default function AuditHistory() {
                             })()}
                           </div>
                         </TableCell>
-                      </motion.tr>
+                      </div>tr>
                     );
                   })}
                 </TableBody>
