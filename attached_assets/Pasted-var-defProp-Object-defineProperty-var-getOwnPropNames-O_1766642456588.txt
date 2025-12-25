@@ -1,0 +1,1499 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
+// server/storage.ts
+import mongoose, { Schema } from "mongoose";
+var foodItemSchema, FoodItemModel, eventBookingSchema, EventBookingModel, bookingItemSchema, BookingItemModel, companyInfoSchema, CompanyInfoModel, staffSchema, StaffModel, customerReviewSchema, CustomerReviewModel, cateringPackageSchema, CateringPackageModel, adminNotificationSchema, AdminNotificationModel, staffBookingRequestSchema, StaffBookingRequestModel, auditHistorySchema, AuditHistoryModel, MongoDBStorage;
+var init_storage = __esm({
+  "server/storage.ts"() {
+    "use strict";
+    foodItemSchema = new Schema({
+      name: { type: String, required: true },
+      description: { type: String, required: true },
+      category: { type: String, required: true },
+      imageUrl: { type: String, default: null },
+      dietaryTags: [{ type: String }],
+      price: { type: Number, default: 0 },
+      rating: { type: Number, default: 0, min: 0, max: 5 }
+    });
+    FoodItemModel = mongoose.models?.FoodItem || mongoose.model("FoodItem", foodItemSchema);
+    eventBookingSchema = new Schema({
+      clientName: { type: String, required: true },
+      eventDate: { type: String, required: true },
+      eventType: { type: String, required: true },
+      guestCount: { type: Number, required: true },
+      pricePerPlate: { type: Number, required: true },
+      servingBoysNeeded: { type: Number, required: true, default: 2 },
+      status: { type: String, required: true, default: "pending" },
+      contactEmail: { type: String, required: true },
+      contactPhone: { type: String, required: true },
+      specialRequests: { type: String, default: null },
+      advancePaymentStatus: { type: String, default: "pending" },
+      finalPaymentStatus: { type: String, default: "pending" },
+      advancePaymentApprovalStatus: { type: String, enum: ["pending", "approved", "rejected"], default: void 0 },
+      finalPaymentApprovalStatus: { type: String, enum: ["pending", "approved", "rejected"], default: void 0 },
+      advancePaymentScreenshot: { type: String, default: null },
+      finalPaymentScreenshot: { type: String, default: null },
+      totalAmount: { type: Number, default: null },
+      advanceAmount: { type: Number, default: null },
+      createdAt: { type: Date, default: Date.now }
+    });
+    EventBookingModel = mongoose.models?.EventBooking || mongoose.model("EventBooking", eventBookingSchema);
+    bookingItemSchema = new Schema({
+      bookingId: { type: String, required: true },
+      foodItemId: { type: String, required: true },
+      quantity: { type: Number, required: true, default: 1 },
+      createdAt: { type: Date, default: Date.now }
+    });
+    BookingItemModel = mongoose.models?.BookingItem || mongoose.model("BookingItem", bookingItemSchema);
+    companyInfoSchema = new Schema({
+      companyName: { type: String, default: null },
+      tagline: { type: String, default: null },
+      description: { type: String, default: null },
+      email: { type: String, default: null },
+      phone: { type: String, default: null },
+      address: { type: String, default: null },
+      eventsPerYear: { type: Number, default: 500 },
+      websiteUrl: { type: String, default: null },
+      upiId: { type: String, default: null },
+      minAdvanceBookingDays: { type: Number, default: 2 }
+    });
+    CompanyInfoModel = mongoose.models?.CompanyInfo || mongoose.model("CompanyInfo", companyInfoSchema);
+    staffSchema = new Schema({
+      name: { type: String, required: true },
+      role: { type: String, required: true },
+      phone: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now }
+    });
+    StaffModel = mongoose.models?.Staff || mongoose.model("Staff", staffSchema);
+    customerReviewSchema = new Schema({
+      customerName: { type: String, required: true },
+      eventType: { type: String, required: true },
+      rating: { type: Number, required: true, min: 1, max: 5 },
+      comment: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now }
+    });
+    CustomerReviewModel = mongoose.models?.CustomerReview || mongoose.model("CustomerReview", customerReviewSchema);
+    cateringPackageSchema = new Schema({
+      name: { type: String, required: true },
+      tier: { type: String, enum: ["budget", "standard", "premium"], required: true },
+      description: { type: String, required: true },
+      pricePerPlate: { type: Number, required: true },
+      items: [{ type: String }],
+      minServings: { type: Number, required: true, default: 20 },
+      createdAt: { type: Date, default: Date.now }
+    });
+    CateringPackageModel = mongoose.models?.CateringPackage || mongoose.model("CateringPackage", cateringPackageSchema);
+    adminNotificationSchema = new Schema({
+      type: { type: String, enum: ["booking", "payment"], required: true },
+      title: { type: String, required: true },
+      message: { type: String, required: true },
+      bookingId: { type: String, optional: true },
+      read: { type: Boolean, default: false },
+      createdAt: { type: Date, default: Date.now }
+    });
+    AdminNotificationModel = mongoose.models?.AdminNotification || mongoose.model("AdminNotification", adminNotificationSchema);
+    staffBookingRequestSchema = new Schema({
+      bookingId: { type: String, required: true },
+      staffId: { type: String, required: true },
+      status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
+      token: { type: String, required: true, unique: true },
+      createdAt: { type: Date, default: Date.now }
+    });
+    StaffBookingRequestModel = mongoose.models?.StaffBookingRequest || mongoose.model("StaffBookingRequest", staffBookingRequestSchema);
+    auditHistorySchema = new Schema({
+      action: { type: String, required: true },
+      entityType: { type: String, enum: ["booking", "staff", "payment", "assignment"], required: true },
+      entityId: { type: String, required: true },
+      details: { type: Schema.Types.Mixed, default: {} },
+      createdAt: { type: Date, default: Date.now }
+    });
+    AuditHistoryModel = mongoose.models?.AuditHistory || mongoose.model("AuditHistory", auditHistorySchema);
+    MongoDBStorage = class {
+      toFoodItem(doc) {
+        return {
+          id: doc._id.toString(),
+          name: doc.name,
+          description: doc.description,
+          category: doc.category,
+          imageUrl: doc.imageUrl || null,
+          dietaryTags: doc.dietaryTags || [],
+          price: doc.price || 0,
+          rating: doc.rating || 0
+        };
+      }
+      toEventBooking(doc) {
+        return {
+          id: doc._id.toString(),
+          clientName: doc.clientName,
+          eventDate: doc.eventDate,
+          eventType: doc.eventType,
+          guestCount: doc.guestCount,
+          pricePerPlate: doc.pricePerPlate,
+          servingBoysNeeded: doc.servingBoysNeeded,
+          status: doc.status,
+          contactEmail: doc.contactEmail,
+          contactPhone: doc.contactPhone,
+          specialRequests: doc.specialRequests || null,
+          advancePaymentStatus: doc.advancePaymentStatus || "pending",
+          finalPaymentStatus: doc.finalPaymentStatus || "pending",
+          advancePaymentApprovalStatus: doc.advancePaymentApprovalStatus || void 0,
+          finalPaymentApprovalStatus: doc.finalPaymentApprovalStatus || void 0,
+          advancePaymentScreenshot: doc.advancePaymentScreenshot || null,
+          finalPaymentScreenshot: doc.finalPaymentScreenshot || null,
+          totalAmount: doc.totalAmount || void 0,
+          advanceAmount: doc.advanceAmount || void 0,
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      toBookingItem(doc) {
+        return {
+          id: doc._id.toString(),
+          bookingId: doc.bookingId,
+          foodItemId: doc.foodItemId,
+          quantity: doc.quantity,
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      toCompanyInfo(doc) {
+        return {
+          id: doc._id.toString(),
+          companyName: doc.companyName,
+          tagline: doc.tagline,
+          description: doc.description,
+          email: doc.email,
+          phone: doc.phone,
+          address: doc.address,
+          eventsPerYear: doc.eventsPerYear,
+          websiteUrl: doc.websiteUrl || void 0,
+          upiId: doc.upiId || void 0,
+          minAdvanceBookingDays: doc.minAdvanceBookingDays || 2
+        };
+      }
+      toStaff(doc) {
+        return {
+          id: doc._id.toString(),
+          name: doc.name,
+          role: doc.role,
+          phone: doc.phone,
+          experience: doc.experience,
+          imageUrl: doc.imageUrl || null,
+          salary: doc.salary,
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      // Food Items
+      async getFoodItems() {
+        const docs = await FoodItemModel.find().lean();
+        return docs.map((doc) => this.toFoodItem(doc));
+      }
+      async getFoodItem(id) {
+        const doc = await FoodItemModel.findById(id).lean();
+        return doc ? this.toFoodItem(doc) : void 0;
+      }
+      async createFoodItem(item) {
+        const doc = await FoodItemModel.create(item);
+        return this.toFoodItem(doc);
+      }
+      async updateFoodItem(id, item) {
+        const doc = await FoodItemModel.findByIdAndUpdate(id, item, { new: true }).lean();
+        return doc ? this.toFoodItem(doc) : void 0;
+      }
+      async deleteFoodItem(id) {
+        const result = await FoodItemModel.findByIdAndDelete(id);
+        return result !== null;
+      }
+      // Event Bookings
+      async getBookings() {
+        const docs = await EventBookingModel.find().sort({ createdAt: -1 }).lean();
+        return docs.map((doc) => this.toEventBooking(doc));
+      }
+      async getBooking(id) {
+        const doc = await EventBookingModel.findById(id).lean();
+        return doc ? this.toEventBooking(doc) : void 0;
+      }
+      async createBooking(booking) {
+        const doc = await EventBookingModel.create(booking);
+        const result = this.toEventBooking(doc);
+        await this.createAuditHistory({
+          action: "booking_created",
+          entityType: "booking",
+          entityId: result.id,
+          details: { clientName: booking.clientName, eventType: booking.eventType, guestCount: booking.guestCount, eventDate: booking.eventDate }
+        });
+        return result;
+      }
+      async updateBooking(id, booking) {
+        const doc = await EventBookingModel.findByIdAndUpdate(id, booking, { new: true }).lean();
+        if (doc) {
+          const result = this.toEventBooking(doc);
+          await this.createAuditHistory({
+            action: "booking_updated",
+            entityType: "booking",
+            entityId: id,
+            details: { changes: booking, status: booking.status, advancePaymentStatus: booking.advancePaymentStatus, finalPaymentStatus: booking.finalPaymentStatus }
+          });
+          return result;
+        }
+        return void 0;
+      }
+      async deleteBooking(id) {
+        await BookingItemModel.deleteMany({ bookingId: id });
+        const result = await EventBookingModel.findByIdAndDelete(id);
+        return result !== null;
+      }
+      // Booking Items
+      async getBookingItems(bookingId) {
+        const docs = await BookingItemModel.find({ bookingId }).lean();
+        const results = [];
+        for (const doc of docs) {
+          const foodItemDoc = await FoodItemModel.findById(doc.foodItemId).lean();
+          if (foodItemDoc) {
+            results.push({
+              ...this.toBookingItem(doc),
+              foodItem: this.toFoodItem(foodItemDoc)
+            });
+          }
+        }
+        return results;
+      }
+      async createBookingItem(item) {
+        const doc = await BookingItemModel.create(item);
+        return this.toBookingItem(doc);
+      }
+      async deleteBookingItems(bookingId) {
+        await BookingItemModel.deleteMany({ bookingId });
+        return true;
+      }
+      // Company Info
+      async getCompanyInfo() {
+        const doc = await CompanyInfoModel.findOne().lean();
+        return doc ? this.toCompanyInfo(doc) : void 0;
+      }
+      async createCompanyInfo(info) {
+        const doc = await CompanyInfoModel.create(info);
+        return this.toCompanyInfo(doc);
+      }
+      async updateCompanyInfo(id, info) {
+        const doc = await CompanyInfoModel.findByIdAndUpdate(id, info, { new: true }).lean();
+        return doc ? this.toCompanyInfo(doc) : void 0;
+      }
+      // Staff
+      async getStaff() {
+        const docs = await StaffModel.find().lean();
+        return docs.map((doc) => this.toStaff(doc));
+      }
+      async getStaffMember(id) {
+        const doc = await StaffModel.findById(id).lean();
+        return doc ? this.toStaff(doc) : void 0;
+      }
+      async createStaffMember(staff) {
+        const doc = await StaffModel.create(staff);
+        const result = this.toStaff(doc);
+        await this.createAuditHistory({
+          action: "staff_created",
+          entityType: "staff",
+          entityId: result.id,
+          details: { name: staff.name, role: staff.role, phone: staff.phone }
+        });
+        return result;
+      }
+      async updateStaffMember(id, staff) {
+        const doc = await StaffModel.findByIdAndUpdate(id, staff, { new: true }).lean();
+        if (doc) {
+          const result = this.toStaff(doc);
+          await this.createAuditHistory({
+            action: "staff_updated",
+            entityType: "staff",
+            entityId: id,
+            details: { changes: staff, name: doc.name, role: doc.role }
+          });
+          return result;
+        }
+        return void 0;
+      }
+      async deleteStaffMember(id) {
+        const result = await StaffModel.findByIdAndDelete(id);
+        return result !== null;
+      }
+      // Customer Reviews
+      toCustomerReview(doc) {
+        return {
+          id: doc._id.toString(),
+          customerName: doc.customerName,
+          eventType: doc.eventType,
+          rating: doc.rating,
+          comment: doc.comment,
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      async getReviews() {
+        const docs = await CustomerReviewModel.find().sort({ createdAt: -1 }).lean();
+        return docs.map((doc) => this.toCustomerReview(doc));
+      }
+      async createReview(review) {
+        const doc = await CustomerReviewModel.create(review);
+        return this.toCustomerReview(doc);
+      }
+      async deleteReview(id) {
+        const result = await CustomerReviewModel.findByIdAndDelete(id);
+        return result !== null;
+      }
+      // Catering Packages
+      toCateringPackage(doc) {
+        return {
+          id: doc._id.toString(),
+          name: doc.name,
+          tier: doc.tier,
+          description: doc.description,
+          pricePerPlate: doc.pricePerPlate,
+          items: doc.items || [],
+          minServings: doc.minServings,
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      async getPackages() {
+        const docs = await CateringPackageModel.find().lean();
+        return docs.map((doc) => this.toCateringPackage(doc));
+      }
+      async getPackage(id) {
+        const doc = await CateringPackageModel.findById(id).lean();
+        return doc ? this.toCateringPackage(doc) : void 0;
+      }
+      async createPackage(pkg) {
+        const doc = await CateringPackageModel.create(pkg);
+        return this.toCateringPackage(doc);
+      }
+      async updatePackage(id, pkg) {
+        const doc = await CateringPackageModel.findByIdAndUpdate(id, pkg, { new: true }).lean();
+        return doc ? this.toCateringPackage(doc) : void 0;
+      }
+      async deletePackage(id) {
+        const result = await CateringPackageModel.findByIdAndDelete(id);
+        return result !== null;
+      }
+      // Admin Notifications
+      toAdminNotification(doc) {
+        return {
+          id: doc._id.toString(),
+          type: doc.type,
+          title: doc.title,
+          message: doc.message,
+          bookingId: doc.bookingId,
+          read: doc.read,
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      async getNotifications() {
+        const docs = await AdminNotificationModel.find().sort({ createdAt: -1 }).limit(50).lean();
+        return docs.map((doc) => this.toAdminNotification(doc));
+      }
+      async createNotification(notification) {
+        const doc = await AdminNotificationModel.create(notification);
+        return this.toAdminNotification(doc);
+      }
+      async markNotificationAsRead(id) {
+        const result = await AdminNotificationModel.findByIdAndUpdate(id, { read: true });
+        return result !== null;
+      }
+      async deleteNotification(id) {
+        const result = await AdminNotificationModel.findByIdAndDelete(id);
+        return result !== null;
+      }
+      // Staff Booking Requests
+      toStaffBookingRequest(doc) {
+        return {
+          id: doc._id.toString(),
+          bookingId: doc.bookingId,
+          staffId: doc.staffId,
+          status: doc.status,
+          token: doc.token,
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      async getStaffBookingRequests(bookingId) {
+        const docs = await StaffBookingRequestModel.find({ bookingId }).lean();
+        return docs.map((doc) => this.toStaffBookingRequest(doc));
+      }
+      async getStaffBookingRequestByToken(token) {
+        const doc = await StaffBookingRequestModel.findOne({ token }).lean();
+        return doc ? this.toStaffBookingRequest(doc) : void 0;
+      }
+      async createStaffBookingRequest(request) {
+        const doc = await StaffBookingRequestModel.create(request);
+        const result = this.toStaffBookingRequest(doc);
+        await this.createAuditHistory({
+          action: "assignment_created",
+          entityType: "assignment",
+          entityId: result.id,
+          details: { bookingId: request.bookingId, staffId: request.staffId, token: request.token }
+        });
+        return result;
+      }
+      async updateStaffBookingRequest(id, request) {
+        try {
+          const doc = await StaffBookingRequestModel.findByIdAndUpdate(
+            new mongoose.Types.ObjectId(id),
+            { $set: { status: request.status } },
+            { new: true }
+          ).lean();
+          if (doc) {
+            const result = this.toStaffBookingRequest(doc);
+            await this.createAuditHistory({
+              action: "assignment_updated",
+              entityType: "assignment",
+              entityId: id,
+              details: { oldStatus: doc.status, newStatus: request.status, bookingId: doc.bookingId, staffId: doc.staffId }
+            });
+            return result;
+          }
+          return void 0;
+        } catch (err) {
+          console.error("updateStaffBookingRequest error:", err, "ID:", id);
+          return void 0;
+        }
+      }
+      async getAcceptedStaffForBooking(bookingId) {
+        const requests = await StaffBookingRequestModel.find({ bookingId, status: "accepted" }).lean();
+        const staffIds = requests.map((r) => r.staffId);
+        const staffDocs = await StaffModel.find({ _id: { $in: staffIds } }).lean();
+        return staffDocs.map((doc) => this.toStaff(doc));
+      }
+      async deleteStaffBookingRequest(bookingId, staffId) {
+        const result = await StaffBookingRequestModel.findOneAndDelete({ bookingId, staffId });
+        if (result) {
+          const booking = await EventBookingModel.findById(bookingId).lean();
+          const staff = await StaffModel.findById(staffId).lean();
+          await this.createAuditHistory({
+            action: "assignment_deleted",
+            entityType: "assignment",
+            entityId: result._id.toString(),
+            details: {
+              bookingId,
+              staffId,
+              clientName: booking?.clientName || "Unknown",
+              eventType: booking?.eventType || "Unknown",
+              eventDate: booking?.eventDate || "Unknown",
+              name: staff?.name || "Unknown",
+              role: staff?.role || "Unknown"
+            }
+          });
+        }
+        return result !== null;
+      }
+      // Audit History
+      async createAuditHistory(history) {
+        const doc = await AuditHistoryModel.create({
+          ...history,
+          createdAt: /* @__PURE__ */ new Date()
+        });
+        return {
+          id: doc._id.toString(),
+          action: doc.action,
+          entityType: doc.entityType,
+          entityId: doc.entityId,
+          details: doc.details || {},
+          createdAt: doc.createdAt.toISOString()
+        };
+      }
+      async getAuditHistory(entityType, entityId) {
+        const query = {};
+        if (entityType) query.entityType = entityType;
+        if (entityId) query.entityId = entityId;
+        const docs = await AuditHistoryModel.find(query).sort({ createdAt: -1 }).limit(100).lean();
+        return docs.map((doc) => ({
+          id: doc._id.toString(),
+          action: doc.action,
+          entityType: doc.entityType,
+          entityId: doc.entityId,
+          details: doc.details || {},
+          createdAt: doc.createdAt.toISOString()
+        }));
+      }
+    };
+  }
+});
+
+// server/db.ts
+var db_exports = {};
+__export(db_exports, {
+  connectToDatabase: () => connectToDatabase,
+  storage: () => storage
+});
+import mongoose2 from "mongoose";
+async function connectToDatabase() {
+  if (isConnected) {
+    return;
+  }
+  try {
+    await Promise.race([
+      mongoose2.connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 5e3,
+        socketTimeoutMS: 5e3,
+        connectTimeoutMS: 5e3
+      }),
+      new Promise(
+        (_, reject) => setTimeout(() => reject(new Error("MongoDB connection timeout after 5 seconds")), 5e3)
+      )
+    ]);
+    isConnected = true;
+    console.log("\u2705 Connected to MongoDB");
+  } catch (error) {
+    console.error("\u274C MongoDB connection error:", error);
+    throw error;
+  }
+}
+var MONGODB_URI, isConnected, storage;
+var init_db = __esm({
+  "server/db.ts"() {
+    "use strict";
+    init_storage();
+    MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority";
+    isConnected = false;
+    mongoose2.connection.on("disconnected", () => {
+      isConnected = false;
+      console.log("MongoDB disconnected");
+    });
+    mongoose2.connection.on("error", (error) => {
+      console.error("MongoDB error:", error);
+    });
+    storage = new MongoDBStorage();
+  }
+});
+
+// server/index.ts
+import express2 from "express";
+
+// server/routes.ts
+init_db();
+import { createServer } from "http";
+import { randomUUID } from "crypto";
+
+// shared/schema.ts
+import { z } from "zod";
+var sanitizeString = (val) => val.trim().slice(0, 500);
+var sanitizeName = (val) => val.trim().slice(0, 100);
+var sanitizePhone = (val) => val.replace(/\D/g, "").slice(0, 15);
+var insertFoodItemSchema = z.object({
+  name: z.string().min(1, "Food item name is required").min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters").transform(sanitizeName),
+  description: z.string().min(1, "Description is required").min(10, "Description must be at least 10 characters").max(500, "Description must be less than 500 characters").transform(sanitizeString),
+  category: z.string().min(1, "Category is required").max(50),
+  imageUrl: z.string().url("Invalid image URL").nullable().optional(),
+  dietaryTags: z.array(z.string()).optional(),
+  price: z.number().int().min(1, "Price must be at least 1").optional(),
+  rating: z.number().min(0).max(5, "Rating must be between 0 and 5").optional()
+});
+var insertEventBookingSchema = z.object({
+  clientName: z.string().min(1, "Client name is required").min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters").transform(sanitizeName),
+  eventDate: z.string().min(1, "Event date is required").refine(
+    (date) => !isNaN(Date.parse(date)),
+    "Invalid date format"
+  ),
+  eventType: z.string().min(1, "Event type is required").max(50),
+  guestCount: z.number().int().min(1, "At least 1 guest is required").max(1e4, "Guest count too large"),
+  pricePerPlate: z.number().int().min(1, "Price must be at least 1").max(1e5),
+  servingBoysNeeded: z.number().int().min(1, "At least 1 serving staff needed").max(100).default(2),
+  contactEmail: z.string().email("Please enter a valid email address"),
+  contactPhone: z.string().min(10, "Phone number must be at least 10 digits").transform(sanitizePhone),
+  specialRequests: z.string().max(1e3, "Special requests must be less than 1000 characters").nullable().optional()
+});
+var updateEventBookingSchema = insertEventBookingSchema.partial().extend({
+  status: z.enum(["pending", "confirmed", "completed", "cancelled"]).optional(),
+  advancePaymentStatus: z.enum(["pending", "paid"]).optional(),
+  finalPaymentStatus: z.enum(["pending", "paid"]).optional(),
+  advancePaymentApprovalStatus: z.enum(["pending", "approved", "rejected"]).optional(),
+  finalPaymentApprovalStatus: z.enum(["pending", "approved", "rejected"]).optional(),
+  advancePaymentScreenshot: z.string().nullable().optional(),
+  finalPaymentScreenshot: z.string().nullable().optional(),
+  totalAmount: z.number().int().positive().optional(),
+  advanceAmount: z.number().int().positive().optional()
+});
+var insertBookingItemSchema = z.object({
+  bookingId: z.string().min(1, "Booking ID is required"),
+  foodItemId: z.string().min(1, "Food item ID is required"),
+  quantity: z.number().int().positive("Quantity must be positive").default(1)
+});
+var insertCompanyInfoSchema = z.object({
+  companyName: z.string().max(100, "Company name too long").optional(),
+  tagline: z.string().max(200, "Tagline too long").optional(),
+  description: z.string().max(2e3, "Description too long").optional(),
+  email: z.string().email("Please enter a valid company email").optional(),
+  phone: z.string().refine((val) => val.replace(/\D/g, "").length >= 10, "Phone must have at least 10 digits").transform(sanitizePhone).optional(),
+  address: z.string().max(500, "Address too long").optional(),
+  eventsPerYear: z.number().int().min(0).max(1e5).default(500).optional(),
+  websiteUrl: z.string().url("Please enter a valid website URL").optional(),
+  upiId: z.string().regex(/^[\w\-@.]+$/, "Invalid UPI ID format").optional(),
+  minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional()
+});
+var insertStaffSchema = z.object({
+  name: z.string().min(1, "Staff name is required").min(2, "Name must be at least 2 characters").max(100).transform(sanitizeName),
+  role: z.string().min(1, "Role is required").max(50),
+  phone: z.string().min(10, "Phone must be at least 10 digits").transform(sanitizePhone)
+});
+var updateStaffSchema = insertStaffSchema.partial();
+var insertCustomerReviewSchema = z.object({
+  customerName: z.string().min(1, "Name is required"),
+  eventType: z.string().min(1, "Event type is required"),
+  rating: z.number().int().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
+  comment: z.string().min(10, "Review must be at least 10 characters")
+});
+var insertCateringPackageSchema = z.object({
+  name: z.string().min(1, "Package name is required"),
+  tier: z.enum(["budget", "standard", "premium"]),
+  description: z.string().min(1, "Description is required"),
+  pricePerPlate: z.number().int().positive("Price per plate must be positive"),
+  items: z.array(z.string()).min(1, "Package must include at least one item"),
+  minServings: z.number().int().positive("Minimum servings must be positive").default(20)
+});
+var updateCateringPackageSchema = insertCateringPackageSchema.partial();
+var insertAdminNotificationSchema = z.object({
+  type: z.enum(["booking", "payment"]),
+  title: z.string().min(1),
+  message: z.string().min(1),
+  bookingId: z.string().optional(),
+  read: z.boolean().default(false)
+});
+var insertStaffBookingRequestSchema = z.object({
+  bookingId: z.string().min(1, "Booking ID is required"),
+  staffId: z.string().min(1, "Staff ID is required"),
+  status: z.enum(["pending", "accepted", "rejected"]).default("pending"),
+  token: z.string().min(1, "Token is required")
+});
+var updateStaffBookingRequestSchema = z.object({
+  status: z.enum(["pending", "accepted", "rejected"])
+});
+var insertAuditHistorySchema = z.object({
+  action: z.string().min(1, "Action is required"),
+  entityType: z.enum(["booking", "staff", "payment", "assignment"]),
+  entityId: z.string().min(1, "Entity ID is required"),
+  details: z.record(z.unknown()).default({})
+});
+
+// server/routes.ts
+import { fromZodError } from "zod-validation-error";
+
+// server/password-manager.ts
+import { readFileSync, writeFileSync, existsSync } from "fs";
+import { join } from "path";
+import bcrypt from "bcryptjs";
+var PASSWORD_FILE = join(process.cwd(), ".admin-password.json");
+async function getPasswordData() {
+  if (!existsSync(PASSWORD_FILE)) {
+    const defaultPasswordHash = await bcrypt.hash("admin123", 10);
+    const defaultData = { passwordHash: defaultPasswordHash };
+    writeFileSync(PASSWORD_FILE, JSON.stringify(defaultData, null, 2));
+    return defaultData;
+  }
+  const data = readFileSync(PASSWORD_FILE, "utf-8");
+  return JSON.parse(data);
+}
+async function verifyPassword(password) {
+  const data = await getPasswordData();
+  return bcrypt.compare(password, data.passwordHash);
+}
+async function updatePassword(newPassword) {
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  const data = { passwordHash };
+  writeFileSync(PASSWORD_FILE, JSON.stringify(data, null, 2));
+}
+
+// server/routes.ts
+import { z as z2 } from "zod";
+async function registerRoutes(app2) {
+  app2.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = req.body;
+      const isValid = await verifyPassword(password);
+      if (isValid) {
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ error: "Invalid password" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+  app2.post("/api/admin/change-password", async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Current password and new password are required" });
+      }
+      const isCurrentPasswordValid = await verifyPassword(currentPassword);
+      if (!isCurrentPasswordValid) {
+        return res.status(401).json({ error: "Current password is incorrect" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "New password must be at least 6 characters" });
+      }
+      await updatePassword(newPassword);
+      res.json({ success: true, message: "Password changed successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to change password" });
+    }
+  });
+  app2.get("/api/food-items", async (_req, res) => {
+    try {
+      const items = await storage.getFoodItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch food items" });
+    }
+  });
+  app2.get("/api/food-items/:id", async (req, res) => {
+    try {
+      const item = await storage.getFoodItem(req.params.id);
+      if (!item) {
+        return res.status(404).json({ error: "Food item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch food item" });
+    }
+  });
+  app2.post("/api/food-items", async (req, res) => {
+    try {
+      const result = insertFoodItemSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message, details: result.error.errors });
+      }
+      const item = await storage.createFoodItem(result.data);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Create food item error:", error);
+      res.status(500).json({ error: "Failed to create food item. Please try again." });
+    }
+  });
+  app2.patch("/api/food-items/:id", async (req, res) => {
+    try {
+      const result = insertFoodItemSchema.partial().safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message, details: result.error.errors });
+      }
+      const item = await storage.updateFoodItem(req.params.id, result.data);
+      if (!item) {
+        return res.status(404).json({ error: "Food item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Update food item error:", error);
+      res.status(500).json({ error: "Failed to update food item. Please try again." });
+    }
+  });
+  app2.delete("/api/food-items/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteFoodItem(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Food item not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete food item" });
+    }
+  });
+  app2.get("/api/bookings", async (_req, res) => {
+    try {
+      const bookings = await storage.getBookings();
+      res.json(bookings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch bookings" });
+    }
+  });
+  app2.get("/api/bookings/lookup", async (req, res) => {
+    try {
+      const { email, phone } = req.query;
+      if (!email && !phone) {
+        return res.status(400).json({ error: "Email or phone is required" });
+      }
+      const bookings = await storage.getBookings();
+      let booking = null;
+      if (email) {
+        booking = bookings.find(
+          (b) => b.contactEmail.toLowerCase() === String(email).toLowerCase()
+        );
+      } else if (phone) {
+        const cleanPhone = String(phone).replace(/\D/g, "");
+        booking = bookings.find(
+          (b) => b.contactPhone.replace(/\D/g, "").includes(cleanPhone) || cleanPhone.includes(b.contactPhone.replace(/\D/g, ""))
+        );
+      }
+      if (!booking) {
+        return res.status(404).json({ error: "No booking found" });
+      }
+      res.json(booking);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to lookup booking" });
+    }
+  });
+  app2.get("/api/bookings/:id", async (req, res) => {
+    try {
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      res.json(booking);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch booking" });
+    }
+  });
+  app2.post("/api/bookings", async (req, res) => {
+    try {
+      const result = insertEventBookingSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message, details: result.error.errors });
+      }
+      const companyInfo = await storage.getCompanyInfo();
+      const minDays = companyInfo?.minAdvanceBookingDays || 2;
+      const bookingDate = new Date(result.data.eventDate);
+      const today = /* @__PURE__ */ new Date();
+      today.setHours(0, 0, 0, 0);
+      const minDate = new Date(today);
+      minDate.setDate(minDate.getDate() + minDays);
+      if (bookingDate < minDate) {
+        return res.status(400).json({ error: `Bookings must be made at least ${minDays} day${minDays !== 1 ? "s" : ""} in advance` });
+      }
+      const allBookings = await storage.getBookings();
+      const existingBooking = allBookings.find(
+        (b) => b.eventDate === result.data.eventDate && (b.status === "confirmed" || b.status === "pending")
+      );
+      if (existingBooking) {
+        return res.status(409).json({ error: "This date is already booked. Please select another date" });
+      }
+      const booking = await storage.createBooking(result.data);
+      await storage.createNotification({
+        type: "booking",
+        title: "New Booking",
+        message: `New booking from ${result.data.clientName} for ${result.data.eventType} on ${result.data.eventDate}`,
+        bookingId: booking.id
+      });
+      res.status(201).json(booking);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create booking" });
+    }
+  });
+  app2.patch("/api/bookings/:id", async (req, res) => {
+    try {
+      const result = updateEventBookingSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message, details: result.error.errors });
+      }
+      const oldBooking = await storage.getBooking(req.params.id);
+      const booking = await storage.updateBooking(req.params.id, result.data);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      if (oldBooking && (result.data.advancePaymentStatus !== void 0 || result.data.finalPaymentStatus !== void 0)) {
+        const paymentMsg = [];
+        if (result.data.advancePaymentStatus && result.data.advancePaymentStatus !== oldBooking.advancePaymentStatus) {
+          paymentMsg.push(`Advance: ${result.data.advancePaymentStatus}`);
+        }
+        if (result.data.finalPaymentStatus && result.data.finalPaymentStatus !== oldBooking.finalPaymentStatus) {
+          paymentMsg.push(`Final: ${result.data.finalPaymentStatus}`);
+        }
+        if (paymentMsg.length > 0) {
+          await storage.createNotification({
+            type: "payment",
+            title: "Payment Status Updated",
+            message: `Payment updated for ${booking.clientName}: ${paymentMsg.join(", ")}`,
+            bookingId: booking.id
+          });
+        }
+      }
+      res.json(booking);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update booking" });
+    }
+  });
+  app2.delete("/api/bookings/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteBooking(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete booking" });
+    }
+  });
+  app2.get("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const items = await storage.getBookingItems(req.params.id);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch booking items" });
+    }
+  });
+  app2.post("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const itemsSchema = z2.array(insertBookingItemSchema);
+      const result = itemsSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+      await storage.deleteBookingItems(req.params.id);
+      const items = [];
+      for (const item of result.data) {
+        const newItem = await storage.createBookingItem(item);
+        items.push(newItem);
+      }
+      res.status(201).json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create booking items" });
+    }
+  });
+  app2.get("/api/chef-printout", async (req, res) => {
+    try {
+      const { date } = req.query;
+      const allBookings = await storage.getBookings();
+      let filteredBookings = allBookings.filter((b) => b.status === "confirmed" || b.status === "pending");
+      if (date) {
+        filteredBookings = filteredBookings.filter((b) => b.eventDate === date);
+      }
+      const bookingsWithItems = [];
+      for (const booking of filteredBookings) {
+        const items = await storage.getBookingItems(booking.id);
+        bookingsWithItems.push({ ...booking, items });
+      }
+      const groupedByDate = {};
+      for (const booking of bookingsWithItems) {
+        if (!groupedByDate[booking.eventDate]) {
+          groupedByDate[booking.eventDate] = [];
+        }
+        groupedByDate[booking.eventDate].push(booking);
+      }
+      res.json(groupedByDate);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch chef printout data" });
+    }
+  });
+  app2.get("/api/company-info", async (_req, res) => {
+    try {
+      const info = await storage.getCompanyInfo();
+      if (!info) {
+        return res.status(404).json({ error: "Company info not found" });
+      }
+      res.json(info);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch company info" });
+    }
+  });
+  app2.post("/api/company-info", async (req, res) => {
+    try {
+      const result = insertCompanyInfoSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+      const info = await storage.createCompanyInfo(result.data);
+      res.status(201).json(info);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create company info" });
+    }
+  });
+  app2.patch("/api/company-info/:id", async (req, res) => {
+    try {
+      const result = insertCompanyInfoSchema.partial().safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+      const info = await storage.updateCompanyInfo(req.params.id, result.data);
+      if (!info) {
+        return res.status(404).json({ error: "Company info not found" });
+      }
+      res.json(info);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update company info" });
+    }
+  });
+  app2.get("/api/staff", async (_req, res) => {
+    try {
+      const staffList = await storage.getStaff();
+      res.json(staffList);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staff" });
+    }
+  });
+  app2.get("/api/staff/:id", async (req, res) => {
+    try {
+      const staffMember = await storage.getStaffMember(req.params.id);
+      if (!staffMember) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.json(staffMember);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staff member" });
+    }
+  });
+  app2.post("/api/staff", async (req, res) => {
+    try {
+      const result = insertStaffSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message, details: result.error.errors });
+      }
+      const staffMember = await storage.createStaffMember(result.data);
+      res.status(201).json(staffMember);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create staff member" });
+    }
+  });
+  app2.patch("/api/staff/:id", async (req, res) => {
+    try {
+      const result = updateStaffSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message, details: result.error.errors });
+      }
+      const staffMember = await storage.updateStaffMember(req.params.id, result.data);
+      if (!staffMember) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.json(staffMember);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update staff member" });
+    }
+  });
+  app2.delete("/api/staff/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteStaffMember(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete staff member" });
+    }
+  });
+  app2.get("/api/reviews", async (_req, res) => {
+    try {
+      const reviews = await storage.getReviews();
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+  app2.post("/api/reviews", async (req, res) => {
+    try {
+      const result = insertCustomerReviewSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+      const review = await storage.createReview(result.data);
+      res.status(201).json(review);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+  app2.delete("/api/reviews/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteReview(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+  app2.get("/api/packages", async (_req, res) => {
+    try {
+      const packages = await storage.getPackages();
+      res.json(packages);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch packages" });
+    }
+  });
+  app2.get("/api/packages/:id", async (req, res) => {
+    try {
+      const pkg = await storage.getPackage(req.params.id);
+      if (!pkg) {
+        return res.status(404).json({ error: "Package not found" });
+      }
+      res.json(pkg);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch package" });
+    }
+  });
+  app2.post("/api/packages", async (req, res) => {
+    try {
+      const result = insertCateringPackageSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+      const pkg = await storage.createPackage(result.data);
+      res.status(201).json(pkg);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create package" });
+    }
+  });
+  app2.patch("/api/packages/:id", async (req, res) => {
+    try {
+      const result = updateCateringPackageSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+      const pkg = await storage.updatePackage(req.params.id, result.data);
+      if (!pkg) {
+        return res.status(404).json({ error: "Package not found" });
+      }
+      res.json(pkg);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update package" });
+    }
+  });
+  app2.delete("/api/packages/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deletePackage(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Package not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete package" });
+    }
+  });
+  app2.get("/api/notifications", async (_req, res) => {
+    try {
+      const notifications = await storage.getNotifications();
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+  });
+  app2.post("/api/notifications", async (req, res) => {
+    try {
+      const { type, title, message, bookingId } = req.body;
+      const notification = await storage.createNotification({ type, title, message, bookingId });
+      res.status(201).json(notification);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create notification" });
+    }
+  });
+  app2.patch("/api/notifications/:id/read", async (req, res) => {
+    try {
+      const success = await storage.markNotificationAsRead(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to mark notification as read" });
+    }
+  });
+  app2.delete("/api/notifications/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteNotification(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete notification" });
+    }
+  });
+  app2.get("/api/bookings/:bookingId/staff-requests", async (req, res) => {
+    try {
+      const requests = await storage.getStaffBookingRequests(req.params.bookingId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staff requests" });
+    }
+  });
+  app2.post("/api/bookings/:bookingId/staff-requests", async (req, res) => {
+    try {
+      const { staffId } = req.body;
+      const token = randomUUID();
+      const result = insertStaffBookingRequestSchema.safeParse({
+        bookingId: req.params.bookingId,
+        staffId,
+        status: "pending",
+        token
+      });
+      if (!result.success) {
+        return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+      const request = await storage.createStaffBookingRequest(result.data);
+      res.status(201).json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create staff request" });
+    }
+  });
+  app2.get("/api/bookings/:bookingId/assigned-staff", async (req, res) => {
+    try {
+      const staff = await storage.getAcceptedStaffForBooking(req.params.bookingId);
+      res.json(staff);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch assigned staff" });
+    }
+  });
+  app2.delete("/api/bookings/:bookingId/staff-requests/:staffId", async (req, res) => {
+    try {
+      const deleted = await storage.deleteStaffBookingRequest(req.params.bookingId, req.params.staffId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Staff assignment not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove staff assignment" });
+    }
+  });
+  app2.get("/api/staff-requests/:token", async (req, res) => {
+    try {
+      const request = await storage.getStaffBookingRequestByToken(req.params.token);
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+      const booking = await storage.getBooking(request.bookingId);
+      const staff = await storage.getStaffMember(request.staffId);
+      if (!booking || !staff) {
+        return res.status(404).json({ error: "Booking or staff not found" });
+      }
+      res.json({ request, booking, staff });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch request details" });
+    }
+  });
+  app2.patch("/api/staff-requests/:token", async (req, res) => {
+    try {
+      console.log("[PATCH] Starting - Token:", req.params.token, "Body:", JSON.stringify(req.body));
+      const request = await storage.getStaffBookingRequestByToken(req.params.token);
+      console.log("[PATCH] Found request:", JSON.stringify(request));
+      if (!request) {
+        console.log("[PATCH] Request not found for token:", req.params.token);
+        return res.status(404).json({ error: "Request not found" });
+      }
+      const { status } = req.body;
+      console.log("[PATCH] Received status:", status);
+      if (!status || !["pending", "accepted", "rejected"].includes(status)) {
+        console.log("[PATCH] Invalid status:", status);
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      console.log("[PATCH] Updating with ID:", request.id, "Status:", status);
+      const updatedRequest = await storage.updateStaffBookingRequest(request.id, { status });
+      console.log("[PATCH] Updated successfully:", JSON.stringify(updatedRequest));
+      if (!updatedRequest) {
+        console.log("[PATCH] Update failed - no result");
+        return res.status(404).json({ error: "Failed to update request" });
+      }
+      console.log("[PATCH] Sending response:", JSON.stringify(updatedRequest));
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error("[PATCH] ERROR:", error instanceof Error ? error.message : String(error));
+      console.error("[PATCH] Full error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Failed to update request" });
+    }
+  });
+  app2.get("/api/available-dates", async (_req, res) => {
+    try {
+      const bookings = await storage.getBookings();
+      const bookedDates = bookings.filter((b) => b.status === "confirmed" || b.status === "pending").map((b) => b.eventDate);
+      res.json({ bookedDates });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch available dates" });
+    }
+  });
+  app2.get("/api/audit-history", async (req, res) => {
+    try {
+      const { entityType, entityId } = req.query;
+      const history = await storage.getAuditHistory(entityType, entityId);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch audit history" });
+    }
+  });
+  app2.post("/api/audit-history", async (req, res) => {
+    try {
+      const history = await storage.createAuditHistory(req.body);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create audit history" });
+    }
+  });
+  const httpServer = createServer(app2);
+  return httpServer;
+}
+
+// server/vite.ts
+import express from "express";
+import fs from "fs";
+import path2 from "path";
+import { createServer as createViteServer, createLogger } from "vite";
+
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+var vite_config_default = defineConfig({
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
+    ...process.env.NODE_ENV !== "production" && process.env.REPL_ID !== void 0 ? [
+      await import("@replit/vite-plugin-cartographer").then(
+        (m) => m.cartographer()
+      ),
+      await import("@replit/vite-plugin-dev-banner").then(
+        (m) => m.devBanner()
+      )
+    ] : []
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(import.meta.dirname, "client", "src"),
+      "@shared": path.resolve(import.meta.dirname, "shared"),
+      "@assets": path.resolve(import.meta.dirname, "attached_assets")
+    }
+  },
+  root: path.resolve(import.meta.dirname, "client"),
+  build: {
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    emptyOutDir: true,
+    chunkSizeWarningLimit: 1e3
+  },
+  server: {
+    fs: {
+      strict: true,
+      deny: ["**/.*"]
+    }
+  }
+});
+
+// server/vite.ts
+import { nanoid } from "nanoid";
+var viteLogger = createLogger();
+function log(message, source = "express") {
+  const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+async function setupVite(app2, server) {
+  const serverOptions = {
+    middlewareMode: true,
+    hmr: { server },
+    allowedHosts: true
+  };
+  const vite = await createViteServer({
+    ...vite_config_default,
+    configFile: false,
+    customLogger: {
+      ...viteLogger,
+      error: (msg, options) => {
+        viteLogger.error(msg, options);
+        process.exit(1);
+      }
+    },
+    server: serverOptions,
+    appType: "custom"
+  });
+  app2.use(vite.middlewares);
+  app2.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+    try {
+      const clientTemplate = path2.resolve(
+        import.meta.dirname,
+        "..",
+        "client",
+        "index.html"
+      );
+      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      template = template.replace(
+        `src="/src/main.tsx"`,
+        `src="/src/main.tsx?v=${nanoid()}"`
+      );
+      const page = await vite.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      next(e);
+    }
+  });
+}
+function serveStatic(app2) {
+  const distPath = path2.resolve(import.meta.dirname, "public");
+  if (!fs.existsSync(distPath)) {
+    throw new Error(
+      `Could not find the build directory: ${distPath}, make sure to build the client first`
+    );
+  }
+  app2.use(express.static(distPath));
+  app2.use("*", (_req, res) => {
+    res.sendFile(path2.resolve(distPath, "index.html"));
+  });
+}
+
+// server/index.ts
+var app = express2();
+app.use(express2.json({
+  limit: "50mb",
+  verify: (req, _res, buf) => {
+    req.rawBody = buf;
+  }
+}));
+app.use(express2.urlencoded({ extended: false, limit: "50mb" }));
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path3 = req.path;
+  let capturedJsonResponse = void 0;
+  const originalResJson = res.json;
+  res.json = function(bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path3.startsWith("/api")) {
+      let logLine = `${req.method} ${path3} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "\u2026";
+      }
+      log(logLine);
+    }
+  });
+  next();
+});
+(async () => {
+  const { connectToDatabase: connectToDatabase2 } = await Promise.resolve().then(() => (init_db(), db_exports));
+  await connectToDatabase2();
+  const server = await registerRoutes(app);
+  app.use((err, _req, res, _next) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    throw err;
+  });
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+  const port = parseInt(process.env.PORT || "5000", 10);
+  server.listen({
+    port,
+    host: "0.0.0.0"
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
