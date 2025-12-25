@@ -22,7 +22,7 @@ import {
   type UpdateStaffBookingRequest,
   type AuditHistory,
   type InsertAuditHistory
-} from "@shared/schema.js";
+} from "@shared/schema";
 
 // ==================== MONGOOSE MODELS ====================
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { MongoDBStorage } from "./storage.js";
+import { MongoDBStorage } from "./storage";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority";
 

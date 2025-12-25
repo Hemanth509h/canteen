@@ -1,10 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { randomUUID } from "crypto";
-import { storage } from "./db.js";
-import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema, insertCustomerReviewSchema, insertCateringPackageSchema, updateCateringPackageSchema, insertStaffBookingRequestSchema, updateStaffBookingRequestSchema } from "@shared/schema.js";
+import { storage } from "./db";
+import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema, insertCustomerReviewSchema, insertCateringPackageSchema, updateCateringPackageSchema, insertStaffBookingRequestSchema, updateStaffBookingRequestSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { verifyPassword, updatePassword } from "./password-manager.js";
+import { verifyPassword, updatePassword } from "./password-manager";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
