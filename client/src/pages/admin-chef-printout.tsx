@@ -253,24 +253,51 @@ export default function ChefPrintout() {
               <CardHeader>
                 <CardTitle>Events for {activeDate}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 {bookingsForDate.map((booking, idx) => (
-                  <div key={booking.id} className="p-4 rounded-md border bg-card space-y-2 print-section-avoid">
-                    <div className="flex flex-wrap justify-between items-start gap-2">
-                      <span className="font-semibold">
-                        Event {idx + 1}: {booking.clientName} - {booking.eventType}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
+                  <div key={booking.id} className="p-4 rounded-md border-2 border-primary bg-card space-y-3 print-section-avoid">
+                    <div className="flex flex-wrap justify-between items-start gap-2 pb-3 border-b">
+                      <div>
+                        <span className="font-bold text-lg">
+                          Event {idx + 1}: {booking.clientName}
+                        </span>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {booking.eventType}
+                        </p>
+                      </div>
+                      <span className="text-lg font-bold text-primary">
                         {booking.guestCount} guests
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Contact: {booking.contactPhone} | {booking.contactEmail}
-                    </p>
-                    {booking.specialRequests && (
-                      <p className="text-sm text-muted-foreground italic">
-                        Special Requests: {booking.specialRequests}
+                    
+                    <div className="space-y-2">
+                      <p className="text-sm">
+                        <span className="font-semibold">Contact:</span> {booking.contactPhone} | {booking.contactEmail}
                       </p>
+                      {booking.specialRequests && (
+                        <div className="p-3 rounded-md bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
+                          <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                            Special Instructions/Dietary Requirements:
+                          </p>
+                          <p className="text-sm text-amber-800 dark:text-amber-100 mt-1">
+                            {booking.specialRequests}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {booking.items.length > 0 && (
+                      <div className="mt-3 pt-3 border-t">
+                        <p className="text-sm font-semibold mb-2">Menu Items for this Event:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {booking.items.map((item) => (
+                            <div key={item.id} className="p-2 bg-muted/50 rounded text-sm">
+                              <span className="font-medium">{item.foodItem.name}</span>
+                              <span className="text-muted-foreground ml-2">× {item.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}
