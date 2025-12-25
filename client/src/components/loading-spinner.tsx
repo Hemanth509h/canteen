@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -13,12 +14,21 @@ export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) 
   };
 
   return (
-    <div
-      className={cn("relative animate-in fade-in duration-200", sizeClasses[size], className)}
+    <motion.div
+      className={cn("relative", sizeClasses[size], className)}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
     >
-      <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
-      <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" />
-    </div>
+      <motion.div
+        className="absolute inset-0 rounded-full border-2 border-primary/20"
+      />
+      <motion.div
+        className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+      />
+    </motion.div>
   );
 }
 
@@ -28,12 +38,22 @@ interface PageLoaderProps {
 
 export function PageLoader({ text = "Loading..." }: PageLoaderProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <motion.div 
+      className="flex flex-col items-center justify-center min-h-[400px] gap-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <LoadingSpinner size="lg" />
-      <p className="text-muted-foreground text-sm animate-in fade-in duration-500">
+      <motion.p 
+        className="text-muted-foreground text-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
         {text}
-      </p>
-    </div>
+      </motion.p>
+    </motion.div>
   );
 }
 
@@ -43,25 +63,37 @@ interface CardSkeletonProps {
 
 export function CardSkeleton({ className }: CardSkeletonProps) {
   return (
-    <div className={cn("rounded-md bg-muted p-4 space-y-3 animate-in fade-in duration-300", className)}>
+    <motion.div
+      className={cn("rounded-md bg-muted p-4 space-y-3", className)}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="h-4 bg-muted-foreground/10 rounded w-3/4 animate-pulse" />
       <div className="h-3 bg-muted-foreground/10 rounded w-1/2 animate-pulse" />
       <div className="h-8 bg-muted-foreground/10 rounded w-full animate-pulse" />
-    </div>
+    </motion.div>
   );
 }
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="space-y-2 animate-in fade-in duration-300">
+    <motion.div
+      className="space-y-2"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="h-10 bg-muted rounded animate-pulse" />
       {Array.from({ length: rows }).map((_, i) => (
-        <div
+        <motion.div
           key={i}
           className="h-14 bg-muted/60 rounded animate-pulse"
-          style={{ animationDelay: `${i * 0.05}s` }}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.05 }}
         />
       ))}
-    </div>
+    </motion.div>
   );
 }

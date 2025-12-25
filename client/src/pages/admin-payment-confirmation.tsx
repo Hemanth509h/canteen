@@ -208,6 +208,7 @@ export default function AdminPaymentConfirmation() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
       <div className="max-w-5xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <div className="flex gap-2 mb-4">
             <Button
               variant="ghost"
@@ -250,9 +251,10 @@ export default function AdminPaymentConfirmation() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-2 space-y-6">
             
             <Card>
               <CardHeader className="pb-4">
@@ -508,21 +510,24 @@ export default function AdminPaymentConfirmation() {
             </div>
 
             {allPaid && !isEditing && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <Invoice booking={booking} companyInfo={companyInfo} isAdmin={true} />
                 <Card className="border-green-300 dark:border-green-800 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/10">
                   <CardContent className="pt-6 pb-6">
                     <div className="text-center space-y-3">
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }}>
                         <CheckCircle className="w-16 h-16 text-green-600 mx-auto" data-testid="icon-all-paid-admin" />
-                      </div>
+                      </motion.div>
                       <h3 className="text-xl font-bold text-green-700 dark:text-green-200">All Payments Complete</h3>
                       <p className="text-sm text-muted-foreground">This booking is fully paid and confirmed.</p>
                     </div>
                   </CardContent>
                 </Card>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
 
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
             <Card className="sticky top-4">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -623,7 +628,7 @@ export default function AdminPaymentConfirmation() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
