@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,10 +90,7 @@ export default function CustomerBookingLookup() {
   return (
     <div className="min-h-screen bg-gradient-warm">
       <div className="container max-w-2xl mx-auto px-4 py-8 sm:py-12">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        <div
         >
           <Link href="/">
             <Button variant="ghost" className="mb-6" data-testid="button-back-home">
@@ -110,12 +107,9 @@ export default function CustomerBookingLookup() {
               Enter your email or phone number to view your booking status
             </p>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+        <div
         >
           <Card>
             <CardHeader>
@@ -174,15 +168,11 @@ export default function CustomerBookingLookup() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         <AnimatePresence mode="wait">
           {notFound && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+            <div
               className="mt-6"
             >
               <Card className="border-destructive/50">
@@ -195,15 +185,11 @@ export default function CustomerBookingLookup() {
                   </p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           )}
 
           {booking && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+            <div
               className="mt-6"
             >
               <Card>
@@ -318,7 +304,7 @@ export default function CustomerBookingLookup() {
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </div>

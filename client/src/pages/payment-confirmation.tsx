@@ -180,7 +180,6 @@ export default function PaymentConfirmation() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
       <div className="max-w-5xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <div className="flex gap-2 mb-4">
             <Button
               variant="ghost"
@@ -215,10 +214,9 @@ export default function PaymentConfirmation() {
               {allPaid ? "Fully Paid" : advancePaid ? "Advance Paid" : "Payment Pending"}
             </Badge>
           </div>
-        </motion.div>
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-2 space-y-6">
             
             <Card>
               <CardHeader className="pb-4">
@@ -295,9 +293,7 @@ export default function PaymentConfirmation() {
                       
                       <div className="space-y-4">
                         {advancePreview && (
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                          <div 
                             className="relative w-full max-w-xs mx-auto"
                           >
                             <img src={advancePreview} alt="Payment preview" className="w-full border-2 rounded-lg shadow-md" data-testid="img-advance-preview" />
@@ -309,7 +305,7 @@ export default function PaymentConfirmation() {
                             >
                               Change
                             </Button>
-                          </motion.div>
+                          </div>
                         )}
                         
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -337,9 +333,7 @@ export default function PaymentConfirmation() {
                     </div>
                   </>
                 ) : advanceUploaded ? (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }} 
-                    animate={{ opacity: 1, scale: 1 }} 
+                  <div 
                     className="space-y-4"
                   >
                     <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
@@ -355,11 +349,9 @@ export default function PaymentConfirmation() {
                         <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 ) : (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }} 
-                    animate={{ opacity: 1, scale: 1 }} 
+                  <div 
                     className="space-y-4"
                   >
                     <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
@@ -375,13 +367,12 @@ export default function PaymentConfirmation() {
                         <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 )}
               </CardContent>
             </Card>
 
             {booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved" && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <Card className={finalPaid ? "border-green-300 dark:border-green-800" : "border-blue-300 dark:border-blue-800"}>
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between flex-wrap gap-2">
@@ -422,9 +413,7 @@ export default function PaymentConfirmation() {
                           
                           <div className="space-y-4">
                             {finalPreview && (
-                              <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
+                              <div 
                                 className="relative w-full max-w-xs mx-auto"
                               >
                                 <img src={finalPreview} alt="Payment preview" className="w-full border-2 rounded-lg shadow-md" data-testid="img-final-preview" />
@@ -436,7 +425,7 @@ export default function PaymentConfirmation() {
                                 >
                                   Change
                                 </Button>
-                              </motion.div>
+                              </div>
                             )}
                             
                             <div className="flex flex-col sm:flex-row gap-3">
@@ -464,9 +453,7 @@ export default function PaymentConfirmation() {
                         </div>
                       </>
                     ) : finalUploaded ? (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }} 
-                        animate={{ opacity: 1, scale: 1 }} 
+                      <div 
                         className="space-y-4"
                       >
                         <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
@@ -482,11 +469,9 @@ export default function PaymentConfirmation() {
                             <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     ) : (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }} 
-                        animate={{ opacity: 1, scale: 1 }} 
+                      <div 
                         className="space-y-4"
                       >
                         <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
@@ -502,28 +487,24 @@ export default function PaymentConfirmation() {
                             <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             )}
 
             {allPaid && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <Invoice booking={booking} companyInfo={companyInfo} isAdmin={false} />
                 <Card className="border-green-300 dark:border-green-800 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/10 overflow-hidden">
                   <CardContent className="pt-8 pb-8">
                     <div className="text-center space-y-4">
-                      <motion.div 
-                        initial={{ scale: 0 }} 
-                        animate={{ scale: 1 }} 
-                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                      <div 
                         className="relative"
                       >
                         <div className="absolute inset-0 bg-green-400/20 blur-xl rounded-full" />
                         <CheckCircle className="w-20 h-20 text-green-600 mx-auto relative" data-testid="icon-all-paid" />
-                      </motion.div>
+                      </div>
                       <h3 className="text-2xl font-bold text-green-700 dark:text-green-200">All Payments Complete!</h3>
                       <p className="text-muted-foreground max-w-md mx-auto">
                         Your booking is fully confirmed. We'll contact you soon with event details and preparations.
@@ -534,11 +515,10 @@ export default function PaymentConfirmation() {
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
 
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
             <Card className="sticky top-4">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Payment Breakdown</CardTitle>
@@ -623,7 +603,7 @@ export default function PaymentConfirmation() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

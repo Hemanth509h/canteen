@@ -1,5 +1,5 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
-import { motion } from "framer-motion";
+
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
 import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,11 +62,8 @@ function AppSidebar({ onLogout }: { onLogout: () => void }) {
           <SidebarGroupContent className="px-2">
             <SidebarMenu>
               {menuItems.map((item, index) => (
-                <motion.div
+                <div
                   key={item.title}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
                 >
                   <SidebarMenuItem>
                     <SidebarMenuButton 
@@ -80,7 +77,7 @@ function AppSidebar({ onLogout }: { onLogout: () => void }) {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                </motion.div>
+                </div>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -141,17 +138,14 @@ export default function AdminDashboard() {
   if (isChecking) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-amber-900/10 via-background to-orange-900/10">
-        <motion.div 
+        <div 
           className="text-center"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
         >
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <ChefHat className="w-8 h-8 text-primary animate-pulse" />
           </div>
           <p className="text-muted-foreground font-medium">Loading admin panel...</p>
-        </motion.div>
+        </div>
       </div>
     );
   }

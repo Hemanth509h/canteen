@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +84,6 @@ const testimonials = [
 function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
     if (!isInView) return;
@@ -145,9 +144,6 @@ export default function CustomerHome() {
 
   const dietaryOptions = ["Vegetarian", "Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
-  const { scrollY } = useScroll();
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 400], [1, 1.1]);
 
   const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
@@ -232,71 +228,51 @@ export default function CustomerHome() {
   return (
     <>
       {/* Animated Intro Screen */}
-      <AnimatePresence>
+      
         {showIntro && (
-          <motion.div
+          <div
             className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
           >
             <div className="text-center">
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.8, type: "spring" }}
+              <div
                 className="mb-6"
               >
                 <div className="w-24 h-24 mx-auto bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center animate-pulse-glow">
                   <UtensilsCrossed className="w-12 h-12 text-amber-200" />
                 </div>
-              </motion.div>
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
+              </div>
+              <h1
                 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4"
               >
                 {companyInfo?.companyName}
-              </motion.h1>
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "200px" }}
-                transition={{ delay: 0.8, duration: 0.6 }}
+              </h1>
+              <div
                 className="h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent mx-auto mb-4"
               />
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
+              <p
                 className="text-xl text-amber-100/80"
               >
                 Crafting Culinary Excellence
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.6 }}
+              </p>
+              <div
                 className="mt-8 flex justify-center gap-2"
               >
                 {[0, 1, 2].map((i) => (
-                  <motion.div
+                  <div
                     key={i}
                     className="w-2 h-2 bg-amber-300 rounded-full"
-                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
                   />
                 ))}
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      
 
       <div className="min-h-screen bg-background">
         {/* Hero Section with Parallax */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-8">
-          <motion.div
+          <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${heroImage})`,
@@ -305,40 +281,31 @@ export default function CustomerHome() {
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
-          </motion.div>
+          </div>
 
           {/* Floating Icons */}
           {floatingIcons.map(({ Icon, delay, x, y }, index) => (
-            <motion.div
+            <div
               key={index}
               className="absolute z-10 opacity-20"
               style={{ left: x, top: y }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 0.2, scale: 1 }}
-              transition={{ delay: delay + 2.5, duration: 0.5 }}
             >
               <div className={index % 2 === 0 ? "animate-float" : "animate-float-delayed"}>
                 <Icon className="w-12 h-12 text-primary" />
               </div>
-            </motion.div>
+            </div>
           ))}
 
-          <motion.div 
+          <div 
             className="relative z-10 text-center px-4 max-w-5xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2.5, duration: 1 }}
           >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 2.7, type: "spring", stiffness: 200 }}
+            <div
               className="inline-flex items-center gap-2 mb-8"
             >
               <div className="p-4 bg-primary/20 backdrop-blur-sm rounded-full border border-primary/30">
                 <UtensilsCrossed className="w-10 h-10 text-primary" />
               </div>
-            </motion.div>
+            </div>
 
             {loadingCompany ? (
               <>
@@ -347,30 +314,21 @@ export default function CustomerHome() {
               </>
             ) : (
               <>
-                <motion.h1 
+                <h1 
                   className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-4 md:mb-6 leading-tight px-2"
-                  initial={{ y: 50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 2.9, duration: 0.8 }}
                 >
                   {companyInfo?.companyName}
-                </motion.h1>
-                <motion.p 
+                </h1>
+                <p 
                   className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-10 font-light px-4"
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 3.1, duration: 0.6 }}
                 >
                   {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
-                </motion.p>
+                </p>
               </>
             )}
 
-            <motion.div 
+            <div 
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 3.3, duration: 0.6 }}
             >
               <Button 
                 size="lg"
@@ -390,13 +348,10 @@ export default function CustomerHome() {
               >
                 Book Your Event
               </Button>
-            </motion.div>
+            </div>
 
-            <motion.div
+            <div
               className="mt-8 md:mt-12 grid grid-cols-3 gap-4 md:gap-8 max-w-md md:max-w-lg mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 3.5 }}
             >
               <div className="text-center" data-testid="stat-events">
                 <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-events">
@@ -416,35 +371,28 @@ export default function CustomerHome() {
                 </p>
                 <p className="text-white/70 text-xs sm:text-sm">Cuisines</p>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Scroll Indicator */}
-          <motion.div
+          <div
             className="absolute bottom-8 left-1/2 -translate-x-1/2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, y: [0, 10, 0] }}
-            transition={{ delay: 4, duration: 2, repeat: Infinity }}
           >
             <div className="w-8 h-12 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
-              <motion.div
+              <div
                 className="w-1.5 h-3 bg-primary rounded-full"
-                animate={{ y: [0, 12, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
               />
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* Catering Packages Section */}
         <section id="packages" className="py-20 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div 
+            <div 
               className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
             >
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Sparkles className="w-3 h-3 mr-1" /> Catering Packages
@@ -455,7 +403,7 @@ export default function CustomerHome() {
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Pre-built packages tailored to your event size and budget
               </p>
-            </motion.div>
+            </div>
 
             {loadingPackages ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -473,12 +421,10 @@ export default function CustomerHome() {
                   };
                   
                   return (
-                    <motion.div
+                    <div
                       key={pkg.id}
-                      initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
                     >
                       <Card 
                         className={`h-full flex flex-col hover-elevate transition-all duration-300 border-2 ${tierColors[pkg.tier]}`}
@@ -532,7 +478,7 @@ export default function CustomerHome() {
                           </Button>
                         </div>
                       </Card>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -543,12 +489,10 @@ export default function CustomerHome() {
         {/* Features Section */}
         <section className="py-20 bg-gradient-warm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div 
+            <div 
               className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
             >
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Sparkles className="w-3 h-3 mr-1" /> Why Choose Us
@@ -559,16 +503,14 @@ export default function CustomerHome() {
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 We bring together tradition, innovation, and passion to create memorable dining experiences
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((feature, index) => (
-                <motion.div
+                <div
                   key={feature.title}
-                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, duration: 0.5 }}
                 >
                   <Card 
                     className="h-full text-center hover-elevate transition-all duration-300 border-none bg-card/50 backdrop-blur-sm"
@@ -584,7 +526,7 @@ export default function CustomerHome() {
                       <CardDescription className="text-base">{feature.description}</CardDescription>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -640,9 +582,8 @@ export default function CustomerHome() {
         {/* Menu Section */}
         <section id="menu" className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div 
+            <div 
               className="text-center mb-12"
-              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
@@ -691,7 +632,7 @@ export default function CustomerHome() {
                 ))}
               </div>
 
-            </motion.div>
+            </div>
 
             {loadingFood ? (
               <div className="space-y-8">
@@ -717,12 +658,10 @@ export default function CustomerHome() {
             ) : filteredItems && filteredItems.length > 0 ? (
               <div className="space-y-12">
                 {Object.entries(groupedByCategory).sort(([a], [b]) => a.localeCompare(b)).map(([category, items], categoryIndex) => (
-                  <motion.div 
+                  <div 
                     key={category}
-                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: categoryIndex * 0.1 }}
                   >
                     <div className="flex items-center gap-4 mb-6">
                       <h3 className="text-2xl md:text-3xl font-serif font-bold">
@@ -735,12 +674,10 @@ export default function CustomerHome() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                       {items.map((item, index) => (
-                        <motion.div
+                        <div
                           key={item.id}
-                          initial={{ opacity: 0, scale: 0.9 }}
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
-                          transition={{ delay: index * 0.05 }}
                         >
                           <Card 
                             className="group cursor-pointer overflow-visible hover-elevate transition-all duration-300 h-full"
@@ -755,16 +692,14 @@ export default function CustomerHome() {
                                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                <motion.div
+                                <div
                                   className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 opacity-0 group-hover:opacity-100"
-                                  initial={false}
-                                  animate={{ scale: 1 }}
                                   whileHover={{ scale: 1.1 }}
                                 >
                                   <Button size="sm" variant="secondary" className="gap-1 text-xs sm:text-sm">
                                     View <ArrowRight className="w-3 h-3" />
                                   </Button>
-                                </motion.div>
+                                </div>
                               </div>
                             )}
                             <CardHeader className="space-y-1 p-2 sm:p-4 pb-1 sm:pb-2">
@@ -787,10 +722,10 @@ export default function CustomerHome() {
                               )}
                             </CardContent>
                           </Card>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             ) : loadingFood ? (
@@ -800,10 +735,8 @@ export default function CustomerHome() {
                 ))}
               </div>
             ) : (
-              <motion.div 
+              <div 
                 className="text-center py-16"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
               >
                 <Search className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
                 <p className="text-muted-foreground text-lg">No items found matching your search</p>
@@ -815,7 +748,7 @@ export default function CustomerHome() {
                 >
                   Clear filters
                 </Button>
-              </motion.div>
+              </div>
             )}
           </div>
         </section>
@@ -823,9 +756,8 @@ export default function CustomerHome() {
         {/* Testimonials Section */}
         <section className="py-12 md:py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div 
+            <div 
               className="text-center mb-8 md:mb-16"
-              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
@@ -838,16 +770,14 @@ export default function CustomerHome() {
               <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 Hear from those who have experienced our exceptional catering services
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
               {testimonials.map((testimonial, index) => (
-                <motion.div
+                <div
                   key={testimonial.name}
-                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.15 }}
                 >
                   <Card 
                     className="h-full hover-elevate"
@@ -878,15 +808,14 @@ export default function CustomerHome() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               ))}
             </div>
 
             {/* Customer Submitted Reviews */}
             {reviews && reviews.length > 0 && (
-              <motion.div
+              <div
                 className="mt-12 md:mt-16"
-                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
@@ -897,7 +826,6 @@ export default function CustomerHome() {
                 <div className="space-y-12 p-2 max-h-[600px] overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {reviews.slice(0, 6).map((review, index) => (
-                      <motion.div key={review.id} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
                         <Card className="hover-elevate h-full flex flex-col" data-testid={`card-customer-review-${index}`}>
                           <CardHeader className="pb-3">
                             <div className="flex items-center justify-between mb-3">
@@ -923,11 +851,11 @@ export default function CustomerHome() {
                             </CardDescription>
                           </CardHeader>
                         </Card>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </section>
@@ -935,9 +863,8 @@ export default function CustomerHome() {
         {/* Review Submission Section */}
         <section id="submit-review" className="py-16 md:py-24 bg-gradient-to-br from-primary/5 via-background to-background">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
+            <div
               className="text-center mb-12"
-              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
@@ -950,10 +877,9 @@ export default function CustomerHome() {
               <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
                 Share your catering experience with us! Your feedback helps us improve and gives other clients confidence in choosing our services.
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
+            <div
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
@@ -1082,7 +1008,7 @@ export default function CustomerHome() {
                   </Form>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -1095,9 +1021,8 @@ export default function CustomerHome() {
             <div className="absolute top-1/2 left-1/4 w-24 h-24 border border-white/20 rounded-full animate-float" />
           </div>
           
-          <motion.div 
+          <div 
             className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
-            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
@@ -1129,7 +1054,7 @@ export default function CustomerHome() {
                 </a>
               </div>
             )}
-          </motion.div>
+          </div>
         </section>
 
         {/* Footer */}

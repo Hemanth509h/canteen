@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
 import { TrendingUp, PieChartIcon, BarChart3, Calendar } from "lucide-react";
@@ -81,10 +80,7 @@ export function RevenueChart({ bookings }: DashboardChartsProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        <div
           className="h-[200px]"
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -125,7 +121,7 @@ export function RevenueChart({ bookings }: DashboardChartsProps) {
               />
             </AreaChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -159,10 +155,7 @@ export function BookingStatusChart({ bookings }: DashboardChartsProps) {
         <CardTitle className="text-lg">Booking Status</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+        <div
           className="h-[200px]"
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -190,7 +183,7 @@ export function BookingStatusChart({ bookings }: DashboardChartsProps) {
               />
             </PieChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
         <div className="flex flex-wrap justify-center gap-4 mt-2">
           {statusData.map((entry, index) => (
             <div key={entry.name} className="flex items-center gap-2">
@@ -248,10 +241,7 @@ export function MonthlyBookingsChart({ bookings }: DashboardChartsProps) {
         <CardTitle className="text-lg">Monthly Bookings</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+        <div
           className="h-[200px]"
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -282,7 +272,7 @@ export function MonthlyBookingsChart({ bookings }: DashboardChartsProps) {
               />
             </BarChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -312,10 +302,7 @@ export function EventTypeChart({ bookings }: DashboardChartsProps) {
         <CardTitle className="text-lg">Event Types</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+        <div
           className="h-[200px]"
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -345,7 +332,7 @@ export function EventTypeChart({ bookings }: DashboardChartsProps) {
               />
             </PieChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -375,10 +362,7 @@ export function CategoryDistributionChart({ foodItems }: FoodItemsChartsProps) {
         <CardTitle className="text-lg">Menu Categories</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        <div
           className="h-[200px]"
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -403,7 +387,7 @@ export function CategoryDistributionChart({ foodItems }: FoodItemsChartsProps) {
               <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
       </CardContent>
     </Card>
   );

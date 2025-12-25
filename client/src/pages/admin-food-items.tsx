@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -209,11 +209,8 @@ export default function FoodItemsManager() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
-      <motion.div 
+      <div 
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
       >
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -427,12 +424,9 @@ export default function FoodItemsManager() {
           </DialogContent>
           </Dialog>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
+      <div
       >
         <Card>
         <CardHeader>
@@ -631,7 +625,7 @@ export default function FoodItemsManager() {
           )}
         </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       <ConfirmDialog
         open={confirmDeleteOpen}

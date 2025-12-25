@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -68,10 +68,7 @@ export default function AuditHistory() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <div
       className="space-y-6 p-6"
     >
       <div className="flex items-center justify-between gap-4">
@@ -163,9 +160,6 @@ export default function AuditHistory() {
                     return (
                       <motion.tr
                         key={entry.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: index * 0.05 }}
                         className="border-b border-border/30 hover:bg-muted/40 transition-colors"
                       >
                         <TableCell className="text-sm text-muted-foreground py-3">
@@ -244,6 +238,6 @@ export default function AuditHistory() {
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }

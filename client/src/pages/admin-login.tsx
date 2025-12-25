@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
-import { motion } from "framer-motion";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,11 +63,8 @@ export default function AdminLogin() {
       </div>
 
       {/* Back to Home Link */}
-      <motion.div 
+      <div 
         className="absolute top-6 left-6"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3 }}
       >
         <Link href="/">
           <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10">
@@ -75,30 +72,21 @@ export default function AdminLogin() {
             Back to Home
           </Button>
         </Link>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5 }}
+      <div
         className="w-full max-w-md relative z-10"
       >
         <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-sm">
           <CardHeader className="space-y-4 text-center pb-2">
-            <motion.div 
+            <div 
               className="flex justify-center"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             >
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20">
                 <ChefHat className="w-10 h-10 text-primary" />
               </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+            </div>
+            <div
             >
               <CardTitle className="text-2xl font-serif font-bold">
                 Admin Portal
@@ -106,15 +94,12 @@ export default function AdminLogin() {
               <CardDescription className="mt-2">
                 Enter your credentials to access the management panel
               </CardDescription>
-            </motion.div>
+            </div>
           </CardHeader>
           <CardContent className="pt-4">
             <form onSubmit={handleLogin} className="space-y-5">
-              <motion.div 
+              <div 
                 className="space-y-2"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
               >
                 <Label htmlFor="password" className="text-sm font-medium">Admin Password</Label>
                 <div className="relative">
@@ -131,11 +116,8 @@ export default function AdminLogin() {
                     data-testid="input-password"
                   />
                 </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+              </div>
+              <div
               >
                 <Button
                   type="submit"
@@ -155,21 +137,18 @@ export default function AdminLogin() {
                     </>
                   )}
                 </Button>
-              </motion.div>
-              <motion.div 
+              </div>
+              <div 
                 className="text-center pt-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
               >
                 <p className="text-xs text-muted-foreground">
                   Protected area for authorized personnel only
                 </p>
-              </motion.div>
+              </div>
             </form>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

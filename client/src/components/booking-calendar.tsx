@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -141,11 +140,7 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
 
         <AnimatePresence mode="wait">
           {selectedDate && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
+            <div
               className="mt-4 pt-4 border-t"
             >
               <h4 className="text-sm font-medium mb-3">
@@ -154,10 +149,8 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
               {selectedDateBookings.length > 0 ? (
                 <div className="space-y-2 max-h-[200px] overflow-y-auto">
                   {selectedDateBookings.map((booking) => (
-                    <motion.div
+                    <div
                       key={booking.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
                       className={cn(
                         "p-3 rounded-md border cursor-pointer transition-colors",
                         "hover-elevate"
@@ -179,7 +172,7 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
                           {booking.status}
                         </Badge>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -187,7 +180,7 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
                   No bookings on this date
                 </p>
               )}
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </CardContent>

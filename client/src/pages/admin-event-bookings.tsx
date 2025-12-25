@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -370,10 +370,7 @@ export default function EventBookingsManager() {
 
   return (
     <div className="p-6 sm:p-8 space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+      <div
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
@@ -854,16 +851,12 @@ export default function EventBookingsManager() {
             </DialogContent>
           </Dialog>
         </div>
-      </motion.div>
+      </div>
 
       <AnimatePresence mode="wait">
         {viewType === "calendar" ? (
-          <motion.div
+          <div
             key="calendar"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
           >
             {isLoading ? (
               <Card>
@@ -890,14 +883,10 @@ export default function EventBookingsManager() {
                 </CardContent>
               </Card>
             )}
-          </motion.div>
+          </div>
         ) : (
-          <motion.div
+          <div
             key="list"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
           >
             <Card>
               <CardHeader>
@@ -1147,7 +1136,7 @@ export default function EventBookingsManager() {
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

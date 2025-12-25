@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -122,21 +122,15 @@ export default function DashboardOverview() {
         <PageLoader text="Loading charts..." />
       ) : bookings && bookings.length > 0 ? (
         <>
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+          <div 
             className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
           >
             <RevenueChart bookings={bookings} />
             <BookingStatusChart bookings={bookings} />
             <MonthlyBookingsChart bookings={bookings} />
-          </motion.div>
+          </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
+          <div 
             className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           >
             <BookingCalendar bookings={bookings} />
@@ -169,11 +163,8 @@ export default function DashboardOverview() {
                     const IconComponent = icon;
                     
                     return (
-                      <motion.div 
+                      <div 
                         key={booking.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
                         className="flex gap-3 p-3 border border-border/50 rounded-lg hover-elevate"
                         data-testid={`timeline-item-${booking.id}`}
                       >
@@ -188,13 +179,13 @@ export default function DashboardOverview() {
                             {isPending && <Badge variant="secondary" className="text-xs">Payment Pending</Badge>}
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </>
       ) : (
         <Card>

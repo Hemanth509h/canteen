@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -151,36 +150,24 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
         <div className="p-4 pt-2">
           <AnimatePresence mode="wait">
             {query.length < 2 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              <div
                 className="text-sm text-muted-foreground text-center py-8"
               >
                 Type at least 2 characters to search
-              </motion.div>
+              </div>
             ) : results.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              <div
                 className="text-sm text-muted-foreground text-center py-8"
               >
                 No results found for "{query}"
-              </motion.div>
+              </div>
             ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              <div
                 className="space-y-1 max-h-[300px] overflow-y-auto"
               >
                 {results.slice(0, 10).map((result, i) => (
                   <motion.button
                     key={`${result.type}-${result.id}`}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
                     onClick={() => handleSelect(result)}
                     className="w-full flex items-center gap-3 p-3 rounded-md text-left hover-elevate active-elevate-2"
                     data-testid={`search-result-${result.type}-${result.id}`}
@@ -211,7 +198,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                     </Badge>
                   </motion.button>
                 ))}
-              </motion.div>
+              </div>
             )}
           </AnimatePresence>
         </div>
