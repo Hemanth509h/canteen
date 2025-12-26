@@ -80,12 +80,7 @@ export function RevenueChart({ bookings }: DashboardChartsProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div class="animate-in fade-in duration-300" div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="h-[200px]"
-        >
+        <div className="h-[200px] animate-in fade-in duration-300">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={monthlyData}>
               <defs>
@@ -124,7 +119,7 @@ export function RevenueChart({ bookings }: DashboardChartsProps) {
               />
             </AreaChart>
           </ResponsiveContainer>
-        </div>div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -158,12 +153,7 @@ export function BookingStatusChart({ bookings }: DashboardChartsProps) {
         <CardTitle className="text-lg">Booking Status</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div class="animate-in fade-in duration-300" div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="h-[200px]"
-        >
+        <div className="h-[200px] animate-in fade-in duration-300">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -189,7 +179,7 @@ export function BookingStatusChart({ bookings }: DashboardChartsProps) {
               />
             </PieChart>
           </ResponsiveContainer>
-        </div>div>
+        </div>
         <div className="flex flex-wrap justify-center gap-4 mt-2">
           {statusData.map((entry, index) => (
             <div key={entry.name} className="flex items-center gap-2">
@@ -247,12 +237,7 @@ export function MonthlyBookingsChart({ bookings }: DashboardChartsProps) {
         <CardTitle className="text-lg">Monthly Bookings</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div class="animate-in fade-in duration-300" div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="h-[200px]"
-        >
+        <div className="h-[200px] animate-in fade-in duration-300">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData}>
               <XAxis 
@@ -281,7 +266,7 @@ export function MonthlyBookingsChart({ bookings }: DashboardChartsProps) {
               />
             </BarChart>
           </ResponsiveContainer>
-        </div>div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -311,12 +296,7 @@ export function EventTypeChart({ bookings }: DashboardChartsProps) {
         <CardTitle className="text-lg">Event Types</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div class="animate-in fade-in duration-300" div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="h-[200px]"
-        >
+        <div className="h-[200px] animate-in fade-in duration-300">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -344,7 +324,7 @@ export function EventTypeChart({ bookings }: DashboardChartsProps) {
               />
             </PieChart>
           </ResponsiveContainer>
-        </div>div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -374,12 +354,7 @@ export function CategoryDistributionChart({ foodItems }: FoodItemsChartsProps) {
         <CardTitle className="text-lg">Menu Categories</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div class="animate-in fade-in duration-300" div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="h-[200px]"
-        >
+        <div className="h-[200px] animate-in fade-in duration-300">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={categoryData} layout="vertical">
               <XAxis type="number" axisLine={false} tickLine={false} />
@@ -402,7 +377,7 @@ export function CategoryDistributionChart({ foodItems }: FoodItemsChartsProps) {
               <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>div>
+        </div>
       </CardContent>
     </Card>
   );

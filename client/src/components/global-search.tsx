@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Search, Calendar, Users, User, X } from "lucide-react";
+import { Search, Calendar, User, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { EventBooking, Staff } from "@shared/schema";
 import { useLocation } from "wouter";
@@ -148,71 +148,51 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
           </div>
         </DialogHeader>
         <div className="p-4 pt-2">
-          <AnimatePresence mode="wait">
-            {query.length < 2 ? (
-              <div class="animate-in fade-in duration-300" div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-sm text-muted-foreground text-center py-8"
-              >
-                Type at least 2 characters to search
-              </div>div>
-            ) : results.length === 0 ? (
-              <div class="animate-in fade-in duration-300" div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-sm text-muted-foreground text-center py-8"
-              >
-                No results found for "{query}"
-              </div>div>
-            ) : (
-              <div class="animate-in fade-in duration-300" div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="space-y-1 max-h-[300px] overflow-y-auto"
-              >
-                {results.slice(0, 10).map((result, i) => (
-                  <div class="animate-in fade-in duration-300" button
-                    key={`${result.type}-${result.id}`}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    onClick={() => handleSelect(result)}
-                    className="w-full flex items-center gap-3 p-3 rounded-md text-left hover-elevate active-elevate-2"
-                    data-testid={`search-result-${result.type}-${result.id}`}
-                  >
-                    <div className="shrink-0">
-                      {result.type === "booking" ? (
-                        <Calendar className="w-4 h-4 text-primary" />
-                      ) : (
-                        <User className="w-4 h-4 text-primary" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{result.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {result.subtitle}
-                      </p>
-                    </div>
-                    {result.status && (
-                      <Badge
-                        variant="secondary"
-                        className={cn("shrink-0 text-xs", statusColors[result.status])}
-                      >
-                        {result.status}
-                      </Badge>
+          {query.length < 2 ? (
+            <div className="text-sm text-muted-foreground text-center py-8 animate-in fade-in duration-300">
+              Type at least 2 characters to search
+            </div>
+          ) : results.length === 0 ? (
+            <div className="text-sm text-muted-foreground text-center py-8 animate-in fade-in duration-300">
+              No results found for "{query}"
+            </div>
+          ) : (
+            <div className="space-y-1 max-h-[300px] overflow-y-auto animate-in fade-in duration-300">
+              {results.slice(0, 10).map((result) => (
+                <button
+                  key={`${result.type}-${result.id}`}
+                  onClick={() => handleSelect(result)}
+                  className="w-full flex items-center gap-3 p-3 rounded-md text-left hover-elevate active-elevate-2"
+                  data-testid={`search-result-${result.type}-${result.id}`}
+                >
+                  <div className="shrink-0">
+                    {result.type === "booking" ? (
+                      <Calendar className="w-4 h-4 text-primary" />
+                    ) : (
+                      <User className="w-4 h-4 text-primary" />
                     )}
-                    <Badge variant="outline" className="shrink-0 text-xs">
-                      {result.type === "booking" ? "Booking" : "Staff"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{result.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {result.subtitle}
+                    </p>
+                  </div>
+                  {result.status && (
+                    <Badge
+                      variant="secondary"
+                      className={cn("shrink-0 text-xs", statusColors[result.status])}
+                    >
+                      {result.status}
                     </Badge>
-                  </div>button>
-                ))}
-              </div>div>
-            )}
-          
+                  )}
+                  <Badge variant="outline" className="shrink-0 text-xs">
+                    {result.type === "booking" ? "Booking" : "Staff"}
+                  </Badge>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

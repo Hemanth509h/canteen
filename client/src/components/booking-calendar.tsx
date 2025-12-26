@@ -104,7 +104,7 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
             const isSelected = selectedDate && isSameDay(day, selectedDate);
 
             return (
-              <div class="animate-in fade-in duration-300" button
+              <button
                 key={day.toISOString()}
                 onClick={() => setSelectedDate(day)}
                 className={cn(
@@ -115,8 +115,6 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
                   isSelected && "bg-primary text-primary-foreground",
                   hasBookings && !isSelected && "bg-primary/10"
                 )}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 data-testid={`calendar-day-${dateKey}`}
               >
                 <span className="font-medium">{format(day, "d")}</span>
@@ -133,62 +131,52 @@ export function BookingCalendar({ bookings, onSelectBooking }: BookingCalendarPr
                     ))}
                   </div>
                 )}
-              </div>button>
+              </button>
             );
           })}
         </div>
 
-        <AnimatePresence mode="wait">
-          {selectedDate && (
-            <div class="animate-in fade-in duration-300" div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="mt-4 pt-4 border-t"
-            >
-              <h4 className="text-sm font-medium mb-3">
-                {format(selectedDate, "EEEE, MMMM d, yyyy")}
-              </h4>
-              {selectedDateBookings.length > 0 ? (
-                <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                  {selectedDateBookings.map((booking) => (
-                    <div class="animate-in fade-in duration-300" div
-                      key={booking.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className={cn(
-                        "p-3 rounded-md border cursor-pointer transition-colors",
-                        "hover-elevate"
-                      )}
-                      onClick={() => onSelectBooking?.(booking)}
-                      data-testid={`calendar-booking-${booking.id}`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="font-medium truncate">{booking.clientName}</p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {booking.eventType} - {booking.guestCount} guests
-                          </p>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className={cn("shrink-0 text-xs", statusColors[booking.status])}
-                        >
-                          {booking.status}
-                        </Badge>
+        {selectedDate && (
+          <div className="mt-4 pt-4 border-t animate-in fade-in duration-300">
+            <h4 className="text-sm font-medium mb-3">
+              {format(selectedDate, "EEEE, MMMM d, yyyy")}
+            </h4>
+            {selectedDateBookings.length > 0 ? (
+              <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                {selectedDateBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className={cn(
+                      "p-3 rounded-md border cursor-pointer transition-colors animate-in fade-in duration-300",
+                      "hover-elevate"
+                    )}
+                    onClick={() => onSelectBooking?.(booking)}
+                    data-testid={`calendar-booking-${booking.id}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{booking.clientName}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {booking.eventType} - {booking.guestCount} guests
+                        </p>
                       </div>
-                    </div>div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No bookings on this date
-                </p>
-              )}
-            </div>div>
-          )}
-        
+                      <Badge
+                        variant="outline"
+                        className={cn("shrink-0 text-xs", statusColors[booking.status])}
+                      >
+                        {booking.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No bookings on this date
+              </p>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
