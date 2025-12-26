@@ -265,11 +265,11 @@ export default function CustomerHome() {
                 <UtensilsCrossed className="w-12 h-12 text-amber-200" />
               </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4 animate-in fade-in duration-300">
+            <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {companyInfo?.companyName}
             </h1>
-            <div className="h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent mx-auto mb-4 w-[200px] animate-in fade-in duration-300" />
-            <p className="text-xl text-amber-100/80 animate-in fade-in duration-300">
+            <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-6 w-[250px] animate-in fade-in duration-1000 delay-300" />
+            <p className="text-xl md:text-2xl text-white/90 font-light tracking-wide animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
               Crafting Culinary Excellence
             </p>
             <div className="mt-8 flex justify-center gap-2 animate-in fade-in duration-300">
@@ -473,35 +473,38 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="py-20 bg-gradient-warm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16 animate-in fade-in duration-300">
-              <Badge variant="secondary" className="mb-4 px-4 py-1">
-                <Sparkles className="w-3 h-3 mr-1" /> Why Choose Us
+        <section className="py-24 bg-gradient-warm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <Badge variant="secondary" className="mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-primary/20">
+                <Sparkles className="w-3.5 h-3.5 mr-2" /> Why Choose Us
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-foreground">
                 Culinary Excellence in Every Bite
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                We bring together tradition, innovation, and passion to create memorable dining experiences
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                We bring together tradition, innovation, and passion to create memorable dining experiences that stay with you forever.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
-                <div key={feature.title} className="animate-in fade-in duration-300">
+                <div key={feature.title} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 100}ms` }}>
                   <Card 
-                    className="h-full text-center hover-elevate transition-all duration-300 border-none bg-card/50 backdrop-blur-sm"
+                    className="h-full text-center hover-elevate transition-all duration-500 border-none bg-card/40 backdrop-blur-md shadow-sm hover:shadow-xl group"
                     data-testid={`card-feature-${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <CardHeader>
-                      <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
-                        <feature.icon className="w-8 h-8 text-primary" />
+                    <CardHeader className="pt-8">
+                      <div className="mx-auto w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary transition-all duration-500">
+                        <feature.icon className="w-10 h-10 text-primary group-hover:text-primary-foreground transition-colors duration-500" />
                       </div>
-                      <CardTitle className="font-serif text-xl">{feature.title}</CardTitle>
+                      <CardTitle className="font-serif text-2xl mb-2">{feature.title}</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-base">{feature.description}</CardDescription>
+                    <CardContent className="pb-8">
+                      <CardDescription className="text-base text-muted-foreground leading-relaxed">{feature.description}</CardDescription>
                     </CardContent>
                   </Card>
                 </div>
@@ -532,22 +535,27 @@ export default function CustomerHome() {
                 </Select>
               </div>
               
-              <div className="hidden md:flex flex-1 overflow-x-auto scrollbar-hide">
-                <div className="flex gap-2 pb-1">
-                  {categories.map((category) => (
-                    <Button
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedCategory(category)}
-                      className="whitespace-nowrap flex-shrink-0"
-                      data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                    >
-                      {category}
-                    </Button>
-                  ))}
-                </div>
+            <div className="hidden md:flex flex-1 overflow-x-auto scrollbar-hide items-center justify-center">
+              <div className="flex gap-4 pb-1">
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className={`whitespace-nowrap flex-shrink-0 rounded-full px-6 transition-all duration-300 ${
+                      selectedCategory === category ? "shadow-md scale-105" : "hover:bg-primary/10"
+                    }`}
+                    data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {category}
+                  </Button>
+                ))}
               </div>
+            </div>
               
               <ThemeToggle />
             </div>
