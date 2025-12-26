@@ -29,7 +29,7 @@ RUN npm ci
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Expose port
+# Expose port (must be mapped with -p when running)
 EXPOSE 5000
 
 # Health check
