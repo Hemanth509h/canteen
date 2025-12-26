@@ -596,6 +596,7 @@ export default function CustomerHome() {
               <EmptyState 
                 title="No dishes found" 
                 description="We couldn't find any dishes matching your filters. Try adjusting your search or category."
+                icon={Utensils}
               />
             )}
           </div>
@@ -613,7 +614,7 @@ export default function CustomerHome() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {(loadingReviews ? testimonials : (reviews || testimonials)).slice(0, 3).map((review, index) => (
+              {(loadingReviews ? testimonials : (reviews || testimonials)).slice(0, 3).map((review: any, index: number) => (
                 <div key={index} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 150}ms` }}>
                   <Card className="h-full hover-elevate transition-all duration-300 border-none bg-card/60 backdrop-blur-sm relative pt-12">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-background shadow-lg">
@@ -628,11 +629,11 @@ export default function CustomerHome() {
                           />
                         ))}
                       </div>
-                      <CardTitle className="font-serif text-xl">{review.customerName || (review as any).name}</CardTitle>
-                      <CardDescription>{(review as any).role || review.eventType}</CardDescription>
+                      <CardTitle className="font-serif text-xl">{review.customerName || review.name}</CardTitle>
+                      <CardDescription>{review.eventType || review.role}</CardDescription>
                     </CardHeader>
                     <CardContent className="text-center italic text-muted-foreground pb-8">
-                      "{review.comment || (review as any).content}"
+                      "{review.comment || review.content}"
                     </CardContent>
                   </Card>
                 </div>
