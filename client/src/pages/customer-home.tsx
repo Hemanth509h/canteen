@@ -82,11 +82,27 @@ const testimonials = [
 
 function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
   const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
-    if (!isInView) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
     
     let startTime: number;
     const animate = (currentTime: number) => {
@@ -96,7 +112,7 @@ function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; d
       if (progress < 1) requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
-  }, [isInView, end, duration]);
+  }, [isVisible, end, duration]);
 
   return <span ref={ref}>{count}{suffix}</span>;
 }
@@ -241,91 +257,51 @@ export default function CustomerHome() {
 
   return (
     <>
-      {/* Animated Intro Screen */}
-      
-        {showIntro && (
-          <div className="animate-in fade-in duration-300"
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="text-center">
-              <div className="animate-in fade-in duration-300"
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.8, type: "spring" }}
-                className="mb-6"
-              >
-                <div className="w-24 h-24 mx-auto bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center animate-pulse-glow">
-                  <UtensilsCrossed className="w-12 h-12 text-amber-200" />
-                </div>
-              </div>
-              <h1 className="animate-in fade-in duration-300"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
-                className="text-5xl md:text-6xl font-serif font-bold text-white mb-4"
-              >
-                {companyInfo?.companyName}
-              </h1>
-              <div className="animate-in fade-in duration-300"
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "200px" }}
-                transition={{ delay: 0.8, duration: 0.6 }}
-                className="h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent mx-auto mb-4"
-              />
-              <p className="animate-in fade-in duration-300"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
-                className="text-xl text-amber-100/80"
-              >
-                Crafting Culinary Excellence
-              </p>
-              <div className="animate-in fade-in duration-300"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.6 }}
-                className="mt-8 flex justify-center gap-2"
-              >
-                {[0, 1, 2].map((i) => (
-                  <div className="animate-in fade-in duration-300"
-                    key={i}
-                    className="w-2 h-2 bg-amber-300 rounded-full"
-                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                  />
-                ))}
+      {showIntro && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900 animate-in fade-in duration-300">
+          <div className="text-center">
+            <div className="mb-6 animate-in fade-in duration-300">
+              <div className="w-24 h-24 mx-auto bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center animate-pulse-glow">
+                <UtensilsCrossed className="w-12 h-12 text-amber-200" />
               </div>
             </div>
+            <h1 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4 animate-in fade-in duration-300">
+              {companyInfo?.companyName}
+            </h1>
+            <div className="h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent mx-auto mb-4 w-[200px] animate-in fade-in duration-300" />
+            <p className="text-xl text-amber-100/80 animate-in fade-in duration-300">
+              Crafting Culinary Excellence
+            </p>
+            <div className="mt-8 flex justify-center gap-2 animate-in fade-in duration-300">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 bg-amber-300 rounded-full animate-pulse"
+                />
+              ))}
+            </div>
           </div>
-        )}
-      
+        </div>
+      )}
 
       <div className="min-h-screen bg-background">
-        {/* Hero Section with Parallax */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-8">
-          <div className="animate-in fade-in duration-300"
+          <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${heroImage})`,
               opacity: heroOpacity,
-              scale: heroScale,
+              transform: `scale(${heroScale})`,
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
           </div>
 
-          {/* Floating Icons */}
           {floatingIcons.map(({ Icon, delay, x, y }, index) => (
-            <div className="animate-in fade-in duration-300"
+            <div
               key={index}
-              className="absolute z-10 opacity-20"
+              className="absolute z-10 opacity-20 animate-in fade-in duration-300"
               style={{ left: x, top: y }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 0.2, scale: 1 }}
-              transition={{ delay: delay + 2.5, duration: 0.5 }}
             >
               <div className={index % 2 === 0 ? "animate-float" : "animate-float-delayed"}>
                 <Icon className="w-12 h-12 text-primary" />
@@ -333,18 +309,8 @@ export default function CustomerHome() {
             </div>
           ))}
 
-          <div className="animate-in fade-in duration-300" 
-            className="relative z-10 text-center px-4 max-w-5xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2.5, duration: 1 }}
-          >
-            <div className="animate-in fade-in duration-300"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 2.7, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center gap-2 mb-8"
-            >
+          <div className="relative z-10 text-center px-4 max-w-5xl mx-auto animate-in fade-in duration-300">
+            <div className="inline-flex items-center gap-2 mb-8 animate-in fade-in duration-300">
               <div className="p-4 bg-primary/20 backdrop-blur-sm rounded-full border border-primary/30">
                 <UtensilsCrossed className="w-10 h-10 text-primary" />
               </div>
@@ -357,31 +323,16 @@ export default function CustomerHome() {
               </>
             ) : (
               <>
-                <h1 className="animate-in fade-in duration-300" 
-                  className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-4 md:mb-6 leading-tight px-2"
-                  initial={{ y: 50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 2.9, duration: 0.8 }}
-                >
+                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-4 md:mb-6 leading-tight px-2 animate-in fade-in duration-300">
                   {companyInfo?.companyName}
                 </h1>
-                <p className="animate-in fade-in duration-300" 
-                  className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-10 font-light px-4"
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 3.1, duration: 0.6 }}
-                >
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-10 font-light px-4 animate-in fade-in duration-300">
                   {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
                 </p>
               </>
             )}
 
-            <div className="animate-in fade-in duration-300" 
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 3.3, duration: 0.6 }}
-            >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in duration-300">
               <Button 
                 size="lg"
                 className="group bg-primary text-primary-foreground px-8 py-6 text-lg"
@@ -402,12 +353,7 @@ export default function CustomerHome() {
               </Button>
             </div>
 
-            <div className="animate-in fade-in duration-300"
-              className="mt-8 md:mt-12 grid grid-cols-3 gap-4 md:gap-8 max-w-md md:max-w-lg mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 3.5 }}
-            >
+            <div className="mt-8 md:mt-12 grid grid-cols-3 gap-4 md:gap-8 max-w-md md:max-w-lg mx-auto animate-in fade-in duration-300">
               <div className="text-center" data-testid="stat-events">
                 <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-events">
                   <AnimatedCounter end={companyInfo?.eventsPerYear || 500} suffix="+" />
@@ -429,33 +375,16 @@ export default function CustomerHome() {
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className="animate-in fade-in duration-300"
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, y: [0, 10, 0] }}
-            transition={{ delay: 4, duration: 2, repeat: Infinity }}
-          >
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
             <div className="w-8 h-12 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
-              <div className="animate-in fade-in duration-300"
-                className="w-1.5 h-3 bg-primary rounded-full"
-                animate={{ y: [0, 12, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
+              <div className="w-1.5 h-3 bg-primary rounded-full animate-pulse" />
             </div>
           </div>
         </section>
 
-        {/* Catering Packages Section */}
         <section id="packages" className="py-20 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="animate-in fade-in duration-300" 
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <div className="text-center mb-16 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Sparkles className="w-3 h-3 mr-1" /> Catering Packages
               </Badge>
@@ -483,13 +412,7 @@ export default function CustomerHome() {
                   };
                   
                   return (
-                    <div className="animate-in fade-in duration-300"
-                      key={pkg.id}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
-                    >
+                    <div key={pkg.id} className="animate-in fade-in duration-300">
                       <Card 
                         className={`h-full flex flex-col hover-elevate transition-all duration-300 border-2 ${tierColors[pkg.tier]}`}
                         data-testid={`card-package-${pkg.id}`}
@@ -550,16 +473,9 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        {/* Features Section */}
         <section className="py-20 bg-gradient-warm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="animate-in fade-in duration-300" 
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <div className="text-center mb-16 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Sparkles className="w-3 h-3 mr-1" /> Why Choose Us
               </Badge>
@@ -573,13 +489,7 @@ export default function CustomerHome() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((feature, index) => (
-                <div className="animate-in fade-in duration-300"
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, duration: 0.5 }}
-                >
+                <div key={feature.title} className="animate-in fade-in duration-300">
                   <Card 
                     className="h-full text-center hover-elevate transition-all duration-300 border-none bg-card/50 backdrop-blur-sm"
                     data-testid={`card-feature-${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
@@ -600,11 +510,9 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        {/* Category Navigation */}
         <section className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center gap-3">
-              {/* Mobile: Dropdown Select */}
               <div className="md:hidden flex-1">
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full" data-testid="select-category-mobile">
@@ -624,7 +532,6 @@ export default function CustomerHome() {
                 </Select>
               </div>
               
-              {/* Desktop: Scrollable Button Row */}
               <div className="hidden md:flex flex-1 overflow-x-auto scrollbar-hide">
                 <div className="flex gap-2 pb-1">
                   {categories.map((category) => (
@@ -647,15 +554,9 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        {/* Menu Section */}
         <section id="menu" className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="animate-in fade-in duration-300" 
-              className="text-center mb-12"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
+            <div className="text-center mb-12 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Utensils className="w-3 h-3 mr-1" /> Our Specialties
               </Badge>
@@ -666,7 +567,6 @@ export default function CustomerHome() {
                 Discover our carefully curated selection of gourmet dishes, crafted to delight every palate
               </p>
               
-              {/* Search Bar */}
               <div className="max-w-md mx-auto mb-6">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -681,7 +581,6 @@ export default function CustomerHome() {
                 </div>
               </div>
               
-              {/* Dietary Filters */}
               <div className="flex flex-wrap gap-2 justify-center mb-6">
                 {dietaryOptions.map((option) => (
                   <Button
@@ -727,13 +626,7 @@ export default function CustomerHome() {
             ) : filteredItems && filteredItems.length > 0 ? (
               <div className="space-y-12">
                 {Object.entries(groupedByCategory).sort(([a], [b]) => a.localeCompare(b)).map(([category, items], categoryIndex) => (
-                  <div className="animate-in fade-in duration-300" 
-                    key={category}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: categoryIndex * 0.1 }}
-                  >
+                  <div key={category} className="animate-in fade-in duration-300">
                     <div className="flex items-center gap-4 mb-6">
                       <h3 className="text-2xl md:text-3xl font-serif font-bold">
                         {category}
@@ -745,13 +638,7 @@ export default function CustomerHome() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                       {items.map((item, index) => (
-                        <div className="animate-in fade-in duration-300"
-                          key={item.id}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: index * 0.05 }}
-                        >
+                        <div key={item.id} className="animate-in fade-in duration-300">
                           <Card 
                             className="group cursor-pointer overflow-visible hover-elevate transition-all duration-300 h-full"
                             data-testid={`card-food-${item.id}`}
@@ -765,12 +652,7 @@ export default function CustomerHome() {
                                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                <div className="animate-in fade-in duration-300"
-                                  className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 opacity-0 group-hover:opacity-100"
-                                  initial={false}
-                                  animate={{ scale: 1 }}
-                                  whileHover={{ scale: 1.1 }}
-                                >
+                                <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                   <Button size="sm" variant="secondary" className="gap-1 text-xs sm:text-sm">
                                     View <ArrowRight className="w-3 h-3" />
                                   </Button>
@@ -810,11 +692,7 @@ export default function CustomerHome() {
                 ))}
               </div>
             ) : (
-              <div className="animate-in fade-in duration-300" 
-                className="text-center py-16"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
+              <div className="text-center py-16 animate-in fade-in duration-300">
                 <Search className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
                 <p className="text-muted-foreground text-lg">No items found matching your search</p>
                 <Button 
@@ -830,15 +708,9 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        {/* Testimonials Section */}
         <section className="py-12 md:py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="animate-in fade-in duration-300" 
-              className="text-center mb-8 md:mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
+            <div className="text-center mb-8 md:mb-16 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Star className="w-3 h-3 mr-1" /> Testimonials
               </Badge>
@@ -852,13 +724,7 @@ export default function CustomerHome() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
               {testimonials.map((testimonial, index) => (
-                <div className="animate-in fade-in duration-300"
-                  key={testimonial.name}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.15 }}
-                >
+                <div key={testimonial.name} className="animate-in fade-in duration-300">
                   <Card 
                     className="h-full hover-elevate"
                     data-testid={`card-testimonial-${index}`}
@@ -892,14 +758,8 @@ export default function CustomerHome() {
               ))}
             </div>
 
-            {/* Customer Submitted Reviews */}
             {reviews && reviews.length > 0 && (
-              <div className="animate-in fade-in duration-300"
-                className="mt-12 md:mt-16"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
+              <div className="mt-12 md:mt-16 animate-in fade-in duration-300">
                 <div className="text-center mb-8">
                   <h3 className="text-2xl md:text-3xl font-serif font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">What Customers Say</h3>
                   <p className="text-muted-foreground">Real reviews from our valued clients</p>
@@ -907,7 +767,7 @@ export default function CustomerHome() {
                 <div className="space-y-12 p-2 max-h-[600px] overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {reviews.slice(0, 6).map((review, index) => (
-                      <div className="animate-in fade-in duration-300" key={review.id} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
+                      <div key={review.id} className="animate-in fade-in duration-300">
                         <Card className="hover-elevate h-full flex flex-col" data-testid={`card-customer-review-${index}`}>
                           <CardHeader className="pb-3">
                             <div className="flex items-center justify-between mb-3">
@@ -942,15 +802,9 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        {/* Review Submission Section */}
         <section id="submit-review" className="py-16 md:py-24 bg-gradient-to-br from-primary/5 via-background to-background">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="animate-in fade-in duration-300"
-              className="text-center mb-12"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
+            <div className="text-center mb-12 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1.5">
                 <Send className="w-3 h-3 mr-1.5" /> Share Your Experience
               </Badge>
@@ -962,11 +816,7 @@ export default function CustomerHome() {
               </p>
             </div>
 
-            <div className="animate-in fade-in duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
+            <div className="animate-in fade-in duration-300">
               <Card className="border-2">
                 <CardContent className="pt-8 space-y-12 p-4 md:p-8">
                   <Form {...reviewForm}>
@@ -1096,7 +946,6 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section id="contact" className="py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-amber-900 via-orange-800 to-amber-900" />
           <div className="absolute inset-0 opacity-20">
@@ -1105,12 +954,7 @@ export default function CustomerHome() {
             <div className="absolute top-1/2 left-1/4 w-24 h-24 border border-white/20 rounded-full animate-float" />
           </div>
           
-          <div className="animate-in fade-in duration-300" 
-            className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-in fade-in duration-300">
             <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-white">
               Ready to Create Something Extraordinary?
             </h2>
@@ -1142,7 +986,6 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        {/* Footer */}
         <footer className="bg-background border-t border-border py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -1225,7 +1068,6 @@ export default function CustomerHome() {
         </footer>
       </div>
 
-      {/* Food Item Preview Modal */}
       {selectedItem && (
         <FoodCardPreview item={selectedItem} onClose={() => setSelectedItem(null)} />
       )}
