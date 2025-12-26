@@ -15,7 +15,6 @@ import CompanySettingsManager from "./admin-company-settings";
 import StaffManager from "./admin-staff";
 import AdminAccount from "./admin-account";
 import ChefPrintout from "./admin-chef-printout";
-import CateringPackagesManager from "./admin-catering-packages";
 import AuditHistory from "./admin-audit-history";
 import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
@@ -26,7 +25,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
-  { title: "Catering Packages", url: "/admin/packages", icon: Package },
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Staff", url: "/admin/staff", icon: Users },
   { title: "Audit History", url: "/admin/audit-history", icon: History },
@@ -178,7 +176,6 @@ export default function AdminDashboard() {
               <Switch>
                 <Route path="/admin" component={DashboardOverview} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
-                <Route path="/admin/packages" component={CateringPackagesManager} />
                 <Route path="/admin/bookings" component={EventBookingsManager} />
                 <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
