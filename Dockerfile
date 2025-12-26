@@ -40,4 +40,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 ENV NODE_ENV=production
 
 # Start application
-CMD ["node", "./dist/index.cjs"]
+CMD ["node", "./dist/index.js"]
