@@ -596,7 +596,7 @@ export default function CustomerHome() {
               <EmptyState 
                 title="No dishes found" 
                 description="We couldn't find any dishes matching your filters. Try adjusting your search or category."
-                icon={Utensils}
+                icon={<Utensils className="w-12 h-12 text-muted-foreground" />}
               />
             )}
           </div>
