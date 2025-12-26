@@ -1,0 +1,335 @@
+
+6:50:08 PM [express] serving on port 5000
+Error:   Failed to scan for dependencies from entries:
+  C:/Users/phema/OneDrive/Desktop/canteen/client/index.html
+
+  X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/pages/customer-home.tsx:16:24:
+      16 │ import { useForm } from "react-hook-form";
+         ╵                         ~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]       
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/components/ui/form.tsx:13:7:
+      13 │ } from "react-hook-form"
+         ╵        ~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]       
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/pages/admin-account.tsx:8:24:
+      8 │ import { useForm } from "react-hook-form";
+        ╵                         ~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]       
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/pages/admin-company-settings.tsx:8:24:
+      8 │ import { useForm } from "react-hook-form";
+        ╵                         ~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]       
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/pages/admin-catering-packages.tsx:9:24:
+      9 │ import { useForm } from "react-hook-form";
+        ╵                         ~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]       
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/pages/admin-staff.tsx:12:24:
+      12 │ import { useForm } from "react-hook-form";
+         ╵                         ~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]       
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/pages/admin-event-bookings.tsx:15:24:
+      15 │ import { useForm } from "react-hook-form";
+         ╵                         ~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] Failed to resolve entry for package "react-hook-form". The package may have incorrect main/module/exports specified in its package.json. [plugin vite:dep-scan]       
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46638:14:
+      46638 │   const err = new Error(
+            ╵               ^
+
+    at packageEntryFailure (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46638:15)
+    at resolvePackageEntry (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46635:3)
+    at tryNodeResolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46451:16)
+    at ResolveIdContext.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:46201:19)
+    at PluginContainer.resolveId (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49018:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49630:22)
+    at async <anonymous> (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49801:28)
+    at async requestCallbacks.on-resolve (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1225:22)
+    at async handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:11)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49789:12:
+      49789 │       build.onResolve(
+            ╵             ~~~~~~~~~
+
+    at setup (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49789:13)
+    at handlePlugins (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1150:21)
+    at buildOrContextImpl (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:873:5)
+    at Object.buildOrContext (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:699:5)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:68
+    at new Promise (<anonymous>)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:2032:27)
+    at Object.context (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1874:58)
+    at prepareEsbuildScanner (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\dist\node\chunks\dep-BK3b2jBa.js:49576:24)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    client/src/pages/admin-food-items.tsx:14:24:
+      14 │ import { useForm } from "react-hook-form";
+         ╵                         ~~~~~~~~~~~~~~~~~
+
+
+    at failureErrorWithLog (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1472:15)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:945:25
+    at runOnEndCallbacks (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:1315:45)
+    at buildResponseToResult (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:943:7)
+    at C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:955:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:954:54)
+    at handleRequest (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:647:17)
+    at handleIncomingPacket (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:672:7)
+    at Socket.readFromStdout (C:\Users\phema\OneDrive\Desktop\canteen\node_modules\vite\node_modules\esbuild\lib\main.js:600:7)

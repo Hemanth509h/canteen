@@ -535,27 +535,27 @@ export default function CustomerHome() {
                 </Select>
               </div>
               
-            <div className="hidden md:flex flex-1 overflow-x-auto scrollbar-hide items-center justify-center">
-              <div className="flex gap-4 pb-1">
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => {
-                      setSelectedCategory(category);
-                      document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className={`whitespace-nowrap flex-shrink-0 rounded-full px-6 transition-all duration-300 ${
-                      selectedCategory === category ? "shadow-md scale-105" : "hover:bg-primary/10"
-                    }`}
-                    data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    {category}
-                  </Button>
-                ))}
+              <div className="hidden md:flex flex-1 overflow-x-auto scrollbar-hide items-center justify-center">
+                <div className="flex gap-4 pb-1">
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className={`whitespace-nowrap flex-shrink-0 rounded-full px-6 transition-all duration-300 ${
+                        selectedCategory === category ? "shadow-md scale-105" : "hover:bg-primary/10"
+                      }`}
+                      data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
               
               <ThemeToggle />
             </div>
@@ -607,7 +607,6 @@ export default function CustomerHome() {
                   </Button>
                 ))}
               </div>
-
             </div>
 
             {loadingFood ? (
@@ -640,211 +639,119 @@ export default function CustomerHome() {
                         {category}
                       </h3>
                       <Badge variant="outline" className="px-3">
-                        {items.length} {items.length === 1 ? 'item' : 'items'}
+                        {items.length} {items.length === 1 ? 'Item' : 'Items'}
                       </Badge>
-                      <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-                      {items.map((item, index) => (
-                        <div key={item.id} className="animate-in fade-in duration-300">
-                          <Card 
-                            className="group cursor-pointer overflow-visible hover-elevate transition-all duration-300 h-full"
-                            data-testid={`card-food-${item.id}`}
-                            onClick={() => setSelectedItem(item)}
-                          >
-                            {item.imageUrl && (
-                              <div className="relative h-28 sm:h-44 overflow-hidden rounded-t-lg">
-                                <img
-                                  src={item.imageUrl}
-                                  alt={item.name}
-                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <Button size="sm" variant="secondary" className="gap-1 text-xs sm:text-sm">
-                                    View <ArrowRight className="w-3 h-3" />
-                                  </Button>
-                                </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+                      {items.map((item) => (
+                        <Card 
+                          key={item.id} 
+                          className="group cursor-pointer hover-elevate transition-all duration-500 overflow-hidden bg-card/50 backdrop-blur-sm border-none shadow-sm hover:shadow-xl"
+                          onClick={() => setSelectedItem(item)}
+                          data-testid={`card-food-item-${item.id}`}
+                        >
+                          {item.imageUrl && (
+                            <div className="relative h-28 sm:h-48 overflow-hidden">
+                              <img 
+                                src={item.imageUrl} 
+                                alt={item.name} 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                data-testid={`img-food-item-${item.id}`}
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
+                            </div>
+                          )}
+                          <CardHeader className="p-2 sm:pb-3 sm:p-4">
+                            <CardTitle className="text-sm sm:text-lg font-serif group-hover:text-primary transition-colors duration-300" data-testid={`text-food-name-${item.id}`}>{item.name}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-2 pt-0 sm:p-4 sm:pt-0">
+                            <CardDescription className="text-xs sm:text-base line-clamp-2" data-testid={`text-food-desc-${item.id}`}>{item.description}</CardDescription>
+                            {item.dietaryTags && item.dietaryTags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2 sm:mt-3" data-testid={`container-tags-${item.id}`}>
+                                {item.dietaryTags.slice(0, 2).map((tag) => (
+                                  <Badge key={tag} variant="secondary" className="text-[10px] sm:text-xs px-1 sm:px-2 py-0">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                                {item.dietaryTags.length > 2 && (
+                                  <Badge variant="outline" className="text-[10px] sm:text-xs px-1 sm:px-2 py-0">
+                                    +{item.dietaryTags.length - 2}
+                                  </Badge>
+                                )}
                               </div>
                             )}
-                            <CardHeader className="space-y-1 p-2 sm:p-4 pb-1 sm:pb-2">
-                              <CardTitle className="text-sm sm:text-lg font-serif line-clamp-1 group-hover:text-primary transition-colors">
-                                {item.name}
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-2 sm:p-4 pt-0">
-                              <CardDescription className="line-clamp-2 text-xs sm:text-sm">
-                                {item.description}
-                              </CardDescription>
-                              {item.dietaryTags && item.dietaryTags.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-2 sm:mt-3">
-                                  {item.dietaryTags.slice(0, 2).map((tag) => (
-                                    <Badge key={tag} variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2">
-                                      {tag}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        </div>
+                          </CardContent>
+                        </Card>
                       ))}
                     </div>
                   </div>
                 ))}
               </div>
-            ) : loadingFood ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <CardSkeleton key={i} />
-                ))}
-              </div>
             ) : (
-              <div className="text-center py-16 animate-in fade-in duration-300">
-                <Search className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                <p className="text-muted-foreground text-lg">No items found matching your search</p>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => { setSearchQuery(""); setSelectedCategory("All"); setSelectedDietary([]); }}
-                  className="mt-2 underline"
-                  data-testid="button-clear-filters"
-                >
-                  Clear filters
-                </Button>
-              </div>
+              <EmptyState 
+                title="No dishes found" 
+                description="We couldn't find any dishes matching your filters. Try adjusting your search or category."
+              />
             )}
           </div>
         </section>
 
-        <section className="py-12 md:py-20 bg-card">
+        <section className="py-20 bg-gradient-warm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8 md:mb-16 animate-in fade-in duration-300">
+            <div className="text-center mb-16 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1">
-                <Star className="w-3 h-3 mr-1" /> Testimonials
+                <Quote className="w-3 h-3 mr-1" /> Testimonials
               </Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-4">
+              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
                 What Our Clients Say
               </h2>
-              <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
-                Hear from those who have experienced our exceptional catering services
-              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-              {testimonials.map((testimonial, index) => (
-                <div key={testimonial.name} className="animate-in fade-in duration-300">
-                  <Card 
-                    className="h-full hover-elevate"
-                    data-testid={`card-testimonial-${index}`}
-                  >
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-1 mb-3" data-testid={`rating-${index}`}>
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {(loadingReviews ? testimonials : (reviews || testimonials)).slice(0, 3).map((review, index) => (
+                <div key={index} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 150}ms` }}>
+                  <Card className="h-full hover-elevate transition-all duration-300 border-none bg-card/60 backdrop-blur-sm relative pt-12">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-background shadow-lg">
+                      <Quote className="w-8 h-8 text-primary-foreground" />
+                    </div>
+                    <CardHeader className="text-center pt-8">
+                      <div className="flex justify-center gap-1 mb-4">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`w-4 h-4 ${i < (review.rating || 5) ? "text-amber-500 fill-amber-500" : "text-muted"}`} 
+                          />
                         ))}
                       </div>
-                      <Quote className="w-6 h-6 md:w-8 md:h-8 text-primary/20 mb-2" />
-                      <CardDescription className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                        "{testimonial.content}"
-                      </CardDescription>
+                      <CardTitle className="font-serif text-xl">{review.customerName || (review as any).name}</CardTitle>
+                      <CardDescription>{(review as any).role || review.eventType}</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-base md:text-lg font-semibold text-primary" data-testid={`text-testimonial-author-${index}`}>
-                            {testimonial.name.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm md:text-base" data-testid={`text-testimonial-name-${index}`}>{testimonial.name}</p>
-                          <p className="text-xs md:text-sm text-muted-foreground" data-testid={`text-testimonial-role-${index}`}>{testimonial.role}</p>
-                        </div>
-                      </div>
+                    <CardContent className="text-center italic text-muted-foreground pb-8">
+                      "{review.comment || (review as any).content}"
                     </CardContent>
                   </Card>
                 </div>
               ))}
             </div>
 
-            {reviews && reviews.length > 0 && (
-              <div className="mt-12 md:mt-16 animate-in fade-in duration-300">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl md:text-3xl font-serif font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">What Customers Say</h3>
-                  <p className="text-muted-foreground">Real reviews from our valued clients</p>
-                </div>
-                <div className="space-y-12 p-2 max-h-[600px] overflow-y-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {reviews.slice(0, 6).map((review, index) => (
-                      <div key={review.id} className="animate-in fade-in duration-300">
-                        <Card className="hover-elevate h-full flex flex-col" data-testid={`card-customer-review-${index}`}>
-                          <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-                                  <span className="text-sm font-bold text-white">
-                                    {review.customerName.charAt(0).toUpperCase()}
-                                  </span>
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="font-semibold text-sm truncate">{review.customerName}</p>
-                                  <p className="text-xs text-muted-foreground truncate">{review.eventType}</p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1 mb-3">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} />
-                              ))}
-                            </div>
-                            <CardDescription className="text-sm text-foreground/75 line-clamp-3 leading-relaxed">
-                              "{review.comment}"
-                            </CardDescription>
-                          </CardHeader>
-                        </Card>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section id="submit-review" className="py-16 md:py-24 bg-gradient-to-br from-primary/5 via-background to-background">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12 animate-in fade-in duration-300">
-              <Badge variant="secondary" className="mb-4 px-4 py-1.5">
-                <Send className="w-3 h-3 mr-1.5" /> Share Your Experience
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Leave a Review
-              </h2>
-              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-                Share your catering experience with us! Your feedback helps us improve and gives other clients confidence in choosing our services.
-              </p>
-            </div>
-
-            <div className="animate-in fade-in duration-300">
-              <Card className="border-2">
-                <CardContent className="pt-8 space-y-12 p-4 md:p-8">
+            <div className="mt-16 max-w-2xl mx-auto">
+              <Card className="bg-card/40 backdrop-blur-sm border-dashed border-2">
+                <CardHeader>
+                  <CardTitle className="text-center font-serif">Share Your Experience</CardTitle>
+                  <CardDescription className="text-center">How was our service? We'd love to hear from you!</CardDescription>
+                </CardHeader>
+                <CardContent>
                   <Form {...reviewForm}>
-                    <form 
-                      onSubmit={reviewForm.handleSubmit((data) => createReviewMutation.mutate(data))}
-                      className="space-y-4 md:space-y-6"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <form onSubmit={reviewForm.handleSubmit((data) => createReviewMutation.mutate(data))} className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField
                           control={reviewForm.control}
                           name="customerName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Your Name</FormLabel>
+                              <FormLabel>Name</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Enter your name" 
-                                  {...field} 
-                                  data-testid="input-review-name"
-                                />
+                                <Input placeholder="Your Name" {...field} data-testid="input-review-name" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -856,62 +763,36 @@ export default function CustomerHome() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Event Type</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger data-testid="select-review-event-type">
-                                    <SelectValue placeholder="Select event type" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="Wedding">Wedding</SelectItem>
-                                  <SelectItem value="Birthday Party">Birthday Party</SelectItem>
-                                  <SelectItem value="Corporate Event">Corporate Event</SelectItem>
-                                  <SelectItem value="Anniversary">Anniversary</SelectItem>
-                                  <SelectItem value="Religious Ceremony">Religious Ceremony</SelectItem>
-                                  <SelectItem value="Other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <FormControl>
+                                <Input placeholder="e.g. Wedding, Birthday" {...field} data-testid="input-review-event" />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-
                       <FormField
                         control={reviewForm.control}
                         name="rating"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Rating</FormLabel>
-                            <FormControl>
-                              <div className="flex items-center gap-2">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <button
-                                    key={star}
-                                    type="button"
-                                    onClick={() => field.onChange(star)}
-                                    className="p-1 transition-transform hover:scale-110"
-                                    data-testid={`button-rating-${star}`}
-                                  >
-                                    <Star
-                                      className={`w-6 h-6 md:w-8 md:h-8 ${
-                                        star <= field.value
-                                          ? "fill-primary text-primary"
-                                          : "text-muted-foreground"
-                                      }`}
-                                    />
-                                  </button>
+                            <Select onValueChange={(val) => field.onChange(parseInt(val))} defaultValue={field.value.toString()}>
+                              <FormControl>
+                                <SelectTrigger data-testid="select-review-rating">
+                                  <SelectValue placeholder="Select rating" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {[5, 4, 3, 2, 1].map((num) => (
+                                  <SelectItem key={num} value={num.toString()}>{num} Stars</SelectItem>
                                 ))}
-                                <span className="ml-2 text-sm text-muted-foreground">
-                                  {field.value} out of 5
-                                </span>
-                              </div>
-                            </FormControl>
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={reviewForm.control}
                         name="comment"
@@ -919,9 +800,9 @@ export default function CustomerHome() {
                           <FormItem>
                             <FormLabel>Your Review</FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder="Tell us about your experience..."
-                                className="min-h-[100px] md:min-h-[120px] resize-none"
+                              <Textarea 
+                                placeholder="Tell us about your experience..." 
+                                className="min-h-[100px] resize-none" 
                                 {...field}
                                 data-testid="textarea-review-comment"
                               />
@@ -976,16 +857,16 @@ export default function CustomerHome() {
                 <Skeleton className="h-8 w-56 bg-white/20" />
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <a href={`tel:${companyInfo?.phone}`} data-testid="link-phone">
-                  <Button size="lg" className="bg-white text-amber-900 gap-2 px-8 py-6 text-lg">
-                    <Phone className="w-5 h-5" />
-                    {companyInfo?.phone || "Call Us"}
+              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-8">
+                <a href={`tel:${companyInfo?.phone}`} data-testid="link-phone" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full bg-white text-primary hover:bg-white/90 gap-3 px-10 py-7 text-lg shadow-lg hover:scale-105 transition-all duration-300 no-default-hover-elevate">
+                    <Phone className="w-6 h-6" />
+                    {companyInfo?.phone || "Call Us Now"}
                   </Button>
                 </a>
-                <a href={`mailto:${companyInfo?.email}`} data-testid="link-email">
-                  <Button size="lg" variant="outline" className="bg-transparent text-white border-white/50 gap-2 px-8 py-6 text-lg">
-                    <Mail className="w-5 h-5" />
+                <a href={`mailto:${companyInfo?.email}`} data-testid="link-email" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full bg-transparent text-white border-white/40 hover:bg-white/10 gap-3 px-10 py-7 text-lg backdrop-blur-sm hover:scale-105 transition-all duration-300 no-default-hover-elevate">
+                    <Mail className="w-6 h-6" />
                     {companyInfo?.email || "Email Us"}
                   </Button>
                 </a>
