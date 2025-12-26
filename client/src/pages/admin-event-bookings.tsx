@@ -668,8 +668,6 @@ export default function EventBookingsManager() {
                         totalAmount={Math.round((form.getValues("pricePerPlate") || 0) * (form.getValues("guestCount") || 1))}
                         bookingId={editingBooking.id}
                         clientName={form.getValues("clientName") || "Client"}
-                        advancePaymentStatus={form.getValues("advancePaymentStatus") || "pending"}
-                        finalPaymentStatus={form.getValues("finalPaymentStatus") || "pending"}
                       />
                     </div>
                   )}
@@ -853,7 +851,7 @@ export default function EventBookingsManager() {
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
+      <>
         {viewType === "calendar" ? (
           <div
             key="calendar"
@@ -1138,7 +1136,7 @@ export default function EventBookingsManager() {
             </Card>
           </div>
         )}
-      
+      </>
 
       <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
           <DialogContent data-testid="dialog-assign-staff">

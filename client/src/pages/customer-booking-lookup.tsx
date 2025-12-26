@@ -170,7 +170,7 @@ export default function CustomerBookingLookup() {
           </Card>
         </div>
 
-        <AnimatePresence mode="wait">
+        <>
           {notFound && (
             <div
               className="mt-6"
@@ -306,7 +306,7 @@ export default function CustomerBookingLookup() {
               </Card>
             </div>
           )}
-        
+        </>
       </div>
     </div>
   );

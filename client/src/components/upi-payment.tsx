@@ -54,11 +54,7 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <div className="animate-in fade-in duration-300" 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
-        >
+        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
           <IndianRupee className="w-4 h-4" />
           {paymentLabel} Payment via UPI
         </div>
@@ -66,19 +62,12 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        <div className="animate-in fade-in duration-300" 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-col items-center"
-        >
+        <div className="flex flex-col items-center">
           <div className="relative">
             <div className="absolute -inset-3 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-xl opacity-50" />
             <Card className="relative p-3 bg-white dark:bg-white shadow-xl border-2">
               {qrCode ? (
-                <img className="animate-in fade-in duration-300" 
-                  initial={{ opacity: 0 }} 
-                  animate={{ opacity: 1 }}
+                <img 
                   src={qrCode} 
                   alt="UPI QR Code" 
                   className="w-[220px] h-[220px] md:w-[260px] md:h-[260px]"
@@ -97,12 +86,7 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
           </div>
         </div>
 
-        <div className="animate-in fade-in duration-300" 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col justify-center space-y-6"
-        >
+        <div className="flex flex-col justify-center space-y-6">
           <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl p-5 border border-primary/20">
             <p className="text-sm text-muted-foreground font-medium mb-1">{paymentLabel} Amount to Pay</p>
             <div className="flex items-center justify-between">
@@ -137,11 +121,7 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
               </Button>
             </div>
             {copied && (
-              <p className="animate-in fade-in duration-300" 
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-xs text-green-600 font-medium"
-              >
+              <p className="text-xs text-green-600 font-medium">
                 UPI ID copied to clipboard
               </p>
             )}
