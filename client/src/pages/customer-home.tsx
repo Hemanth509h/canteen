@@ -378,7 +378,7 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="py-24 bg-gradient-warm relative overflow-hidden">
+        <section className="py-24 bg-gradient-to-br from-background via-background to-card/30 relative overflow-hidden border-b border-border/30">
           <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
           
@@ -467,8 +467,10 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section id="menu" className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="menu" className="py-20 bg-gradient-to-br from-background to-background relative">
+          <div className="absolute top-0 left-0 w-80 h-80 bg-primary/3 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-secondary/3 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-12 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Utensils className="w-3 h-3 mr-1" /> Our Specialties
@@ -602,8 +604,8 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="py-20 bg-gradient-warm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-20 bg-gradient-to-br from-card/40 via-background to-background border-t border-border/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div className="text-center mb-16 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-4 px-4 py-1">
                 <Quote className="w-3 h-3 mr-1" /> Testimonials
