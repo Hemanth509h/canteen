@@ -741,123 +741,166 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section id="contact" className="py-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-900 via-orange-800 to-amber-900" />
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-10 left-10 w-32 h-32 border border-white/20 rounded-full animate-float" />
-            <div className="absolute bottom-10 right-10 w-48 h-48 border border-white/20 rounded-full animate-float-delayed" />
-            <div className="absolute top-1/2 left-1/4 w-24 h-24 border border-white/20 rounded-full animate-float" />
+        <section id="contact" className="py-24 relative overflow-hidden bg-gradient-to-br from-background via-background to-background">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-10 left-10 w-32 h-32 border border-primary rounded-full animate-float" />
+            <div className="absolute bottom-10 right-10 w-48 h-48 border border-primary rounded-full animate-float-delayed" />
+            <div className="absolute top-1/2 left-1/4 w-24 h-24 border border-primary rounded-full animate-float" />
           </div>
           
-          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-in fade-in duration-300">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-white">
-              Ready to Create Something Extraordinary?
-            </h2>
-            <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-              Let us transform your next event into an unforgettable culinary experience
-            </p>
-            
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 animate-in fade-in duration-300">
+            <div className="text-center mb-12">
+              <Badge variant="secondary" className="mb-4 px-4 py-1">
+                <Phone className="w-3 h-3 mr-1" /> Get in Touch
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+                Ready to Create Something Extraordinary?
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Let us transform your next event into an unforgettable culinary experience
+              </p>
+            </div>
+
             {loadingCompany ? (
-              <div className="flex flex-col gap-4 items-center">
-                <Skeleton className="h-8 w-64 bg-white/20" />
-                <Skeleton className="h-8 w-56 bg-white/20" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <Skeleton className="h-8 w-24 mb-2" />
+                      <Skeleton className="h-6 w-full" />
+                    </CardHeader>
+                  </Card>
+                ))}
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-8">
-                <a href={`tel:${companyInfo?.phone}`} data-testid="link-phone" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full bg-white text-primary hover:bg-white/90 gap-3 px-10 py-7 text-lg shadow-lg hover:scale-105 transition-all duration-300 no-default-hover-elevate">
-                    <Phone className="w-6 h-6" />
-                    {companyInfo?.phone || "Call Us Now"}
-                  </Button>
-                </a>
-                <a href={`mailto:${companyInfo?.email}`} data-testid="link-email" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full bg-transparent text-white border-white/40 hover:bg-white/10 gap-3 px-10 py-7 text-lg backdrop-blur-sm hover:scale-105 transition-all duration-300 no-default-hover-elevate">
-                    <Mail className="w-6 h-6" />
-                    {companyInfo?.email || "Email Us"}
-                  </Button>
-                </a>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <Card className="hover-elevate transition-all duration-300 border-none bg-card/60 backdrop-blur-sm">
+                  <CardHeader className="text-center">
+                    <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                      <Phone className="w-8 h-8 text-primary" />
+                    </div>
+                    <CardTitle className="font-serif text-xl">Call Us</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center pb-6">
+                    <a href={`tel:${companyInfo?.phone}`} data-testid="link-phone" className="text-primary hover:underline font-semibold">
+                      {companyInfo?.phone || "Contact"}
+                    </a>
+                    <p className="text-sm text-muted-foreground mt-2">Available during business hours</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover-elevate transition-all duration-300 border-none bg-card/60 backdrop-blur-sm">
+                  <CardHeader className="text-center">
+                    <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                      <Mail className="w-8 h-8 text-primary" />
+                    </div>
+                    <CardTitle className="font-serif text-xl">Email Us</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center pb-6">
+                    <a href={`mailto:${companyInfo?.email}`} data-testid="link-email" className="text-primary hover:underline font-semibold break-all">
+                      {companyInfo?.email || "Contact"}
+                    </a>
+                    <p className="text-sm text-muted-foreground mt-2">We respond within 24 hours</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover-elevate transition-all duration-300 border-none bg-card/60 backdrop-blur-sm">
+                  <CardHeader className="text-center">
+                    <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                      <MapPin className="w-8 h-8 text-primary" />
+                    </div>
+                    <CardTitle className="font-serif text-xl">Location</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center pb-6">
+                    <p className="text-primary font-semibold">{companyInfo?.address || "Visit Us"}</p>
+                    <p className="text-sm text-muted-foreground mt-2">Stop by our kitchen</p>
+                  </CardContent>
+                </Card>
               </div>
             )}
           </div>
         </section>
 
-        <footer className="bg-background border-t border-border py-12">
+        <footer className="bg-gradient-to-b from-card/30 to-background border-t border-border py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <UtensilsCrossed className="w-6 h-6 text-primary" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              <Card className="border-none bg-card/40 backdrop-blur-sm hover-elevate transition-all duration-300">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 bg-primary/10 rounded-full">
+                      <UtensilsCrossed className="w-6 h-6 text-primary" />
+                    </div>
+                    <CardTitle className="font-serif text-lg">
+                      {companyInfo?.companyName}
+                    </CardTitle>
                   </div>
-                  <span className="font-serif font-bold text-xl">
-                    {companyInfo?.companyName}
-                  </span>
-                </div>
-                <p className="text-muted-foreground">
-                  Creating exceptional culinary experiences for your most memorable occasions.
-                </p>
-              </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    Creating exceptional culinary experiences for your most memorable occasions.
+                  </p>
+                </CardContent>
+              </Card>
               
-              <div>
-                <h4 className="font-semibold mb-4">Contact</h4>
-                <div className="space-y-3 text-muted-foreground">
+              <Card className="border-none bg-card/40 backdrop-blur-sm hover-elevate transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="font-serif text-lg">Contact</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   {companyInfo?.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
+                    <div className="flex items-center gap-3 text-muted-foreground text-sm">
+                      <Phone className="w-4 h-4 text-primary flex-shrink-0" />
                       <span>{companyInfo.phone}</span>
                     </div>
                   )}
                   {companyInfo?.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      <span>{companyInfo.email}</span>
+                    <div className="flex items-center gap-3 text-muted-foreground text-sm">
+                      <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="break-all">{companyInfo.email}</span>
                     </div>
                   )}
                   {companyInfo?.address && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                    <div className="flex items-start gap-3 text-muted-foreground text-sm">
+                      <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                       <span>{companyInfo.address}</span>
                     </div>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
               
-              <div>
-                <h4 className="font-semibold mb-4">Quick Links</h4>
-                <div className="space-y-2">
+              <Card className="border-none bg-card/40 backdrop-blur-sm hover-elevate transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="font-serif text-lg">Quick Links</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   <button 
-                    className="block text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                    className="flex items-center text-muted-foreground text-sm hover:text-foreground transition-colors gap-2 group"
                     onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
                     data-testid="button-footer-menu"
                   >
+                    <Utensils className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                     Our Menu
                   </button>
                   <button 
-                    className="block text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                    className="flex items-center text-muted-foreground text-sm hover:text-foreground transition-colors gap-2 group"
                     onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
                     data-testid="button-footer-contact"
                   >
+                    <Phone className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                     Contact Us
                   </button>
-                </div>
-              </div>
+                  <Link href="/admin/login" className="flex items-center text-muted-foreground text-sm hover:text-foreground transition-colors gap-2 group">
+                    <ShieldCheck className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                    Admin Portal
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
             
-            <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-muted-foreground">
-                {new Date().getFullYear()} {companyInfo?.companyName || "OM Caterers"}. All rights reserved.
+            <div className="border-t border-border pt-8 text-center">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {new Date().getFullYear()} {companyInfo?.companyName || "OM Caterers"}. All rights reserved. | Crafting culinary excellence since day one.
               </p>
-              <Link href="/admin/login">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  data-testid="button-admin-login"
-                  className="text-muted-foreground gap-1"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  Admin Portal
-                </Button>
-              </Link>
             </div>
           </div>
         </footer>
