@@ -88,30 +88,26 @@ export default function CustomerBookingLookup() {
   const StatusIcon = booking ? statusConfig[booking.status]?.icon || Clock : Clock;
 
   return (
-    <div className="min-h-screen bg-gradient-warm">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background">
       <div className="container max-w-2xl mx-auto px-4 py-8 sm:py-12">
-        <div
-        >
-          <Link href="/">
-            <Button variant="ghost" className="mb-6" data-testid="button-back-home">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
+        <Link href="/">
+          <Button variant="ghost" className="mb-8" data-testid="button-back-home">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </Link>
 
-          <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2" style={{ fontFamily: "Playfair Display, serif" }}>
-              Check Your Booking
-            </h1>
-            <p className="text-muted-foreground">
-              Enter your email or phone number to view your booking status
-            </p>
-          </div>
+        <div className="text-center mb-12 animate-in fade-in duration-300">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold mb-3" style={{ fontFamily: "Playfair Display, serif" }}>
+            Check Your Booking
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            Enter your email or phone number to view your booking status and payment details
+          </p>
         </div>
 
-        <div
-        >
-          <Card>
+        <div className="space-y-6">
+          <Card className="border-none bg-card/60 backdrop-blur-sm hover-elevate transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Search className="w-5 h-5" />
@@ -168,31 +164,22 @@ export default function CustomerBookingLookup() {
               </div>
             </CardContent>
           </Card>
-        </div>
 
-        <>
           {notFound && (
-            <div
-              className="mt-6"
-            >
-              <Card className="border-destructive/50">
-                <CardContent className="pt-6 text-center">
-                  <XCircle className="w-12 h-12 mx-auto text-destructive mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Booking Found</h3>
-                  <p className="text-muted-foreground text-sm">
-                    We couldn't find a booking with this {searchType}. Please check and try again, 
-                    or contact us for assistance.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="border-destructive/30 bg-destructive/5 hover-elevate transition-all duration-300">
+              <CardContent className="pt-6 text-center">
+                <XCircle className="w-12 h-12 mx-auto text-destructive mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Booking Found</h3>
+                <p className="text-muted-foreground text-sm">
+                  We couldn't find a booking with this {searchType}. Please check and try again, 
+                  or contact us for assistance.
+                </p>
+              </CardContent>
+            </Card>
           )}
 
           {booking && (
-            <div
-              className="mt-6"
-            >
-              <Card>
+            <Card className="border-none bg-card/60 backdrop-blur-sm hover-elevate transition-all duration-300">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     <CardTitle>Booking Details</CardTitle>
@@ -304,9 +291,8 @@ export default function CustomerBookingLookup() {
                   )}
                 </CardContent>
               </Card>
-            </div>
           )}
-        </>
+        </div>
       </div>
     </div>
   );
