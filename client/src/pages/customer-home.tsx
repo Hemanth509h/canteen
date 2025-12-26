@@ -144,9 +144,20 @@ export default function CustomerHome() {
 
   const dietaryOptions = ["Vegetarian", "Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
-  const { scrollY } = useScroll();
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 400], [1, 1.1]);
+  const [heroOpacity, setHeroOpacity] = useState(1);
+  const [heroScale, setHeroScale] = useState(1);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const opacity = Math.max(0, 1 - scrollY / 400);
+      const scale = 1 + (scrollY / 400) * 0.1;
+      setHeroOpacity(opacity);
+      setHeroScale(Math.min(scale, 1.1));
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],

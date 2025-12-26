@@ -158,9 +158,9 @@ export default function AuditHistory() {
                   {auditHistory.map((entry, index) => {
                     const colors = actionColorMap[entry.action] || { bg: "bg-gray-100", text: "text-gray-700" };
                     return (
-                      <tr className="animate-in fade-in duration-300"
+                      <tr
                         key={entry.id}
-                        className="border-b border-border/30 hover:bg-muted/40 transition-colors"
+                        className="animate-in fade-in duration-300 border-b border-border/30 hover:bg-muted/40 transition-colors"
                       >
                         <TableCell className="text-sm text-muted-foreground py-3">
                           {formatDate(entry.createdAt)}
