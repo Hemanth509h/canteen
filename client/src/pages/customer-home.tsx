@@ -281,7 +281,7 @@ export default function CustomerHome() {
       )}
 
       <div className="min-h-screen bg-background">
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-8">
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
@@ -290,58 +290,58 @@ export default function CustomerHome() {
               transform: `scale(${heroScale})`,
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/75" />
           </div>
 
           {floatingIcons.map(({ Icon, delay, x, y }, index) => (
             <div
               key={index}
-              className="absolute z-10 opacity-20 animate-in fade-in duration-300"
+              className="absolute z-10 opacity-15 animate-in fade-in duration-300"
               style={{ left: x, top: y }}
             >
               <div className={index % 2 === 0 ? "animate-float" : "animate-float-delayed"}>
-                <Icon className="w-12 h-12 text-primary" />
+                <Icon className="w-16 h-16 text-primary" />
               </div>
             </div>
           ))}
 
-          <div className="relative z-10 text-center px-4 max-w-5xl mx-auto animate-in fade-in duration-300">
-            <div className="inline-flex items-center gap-2 mb-8 animate-in fade-in duration-300">
-              <div className="p-4 bg-primary/20 backdrop-blur-sm rounded-full border border-primary/30">
-                <UtensilsCrossed className="w-10 h-10 text-primary" />
+          <div className="relative z-10 text-center px-4 max-w-6xl mx-auto animate-in fade-in duration-500 py-24">
+            <div className="inline-flex items-center gap-3 mb-12 animate-in fade-in duration-500">
+              <div className="p-4 bg-primary/20 backdrop-blur-sm rounded-full border border-primary/40">
+                <UtensilsCrossed className="w-12 h-12 text-primary" />
               </div>
             </div>
 
             {loadingCompany ? (
               <>
-                <Skeleton className="h-12 md:h-20 w-64 md:w-[500px] mx-auto mb-4 bg-white/20" />
-                <Skeleton className="h-6 md:h-8 w-48 md:w-80 mx-auto mb-8 bg-white/20" />
+                <Skeleton className="h-16 md:h-24 w-72 md:w-[600px] mx-auto mb-6 bg-white/20" />
+                <Skeleton className="h-7 md:h-10 w-56 md:w-96 mx-auto mb-12 bg-white/20" />
               </>
             ) : (
               <>
-                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-4 md:mb-6 leading-tight px-2 animate-in fade-in duration-300">
+                <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 md:mb-8 leading-tight px-2 animate-in fade-in duration-500">
                   {companyInfo?.companyName}
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-10 font-light px-4 animate-in fade-in duration-300">
+                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/95 mb-10 md:mb-14 font-light tracking-wide px-4 animate-in fade-in duration-500 delay-100">
                   {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
                 </p>
               </>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in duration-300">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in duration-500 delay-200 mb-12">
               <Button 
                 size="lg"
-                className="group bg-primary text-primary-foreground px-8 py-6 text-lg"
+                className="group bg-primary text-primary-foreground px-10 py-7 text-lg font-medium"
                 data-testid="button-view-menu"
                 onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
                 Explore Our Menu
-                <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="ml-3 w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="bg-white/10 backdrop-blur-md text-white border-white/30 px-8 py-6 text-lg"
+                className="bg-white/10 backdrop-blur-md text-white border-white/40 hover:bg-white/20 px-10 py-7 text-lg font-medium"
                 data-testid="button-contact"
                 onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
               >
@@ -349,66 +349,66 @@ export default function CustomerHome() {
               </Button>
             </div>
 
-            <div className="mt-8 md:mt-12 grid grid-cols-3 gap-4 md:gap-8 max-w-md md:max-w-lg mx-auto animate-in fade-in duration-300">
+            <div className="mt-16 grid grid-cols-3 gap-6 md:gap-12 max-w-2xl mx-auto animate-in fade-in duration-500 delay-300">
               <div className="text-center" data-testid="stat-events">
-                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-events">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary font-serif" data-testid="text-stat-events">
                   <AnimatedCounter end={companyInfo?.eventsPerYear || 500} suffix="+" />
                 </p>
-                <p className="text-white/70 text-xs sm:text-sm">Events Annually</p>
+                <p className="text-white/60 text-sm sm:text-base mt-2 font-light">Events Annually</p>
               </div>
-              <div className="text-center border-x border-white/20" data-testid="stat-experience">
-                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-experience">
+              <div className="text-center" data-testid="stat-experience">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary font-serif" data-testid="text-stat-experience">
                   <AnimatedCounter end={15} suffix="+" />
                 </p>
-                <p className="text-white/70 text-xs sm:text-sm">Years Experience</p>
+                <p className="text-white/60 text-sm sm:text-base mt-2 font-light">Years Experience</p>
               </div>
               <div className="text-center" data-testid="stat-cuisines">
-                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid="text-stat-cuisines">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary font-serif" data-testid="text-stat-cuisines">
                   <AnimatedCounter end={50} suffix="+" />
                 </p>
-                <p className="text-white/70 text-xs sm:text-sm">Cuisines</p>
+                <p className="text-white/60 text-sm sm:text-base mt-2 font-light">Cuisines</p>
               </div>
             </div>
           </div>
 
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-            <div className="w-8 h-12 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce z-20">
+            <div className="w-8 h-12 rounded-full border-2 border-white/40 flex items-start justify-center p-2">
               <div className="w-1.5 h-3 bg-primary rounded-full animate-pulse" />
             </div>
           </div>
         </section>
 
-        <section className="py-24 bg-gradient-to-br from-background via-background to-card/30 relative overflow-hidden border-b border-border/30">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+        <section className="py-32 bg-gradient-to-br from-background via-background/95 to-background relative overflow-hidden border-b border-border/20">
+          <div className="absolute top-0 left-0 w-80 h-80 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <Badge variant="secondary" className="mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-primary/20">
-                <Sparkles className="w-3.5 h-3.5 mr-2" /> Why Choose Us
+            <div className="text-center mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <Badge variant="secondary" className="mb-6 px-5 py-2 rounded-full bg-primary/10 text-primary border-primary/20 text-sm font-medium">
+                <Sparkles className="w-4 h-4 mr-2" /> Why Choose Us
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-foreground">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-8 text-foreground leading-tight">
                 Culinary Excellence in Every Bite
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                We bring together tradition, innovation, and passion to create memorable dining experiences that stay with you forever.
+              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                We bring together tradition, innovation, and passion to create memorable dining experiences that exceed expectations.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
               {features.map((feature, index) => (
                 <div key={feature.title} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 100}ms` }}>
                   <Card 
-                    className="h-full text-center hover-elevate transition-all duration-500 border-none bg-card/40 backdrop-blur-md shadow-sm hover:shadow-xl group"
+                    className="h-full text-center hover-elevate transition-all duration-500 border border-border/50 bg-card/60 backdrop-blur-md shadow-md hover:shadow-lg hover:border-primary/30 group"
                     data-testid={`card-feature-${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <CardHeader className="pt-8">
-                      <div className="mx-auto w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary transition-all duration-500">
-                        <feature.icon className="w-10 h-10 text-primary group-hover:text-primary-foreground transition-colors duration-500" />
+                    <CardHeader className="pt-10 pb-6">
+                      <div className="mx-auto w-24 h-24 bg-primary/12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-500">
+                        <feature.icon className="w-11 h-11 text-primary group-hover:text-primary transition-colors duration-500" />
                       </div>
-                      <CardTitle className="font-serif text-2xl mb-2">{feature.title}</CardTitle>
+                      <CardTitle className="font-serif text-2xl mb-3">{feature.title}</CardTitle>
                     </CardHeader>
-                    <CardContent className="pb-8">
+                    <CardContent className="pb-10">
                       <CardDescription className="text-base text-muted-foreground leading-relaxed">{feature.description}</CardDescription>
                     </CardContent>
                   </Card>
@@ -467,18 +467,18 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section id="menu" className="py-20 bg-gradient-to-br from-background to-background relative">
-          <div className="absolute top-0 left-0 w-80 h-80 bg-primary/3 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-80 h-80 bg-secondary/3 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+        <section id="menu" className="py-32 bg-gradient-to-br from-background/95 via-background to-card/20 relative border-t border-border/20">
+          <div className="absolute top-0 left-0 w-80 h-80 bg-primary/4 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/4 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-12 animate-in fade-in duration-300">
-              <Badge variant="secondary" className="mb-4 px-4 py-1">
-                <Utensils className="w-3 h-3 mr-1" /> Our Specialties
+            <div className="text-center mb-16 animate-in fade-in duration-300">
+              <Badge variant="secondary" className="mb-6 px-5 py-2 rounded-full text-sm font-medium">
+                <Utensils className="w-4 h-4 mr-2" /> Our Specialties
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">
                 Exquisite Menu Selection
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
                 Discover our carefully curated selection of gourmet dishes, crafted to delight every palate
               </p>
               
@@ -604,25 +604,27 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="py-20 bg-gradient-to-br from-card/40 via-background to-background border-t border-border/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="text-center mb-16 animate-in fade-in duration-300">
-              <Badge variant="secondary" className="mb-4 px-4 py-1">
-                <Quote className="w-3 h-3 mr-1" /> Testimonials
+        <section className="py-32 bg-gradient-to-br from-background via-background to-card/15 border-t border-border/20">
+          <div className="absolute top-0 left-0 w-80 h-80 bg-primary/4 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/4 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-20 animate-in fade-in duration-300">
+              <Badge variant="secondary" className="mb-6 px-5 py-2 rounded-full text-sm font-medium">
+                <Quote className="w-4 h-4 mr-2" /> Testimonials
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold">
                 What Our Clients Say
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
               {(loadingReviews ? testimonials : (reviews || testimonials)).slice(0, 3).map((review: any, index: number) => (
                 <div key={index} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 150}ms` }}>
-                  <Card className="h-full hover-elevate transition-all duration-300 border-none bg-card/60 backdrop-blur-sm relative pt-12">
+                  <Card className="h-full hover-elevate transition-all duration-500 border border-border/50 bg-card/70 backdrop-blur-sm relative pt-16 hover:border-primary/30">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-background shadow-lg">
                       <Quote className="w-8 h-8 text-primary-foreground" />
                     </div>
-                    <CardHeader className="text-center pt-8">
+                    <CardHeader className="text-center pt-8 pb-6">
                       <div className="flex justify-center gap-1 mb-4">
                         {[...Array(5)].map((_, i) => (
                           <Star 
@@ -632,9 +634,9 @@ export default function CustomerHome() {
                         ))}
                       </div>
                       <CardTitle className="font-serif text-xl">{review.customerName || review.name}</CardTitle>
-                      <CardDescription>{review.eventType || review.role}</CardDescription>
+                      <CardDescription className="text-sm">{review.eventType || review.role}</CardDescription>
                     </CardHeader>
-                    <CardContent className="text-center italic text-muted-foreground pb-8">
+                    <CardContent className="text-center italic text-muted-foreground pb-10">
                       "{review.comment || review.content}"
                     </CardContent>
                   </Card>
@@ -642,15 +644,15 @@ export default function CustomerHome() {
               ))}
             </div>
 
-            <div className="mt-16 max-w-2xl mx-auto">
-              <Card className="bg-card/40 backdrop-blur-sm border-dashed border-2">
-                <CardHeader>
-                  <CardTitle className="text-center font-serif">Share Your Experience</CardTitle>
-                  <CardDescription className="text-center">How was our service? We'd love to hear from you!</CardDescription>
+            <div className="mt-20 max-w-2xl mx-auto">
+              <Card className="bg-card/70 backdrop-blur-sm border border-dashed border-border/50 hover:border-primary/30 transition-colors duration-300">
+                <CardHeader className="pb-8">
+                  <CardTitle className="text-center font-serif text-2xl">Share Your Experience</CardTitle>
+                  <CardDescription className="text-center text-base">How was our service? We'd love to hear from you!</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pb-8">
                   <Form {...reviewForm}>
-                    <form onSubmit={reviewForm.handleSubmit((data) => createReviewMutation.mutate(data))} className="space-y-4">
+                    <form onSubmit={reviewForm.handleSubmit((data) => createReviewMutation.mutate(data))} className="space-y-6">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField
                           control={reviewForm.control}
