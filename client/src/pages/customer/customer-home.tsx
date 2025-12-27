@@ -185,7 +185,7 @@ export default function CustomerHome() {
 
   const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
     queryKey: ["/api/reviews"],
-    select: (data) => [...data].sort((a, b) => b.id - a.id),
+    select: (data) => [...data].sort((a, b) => Number(b.id) - Number(a.id)),
   });
 
   const reviewForm = useForm({
