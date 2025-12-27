@@ -21,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         bookingsWithItems.push({ ...booking, items });
       }
       
-      const groupedByDate: Record<string, typeof bookingsWithItems> = {};
+      const groupedByDate: Record<string, any[]> = {};
       for (const booking of bookingsWithItems) {
         if (!groupedByDate[booking.eventDate]) {
           groupedByDate[booking.eventDate] = [];

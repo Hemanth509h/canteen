@@ -6,6 +6,10 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:h
 let isConnected: Promise<typeof mongoose> | null = null;
 
 export async function connectToDatabase() {
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
+  }
+
   if (isConnected) {
     return isConnected;
   }
