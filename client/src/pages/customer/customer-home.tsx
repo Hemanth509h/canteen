@@ -72,14 +72,20 @@ export default function CustomerHome() {
 
   const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: companyInfo } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
     queryKey: ["/api/reviews"],
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const categories = useMemo(() => {
