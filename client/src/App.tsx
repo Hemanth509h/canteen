@@ -4,9 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
-import { Navbar } from "@/components/layout/Navbar";
 import CustomerHome from "@/pages/customer/customer-home";
-import CustomerBookingLookup from "@/pages/customer/customer-booking-lookup";
 import AdminLogin from "@/pages/admin/admin-login";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
 import PaymentConfirmation from "@/pages/staff/payment-confirmation";
@@ -38,14 +36,23 @@ function App() {
             <main className="flex-1">
               <Router />
             </main>
-            <footer className="border-t py-6 md:py-0 bg-muted/30">
-              <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-                <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+            <footer className="border-t py-12 bg-muted/30">
+              <div className="container mx-auto px-4 flex flex-col items-center justify-center gap-6 text-center">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif text-2xl font-bold tracking-tight">Elite Catering & Events</span>
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
+                  Crafting unforgettable culinary memories with passion, precision, and the finest ingredients.
+                </p>
+                <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
+                  <Link href="/admin/login" className="hover:text-primary transition-colors">Admin Portal</Link>
+                  <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                  <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+                </div>
+                <div className="h-px w-24 bg-border/50" />
+                <p className="text-xs text-muted-foreground/60 tracking-wider uppercase">
                   © 2025 Elite Catering & Events. All rights reserved.
                 </p>
-                <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground">
-                  <Link href="/admin/login" className="hover:text-primary">Admin Portal</Link>
-                </div>
               </div>
             </footer>
           </div>
