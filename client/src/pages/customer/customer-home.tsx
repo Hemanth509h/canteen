@@ -296,7 +296,7 @@ export default function CustomerHome() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-zoom-in animation-delay-400">
               <Button 
                 size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl border-primary-border"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl"
                 data-testid="button-view-menu"
                 onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
@@ -305,7 +305,7 @@ export default function CustomerHome() {
               <Button
                 size="lg"
                 variant="outline"
-                className="bg-white/5 backdrop-blur-md text-white border-white/20 border-2 hover:bg-white/10 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105"
+                className="bg-black/10 backdrop-blur-md text-foreground border-foreground/20 border-2 hover:bg-black/20 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105"
                 data-testid="button-contact"
                 onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
               >
