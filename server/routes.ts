@@ -348,7 +348,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!info) {
         return res.status(404).json({ error: "Company info not found" });
       }
-      res.json(info);
+      
+      // Calculate total events served dynamically from confirmed bookings
+      const allBookings = await storage.getBookings();
+      const confirmedBookingsCount = allBookings.filter((b: any) => b.status === 'confirmed').length;
+      
+      // Return company info with dynamic events served count
+      res.json({
+        ...info,
+        eventsPerYear: confirmedBookingsCount > 0 ? confirmedBookingsCount : info.eventsPerYear || 500
+      });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch company info" });
     }
