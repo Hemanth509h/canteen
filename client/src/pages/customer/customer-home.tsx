@@ -112,11 +112,11 @@ export default function CustomerHome() {
             </p>
             <div className="flex gap-12 justify-center w-full">
               <div className="text-center space-y-2">
-                <h3 className="text-4xl font-bold text-primary">15+</h3>
+                <h3 className="text-4xl font-bold text-primary">{companyInfo?.yearsExperience || 15}+</h3>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Years Experience</p>
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-4xl font-bold text-primary">500+</h3>
+                <h3 className="text-4xl font-bold text-primary">{companyInfo?.eventsPerYear || 500}+</h3>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Events Served</p>
               </div>
             </div>

@@ -127,6 +127,7 @@ export interface CompanyInfo {
   phone: string;
   address: string;
   eventsPerYear: number;
+  yearsExperience?: number;
   websiteUrl?: string;
   upiId?: string;
   minAdvanceBookingDays?: number;
@@ -140,6 +141,7 @@ export const insertCompanyInfoSchema = z.object({
   phone: z.string().refine((val) => val.replace(/\D/g, "").length >= 10, "Phone must have at least 10 digits").transform(sanitizePhone).optional(),
   address: z.string().max(500, "Address too long").optional(),
   eventsPerYear: z.number().int().min(0).max(100000).default(500).optional(),
+  yearsExperience: z.number().int().min(0).max(100).default(15).optional(),
   websiteUrl: z.string().url("Please enter a valid website URL").optional(),
   upiId: z.string().regex(/^[\w\-@.]+$/, "Invalid UPI ID format").optional(),
   minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
