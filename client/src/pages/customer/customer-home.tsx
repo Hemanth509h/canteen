@@ -107,7 +107,7 @@ export default function CustomerHome() {
               View Menu
             </Button>
             <Button size="lg" variant="outline" className="rounded-full px-12 py-7 text-xl bg-white/5 backdrop-blur-md border-white/20 text-white hover:bg-white/10 transition-all duration-300">
-              Book Now
+              Get Quote
             </Button>
           </div>
         </div>
