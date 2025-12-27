@@ -115,8 +115,8 @@ export default function CustomerHome() {
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-8 leading-tight tracking-tight max-w-4xl animate-slide-up">
             Elevating Your <span className="text-primary italic">Events</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl font-light leading-relaxed animate-slide-up">
-            From intimate gatherings to grand celebrations, we provide a sophisticated culinary experience tailored to your unique taste.
+          <p className="text-sm md:text-base text-gray-200 mb-12 max-w-3xl font-light leading-relaxed animate-slide-up">
+            {companyInfo?.tagline || "From intimate gatherings to grand celebrations, we provide a sophisticated culinary experience tailored to your unique taste."}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center w-full sm:w-auto">
             <Button 
@@ -141,8 +141,8 @@ export default function CustomerHome() {
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-8 text-foreground leading-tight">
               Crafting Unforgettable <br /> Culinary Memories
             </h2>
-            <p className="text-xl text-muted-foreground mb-12 leading-relaxed font-light max-w-2xl mx-auto text-center">
-              We believe that food is the heart of every event. Our team of expert chefs uses only the freshest, locally sourced ingredients to create dishes that are as beautiful as they are delicious.
+            <p className="text-sm md:text-base text-muted-foreground mb-12 leading-relaxed font-light max-w-2xl mx-auto text-center">
+              {companyInfo?.description || "We believe that food is the heart of every event. Our team of expert chefs uses only the freshest, locally sourced ingredients to create dishes that are as beautiful as they are delicious."}
             </p>
             <div className="flex gap-12 justify-center w-full">
               <div className="text-center space-y-2">
@@ -204,7 +204,7 @@ export default function CustomerHome() {
                     variant="ghost"
                     onClick={() => setSelectedCategory(cat)}
                     className={cn(
-                      "rounded-full px-6 py-2 h-auto text-sm font-medium transition-all duration-300",
+                      "rounded-full px-6 py-2 h-auto text-xs font-medium transition-all duration-300",
                       selectedCategory === cat 
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
                         : "text-muted-foreground hover:bg-muted"
@@ -257,7 +257,7 @@ export default function CustomerHome() {
                           <Star className="w-4 h-4 fill-current" />
                           <Star className="w-4 h-4 fill-current" />
                         </div>
-                        <h3 className="text-3xl font-serif font-bold text-white leading-tight">
+                        <h3 className="text-xl md:text-2xl font-serif font-bold text-white leading-tight">
                           {item.name}
                         </h3>
                         <p className="text-gray-300 text-sm font-light line-clamp-2 leading-relaxed">
@@ -290,7 +290,7 @@ export default function CustomerHome() {
             <h2 className="text-5xl md:text-6xl font-serif font-bold mb-8 text-foreground">
               What Our Clients Say
             </h2>
-            <p className="text-lg text-muted-foreground font-light">
+            <p className="text-base text-muted-foreground font-light">
               Real stories from those who trusted us with their most important moments
             </p>
           </div>
@@ -308,7 +308,7 @@ export default function CustomerHome() {
             <h2 className="text-5xl md:text-6xl font-serif font-bold mb-6 text-foreground">
               Tell Us Your Story
             </h2>
-            <p className="text-lg text-muted-foreground font-light">
+            <p className="text-base text-muted-foreground font-light">
               We'd love to hear about your experience with Elite Catering & Events
             </p>
           </div>
@@ -326,18 +326,18 @@ export default function CustomerHome() {
               <h2 className="text-5xl md:text-7xl font-serif font-bold mb-8 leading-tight">
                 Begin Your <br /> Culinary Journey
               </h2>
-              <p className="text-xl md:text-2xl opacity-80 mb-12 font-light leading-relaxed max-w-2xl">
+              <p className="text-lg md:text-xl opacity-80 mb-12 font-light leading-relaxed max-w-2xl">
                 We are ready to design an experience that perfectly matches your vision. <br /> Our consultants are standing by to assist you.
               </p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-12 w-full">
                 <div className="text-center group flex flex-col items-center">
-                  <p className="text-primary text-xs uppercase tracking-[0.3em] font-bold mb-3 group-hover:text-primary/80 transition-colors">Call Our Studio</p>
-                  <p className="text-3xl font-serif font-medium">{companyInfo?.phone || "+91 98765 43210"}</p>
+                  <p className="text-primary text-[10px] uppercase tracking-[0.3em] font-bold mb-3 group-hover:text-primary/80 transition-colors">Call Our Studio</p>
+                  <p className="text-xl md:text-2xl font-serif font-medium">{companyInfo?.phone || "+91 98765 43210"}</p>
                 </div>
                 <div className="w-px h-12 bg-white/10 hidden sm:block" />
                 <div className="text-center group flex flex-col items-center">
-                  <p className="text-primary text-xs uppercase tracking-[0.3em] font-bold mb-3 group-hover:text-primary/80 transition-colors">Digital Inquiry</p>
-                  <p className="text-3xl font-serif font-medium underline underline-offset-8 decoration-primary/30 group-hover:decoration-primary transition-all">
+                  <p className="text-primary text-[10px] uppercase tracking-[0.3em] font-bold mb-3 group-hover:text-primary/80 transition-colors">Digital Inquiry</p>
+                  <p className="text-xl md:text-2xl font-serif font-medium underline underline-offset-8 decoration-primary/30 group-hover:decoration-primary transition-all">
                     {companyInfo?.email || "events@elite-catering.com"}
                   </p>
                 </div>

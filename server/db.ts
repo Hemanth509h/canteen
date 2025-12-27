@@ -3,6 +3,8 @@ import { MongoDBStorage } from "./storage";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority";
 
+console.log("Using MONGODB_URI:", MONGODB_URI.replace(/:([^@]+)@/, ":****@"));
+
 let isConnected: Promise<typeof mongoose> | null = null;
 
 export async function connectToDatabase() {

@@ -381,10 +381,18 @@ export class MongoDBStorage implements IStorage {
 
   // Food Items
   async getFoodItems(): Promise<FoodItem[]> {
-    console.log("DB: Querying 'fooditems' collection...");
-    const docs = await FoodItemModel.find().lean();
-    console.log(`DB: Found ${docs.length} raw documents in 'fooditems'`);
-    return docs.map(doc => this.toFoodItem(doc));
+    try {
+      console.log("DB: Querying 'fooditems' collection...");
+      const docs = await FoodItemModel.find().lean();
+      console.log(`DB: Found ${docs.length} raw documents in 'fooditems'`);
+      if (docs.length > 0) {
+        console.log("DB: Sample doc keys:", Object.keys(docs[0]));
+      }
+      return docs.map(doc => this.toFoodItem(doc));
+    } catch (error) {
+      console.error("DB: Error fetching food items:", error);
+      throw error;
+    }
   }
 
   async getFoodItem(id: string): Promise<FoodItem | undefined> {

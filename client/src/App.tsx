@@ -48,7 +48,7 @@ function Footer() {
           <span className="font-serif text-2xl font-bold tracking-tight">{companyName}</span>
         </div>
         <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
-          {companyInfo?.aboutUs || "Crafting unforgettable culinary memories with passion, precision, and the finest ingredients."}
+          {companyInfo?.description || "Crafting unforgettable culinary memories with passion, precision, and the finest ingredients."}
         </p>
         <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
           <Link href="/admin/login" className="hover:text-primary transition-colors">Admin Portal</Link>
