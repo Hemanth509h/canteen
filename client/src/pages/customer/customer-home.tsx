@@ -283,16 +283,16 @@ export default function CustomerHome() {
             {loadingCompany ? (
               <Skeleton className="h-20 md:h-28 w-64 md:w-full mx-auto mb-8 bg-white/20" />
             ) : (
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-fade-in-down">
                 {companyInfo?.companyName}
               </h1>
             )}
             
-            <p className="text-xl md:text-2xl text-gray-100 mb-12 max-w-2xl mx-auto font-light">
+            <p className="text-xl md:text-2xl text-gray-100 mb-12 max-w-2xl mx-auto font-light animate-fade-in-up animation-delay-200">
               {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-zoom-in animation-delay-400">
               <Button 
                 size="lg"
                 className="bg-white text-black hover:bg-gray-100 px-8 py-6 text-lg font-semibold"
