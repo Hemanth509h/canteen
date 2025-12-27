@@ -149,16 +149,16 @@ export default function CustomerHome() {
               Experience our hand-crafted selection of signature dishes, each telling a story of tradition and innovation.
             </p>
             
-            <div className="flex flex-wrap justify-center gap-2 p-1.5 bg-background rounded-full border shadow-sm">
+            <div className="flex flex-wrap justify-center gap-2 mb-16 max-w-5xl mx-auto">
               {categories.map((cat) => (
                 <Button 
                   key={cat} 
                   variant="ghost"
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "rounded-full px-8 py-6 text-sm font-semibold transition-all duration-500",
+                    "rounded-full px-6 py-2 h-auto text-sm font-medium transition-all duration-300",
                     selectedCategory === cat 
-                      ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90" 
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
                       : "text-muted-foreground hover:bg-muted"
                   )}
                 >
