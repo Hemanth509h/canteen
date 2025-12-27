@@ -254,28 +254,14 @@ export default function CustomerHome() {
   return (
     <>
       {showIntro && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black animate-in fade-in duration-300">
           <div className="text-center">
-            <div className="mb-6 animate-in fade-in duration-300">
-              <div className="w-24 h-24 mx-auto bg-orange-400/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-pulse-glow border border-orange-400/30">
-                <UtensilsCrossed className="w-12 h-12 text-orange-300" />
-              </div>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-3 animate-in fade-in duration-500">
               {companyInfo?.companyName}
             </h1>
-            <div className="h-1 bg-gradient-to-r from-transparent via-orange-400 to-transparent mx-auto mb-6 w-[250px] animate-in fade-in duration-1000 delay-300" />
-            <p className="text-xl md:text-2xl text-white/90 font-light tracking-wide animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+            <p className="text-lg text-gray-300 animate-in fade-in duration-500 delay-100">
               Crafting Culinary Excellence
             </p>
-            <div className="mt-8 flex justify-center gap-2 animate-in fade-in duration-300">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"
-                />
-              ))}
-            </div>
           </div>
         </div>
       )}
@@ -290,90 +276,40 @@ export default function CustomerHome() {
               transform: `scale(${heroScale})`,
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-950/85 via-purple-900/70 to-indigo-950/85" />
+            <div className="absolute inset-0 bg-black/50" />
           </div>
 
-          {floatingIcons.map(({ Icon, delay, x, y }, index) => (
-            <div
-              key={index}
-              className="absolute z-10 opacity-15 animate-in fade-in duration-300"
-              style={{ left: x, top: y }}
-            >
-              <div className={index % 2 === 0 ? "animate-float" : "animate-float-delayed"}>
-                <Icon className="w-16 h-16 text-primary" />
-              </div>
-            </div>
-          ))}
-
-          <div className="relative z-10 text-center px-4 max-w-6xl mx-auto animate-in fade-in duration-500 py-24">
-            <div className="inline-flex items-center gap-3 mb-12 animate-in fade-in duration-500">
-              <div className="p-4 bg-gradient-to-br from-orange-400/20 to-yellow-400/20 backdrop-blur-sm rounded-full border border-orange-400/50">
-                <UtensilsCrossed className="w-12 h-12 text-orange-400" />
-              </div>
-            </div>
-
+          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
             {loadingCompany ? (
-              <>
-                <Skeleton className="h-16 md:h-24 w-72 md:w-[600px] mx-auto mb-6 bg-white/20" />
-                <Skeleton className="h-7 md:h-10 w-56 md:w-96 mx-auto mb-12 bg-white/20" />
-              </>
+              <Skeleton className="h-20 md:h-28 w-64 md:w-full mx-auto mb-8 bg-white/20" />
             ) : (
-              <>
-                <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 md:mb-8 leading-tight px-2 animate-in fade-in duration-500">
-                  {companyInfo?.companyName}
-                </h1>
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/95 mb-10 md:mb-14 font-light tracking-wide px-4 animate-in fade-in duration-500 delay-100">
-                  {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
-                </p>
-              </>
+              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                {companyInfo?.companyName}
+              </h1>
             )}
+            
+            <p className="text-xl md:text-2xl text-gray-100 mb-12 max-w-2xl mx-auto font-light">
+              {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
+            </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in duration-500 delay-200 mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Button 
                 size="lg"
-                className="group bg-gradient-to-r from-orange-400 to-yellow-400 text-slate-900 px-10 py-7 text-lg font-medium hover:shadow-lg hover:shadow-orange-400/50 transition-all duration-300"
+                className="bg-white text-black hover:bg-gray-100 px-8 py-6 text-lg font-semibold"
                 data-testid="button-view-menu"
                 onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Explore Our Menu
-                <ArrowRight className="ml-3 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                View Menu
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="bg-white/15 backdrop-blur-md text-white border-white/50 hover:bg-white/25 px-10 py-7 text-lg font-medium transition-all duration-300"
+                className="bg-transparent text-white border-white border-2 hover:bg-white/10 px-8 py-6 text-lg font-semibold"
                 data-testid="button-contact"
                 onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Book Your Event
+                Book Now
               </Button>
-            </div>
-
-            <div className="mt-16 grid grid-cols-3 gap-6 md:gap-12 max-w-2xl mx-auto animate-in fade-in duration-500 delay-300">
-              <div className="text-center" data-testid="stat-events">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent font-serif" data-testid="text-stat-events">
-                  <AnimatedCounter end={companyInfo?.eventsPerYear || 500} suffix="+" />
-                </p>
-                <p className="text-white/70 text-sm sm:text-base mt-2 font-light">Events Annually</p>
-              </div>
-              <div className="text-center" data-testid="stat-experience">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent font-serif" data-testid="text-stat-experience">
-                  <AnimatedCounter end={15} suffix="+" />
-                </p>
-                <p className="text-white/70 text-sm sm:text-base mt-2 font-light">Years Experience</p>
-              </div>
-              <div className="text-center" data-testid="stat-cuisines">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent font-serif" data-testid="text-stat-cuisines">
-                  <AnimatedCounter end={50} suffix="+" />
-                </p>
-                <p className="text-white/70 text-sm sm:text-base mt-2 font-light">Cuisines</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce z-20">
-            <div className="w-8 h-12 rounded-full border-2 border-white/40 flex items-start justify-center p-2">
-              <div className="w-1.5 h-3 bg-primary rounded-full animate-pulse" />
             </div>
           </div>
         </section>
