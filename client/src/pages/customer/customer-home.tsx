@@ -9,8 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ChefHat, Award, Users, Clock, Phone, Mail, Utensils, Star, ArrowRight, Search, Quote
 } from "lucide-react";
-import type { FoodItem, CompanyInfo } from "@shared/schema";
+import type { FoodItem, CompanyInfo, CustomerReview } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import ReviewsCarousel from "@/components/reviews-carousel";
+import ReviewForm from "@/components/review-form";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
 
@@ -74,6 +76,10 @@ export default function CustomerHome() {
 
   const { data: companyInfo } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
+  });
+
+  const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
+    queryKey: ["/api/reviews"],
   });
 
   const categories = useMemo(() => {
@@ -274,7 +280,7 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Customer Testimonials Section */}
+      {/* Customer Testimonials Section with Auto-Scrolling */}
       <section className="py-32 bg-muted/20 flex flex-col items-center w-full">
         <div className="container px-4 mx-auto max-w-7xl">
           <div className="text-center mb-20 max-w-3xl mx-auto">
@@ -287,32 +293,25 @@ export default function CustomerHome() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {testimonials.map((testimonial, idx) => (
-              <Card key={idx} className="border-none bg-background hover-elevate transition-all duration-300 rounded-2xl overflow-hidden group">
-                <CardContent className="p-8 flex flex-col h-full relative">
-                  <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Quote className="w-12 h-12 text-primary" />
-                  </div>
-                  
-                  <div className="flex gap-1 mb-6">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                    ))}
-                  </div>
+          {/* Auto-scrolling Reviews Carousel */}
+          <ReviewsCarousel reviews={reviews} isLoading={loadingReviews} />
+        </div>
+      </section>
 
-                  <p className="text-muted-foreground font-light text-lg mb-6 flex-1 leading-relaxed">
-                    "{testimonial.comment}"
-                  </p>
-
-                  <div className="pt-6 border-t border-border">
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-primary font-medium">{testimonial.event}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      {/* Share Your Review Section */}
+      <section className="py-32 bg-background flex flex-col items-center w-full">
+        <div className="container px-4 mx-auto max-w-4xl">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <Badge variant="outline" className="mb-6 border-primary text-primary px-4 py-1 uppercase tracking-widest text-xs">Your Feedback Matters</Badge>
+            <h2 className="text-5xl md:text-6xl font-serif font-bold mb-6 text-foreground">
+              Tell Us Your Story
+            </h2>
+            <p className="text-lg text-muted-foreground font-light">
+              We'd love to hear about your experience with Elite Catering & Events
+            </p>
           </div>
+
+          <ReviewForm />
         </div>
       </section>
 
