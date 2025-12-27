@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,8 +23,8 @@ import {
 } from "lucide-react";
 import type { FoodItem, CompanyInfo, CustomerReview } from "@shared/schema";
 import { insertCustomerReviewSchema } from "@shared/schema";
-import { EmptyState } from "@/components/empty-state";
-import { CardSkeleton } from "@/components/loading-spinner";
+import { EmptyState } from "@/components/features/empty-state";
+import { CardSkeleton } from "@/components/features/loading-spinner";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
 

@@ -20,12 +20,12 @@ import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle
 import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo, type Staff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { UPIPayment } from "@/components/upi-payment";
-import { ExportButton } from "@/components/export-button";
-import { BookingCalendar } from "@/components/booking-calendar";
-import { TableSkeleton } from "@/components/loading-spinner";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { EmptyState } from "@/components/empty-state";
+import { UPIPayment } from "@/components/features/upi-payment";
+import { ExportButton } from "@/components/features/export-button";
+import { BookingCalendar } from "@/components/features/booking-calendar";
+import { TableSkeleton } from "@/components/features/loading-spinner";
+import { ConfirmDialog } from "@/components/features/confirm-dialog";
+import { EmptyState } from "@/components/features/empty-state";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   pending: "secondary",

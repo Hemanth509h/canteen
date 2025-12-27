@@ -18,9 +18,9 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } from "lucide-react";
 import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { EmptyState } from "@/components/empty-state";
-import { PageLoader, TableSkeleton } from "@/components/loading-spinner";
+import { ConfirmDialog } from "@/components/features/confirm-dialog";
+import { EmptyState } from "@/components/features/empty-state";
+import { PageLoader, TableSkeleton } from "@/components/features/loading-spinner";
 
 const defaultCategories = [
   "Welcome Drinks",

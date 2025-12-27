@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp, RefreshCw, AlertCircle, CheckCircle2, Clock } from "lucide-react";
-import { RevenueChart, BookingStatusChart, MonthlyBookingsChart } from "@/components/dashboard-charts";
-import { BookingCalendar } from "@/components/booking-calendar";
-import { PageLoader } from "@/components/loading-spinner";
+import { RevenueChart, BookingStatusChart, MonthlyBookingsChart } from "@/components/features/dashboard-charts";
+import { BookingCalendar } from "@/components/features/booking-calendar";
+import { PageLoader } from "@/components/features/loading-spinner";
 import type { FoodItem, EventBooking } from "@shared/schema";
 
 export default function DashboardOverview() {

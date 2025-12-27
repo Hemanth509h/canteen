@@ -16,9 +16,9 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, User, Search, RefreshCw } from "lucide-react";
 import { insertStaffSchema, updateStaffSchema, type Staff, type InsertStaff, type UpdateStaff } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { EmptyState } from "@/components/empty-state";
-import { PageLoader, TableSkeleton } from "@/components/loading-spinner";
+import { ConfirmDialog } from "@/components/features/confirm-dialog";
+import { EmptyState } from "@/components/features/empty-state";
+import { PageLoader, TableSkeleton } from "@/components/features/loading-spinner";
 
 const roleMap: Record<string, string> = {
   "chef": "Chef",
