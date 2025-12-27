@@ -9,7 +9,6 @@ export function Navbar() {
 
   const navItems = [
     { title: "Home", href: "/", icon: Utensils },
-    { title: "Track Booking", href: "/check-booking", icon: Calendar },
   ];
 
   return (
@@ -18,7 +17,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
             <Utensils className="h-6 w-6 text-primary" />
-            <span className="font-serif text-xl font-bold tracking-tight">Ravi Canteen</span>
+            <span className="font-serif text-xl font-bold tracking-tight">Elite Catering</span>
           </Link>
         </div>
 

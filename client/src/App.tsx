@@ -18,7 +18,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
-      <Route path="/check-booking" component={CustomerBookingLookup} />
       <Route path="/payment/:bookingId" component={PaymentConfirmation} />
       <Route path="/staff-assignment/:token" component={StaffAssignment} />
       <Route path="/admin/login" component={AdminLogin} />
@@ -33,21 +32,20 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="ravi-canteen-theme">
+      <ThemeProvider defaultTheme="light" storageKey="elite-catering-theme">
         <TooltipProvider>
           <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
             <main className="flex-1">
               <Router />
             </main>
-            <footer className="border-t py-6 md:py-0">
+            <footer className="border-t py-6 md:py-0 bg-muted/30">
               <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
                 <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                  © 2025 Ravi Canteen & Catering. All rights reserved.
+                  © 2025 Elite Catering & Events. All rights reserved.
                 </p>
                 <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground">
                   <Link href="/admin/login" className="hover:text-primary">Admin Portal</Link>
-                  <Link href="/check-booking" className="hover:text-primary">Privacy Policy</Link>
                 </div>
               </div>
             </footer>
