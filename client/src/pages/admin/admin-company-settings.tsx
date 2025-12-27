@@ -27,6 +27,7 @@ export default function CompanySettingsManager() {
       phone: companyInfo.phone,
       address: companyInfo.address,
       eventsPerYear: companyInfo.eventsPerYear,
+      yearsExperience: companyInfo.yearsExperience || 15,
       websiteUrl: companyInfo.websiteUrl || "",
       upiId: companyInfo.upiId || "",
       minAdvanceBookingDays: companyInfo.minAdvanceBookingDays || 2,
@@ -192,13 +193,14 @@ export default function CompanySettingsManager() {
                     name="eventsPerYear"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Events Per Year</FormLabel>
+                        <FormLabel>Total Events Served</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
                             placeholder="500" 
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                            value={field.value || ""}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                             data-testid="input-events-per-year"
                           />
                         </FormControl>
@@ -208,17 +210,18 @@ export default function CompanySettingsManager() {
                   />
                   <FormField
                     control={form.control}
-                    name="websiteUrl"
+                    name="yearsExperience"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Website URL</FormLabel>
+                        <FormLabel>Years of Experience</FormLabel>
                         <FormControl>
                           <Input 
-                            type="url" 
-                            placeholder="https://www.example.com" 
+                            type="number" 
+                            placeholder="15" 
                             {...field}
                             value={field.value || ""}
-                            data-testid="input-website-url"
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            data-testid="input-years-experience"
                           />
                         </FormControl>
                         <FormMessage />
@@ -226,6 +229,25 @@ export default function CompanySettingsManager() {
                     )}
                   />
                 </div>
+                <FormField
+                  control={form.control}
+                  name="websiteUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website URL</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="url" 
+                          placeholder="https://www.example.com" 
+                          {...field}
+                          value={field.value || ""}
+                          data-testid="input-website-url"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="upiId"
