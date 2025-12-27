@@ -194,17 +194,36 @@ export default function CustomerHome() {
     if (!scrollContainer) return;
 
     let animationFrameId: number;
+    let isPaused = false;
+
+    const handleMouseEnter = () => { isPaused = true; };
+    const handleMouseLeave = () => { isPaused = false; };
+
+    scrollContainer.addEventListener('mouseenter', handleMouseEnter);
+    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
+
     const scroll = () => {
-      if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+      if (!scrollContainer || isPaused) {
+        animationFrameId = requestAnimationFrame(scroll);
+        return;
+      }
+      
+      const maxScroll = scrollContainer.scrollWidth / 2;
+      if (scrollContainer.scrollLeft >= maxScroll) {
         scrollContainer.scrollLeft = 0;
       } else {
-        scrollContainer.scrollLeft += 1;
+        scrollContainer.scrollLeft += 0.5;
       }
       animationFrameId = requestAnimationFrame(scroll);
     };
 
     animationFrameId = requestAnimationFrame(scroll);
-    return () => cancelAnimationFrame(animationFrameId);
+    
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
+      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
+    };
   }, [reviews, loadingReviews, testimonials]);
 
   const reviewForm = useForm({
@@ -578,7 +597,8 @@ export default function CustomerHome() {
             <div className="relative mb-12 group">
               <div 
                 ref={scrollRef}
-                className="flex overflow-x-hidden gap-8 pb-8 snap-x snap-mandatory px-4 md:px-0 scroll-smooth"
+                className="flex overflow-x-auto gap-8 pb-8 snap-x snap-mandatory px-4 md:px-0 scrollbar-hide"
+                style={{ scrollBehavior: 'auto' }}
               >
                 {(() => {
                   const displayReviews = loadingReviews ? testimonials : (reviews && reviews.length > 0 ? reviews : testimonials);
