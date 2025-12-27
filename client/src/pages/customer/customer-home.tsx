@@ -837,10 +837,15 @@ export default function CustomerHome() {
               </Card>
             </div>
             
-            <div className="border-t border-border pt-8 text-center">
-              <p className="text-xs sm:text-sm text-muted-foreground">
+            <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
                 {new Date().getFullYear()} {companyInfo?.companyName || "OM Caterers"}. All rights reserved. | Crafting culinary excellence since day one.
               </p>
+              <Link href="/admin/login" className="order-1 sm:order-2">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary transition-colors h-8">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Admin Login
+                </Button>
+              </Link>
             </div>
           </div>
         </footer>
