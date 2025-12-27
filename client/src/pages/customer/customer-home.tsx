@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  ChefHat, Award, Users, Clock, Phone, Mail, Utensils
+  ChefHat, Award, Users, Clock, Phone, Mail, Utensils, Star, ArrowRight
 } from "lucide-react";
 import type { FoodItem, CompanyInfo } from "@shared/schema";
 import { cn } from "@/lib/utils";
@@ -85,7 +85,11 @@ export default function CustomerHome() {
             From intimate gatherings to grand celebrations, we provide a sophisticated culinary experience tailored to your unique taste.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center w-full sm:w-auto">
-            <Button size="lg" className="rounded-full px-12 py-7 text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-300 active-elevate-2">
+            <Button 
+              size="lg" 
+              className="rounded-full px-12 py-7 text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-300 active-elevate-2"
+              onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
+            >
               View Menu
             </Button>
             <Button size="lg" variant="outline" className="rounded-full px-12 py-7 text-xl bg-white/5 backdrop-blur-md border-white/20 text-white hover:bg-white/10 transition-all duration-300">
@@ -132,25 +136,30 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Signature Dishes Showcase */}
-      <section id="menu" className="py-32 bg-muted/20 flex flex-col items-center">
-        <div className="container px-4 mx-auto flex flex-col items-center">
-          <div className="text-center mb-20 max-w-4xl mx-auto flex flex-col items-center">
-            <Badge variant="outline" className="mb-6 border-primary text-primary px-4 py-1 uppercase tracking-widest text-xs">Curated Selection</Badge>
-            <h2 className="text-4xl md:text-6xl font-serif font-bold mb-8">Our Menu Specialties</h2>
-            <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto mb-12">
-              A masterpiece of flavor in every bite. Explore our seasonal menu designed for excellence.
+      {/* Signature Dishes Showcase - REDESIGNED */}
+      <section id="menu" className="py-32 bg-muted/10 flex flex-col items-center border-y">
+        <div className="container px-4 mx-auto">
+          <div className="flex flex-col items-center text-center mb-24 max-w-4xl mx-auto">
+            <span className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-4">Curated Gastronomy</span>
+            <h2 className="text-5xl md:text-7xl font-serif font-bold mb-8 leading-tight tracking-tight">
+              A Symphony of <span className="text-primary italic">Flavors</span>
+            </h2>
+            <div className="w-24 h-1 bg-primary/20 mb-8 rounded-full" />
+            <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto mb-16">
+              Experience our hand-crafted selection of signature dishes, each telling a story of tradition and innovation.
             </p>
             
-            <div className="flex flex-wrap justify-center gap-3 overflow-x-auto pb-4 no-scrollbar max-w-full">
+            <div className="flex flex-wrap justify-center gap-2 p-1.5 bg-background rounded-full border shadow-sm">
               {categories.map((cat) => (
                 <Button 
                   key={cat} 
-                  variant={selectedCategory === cat ? "default" : "ghost"}
+                  variant="ghost"
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "rounded-full px-8 py-6 text-base font-medium transition-all duration-300",
-                    selectedCategory === cat ? "shadow-xl shadow-primary/20 scale-105" : "text-muted-foreground"
+                    "rounded-full px-8 py-6 text-sm font-semibold transition-all duration-500",
+                    selectedCategory === cat 
+                      ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90" 
+                      : "text-muted-foreground hover:bg-muted"
                   )}
                 >
                   {cat}
@@ -159,34 +168,60 @@ export default function CustomerHome() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto">
             {loadingFood ? (
-              Array(8).fill(0).map((_, i) => <Skeleton key={i} className="h-[400px] rounded-3xl" />)
+              Array(6).fill(0).map((_, i) => (
+                <div key={i} className="space-y-6">
+                  <Skeleton className="h-[450px] w-full rounded-[2.5rem]" />
+                  <div className="space-y-3 px-4">
+                    <Skeleton className="h-8 w-2/3" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </div>
+              ))
             ) : filteredItems.length > 0 ? (
-              filteredItems.slice(0, 8).map((item) => (
-                <Card key={item.id} className="overflow-hidden border-none group bg-background shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl flex flex-col items-center">
-                  <div className="relative aspect-[4/5] w-full overflow-hidden">
+              filteredItems.map((item) => (
+                <div key={item.id} className="group relative flex flex-col items-center">
+                  <div className="relative w-full aspect-[3/4] overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-700 group-hover:shadow-primary/10 group-hover:-translate-y-2">
                     <img 
                       src={item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} 
                       alt={item.name}
-                      className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                      className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 transition-opacity group-hover:opacity-40" />
-                  </div>
-                  <CardHeader className="p-8 text-center flex flex-col items-center">
-                    <div className="flex flex-col items-center mb-3">
-                      <CardTitle className="text-xl font-serif mb-2">{item.name}</CardTitle>
-                      <Badge variant="secondary" className="bg-primary/5 text-primary border-none">{item.category}</Badge>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-70" />
+                    
+                    <div className="absolute top-8 right-8">
+                      <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white px-4 py-1.5 rounded-full font-semibold uppercase tracking-widest text-[10px]">
+                        {item.category}
+                      </Badge>
                     </div>
-                    <CardDescription className="line-clamp-2 text-base font-light text-muted-foreground">
-                      {item.description}
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
+
+                    <div className="absolute bottom-10 left-10 right-10 flex flex-col items-start gap-4">
+                      <div className="flex gap-1 text-primary">
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                      </div>
+                      <h3 className="text-3xl font-serif font-bold text-white leading-tight">
+                        {item.name}
+                      </h3>
+                      <p className="text-gray-300 text-sm font-light line-clamp-2 leading-relaxed">
+                        {item.description}
+                      </p>
+                      <Button variant="outline" className="mt-4 rounded-full border-white/30 text-white bg-white/5 backdrop-blur-sm hover:bg-white/20 hover:border-white transition-all group/btn">
+                        Learn More <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               ))
             ) : (
-              <div className="col-span-full py-40 text-center text-muted-foreground bg-muted/10 rounded-3xl border border-dashed border-muted w-full">
-                No items found in this selection.
+              <div className="col-span-full py-40 text-center flex flex-col items-center justify-center bg-background rounded-[3rem] border border-dashed">
+                <Utensils className="w-12 h-12 text-muted-foreground/30 mb-6" />
+                <p className="text-xl text-muted-foreground font-light">No culinary masterpieces found in this selection.</p>
+                <Button variant="link" onClick={() => setSelectedCategory("All")} className="mt-4 text-primary">View All Selections</Button>
               </div>
             )}
           </div>
