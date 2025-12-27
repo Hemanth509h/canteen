@@ -156,7 +156,26 @@ export default function CustomerHome() {
   const [showIntro, setShowIntro] = useState(false);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    let animationFrameId: number;
+    const scroll = () => {
+      if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+        scrollContainer.scrollLeft = 0;
+      } else {
+        scrollContainer.scrollLeft += 1;
+      }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [reviews, loadingReviews]);
 
   const dietaryOptions = ["Vegetarian", "Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
@@ -556,36 +575,42 @@ export default function CustomerHome() {
               </h2>
             </div>
 
-            <div className="relative mb-12">
-              <div className="flex overflow-x-auto gap-8 pb-8 custom-scrollbar snap-x snap-mandatory px-4 md:px-0 scrollbar-hide">
-                {(loadingReviews ? testimonials : (reviews || testimonials)).map((review: any, index: number) => (
-                  <div 
-                    key={index} 
-                    className="flex-shrink-0 w-[300px] md:w-[380px] snap-center animate-in fade-in slide-in-from-right-4 duration-700" 
-                    style={{ animationDelay: `${index * 150}ms` }}
-                  >
-                    <Card className="h-full hover-elevate transition-all duration-500 border border-border/50 bg-card/70 backdrop-blur-sm relative pt-16 hover:border-primary/30">
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-background shadow-lg">
-                        <Quote className="w-8 h-8 text-primary-foreground" />
-                      </div>
-                      <CardHeader className="text-center pt-8 pb-4">
-                        <div className="flex justify-center gap-1 mb-2">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`w-4 h-4 ${i < (review.rating || 5) ? "text-amber-500 fill-amber-500" : "text-muted"}`} 
-                            />
-                          ))}
+            <div className="relative mb-12 group">
+              <div 
+                ref={scrollRef}
+                className="flex overflow-x-hidden gap-8 pb-8 snap-x snap-mandatory px-4 md:px-0 scroll-smooth"
+              >
+                {(() => {
+                  const displayReviews = loadingReviews ? testimonials : (reviews && reviews.length > 0 ? reviews : testimonials);
+                  const doubledReviews = [...displayReviews, ...displayReviews];
+                  return doubledReviews.map((review: any, index: number) => (
+                    <div 
+                      key={`${review.id || index}-${index}`}
+                      className="flex-shrink-0 w-[300px] md:w-[380px] snap-center" 
+                    >
+                      <Card className="h-full hover-elevate transition-all duration-500 border border-border/50 bg-card/70 backdrop-blur-sm relative pt-16 hover:border-primary/30 shadow-xl">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-background shadow-lg">
+                          <Quote className="w-8 h-8 text-primary-foreground" />
                         </div>
-                        <CardTitle className="font-serif text-xl">{review.customerName || review.name}</CardTitle>
-                        <CardDescription className="text-sm">{review.eventType || review.role}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="text-center italic text-muted-foreground pb-8">
-                        "{review.comment || review.content}"
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
+                        <CardHeader className="text-center pt-8 pb-4">
+                          <div className="flex justify-center gap-1 mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`w-4 h-4 ${i < (review.rating || 5) ? "text-amber-500 fill-amber-500" : "text-muted"}`} 
+                              />
+                            ))}
+                          </div>
+                          <CardTitle className="font-serif text-xl">{review.customerName || review.name}</CardTitle>
+                          <CardDescription className="text-sm">{review.eventType || review.role}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-center italic text-muted-foreground pb-8">
+                          "{review.comment || review.content}"
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ));
+                })()}
               </div>
               
               <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-background to-transparent pointer-events-none md:block hidden" />
