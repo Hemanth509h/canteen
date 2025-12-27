@@ -11,35 +11,35 @@
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
-  --background: 40 20% 99%;
-  --foreground: 220 20% 15%;
-  --border: 40 10% 92%;
-  --card: 0 0% 100%;
-  --card-foreground: 220 20% 15%;
-  --card-border: 40 10% 90%;
-  --sidebar: 220 25% 96%;
-  --sidebar-foreground: 220 20% 15%;
-  --sidebar-border: 220 15% 88%;
-  --sidebar-primary: 260 85% 55%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 20 95% 55%;
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 260 85% 55%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 220 20% 15%;
-  --popover-border: 220 15% 90%;
-  --primary: 260 85% 55%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 20 95% 55%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 220 15% 88%;
-  --muted-foreground: 220 10% 50%;
-  --accent: 40 95% 60%;
-  --accent-foreground: 220 20% 15%;
-  --destructive: 0 84% 42%;
+  --background: 220 20% 8%;
+  --foreground: 220 15% 95%;
+  --border: 220 15% 18%;
+  --card: 220 20% 12%;
+  --card-foreground: 220 15% 95%;
+  --card-border: 220 15% 20%;
+  --sidebar: 220 25% 10%;
+  --sidebar-foreground: 220 15% 95%;
+  --sidebar-border: 220 15% 18%;
+  --sidebar-primary: 260 85% 65%;
+  --sidebar-primary-foreground: 220 20% 10%;
+  --sidebar-accent: 20 95% 60%;
+  --sidebar-accent-foreground: 220 15% 95%;
+  --sidebar-ring: 260 85% 65%;
+  --popover: 220 20% 14%;
+  --popover-foreground: 220 15% 95%;
+  --popover-border: 220 15% 22%;
+  --primary: 260 85% 65%;
+  --primary-foreground: 220 20% 10%;
+  --secondary: 20 95% 60%;
+  --secondary-foreground: 220 15% 95%;
+  --muted: 220 15% 18%;
+  --muted-foreground: 220 10% 65%;
+  --accent: 40 95% 65%;
+  --accent-foreground: 220 20% 10%;
+  --destructive: 0 84% 50%;
   --destructive-foreground: 0 0% 98%;
-  --input: 220 15% 92%;
-  --ring: 260 85% 55%;
+  --input: 220 15% 20%;
+  --ring: 260 85% 65%;
   --chart-1: 260 85% 55%;
   --chart-2: 20 95% 55%;
   --chart-3: 40 95% 60%;
@@ -344,7 +344,7 @@
   }
 
   .bg-pattern {
-    background-image: radial-gradient(hsl(var(--primary) / 0.05) 1px, transparent 1px);
+    background-image: radial-gradient(hsl(var(--primary) / 0.15) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
