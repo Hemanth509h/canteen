@@ -311,20 +311,19 @@ export default function CustomerHome() {
       )}
 
       <div className="min-h-screen bg-background bg-pattern">
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${heroImage})`,
-              opacity: heroOpacity,
               transform: `scale(${heroScale})`,
             }}
           >
-            <div className="absolute inset-0 bg-black/50" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/10 to-background" />
+            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
           </div>
 
-          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto" style={{ opacity: heroOpacity }}>
             {loadingCompany ? (
               <Skeleton className="h-20 md:h-28 w-64 md:w-full mx-auto mb-8 bg-white/20" />
             ) : (
