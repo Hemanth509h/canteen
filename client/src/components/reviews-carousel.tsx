@@ -77,26 +77,48 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
     isCurrent?: boolean;
     position?: "prev" | "current" | "next";
   }) => {
+    const animationName = isCurrent 
+      ? "cardFadeInScale"
+      : position === "prev"
+        ? "cardSlideInLeft"
+        : "cardSlideInRight";
+
     return (
-      <Card
-        className={`border-none rounded-2xl overflow-hidden transition-all duration-500 review-card-animate ${
+      <div
+        className={`border-none rounded-2xl overflow-hidden ${
           isCurrent
-            ? "bg-primary text-primary-foreground shadow-2xl scale-100 md:scale-105"
-            : "bg-muted/50 text-foreground shadow-md hover-elevate opacity-75 hover:opacity-90"
+            ? "bg-primary text-primary-foreground shadow-2xl"
+            : "bg-muted/50 text-foreground shadow-md hover-elevate"
         }`}
         style={{
-          animation: isCurrent 
-            ? "fadeInScaleCenter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
-            : position === "prev"
-              ? "slideInFromLeft 0.6s ease-out forwards"
-              : "slideInFromRight 0.6s ease-out forwards"
+          animation: `${animationName} 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+          opacity: 0,
+          transform: isCurrent ? "scale(1)" : "scale(1)",
         }}
       >
-        <CardContent className="p-6 md:p-8 flex flex-col h-full">
+        <div className={`relative p-6 md:p-8 flex flex-col h-full min-h-80 transition-all duration-500 ${
+          isCurrent ? "md:scale-105" : "opacity-75 hover:opacity-90"
+        }`}>
+          {/* Background gradient animation */}
+          <div className="absolute inset-0 -z-10">
+            <div 
+              className="absolute inset-0 opacity-20"
+              style={{
+                background: isCurrent
+                  ? "radial-gradient(circle at top right, rgba(255,255,255,0.1), transparent)"
+                  : "radial-gradient(circle at bottom left, rgba(0,0,0,0.05), transparent)",
+                animation: isCurrent ? "bgPulse 3s ease-in-out infinite" : "none",
+              }}
+            />
+          </div>
+
           {/* Stars with animation */}
           <div 
             className="flex gap-1 mb-6"
-            style={{ animation: "fadeInScale 0.5s ease-out 0.1s forwards", opacity: 0 }}
+            style={{
+              animation: "contentFadeIn 0.6s ease-out 0.15s forwards",
+              opacity: 0,
+            }}
           >
             {[...Array(review.rating)].map((_, i) => (
               <Star
@@ -104,6 +126,10 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
                 className={`w-4 h-4 fill-current transition-all duration-300 ${
                   isCurrent ? "text-primary-foreground" : "text-primary"
                 }`}
+                style={{
+                  animation: `starBounce 0.6s ease-out ${0.2 + i * 0.1}s forwards`,
+                  opacity: 0,
+                }}
               />
             ))}
           </div>
@@ -113,7 +139,10 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
             className={`font-light text-lg mb-8 flex-1 leading-relaxed italic ${
               isCurrent ? "text-primary-foreground/90" : "text-muted-foreground"
             }`}
-            style={{ animation: "slideInLeftText 0.7s ease-out 0.15s forwards", opacity: 0 }}
+            style={{
+              animation: "contentSlideInLeft 0.7s ease-out 0.2s forwards",
+              opacity: 0,
+            }}
           >
             "{review.comment}"
           </p>
@@ -123,7 +152,10 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
             className={`pt-6 border-t ${
               isCurrent ? "border-primary-foreground/20" : "border-border"
             } space-y-2`}
-            style={{ animation: "slideInUpText 0.7s ease-out 0.2s forwards", opacity: 0 }}
+            style={{
+              animation: "contentSlideInUp 0.7s ease-out 0.25s forwards",
+              opacity: 0,
+            }}
           >
             <p className={`font-semibold text-base ${isCurrent ? "text-primary-foreground" : "text-foreground"}`}>
               {review.customerName}
@@ -139,18 +171,19 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
               {new Date(review.createdAt).toLocaleDateString()}
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   };
 
   return (
     <div className="w-full max-w-7xl mx-auto">
       <style>{`
-        @keyframes fadeInScaleCenter {
+        /* Card entrance animations */
+        @keyframes cardFadeInScale {
           from {
             opacity: 0;
-            transform: scale(0.95);
+            transform: scale(0.92);
           }
           to {
             opacity: 1;
@@ -158,10 +191,10 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           }
         }
 
-        @keyframes slideInFromLeft {
+        @keyframes cardSlideInLeft {
           from {
             opacity: 0;
-            transform: translateX(-40px);
+            transform: translateX(-50px);
           }
           to {
             opacity: 1;
@@ -169,10 +202,10 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           }
         }
 
-        @keyframes slideInFromRight {
+        @keyframes cardSlideInRight {
           from {
             opacity: 0;
-            transform: translateX(40px);
+            transform: translateX(50px);
           }
           to {
             opacity: 1;
@@ -180,7 +213,8 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           }
         }
 
-        @keyframes fadeInScale {
+        /* Content animations */
+        @keyframes contentFadeIn {
           from {
             opacity: 0;
             transform: scale(0.8);
@@ -191,7 +225,7 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           }
         }
 
-        @keyframes slideInLeftText {
+        @keyframes contentSlideInLeft {
           from {
             opacity: 0;
             transform: translateX(-20px);
@@ -202,7 +236,49 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           }
         }
 
-        @keyframes slideInUpText {
+        @keyframes contentSlideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes starBounce {
+          0% {
+            opacity: 0;
+            transform: scale(0.5) translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        /* Background animations */
+        @keyframes bgPulse {
+          0%, 100% {
+            opacity: 0.15;
+          }
+          50% {
+            opacity: 0.3;
+          }
+        }
+
+        @keyframes bgGlow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+          }
+        }
+
+        /* Navigation animations */
+        @keyframes navFadeIn {
           from {
             opacity: 0;
             transform: translateY(10px);
@@ -213,26 +289,41 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           }
         }
 
-        @keyframes scaleUpDot {
-          0% {
-            transform: scale(0.5);
+        @keyframes counterFadeIn {
+          from {
+            opacity: 0;
           }
-          100% {
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes dotPulse {
+          0%, 100% {
             transform: scale(1);
           }
+          50% {
+            transform: scale(1.2);
+          }
+        }
+
+        .nav-container {
+          animation: navFadeIn 0.6s ease-out 0.35s forwards;
+          opacity: 0;
+        }
+
+        .counter-text {
+          animation: counterFadeIn 0.6s ease-out 0.4s forwards;
+          opacity: 0;
         }
 
         .dot-active {
-          animation: scaleUpDot 0.3s ease-out;
-        }
-
-        .review-card-animate {
-          animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: dotPulse 0.4s ease-out;
         }
       `}</style>
 
       <div className="relative">
-        {/* Three Cards Display */}
+        {/* Three Cards Display with full animations */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 px-4 md:px-0">
           {/* Previous Review */}
           <div className="hidden md:block">
@@ -248,8 +339,8 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           </div>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex gap-4 justify-center items-center mt-8" style={{ animation: "fadeInScale 0.7s ease-out 0.3s forwards", opacity: 0 }}>
+        {/* Navigation Controls with animation */}
+        <div className="nav-container flex gap-4 justify-center items-center mt-8">
           <Button
             variant="ghost"
             size="icon"
@@ -260,7 +351,7 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
             <ChevronLeft className="w-5 h-5 transition-transform duration-300" />
           </Button>
 
-          {/* Dots */}
+          {/* Dots with animation */}
           <div className="flex gap-2 items-center">
             {displayReviews.map((_, idx) => (
               <button
@@ -292,11 +383,11 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           </Button>
         </div>
 
-        {/* Review Counter */}
-        <div className="text-center mt-6 text-sm text-muted-foreground" style={{ animation: "fadeInScale 0.7s ease-out 0.4s forwards", opacity: 0 }}>
-          <span className="inline-block transition-all duration-300">{currentIndex + 1}</span>
+        {/* Counter with animation */}
+        <div className="counter-text text-center mt-6 text-sm text-muted-foreground">
+          <span className="inline-block transition-all duration-300 font-semibold">{currentIndex + 1}</span>
           <span> of </span>
-          <span className="inline-block transition-all duration-300">{displayReviews.length}</span>
+          <span className="inline-block transition-all duration-300 font-semibold">{displayReviews.length}</span>
           <span> reviews</span>
         </div>
       </div>
