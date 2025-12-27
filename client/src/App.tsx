@@ -29,9 +29,15 @@ function Router() {
 }
 
 function Footer() {
+  const [location] = useLocation();
   const { data: companyInfo } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
   });
+
+  // Don't show footer on admin pages
+  if (location.startsWith("/admin")) {
+    return null;
+  }
 
   const companyName = companyInfo?.companyName || "Elite Catering & Events";
 
