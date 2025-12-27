@@ -38,53 +38,112 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-5xl mx-auto">
-        <Skeleton className="h-64 w-full rounded-2xl" />
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-80 w-full rounded-2xl" />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (displayReviews.length === 0) {
     return (
-      <div className="w-full max-w-5xl mx-auto text-center py-16">
+      <div className="w-full max-w-7xl mx-auto text-center py-16">
         <p className="text-muted-foreground text-lg">No reviews yet. Be the first to share your experience!</p>
       </div>
     );
   }
 
-  const currentReview = displayReviews[currentIndex];
+  const getPrevIndex = () => (currentIndex - 1 + displayReviews.length) % displayReviews.length;
+  const getNextIndex = () => (currentIndex + 1) % displayReviews.length;
+
+  const prevReviewData = displayReviews[getPrevIndex()];
+  const currentReviewData = displayReviews[currentIndex];
+  const nextReviewData = displayReviews[getNextIndex()];
+
+  const ReviewCard = ({
+    review,
+    isCurrent = false,
+  }: {
+    review: CustomerReview;
+    isCurrent?: boolean;
+  }) => (
+    <Card
+      className={`border-none rounded-2xl overflow-hidden transition-all duration-300 ${
+        isCurrent
+          ? "bg-primary text-primary-foreground shadow-2xl scale-100 md:scale-105"
+          : "bg-muted/50 text-foreground shadow-md hover-elevate opacity-75"
+      }`}
+    >
+      <CardContent className="p-6 md:p-8 flex flex-col h-full">
+        {/* Stars */}
+        <div className="flex gap-1 mb-6">
+          {[...Array(review.rating)].map((_, i) => (
+            <Star
+              key={i}
+              className={`w-4 h-4 fill-current ${
+                isCurrent ? "text-primary-foreground" : "text-primary"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Comment */}
+        <p
+          className={`font-light text-lg mb-8 flex-1 leading-relaxed italic ${
+            isCurrent ? "text-primary-foreground/90" : "text-muted-foreground"
+          }`}
+        >
+          "{review.comment}"
+        </p>
+
+        {/* Customer Info */}
+        <div
+          className={`pt-6 border-t ${
+            isCurrent ? "border-primary-foreground/20" : "border-border"
+          } space-y-2`}
+        >
+          <p className={`font-semibold text-base ${isCurrent ? "text-primary-foreground" : "text-foreground"}`}>
+            {review.customerName}
+          </p>
+          <p className={`text-sm font-medium ${isCurrent ? "text-primary-foreground/80" : "text-primary"}`}>
+            {review.eventType}
+          </p>
+          <p
+            className={`text-xs ${
+              isCurrent ? "text-primary-foreground/60" : "text-muted-foreground"
+            }`}
+          >
+            {new Date(review.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto">
       <div className="relative">
-        {/* Main Review Card */}
-        <Card className="border-none bg-background hover-elevate transition-all duration-300 rounded-2xl overflow-hidden shadow-lg">
-          <CardContent className="p-12 md:p-16 flex flex-col h-full">
-            {/* Stars */}
-            <div className="flex gap-1 mb-8">
-              {[...Array(currentReview.rating)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-primary text-primary" />
-              ))}
-            </div>
+        {/* Three Cards Display */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 px-4 md:px-0">
+          {/* Previous Review */}
+          <div className="hidden md:block">
+            <ReviewCard review={prevReviewData} isCurrent={false} />
+          </div>
 
-            {/* Comment */}
-            <p className="text-muted-foreground font-light text-xl mb-10 flex-1 leading-relaxed italic">
-              "{currentReview.comment}"
-            </p>
+          {/* Current Review */}
+          <ReviewCard review={currentReviewData} isCurrent={true} />
 
-            {/* Customer Info */}
-            <div className="pt-8 border-t border-border space-y-2">
-              <p className="font-semibold text-lg text-foreground">{currentReview.customerName}</p>
-              <p className="text-sm text-primary font-medium">{currentReview.eventType}</p>
-              <p className="text-xs text-muted-foreground">
-                {new Date(currentReview.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Next Review */}
+          <div className="hidden md:block">
+            <ReviewCard review={nextReviewData} isCurrent={false} />
+          </div>
+        </div>
 
         {/* Navigation Buttons */}
-        <div className="flex gap-4 justify-center mt-8">
+        <div className="flex gap-4 justify-center items-center mt-8">
           <Button
             variant="ghost"
             size="icon"
