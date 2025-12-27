@@ -99,23 +99,23 @@ export default function CustomerHome() {
   }, [foodItems, selectedCategory, searchQuery]);
 
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className="flex flex-col min-h-screen w-full overflow-hidden">
       {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden animate-fade-in">
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/70" />
         </div>
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center">
-          <Badge className="mb-6 bg-primary/20 text-primary border-primary/30 py-1.5 px-6 rounded-full text-sm font-medium tracking-wide">
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center animate-slide-up">
+          <Badge className="mb-6 bg-primary/20 text-primary border-primary/30 py-1.5 px-6 rounded-full text-sm font-medium tracking-wide animate-gentle-pulse">
             {companyInfo?.companyName || "Elite Catering & Events"}
           </Badge>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-8 leading-tight tracking-tight max-w-4xl">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-8 leading-tight tracking-tight max-w-4xl animate-slide-up">
             Elevating Your <span className="text-primary italic">Events</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl font-light leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl font-light leading-relaxed animate-slide-up">
             From intimate gatherings to grand celebrations, we provide a sophisticated culinary experience tailored to your unique taste.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center w-full sm:w-auto">
@@ -134,7 +134,7 @@ export default function CustomerHome() {
       </section>
 
       {/* Modern Value Prop Section */}
-      <section className="py-32 bg-background relative overflow-hidden flex flex-col items-center">
+      <section className="py-32 bg-background animated-gradient-bg relative overflow-hidden flex flex-col items-center">
         <div className="container px-4 mx-auto relative z-10 flex flex-col items-center">
           <div className="max-w-4xl w-full text-center mb-20 flex flex-col items-center">
             <Badge variant="outline" className="mb-6 border-primary text-primary px-4 py-1 uppercase tracking-widest text-xs">Our Philosophy</Badge>
@@ -158,8 +158,8 @@ export default function CustomerHome() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto w-full">
             {features.map((feature, idx) => (
-              <Card key={idx} className="border-none bg-muted/50 p-8 hover-elevate transition-all duration-300 rounded-2xl group flex flex-col items-center text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <Card key={idx} className="border-none bg-white/80 dark:bg-slate-800/80 p-8 hover-elevate card-hover-lift transition-all duration-300 rounded-2xl group flex flex-col items-center text-center stagger-item shadow-md hover:shadow-lg">
+                <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-all animate-gentle-pulse">
                   <feature.icon className="w-7 h-7" />
                 </div>
                 <h4 className="text-xl font-bold mb-3">{feature.title}</h4>
@@ -171,7 +171,7 @@ export default function CustomerHome() {
       </section>
 
       {/* Signature Dishes Showcase - REDESIGNED */}
-      <section id="menu" className="py-32 bg-muted/10 flex flex-col items-center border-y">
+      <section id="menu" className="py-32 bg-muted/10 animated-gradient-bg flex flex-col items-center border-y">
         <div className="container px-4 mx-auto">
           <div className="flex flex-col items-center text-center mb-24 max-w-4xl mx-auto">
             <span className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-4">Curated Gastronomy</span>
@@ -222,7 +222,7 @@ export default function CustomerHome() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto">
               {loadingFood ? (
                 Array(6).fill(0).map((_, i) => (
-                  <div key={i} className="space-y-6">
+                  <div key={i} className="space-y-6 stagger-item">
                     <Skeleton className="h-[450px] w-full rounded-[2.5rem]" />
                     <div className="space-y-3 px-4">
                       <Skeleton className="h-8 w-2/3" />
@@ -231,15 +231,17 @@ export default function CustomerHome() {
                   </div>
                 ))
               ) : filteredItems.length > 0 ? (
-                filteredItems.map((item) => (
-                  <div key={item.id} className="group relative flex flex-col items-center">
-                    <div className="relative w-full aspect-[3/4] overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-700 group-hover:shadow-primary/10 group-hover:-translate-y-2">
-                      <img 
-                        src={item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} 
-                        alt={item.name}
-                        className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-70" />
+                filteredItems.map((item, idx) => (
+                  <div key={item.id} className="group relative flex flex-col items-center stagger-item" style={{ animationDelay: `${idx * 0.1}s` }}>
+                    <Card className="relative w-full h-full overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-700 group-hover:shadow-primary/20 group-hover:-translate-y-2 card-hover-lift">
+                      <div className="relative w-full aspect-[3/4] overflow-hidden rounded-[2.5rem] transition-all duration-700 group-hover:shadow-primary/10 group-hover:-translate-y-2">
+                        <img 
+                          src={item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} 
+                          alt={item.name}
+                          className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110 animate-scale-in"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-70" />
+                      </div>
                       
                       <div className="absolute top-8 right-8">
                         <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white px-4 py-1.5 rounded-full font-semibold uppercase tracking-widest text-[10px]">
@@ -265,14 +267,14 @@ export default function CustomerHome() {
                           Learn More <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                         </Button>
                       </div>
-                    </div>
+                    </Card>
                   </div>
                 ))
               ) : (
                 <div className="col-span-full py-40 text-center flex flex-col items-center justify-center bg-background rounded-[3rem] border border-dashed">
                   <Utensils className="w-12 h-12 text-muted-foreground/30 mb-6" />
                   <p className="text-xl text-muted-foreground font-light">No culinary masterpieces found in this selection.</p>
-                  <Button variant="link" onClick={() => setSelectedCategory("All")} className="mt-4 text-primary">View All Selections</Button>
+                  <Button variant="ghost" onClick={() => setSelectedCategory("All")} className="mt-4 text-primary hover:text-primary/80">View All Selections</Button>
                 </div>
               )}
             </div>
@@ -281,7 +283,7 @@ export default function CustomerHome() {
       </section>
 
       {/* Customer Testimonials Section with Auto-Scrolling */}
-      <section className="py-32 bg-muted/20 flex flex-col items-center w-full">
+      <section className="py-32 bg-muted/20 animated-gradient-bg flex flex-col items-center w-full">
         <div className="container px-4 mx-auto max-w-7xl">
           <div className="text-center mb-20 max-w-3xl mx-auto">
             <Badge variant="outline" className="mb-6 border-primary text-primary px-4 py-1 uppercase tracking-widest text-xs">Cherished Memories</Badge>
@@ -299,7 +301,7 @@ export default function CustomerHome() {
       </section>
 
       {/* Share Your Review Section */}
-      <section className="py-32 bg-background flex flex-col items-center w-full">
+      <section className="py-32 bg-background animated-gradient-bg flex flex-col items-center w-full">
         <div className="container px-4 mx-auto max-w-4xl">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <Badge variant="outline" className="mb-6 border-primary text-primary px-4 py-1 uppercase tracking-widest text-xs">Your Feedback Matters</Badge>

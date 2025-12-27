@@ -75,7 +75,7 @@ export default function DashboardOverview() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 animated-gradient-bg min-h-screen">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -97,19 +97,19 @@ export default function DashboardOverview() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {metrics.map((metric) => (
-          <Card key={metric.title} data-testid={`card-metric-${metric.title.toLowerCase().replace(/\s+/g, '-')}`}>
+        {metrics.map((metric, idx) => (
+          <Card key={metric.title} data-testid={`card-metric-${metric.title.toLowerCase().replace(/\s+/g, '-')}`} className="card-hover-lift stagger-item hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${idx * 0.1}s` }}>
             <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 p-3 sm:p-4 pb-1 sm:pb-2">
               <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {metric.title}
               </CardTitle>
-              <metric.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${metric.color}`} />
+              <metric.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${metric.color} animate-gentle-pulse`} />
             </CardHeader>
             <CardContent className="p-3 sm:p-4 pt-0">
               {metric.loading ? (
-                <Skeleton className="h-6 sm:h-8 w-16 sm:w-24" />
+                <Skeleton className="h-6 sm:h-8 w-16 sm:w-24 animate-shimmer" />
               ) : (
-                <div className="text-lg sm:text-2xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                <div className="text-lg sm:text-2xl font-bold animate-scale-in" style={{ fontFamily: 'Poppins, sans-serif' }}>
                   {metric.value}
                 </div>
               )}
@@ -123,25 +123,26 @@ export default function DashboardOverview() {
       ) : bookings && bookings.length > 0 ? (
         <>
           <div 
-            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 stagger-item"
           >
-            <RevenueChart bookings={bookings} />
-            <BookingStatusChart bookings={bookings} />
-            <MonthlyBookingsChart bookings={bookings} />
+            <div className="card-hover-lift"><RevenueChart bookings={bookings} /></div>
+            <div className="card-hover-lift"><BookingStatusChart bookings={bookings} /></div>
+            <div className="card-hover-lift"><MonthlyBookingsChart bookings={bookings} /></div>
           </div>
 
           <div 
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 stagger-item"
           >
             <BookingCalendar bookings={bookings} />
             
-            <Card>
+            <Card className="card-hover-lift transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-lg">Activity Timeline</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {bookings.slice(0, 5).map((booking, index) => {
+                    const delay = index * 0.1;
                     const isPending = booking.advancePaymentStatus === "pending" || booking.finalPaymentStatus === "pending";
                     const isCompleted = booking.status === "completed";
                     const isUpcoming = new Date(booking.eventDate) >= new Date();
@@ -165,8 +166,9 @@ export default function DashboardOverview() {
                     return (
                       <div 
                         key={booking.id}
-                        className="flex gap-3 p-3 border border-border/50 rounded-lg hover-elevate"
+                        className="flex gap-3 p-3 border border-border/50 rounded-lg hover-elevate stagger-item card-hover-lift transition-all duration-300"
                         data-testid={`timeline-item-${booking.id}`}
+                        style={{ animationDelay: `${delay}s` }}
                       >
                         <div className={`flex-shrink-0 w-10 h-10 rounded-full ${bgColor} flex items-center justify-center`}>
                           <IconComponent className={`w-5 h-5 ${color}`} />
@@ -188,11 +190,11 @@ export default function DashboardOverview() {
           </div>
         </>
       ) : (
-        <Card>
+        <Card className="card-hover-lift transition-all duration-300">
           <CardContent className="py-12 text-center">
-            <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
-            <p className="text-muted-foreground text-sm">
+            <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4 animate-bounce-soft" />
+            <h3 className="text-lg font-semibold mb-2 animate-slide-up">No bookings yet</h3>
+            <p className="text-muted-foreground text-sm animate-fade-in">
               Your booking statistics and charts will appear here once you have bookings.
             </p>
           </CardContent>

@@ -48,8 +48,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900 p-4 relative overflow-hidden">
-      {/* Background Pattern */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900 p-4 relative overflow-hidden animate-fade-in">
+      {/* Animated Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-20 animate-float">
           <UtensilsCrossed className="w-16 h-16 text-white" />
@@ -64,10 +64,10 @@ export default function AdminLogin() {
 
       {/* Back to Home Link */}
       <div 
-        className="absolute top-6 left-6"
+        className="absolute top-6 left-6 animate-slide-up"
       >
         <Link href="/">
-          <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10">
+          <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 transition-all">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
@@ -75,15 +75,15 @@ export default function AdminLogin() {
       </div>
 
       <div
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-md relative z-10 animate-scale-in"
       >
-        <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-sm">
+        <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-sm card-hover-lift hover:shadow-3xl transition-all duration-300">
           <CardHeader className="space-y-4 text-center pb-2">
             <div 
-              className="flex justify-center"
+              className="flex justify-center animate-scale-in"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20">
-                <ChefHat className="w-10 h-10 text-primary" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20 animate-gentle-pulse">
+                <ChefHat className="w-10 h-10 text-primary animate-spin-slow" />
               </div>
             </div>
             <div

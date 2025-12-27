@@ -60,11 +60,52 @@
   }
 }
 
+/* Background Pattern */
 .bg-pattern {
   background-image: radial-gradient(circle at 2px 2px, hsl(var(--foreground) / 0.05) 1px, transparent 0);
   background-size: 24px 24px;
 }
 
+/* Animated Gradient Background */
+.animated-gradient-bg {
+  background: linear-gradient(-45deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.05), hsl(var(--muted) / 0.1));
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animated Background with Moving Shapes */
+.animated-bg-shapes {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--background));
+}
+
+.animated-bg-shapes::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 20% 50%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, hsl(var(--accent) / 0.05) 0%, transparent 50%);
+  animation: bgShift 20s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes bgShift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(50px, 50px); }
+}
+
+/* Scrollbar Styling */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -73,6 +114,7 @@
   scrollbar-width: none;
 }
 
+/* Float Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-20px); }
@@ -86,6 +128,96 @@
   animation: float 8s ease-in-out infinite 1s;
 }
 
+/* Pulse Animation */
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-gentle-pulse {
+  animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+/* Slide Up Animation */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+/* Fade In Animation */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-in forwards;
+}
+
+/* Scale In Animation */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out forwards;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(
+    to right,
+    hsl(var(--muted)) 8%,
+    hsl(var(--muted) / 0.5) 18%,
+    hsl(var(--muted)) 33%
+  );
+  background-size: 800px 104px;
+}
+
+/* Spin Animation */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+/* Bounce Animation */
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-bounce-soft {
+  animation: bounce-soft 2s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -103,3 +235,36 @@
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--primary) / 0.2) transparent;
 }
+
+/* Card Animation on Hover */
+.card-hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px hsl(var(--primary) / 0.1);
+}
+
+/* Staggered Animation for Lists */
+@keyframes stagger {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  animation: stagger 0.5s ease-out forwards;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.stagger-item:nth-child(2) { animation-delay: 0.2s; }
+.stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.stagger-item:nth-child(4) { animation-delay: 0.4s; }
+.stagger-item:nth-child(5) { animation-delay: 0.5s; }
+.stagger-item:nth-child(6) { animation-delay: 0.6s; }
