@@ -310,7 +310,7 @@ export default function CustomerHome() {
         </div>
       )}
 
-      <div className="min-h-screen bg-background bg-pattern">
+      <div className="min-h-screen bg-background">
         <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -320,7 +320,7 @@ export default function CustomerHome() {
             }}
           >
             <div className="absolute inset-0 bg-black/60" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
           </div>
 
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto" style={{ opacity: heroOpacity }}>
@@ -358,13 +358,13 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="py-32 relative overflow-hidden border-b border-border/20">
+        <section className="py-32 relative overflow-hidden border-b border-border/20 bg-background">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
           <div className="absolute top-0 left-0 w-80 h-80 bg-primary/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="text-center mb-20">
               <Badge variant="secondary" className="mb-6 px-5 py-2 rounded-full bg-primary/10 text-primary border-primary/20 text-sm font-medium">
                 <Sparkles className="w-4 h-4 mr-2" /> Why Choose Us
               </Badge>
@@ -448,7 +448,7 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section id="menu" className="py-32 bg-gradient-to-br from-background/95 via-background to-card/20 relative border-t border-border/20">
+        <section id="menu" className="py-32 bg-background relative border-t border-border/20">
           <div className="absolute top-0 left-0 w-80 h-80 bg-primary/4 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -585,11 +585,11 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="py-32 bg-gradient-to-br from-background via-background to-card/15 border-t border-border/20">
+        <section className="py-32 bg-background border-t border-border/20">
           <div className="absolute top-0 left-0 w-80 h-80 bg-primary/4 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-20 animate-in fade-in duration-300">
+            <div className="text-center mb-20">
               <Badge variant="secondary" className="mb-6 px-5 py-2 rounded-full text-sm font-medium">
                 <Quote className="w-4 h-4 mr-2" /> Testimonials
               </Badge>
@@ -742,7 +742,7 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section id="contact" className="py-24 relative overflow-hidden bg-gradient-to-br from-background via-background to-background">
+        <section id="contact" className="py-24 relative overflow-hidden bg-background">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-10 left-10 w-32 h-32 border border-primary rounded-full animate-float" />
             <div className="absolute bottom-10 right-10 w-48 h-48 border border-primary rounded-full animate-float-delayed" />
@@ -822,7 +822,7 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <footer className="bg-gradient-to-b from-card/30 to-background border-t border-border py-16">
+        <footer className="bg-background border-t border-border py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
               <Card className="border-none bg-card/40 backdrop-blur-sm hover-elevate transition-all duration-300">
