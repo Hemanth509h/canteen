@@ -405,7 +405,7 @@ export default function CustomerHome() {
 
         <section id="menu" className="py-32 bg-gradient-to-br from-background/95 via-background to-card/20 relative border-t border-border/20">
           <div className="absolute top-0 left-0 w-80 h-80 bg-primary/4 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/4 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-6 px-5 py-2 rounded-full text-sm font-medium">
@@ -542,7 +542,7 @@ export default function CustomerHome() {
 
         <section className="py-32 bg-gradient-to-br from-background via-background to-card/15 border-t border-border/20">
           <div className="absolute top-0 left-0 w-80 h-80 bg-primary/4 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/4 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-20 animate-in fade-in duration-300">
               <Badge variant="secondary" className="mb-6 px-5 py-2 rounded-full text-sm font-medium">
