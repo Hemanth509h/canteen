@@ -32,6 +32,7 @@ function Footer() {
   const [location] = useLocation();
   const { data: companyInfo } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
+    staleTime: 0,
   });
 
   // Don't show footer on admin pages

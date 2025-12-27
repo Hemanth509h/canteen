@@ -45,6 +45,9 @@ export async function setupVite(app: Express, server: Server) {
     const url = req.originalUrl;
 
     try {
+      if (url.startsWith("/api")) {
+        return next();
+      }
       const clientTemplate = path.resolve(
         import.meta.dirname,
         "..",

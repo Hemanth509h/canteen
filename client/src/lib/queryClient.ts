@@ -8,14 +8,15 @@ async function throwIfResNotOk(res: Response) {
 }
 
 // Use current window location for production or specific VITE_API_URL for serverless
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = "";
 
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(`${API_URL}${url}`, {
+  const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
+  const res = await fetch(normalizedUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -32,7 +33,9 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(`${API_URL}/${queryKey.join("/")}`, {
+    const path = queryKey.join("/");
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    const res = await fetch(normalizedPath, {
       credentials: "include",
     });
 

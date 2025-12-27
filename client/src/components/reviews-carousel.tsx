@@ -168,7 +168,7 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
                 isCurrent ? "text-primary-foreground/60" : "text-muted-foreground"
               }`}
             >
-              {new Date(review.createdAt).toLocaleDateString()}
+              {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}
             </p>
           </div>
         </div>

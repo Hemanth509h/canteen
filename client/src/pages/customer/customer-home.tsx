@@ -70,23 +70,27 @@ export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
+  const { data: foodItems, isLoading: loadingFood, error: foodError } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
     staleTime: 0,
     gcTime: 0,
   });
 
-  const { data: companyInfo } = useQuery<CompanyInfo>({
+  const { data: companyInfo, error: companyError } = useQuery<CompanyInfo>({
     queryKey: ["/api/company-info"],
     staleTime: 0,
     gcTime: 0,
   });
 
-  const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
+  const { data: reviews, isLoading: loadingReviews, error: reviewsError } = useQuery<CustomerReview[]>({
     queryKey: ["/api/reviews"],
     staleTime: 0,
     gcTime: 0,
   });
+
+  if (foodError || companyError || reviewsError) {
+    console.error("Query Error:", { foodError, companyError, reviewsError });
+  }
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
