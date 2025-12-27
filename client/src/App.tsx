@@ -35,7 +35,6 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="elite-catering-theme">
         <TooltipProvider>
           <div className="min-h-screen bg-background flex flex-col">
-            <Navbar />
             <main className="flex-1">
               <Router />
             </main>
