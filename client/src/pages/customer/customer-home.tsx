@@ -149,22 +149,24 @@ export default function CustomerHome() {
               Experience our hand-crafted selection of signature dishes, each telling a story of tradition and innovation.
             </p>
             
-            <div className="flex flex-wrap justify-center gap-2 mb-16 max-w-5xl mx-auto">
-              {categories.map((cat) => (
-                <Button 
-                  key={cat} 
-                  variant="ghost"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={cn(
-                    "rounded-full px-6 py-2 h-auto text-sm font-medium transition-all duration-300",
-                    selectedCategory === cat 
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
-                      : "text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  {cat}
-                </Button>
-              ))}
+            <div className="max-h-48 overflow-y-auto mb-16 max-w-5xl mx-auto px-4 custom-scrollbar">
+              <div className="flex flex-wrap justify-center gap-2">
+                {categories.map((cat) => (
+                  <Button 
+                    key={cat} 
+                    variant="ghost"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={cn(
+                      "rounded-full px-6 py-2 h-auto text-sm font-medium transition-all duration-300",
+                      selectedCategory === cat 
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                        : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    {cat}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
