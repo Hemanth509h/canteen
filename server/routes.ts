@@ -52,9 +52,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Food Items Routes
   app.get("/api/food-items", async (_req, res) => {
     try {
+      console.log("[GET] /api/food-items - Fetching items...");
       const items = await storage.getFoodItems();
+      console.log(`[GET] /api/food-items - Found ${items.length} items`);
       res.json(items);
     } catch (error) {
+      console.error("[GET] /api/food-items error:", error);
       res.status(500).json({ error: "Failed to fetch food items" });
     }
   });
@@ -344,7 +347,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Company Info Routes
   app.get("/api/company-info", async (_req, res) => {
     try {
+      console.log("[GET] /api/company-info - Fetching info...");
       const info = await storage.getCompanyInfo();
+      console.log("[GET] /api/company-info - Result:", info ? "Found" : "Not Found");
+      
       if (!info) {
         return res.status(404).json({ error: "Company info not found" });
       }
@@ -359,6 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         eventsPerYear: confirmedBookingsCount > 0 ? confirmedBookingsCount : info.eventsPerYear || 500
       });
     } catch (error) {
+      console.error("[GET] /api/company-info error:", error);
       res.status(500).json({ error: "Failed to fetch company info" });
     }
   });

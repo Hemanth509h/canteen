@@ -381,7 +381,9 @@ export class MongoDBStorage implements IStorage {
 
   // Food Items
   async getFoodItems(): Promise<FoodItem[]> {
+    console.log("DB: Querying 'fooditems' collection...");
     const docs = await FoodItemModel.find().lean();
+    console.log(`DB: Found ${docs.length} raw documents in 'fooditems'`);
     return docs.map(doc => this.toFoodItem(doc));
   }
 
@@ -479,7 +481,9 @@ export class MongoDBStorage implements IStorage {
 
   // Company Info
   async getCompanyInfo(): Promise<CompanyInfo | undefined> {
+    console.log("DB: Querying 'companyinfos' collection...");
     const doc = await CompanyInfoModel.findOne().lean();
+    console.log("DB: Company info doc found:", !!doc);
     return doc ? this.toCompanyInfo(doc) : undefined;
   }
 
