@@ -30,10 +30,7 @@ export default function ReviewForm() {
 
   const submitMutation = useMutation({
     mutationFn: async (data: InsertCustomerReview) => {
-      return apiRequest("/api/reviews", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return apiRequest("POST", "/api/reviews", data);
     },
     onSuccess: () => {
       toast({
