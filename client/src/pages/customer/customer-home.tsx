@@ -553,16 +553,16 @@ export default function CustomerHome() {
               </h2>
             </div>
 
-            <div className="max-h-[600px] overflow-y-auto pr-4 scrollbar-hide mb-12 custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="max-h-[500px] overflow-y-auto px-4 mb-12 custom-scrollbar">
+              <div className="flex flex-col gap-8 max-w-2xl mx-auto">
                 {(loadingReviews ? testimonials : (reviews || testimonials)).map((review: any, index: number) => (
                   <div key={index} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 150}ms` }}>
-                    <Card className="h-full hover-elevate transition-all duration-500 border border-border/50 bg-card/70 backdrop-blur-sm relative pt-16 hover:border-primary/30">
+                    <Card className="hover-elevate transition-all duration-500 border border-border/50 bg-card/70 backdrop-blur-sm relative pt-16 hover:border-primary/30">
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-background shadow-lg">
                         <Quote className="w-8 h-8 text-primary-foreground" />
                       </div>
-                      <CardHeader className="text-center pt-8 pb-6">
-                        <div className="flex justify-center gap-1 mb-4">
+                      <CardHeader className="text-center pt-8 pb-4">
+                        <div className="flex justify-center gap-1 mb-2">
                           {[...Array(5)].map((_, i) => (
                             <Star 
                               key={i} 
@@ -573,7 +573,7 @@ export default function CustomerHome() {
                         <CardTitle className="font-serif text-xl">{review.customerName || review.name}</CardTitle>
                         <CardDescription className="text-sm">{review.eventType || review.role}</CardDescription>
                       </CardHeader>
-                      <CardContent className="text-center italic text-muted-foreground pb-10">
+                      <CardContent className="text-center italic text-muted-foreground pb-8">
                         "{review.comment || review.content}"
                       </CardContent>
                     </Card>
