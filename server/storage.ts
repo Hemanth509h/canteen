@@ -42,7 +42,7 @@ const foodItemSchema = new Schema<FoodItemDocument>({
   dietaryTags: [{ type: String }],
   price: { type: Number, default: 0 },
   rating: { type: Number, default: 0, min: 0, max: 5 },
-}, { collection: 'foodItems' });
+}, { collection: 'fooditems' });
 
 export const FoodItemModel = mongoose.models?.FoodItem || mongoose.model<FoodItemDocument>("FoodItem", foodItemSchema);
 
@@ -89,7 +89,7 @@ const eventBookingSchema = new Schema<EventBookingDocument>({
   totalAmount: { type: Number, default: null },
   advanceAmount: { type: Number, default: null },
   createdAt: { type: Date, default: Date.now },
-}, { collection: 'eventBookings' });
+}, { collection: 'eventbookings' });
 
 export const EventBookingModel = mongoose.models?.EventBooking || mongoose.model<EventBookingDocument>("EventBooking", eventBookingSchema);
 
@@ -106,7 +106,7 @@ const bookingItemSchema = new Schema<BookingItemDocument>({
   foodItemId: { type: String, required: true },
   quantity: { type: Number, required: true, default: 1 },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'bookingitems' });
 
 export const BookingItemModel = mongoose.models?.BookingItem || mongoose.model<BookingItemDocument>("BookingItem", bookingItemSchema);
 
@@ -135,7 +135,7 @@ const companyInfoSchema = new Schema<CompanyInfoDocument>({
   websiteUrl: { type: String, default: null },
   upiId: { type: String, default: null },
   minAdvanceBookingDays: { type: Number, default: 2 },
-}, { collection: 'companyInfo' });
+}, { collection: 'companyinfos' });
 
 export const CompanyInfoModel = mongoose.models?.CompanyInfo || mongoose.model<CompanyInfoDocument>("CompanyInfo", companyInfoSchema);
 
@@ -152,7 +152,7 @@ const staffSchema = new Schema<StaffDocument>({
   role: { type: String, required: true },
   phone: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'staffs' });
 
 export const StaffModel = mongoose.models?.Staff || mongoose.model<StaffDocument>("Staff", staffSchema);
 
@@ -171,7 +171,7 @@ const customerReviewSchema = new Schema<CustomerReviewDocument>({
   rating: { type: Number, required: true, min: 1, max: 5 },
   comment: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'customerreviews' });
 
 export const CustomerReviewModel = mongoose.models?.CustomerReview || mongoose.model<CustomerReviewDocument>("CustomerReview", customerReviewSchema);
 
@@ -192,7 +192,7 @@ const adminNotificationSchema = new Schema<AdminNotificationDocument>({
   bookingId: { type: String, required: false },
   read: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'adminnotifications' });
 
 export const AdminNotificationModel = mongoose.models?.AdminNotification || mongoose.model<AdminNotificationDocument>("AdminNotification", adminNotificationSchema);
 
@@ -211,7 +211,7 @@ const staffBookingRequestSchema = new Schema<StaffBookingRequestDocument>({
   status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
   token: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'staffbookingrequests' });
 
 export const StaffBookingRequestModel = mongoose.models?.StaffBookingRequest || mongoose.model<StaffBookingRequestDocument>("StaffBookingRequest", staffBookingRequestSchema);
 
@@ -230,7 +230,7 @@ const auditHistorySchema = new Schema<AuditHistoryDocument>({
   entityId: { type: String, required: true },
   details: { type: Schema.Types.Mixed, default: {} },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'audithistories' });
 
 export const AuditHistoryModel = mongoose.models?.AuditHistory || mongoose.model<AuditHistoryDocument>("AuditHistory", auditHistorySchema);
 
@@ -309,8 +309,8 @@ export class MongoDBStorage implements IStorage {
       name: doc.name,
       description: doc.description,
       category: doc.category,
-      imageUrl: doc.imageUrl || null,
-      dietaryTags: doc.dietaryTags || [],
+      imageUrl: doc.imageUrl || doc.image_url || null,
+      dietaryTags: doc.dietaryTags || doc.dietary_tags || [],
       price: doc.price || 0,
       rating: doc.rating || 0,
     };
@@ -319,25 +319,25 @@ export class MongoDBStorage implements IStorage {
   private toEventBooking(doc: any): EventBooking {
     return {
       id: doc._id.toString(),
-      clientName: doc.clientName,
-      eventDate: doc.eventDate,
-      eventType: doc.eventType,
-      guestCount: doc.guestCount,
-      pricePerPlate: doc.pricePerPlate,
-      servingBoysNeeded: doc.servingBoysNeeded,
+      clientName: doc.clientName || doc.client_name,
+      eventDate: doc.eventDate || doc.event_date,
+      eventType: doc.eventType || doc.event_type,
+      guestCount: doc.guestCount || doc.guest_count,
+      pricePerPlate: doc.pricePerPlate || doc.price_per_plate,
+      servingBoysNeeded: doc.servingBoysNeeded || doc.serving_boys_needed,
       status: doc.status,
-      contactEmail: doc.contactEmail,
-      contactPhone: doc.contactPhone,
-      specialRequests: doc.specialRequests || null,
-      advancePaymentStatus: doc.advancePaymentStatus || "pending",
-      finalPaymentStatus: doc.finalPaymentStatus || "pending",
-      advancePaymentApprovalStatus: doc.advancePaymentApprovalStatus || undefined,
-      finalPaymentApprovalStatus: doc.finalPaymentApprovalStatus || undefined,
-      advancePaymentScreenshot: doc.advancePaymentScreenshot || null,
-      finalPaymentScreenshot: doc.finalPaymentScreenshot || null,
-      totalAmount: doc.totalAmount || undefined,
-      advanceAmount: doc.advanceAmount || undefined,
-      createdAt: doc.createdAt.toISOString(),
+      contactEmail: doc.contactEmail || doc.contact_email,
+      contactPhone: doc.contactPhone || doc.contact_phone,
+      specialRequests: doc.specialRequests || doc.special_requests || null,
+      advancePaymentStatus: doc.advancePaymentStatus || doc.advance_payment_status || "pending",
+      finalPaymentStatus: doc.finalPaymentStatus || doc.final_payment_status || "pending",
+      advancePaymentApprovalStatus: doc.advancePaymentApprovalStatus || doc.advance_payment_approval_status || undefined,
+      finalPaymentApprovalStatus: doc.finalPaymentApprovalStatus || doc.final_payment_approval_status || undefined,
+      advancePaymentScreenshot: doc.advancePaymentScreenshot || doc.advance_payment_screenshot || null,
+      finalPaymentScreenshot: doc.finalPaymentScreenshot || doc.final_payment_screenshot || null,
+      totalAmount: doc.totalAmount || doc.total_amount || undefined,
+      advanceAmount: doc.advanceAmount || doc.advance_amount || undefined,
+      createdAt: doc.createdAt ? doc.createdAt.toISOString() : new Date().toISOString(),
     };
   }
 
@@ -354,16 +354,16 @@ export class MongoDBStorage implements IStorage {
   private toCompanyInfo(doc: any): CompanyInfo {
     return {
       id: doc._id.toString(),
-      companyName: doc.companyName,
+      companyName: doc.companyName || doc.company_name,
       tagline: doc.tagline,
       description: doc.description,
       email: doc.email,
       phone: doc.phone,
       address: doc.address,
-      eventsPerYear: doc.eventsPerYear,
-      websiteUrl: doc.websiteUrl || undefined,
-      upiId: doc.upiId || undefined,
-      minAdvanceBookingDays: doc.minAdvanceBookingDays || 2,
+      eventsPerYear: doc.eventsPerYear || doc.events_per_year,
+      websiteUrl: doc.websiteUrl || doc.website_url || undefined,
+      upiId: doc.upiId || doc.upi_id || undefined,
+      minAdvanceBookingDays: doc.minAdvanceBookingDays || doc.min_advance_booking_days || 2,
     };
   }
 
