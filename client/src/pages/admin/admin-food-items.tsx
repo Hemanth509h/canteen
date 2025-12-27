@@ -341,8 +341,8 @@ export default function FoodItemsManager() {
                           placeholder="0" 
                           min="0"
                           max="5"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
                           data-testid="input-food-rating"
                         />
                       </FormControl>
