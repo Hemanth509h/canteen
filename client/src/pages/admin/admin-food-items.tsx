@@ -54,7 +54,7 @@ export default function FoodItemsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"name" | "price" | "category">("name");
+  const [sortBy, setSortBy] = useState<"name" | "category">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -77,8 +77,6 @@ export default function FoodItemsManager() {
     let compareValue = 0;
     if (sortBy === "name") {
       compareValue = a.name.localeCompare(b.name);
-    } else if (sortBy === "price") {
-      compareValue = (a.price || 0) - (b.price || 0);
     } else if (sortBy === "category") {
       compareValue = a.category.localeCompare(b.category);
     }
@@ -174,7 +172,6 @@ export default function FoodItemsManager() {
       description: item.description,
       category: item.category,
       imageUrl: item.imageUrl || "",
-      price: item.price || 0,
       rating: item.rating || 0,
       dietaryTags: item.dietaryTags || [],
     });
@@ -332,48 +329,27 @@ export default function FoodItemsManager() {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price (optional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number"
-                            placeholder="0" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            data-testid="input-food-price"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="rating"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Rating 0-5 (optional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number"
-                            placeholder="0" 
-                            min="0"
-                            max="5"
-                            {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            data-testid="input-food-rating"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="rating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Rating 0-5 (optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          placeholder="0" 
+                          min="0"
+                          max="5"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          data-testid="input-food-rating"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="dietaryTags"
@@ -455,7 +431,6 @@ export default function FoodItemsManager() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="price">Price</SelectItem>
                   <SelectItem value="category">Category</SelectItem>
                 </SelectContent>
               </Select>
