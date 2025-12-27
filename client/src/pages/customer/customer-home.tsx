@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  ChefHat, Award, Users, Clock, Phone, Mail, Utensils, Star, ArrowRight
+  ChefHat, Award, Users, Clock, Phone, Mail, Utensils, Star, ArrowRight, Search, Quote
 } from "lucide-react";
 import type { FoodItem, CompanyInfo } from "@shared/schema";
 import { cn } from "@/lib/utils";
@@ -36,9 +37,36 @@ const features = [
   },
 ];
 
+const testimonials = [
+  {
+    name: "Priya Sharma",
+    event: "Wedding Reception",
+    rating: 5,
+    comment: "The culinary experience was absolutely stunning. Every dish was a masterpiece, and the presentation left all our guests speechless!"
+  },
+  {
+    name: "Rajesh Patel",
+    event: "Corporate Gala",
+    rating: 5,
+    comment: "Professional, punctual, and delicious. They transformed our event into an unforgettable dining experience."
+  },
+  {
+    name: "Meera Desai",
+    event: "Birthday Celebration",
+    rating: 5,
+    comment: "Exceptional service! The chefs are true artists. Our family couldn't stop raving about the food for weeks!"
+  },
+  {
+    name: "Vikram Kumar",
+    event: "Anniversary Dinner",
+    rating: 5,
+    comment: "Personalized menu, impeccable execution. They made our special day truly memorable."
+  },
+];
+
 export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
@@ -149,6 +177,19 @@ export default function CustomerHome() {
               Experience our hand-crafted selection of signature dishes, each telling a story of tradition and innovation.
             </p>
             
+            <div className="mb-8 max-w-2xl mx-auto w-full">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input 
+                  placeholder="Search dishes by name..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 rounded-full h-12 text-center text-lg border-primary/30 focus:border-primary transition-all"
+                  data-testid="input-menu-search"
+                />
+              </div>
+            </div>
+
             <div className="max-h-48 overflow-y-auto mb-16 max-w-5xl mx-auto px-4 custom-scrollbar">
               <div className="flex flex-wrap justify-center gap-2">
                 {categories.map((cat) => (
@@ -162,6 +203,7 @@ export default function CustomerHome() {
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
                         : "text-muted-foreground hover:bg-muted"
                     )}
+                    data-testid={`button-category-${cat}`}
                   >
                     {cat}
                   </Button>
@@ -228,6 +270,48 @@ export default function CustomerHome() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Testimonials Section */}
+      <section className="py-32 bg-muted/20 flex flex-col items-center w-full">
+        <div className="container px-4 mx-auto max-w-7xl">
+          <div className="text-center mb-20 max-w-3xl mx-auto">
+            <Badge variant="outline" className="mb-6 border-primary text-primary px-4 py-1 uppercase tracking-widest text-xs">Cherished Memories</Badge>
+            <h2 className="text-5xl md:text-6xl font-serif font-bold mb-8 text-foreground">
+              What Our Clients Say
+            </h2>
+            <p className="text-lg text-muted-foreground font-light">
+              Real stories from those who trusted us with their most important moments
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {testimonials.map((testimonial, idx) => (
+              <Card key={idx} className="border-none bg-background hover-elevate transition-all duration-300 rounded-2xl overflow-hidden group">
+                <CardContent className="p-8 flex flex-col h-full relative">
+                  <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Quote className="w-12 h-12 text-primary" />
+                  </div>
+                  
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                    ))}
+                  </div>
+
+                  <p className="text-muted-foreground font-light text-lg mb-6 flex-1 leading-relaxed">
+                    "{testimonial.comment}"
+                  </p>
+
+                  <div className="pt-6 border-t border-border">
+                    <p className="font-semibold text-foreground">{testimonial.name}</p>
+                    <p className="text-sm text-primary font-medium">{testimonial.event}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
