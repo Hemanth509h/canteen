@@ -266,7 +266,7 @@ export default function CustomerHome() {
         </div>
       )}
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-pattern">
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -277,25 +277,26 @@ export default function CustomerHome() {
             }}
           >
             <div className="absolute inset-0 bg-black/50" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/10 to-background" />
           </div>
 
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             {loadingCompany ? (
               <Skeleton className="h-20 md:h-28 w-64 md:w-full mx-auto mb-8 bg-white/20" />
             ) : (
-              <h1 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-tight animate-fade-in-down tracking-tight">
+              <h1 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-tight animate-fade-in-down tracking-tight drop-shadow-2xl">
                 {companyInfo?.companyName}
               </h1>
             )}
             
-            <p className="text-2xl md:text-3xl text-gray-200 mb-14 max-w-3xl mx-auto font-light animate-fade-in-up animation-delay-200 leading-relaxed">
+            <p className="text-2xl md:text-3xl text-gray-200 mb-14 max-w-3xl mx-auto font-light animate-fade-in-up animation-delay-200 leading-relaxed drop-shadow-lg">
               {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-zoom-in animation-delay-400">
               <Button 
                 size="lg"
-                className="bg-white text-black hover:bg-gray-100 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl"
                 data-testid="button-view-menu"
                 onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
@@ -314,9 +315,10 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="py-32 bg-gradient-to-br from-background via-background/95 to-background relative overflow-hidden border-b border-border/20">
-          <div className="absolute top-0 left-0 w-80 h-80 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+        <section className="py-32 relative overflow-hidden border-b border-border/20">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+          <div className="absolute top-0 left-0 w-80 h-80 bg-primary/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -335,11 +337,11 @@ export default function CustomerHome() {
               {features.map((feature, index) => (
                 <div key={feature.title} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 100}ms` }}>
                   <Card 
-                    className="h-full text-center hover-elevate transition-all duration-500 border border-border/50 bg-card/60 backdrop-blur-md shadow-md hover:shadow-lg hover:border-primary/30 group"
+                    className="h-full text-center hover-elevate transition-all duration-500 border border-border/50 bg-card shadow-md hover:shadow-xl hover:border-primary/30 group"
                     data-testid={`card-feature-${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <CardHeader className="pt-10 pb-6">
-                      <div className="mx-auto w-24 h-24 bg-primary/12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-500">
+                      <div className="mx-auto w-24 h-24 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-500 shadow-inner">
                         <feature.icon className="w-11 h-11 text-primary group-hover:text-primary transition-colors duration-500" />
                       </div>
                       <CardTitle className="font-serif text-2xl mb-3">{feature.title}</CardTitle>
@@ -354,7 +356,7 @@ export default function CustomerHome() {
           </div>
         </section>
 
-        <section className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
+        <section className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center gap-3">
               <div className="md:hidden flex-1">
