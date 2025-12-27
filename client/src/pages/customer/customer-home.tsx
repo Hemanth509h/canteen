@@ -553,11 +553,15 @@ export default function CustomerHome() {
               </h2>
             </div>
 
-            <div className="max-h-[500px] overflow-y-auto px-4 mb-12 custom-scrollbar">
-              <div className="flex flex-col gap-8 max-w-2xl mx-auto">
+            <div className="relative mb-12">
+              <div className="flex overflow-x-auto gap-8 pb-8 custom-scrollbar snap-x snap-mandatory px-4 md:px-0 scrollbar-hide">
                 {(loadingReviews ? testimonials : (reviews || testimonials)).map((review: any, index: number) => (
-                  <div key={index} className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 150}ms` }}>
-                    <Card className="hover-elevate transition-all duration-500 border border-border/50 bg-card/70 backdrop-blur-sm relative pt-16 hover:border-primary/30">
+                  <div 
+                    key={index} 
+                    className="flex-shrink-0 w-[300px] md:w-[380px] snap-center animate-in fade-in slide-in-from-right-4 duration-700" 
+                    style={{ animationDelay: `${index * 150}ms` }}
+                  >
+                    <Card className="h-full hover-elevate transition-all duration-500 border border-border/50 bg-card/70 backdrop-blur-sm relative pt-16 hover:border-primary/30">
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-background shadow-lg">
                         <Quote className="w-8 h-8 text-primary-foreground" />
                       </div>
@@ -580,6 +584,9 @@ export default function CustomerHome() {
                   </div>
                 ))}
               </div>
+              
+              <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-background to-transparent pointer-events-none md:block hidden" />
+              <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-background to-transparent pointer-events-none md:block hidden" />
             </div>
 
             <div className="mt-20 max-w-2xl mx-auto">
