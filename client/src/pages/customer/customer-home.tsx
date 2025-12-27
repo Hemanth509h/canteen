@@ -279,36 +279,36 @@ export default function CustomerHome() {
             <div className="absolute inset-0 bg-black/50" />
           </div>
 
-          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             {loadingCompany ? (
               <Skeleton className="h-20 md:h-28 w-64 md:w-full mx-auto mb-8 bg-white/20" />
             ) : (
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-fade-in-down">
+              <h1 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-tight animate-fade-in-down tracking-tight">
                 {companyInfo?.companyName}
               </h1>
             )}
             
-            <p className="text-xl md:text-2xl text-gray-100 mb-12 max-w-2xl mx-auto font-light animate-fade-in-up animation-delay-200">
+            <p className="text-2xl md:text-3xl text-gray-200 mb-14 max-w-3xl mx-auto font-light animate-fade-in-up animation-delay-200 leading-relaxed">
               {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-zoom-in animation-delay-400">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-zoom-in animation-delay-400">
               <Button 
                 size="lg"
-                className="bg-white text-black hover:bg-gray-100 px-8 py-6 text-lg font-semibold"
+                className="bg-white text-black hover:bg-gray-100 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl"
                 data-testid="button-view-menu"
                 onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
-                View Menu
+                Explore Menu
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="bg-transparent text-white border-white border-2 hover:bg-white/10 px-8 py-6 text-lg font-semibold"
+                className="bg-white/10 backdrop-blur-md text-white border-white/30 border-2 hover:bg-white/20 px-10 py-8 text-xl font-semibold rounded-full transition-all duration-300 hover:scale-105"
                 data-testid="button-contact"
                 onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Book Now
+                Get Started
               </Button>
             </div>
           </div>
