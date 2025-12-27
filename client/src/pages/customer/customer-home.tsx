@@ -1,13 +1,12 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import { 
-  ChefHat, Award, Users, Clock, Phone, Mail, Utensils, Star, ArrowRight, Search, Quote
+  ChefHat, Award, Users, Clock, Utensils, Search, ArrowRight, Star
 } from "lucide-react";
 import type { FoodItem, CompanyInfo, CustomerReview } from "@shared/schema";
 import { cn } from "@/lib/utils";
@@ -36,33 +35,6 @@ const features = [
     icon: Clock, 
     title: "On-Time Service", 
     description: "Punctual delivery and setup for stress-free events" 
-  },
-];
-
-const testimonials = [
-  {
-    name: "Priya Sharma",
-    event: "Wedding Reception",
-    rating: 5,
-    comment: "The culinary experience was absolutely stunning. Every dish was a masterpiece, and the presentation left all our guests speechless!"
-  },
-  {
-    name: "Rajesh Patel",
-    event: "Corporate Gala",
-    rating: 5,
-    comment: "Professional, punctual, and delicious. They transformed our event into an unforgettable dining experience."
-  },
-  {
-    name: "Meera Desai",
-    event: "Birthday Celebration",
-    rating: 5,
-    comment: "Exceptional service! The chefs are true artists. Our family couldn't stop raving about the food for weeks!"
-  },
-  {
-    name: "Vikram Kumar",
-    event: "Anniversary Dinner",
-    rating: 5,
-    comment: "Personalized menu, impeccable execution. They made our special day truly memorable."
   },
 ];
 
@@ -156,7 +128,7 @@ export default function CustomerHome() {
             </p>
             <div className="flex gap-12 justify-center w-full">
               <div className="text-center space-y-2">
-                <h3 className="text-4xl font-bold text-primary">{companyInfo?.yearsExperience || 15}+</h3>
+                <h3 className="text-4xl font-bold text-primary">{(companyInfo as any)?.yearsExperience || 15}+</h3>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Years Experience</p>
               </div>
               <div className="text-center space-y-2">
@@ -180,7 +152,7 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Signature Dishes Showcase - REDESIGNED */}
+      {/* Signature Dishes Showcase */}
       <section id="menu" className="py-32 bg-muted/10 animated-gradient-bg flex flex-col items-center border-y">
         <div className="container px-4 mx-auto">
           <div className="flex flex-col items-center text-center mb-24 max-w-4xl mx-auto">
@@ -229,61 +201,51 @@ export default function CustomerHome() {
           </div>
 
           <div className="max-h-[800px] overflow-y-auto w-full custom-scrollbar pr-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 max-w-[95rem] mx-auto">
               {loadingFood ? (
-                Array(6).fill(0).map((_, i) => (
-                  <div key={i} className="space-y-6 stagger-item">
-                    <Skeleton className="h-[450px] w-full rounded-[2.5rem]" />
-                    <div className="space-y-3 px-4">
-                      <Skeleton className="h-8 w-2/3" />
-                      <Skeleton className="h-4 w-full" />
+                Array(16).fill(0).map((_, i) => (
+                  <div key={i} className="space-y-3 stagger-item">
+                    <Skeleton className="aspect-square w-full rounded-xl" />
+                    <div className="space-y-2 px-1">
+                      <Skeleton className="h-3 w-3/4" />
+                      <Skeleton className="h-2 w-full" />
                     </div>
                   </div>
                 ))
               ) : filteredItems.length > 0 ? (
                 filteredItems.map((item, idx) => (
-                  <div key={item.id} className="group relative flex flex-col items-center stagger-item" style={{ animationDelay: `${idx * 0.1}s` }}>
-                    <Card className="relative w-full h-full overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-700 group-hover:shadow-primary/20 group-hover:-translate-y-2 card-hover-lift">
-                      <div className="relative w-full aspect-[3/4] overflow-hidden rounded-[2.5rem] transition-all duration-700 group-hover:shadow-primary/10 group-hover:-translate-y-2">
+                  <div key={item.id} className="group relative stagger-item" style={{ animationDelay: `${idx * 0.03}s` }}>
+                    <Card className="relative w-full aspect-square overflow-hidden rounded-xl shadow-md border-none transition-all duration-300 hover:scale-110 hover:z-50 hover:shadow-2xl cursor-default bg-background">
+                      <div className="absolute inset-0">
                         <img 
                           src={item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} 
                           alt={item.name}
-                          className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110 animate-scale-in"
+                          className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-70" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80" />
                       </div>
                       
-                      <div className="absolute top-8 right-8">
-                        <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white px-4 py-1.5 rounded-full font-semibold uppercase tracking-widest text-[10px]">
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-black/40 backdrop-blur-md border-white/10 text-[8px] px-1.5 py-0 rounded-full font-medium text-white/90">
                           {item.category}
                         </Badge>
                       </div>
 
-                      <div className="absolute bottom-10 left-10 right-10 flex flex-col items-start gap-4">
-                        <div className="flex gap-1 text-primary">
-                          <Star className="w-4 h-4 fill-current" />
-                          <Star className="w-4 h-4 fill-current" />
-                          <Star className="w-4 h-4 fill-current" />
-                          <Star className="w-4 h-4 fill-current" />
-                          <Star className="w-4 h-4 fill-current" />
-                        </div>
-                        <h3 className="text-xl md:text-2xl font-serif font-bold text-white leading-tight">
+                      <div className="absolute bottom-3 left-3 right-3 flex flex-col gap-0.5">
+                        <h3 className="text-xs md:text-sm font-medium text-white leading-tight truncate">
                           {item.name}
                         </h3>
-                        <p className="text-gray-300 text-sm font-light line-clamp-2 leading-relaxed">
+                        <p className="text-gray-300 text-[9px] font-light line-clamp-1 leading-tight opacity-0 group-hover:opacity-100 group-hover:line-clamp-2 transition-all duration-300">
                           {item.description}
                         </p>
-                        <Button variant="outline" className="mt-4 rounded-full border-white/30 text-white bg-white/5 backdrop-blur-sm hover:bg-white/20 hover:border-white transition-all group/btn">
-                          Learn More <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                        </Button>
                       </div>
                     </Card>
                   </div>
                 ))
               ) : (
-                <div className="col-span-full py-40 text-center flex flex-col items-center justify-center bg-background rounded-[3rem] border border-dashed">
-                  <Utensils className="w-12 h-12 text-muted-foreground/30 mb-6" />
-                  <p className="text-xl text-muted-foreground font-light">No culinary masterpieces found in this selection.</p>
+                <div className="col-span-full py-40 text-center flex flex-col items-center justify-center bg-background rounded-3xl border border-dashed border-muted">
+                  <Utensils className="w-10 h-10 text-muted-foreground/30 mb-4" />
+                  <p className="text-lg text-muted-foreground font-light">No culinary masterpieces found in this selection.</p>
                   <Button variant="ghost" onClick={() => setSelectedCategory("All")} className="mt-4 text-primary hover:text-primary/80">View All Selections</Button>
                 </div>
               )}
@@ -292,7 +254,7 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Customer Testimonials Section with Auto-Scrolling */}
+      {/* Customer Testimonials Section */}
       <section className="py-32 bg-muted/20 animated-gradient-bg flex flex-col items-center w-full">
         <div className="container px-4 mx-auto max-w-7xl">
           <div className="text-center mb-20 max-w-3xl mx-auto">
@@ -304,8 +266,6 @@ export default function CustomerHome() {
               Real stories from those who trusted us with their most important moments
             </p>
           </div>
-
-          {/* Auto-scrolling Reviews Carousel */}
           <ReviewsCarousel reviews={reviews} isLoading={loadingReviews} />
         </div>
       </section>
@@ -322,7 +282,6 @@ export default function CustomerHome() {
               We'd love to hear about your experience with Elite Catering & Events
             </p>
           </div>
-
           <ReviewForm />
         </div>
       </section>
