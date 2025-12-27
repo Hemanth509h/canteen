@@ -12,9 +12,6 @@ import {
   type InsertBookingItem,
   type CustomerReview,
   type InsertCustomerReview,
-  type CateringPackage,
-  type InsertCateringPackage,
-  type UpdateCateringPackage,
   type AdminNotification,
   type InsertAdminNotification,
   type StaffBookingRequest,
@@ -178,29 +175,6 @@ const customerReviewSchema = new Schema<CustomerReviewDocument>({
 
 export const CustomerReviewModel = mongoose.models?.CustomerReview || mongoose.model<CustomerReviewDocument>("CustomerReview", customerReviewSchema);
 
-// Catering Package Model
-export interface CateringPackageDocument extends Document {
-  name: string;
-  tier: "budget" | "standard" | "premium";
-  description: string;
-  pricePerPlate: number;
-  items: string[];
-  minServings: number;
-  createdAt: Date;
-}
-
-const cateringPackageSchema = new Schema<CateringPackageDocument>({
-  name: { type: String, required: true },
-  tier: { type: String, enum: ["budget", "standard", "premium"], required: true },
-  description: { type: String, required: true },
-  pricePerPlate: { type: Number, required: true },
-  items: [{ type: String }],
-  minServings: { type: Number, required: true, default: 20 },
-  createdAt: { type: Date, default: Date.now },
-});
-
-export const CateringPackageModel = mongoose.models?.CateringPackage || mongoose.model<CateringPackageDocument>("CateringPackage", cateringPackageSchema);
-
 // Admin Notification Model
 export interface AdminNotificationDocument extends Document {
   type: "booking" | "payment";
@@ -215,7 +189,7 @@ const adminNotificationSchema = new Schema<AdminNotificationDocument>({
   type: { type: String, enum: ["booking", "payment"], required: true },
   title: { type: String, required: true },
   message: { type: String, required: true },
-  bookingId: { type: String, optional: true },
+  bookingId: { type: String, required: false },
   read: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
@@ -593,42 +567,24 @@ export class MongoDBStorage implements IStorage {
   }
 
   // Catering Packages
-  private toCateringPackage(doc: any): CateringPackage {
-    return {
-      id: doc._id.toString(),
-      name: doc.name,
-      tier: doc.tier,
-      description: doc.description,
-      pricePerPlate: doc.pricePerPlate,
-      items: doc.items || [],
-      minServings: doc.minServings,
-      createdAt: doc.createdAt.toISOString(),
-    };
+  async getPackages(): Promise<any[]> {
+    return [];
   }
 
-  async getPackages(): Promise<CateringPackage[]> {
-    const docs = await CateringPackageModel.find().lean();
-    return docs.map(doc => this.toCateringPackage(doc));
+  async getPackage(id: string): Promise<any | undefined> {
+    return undefined;
   }
 
-  async getPackage(id: string): Promise<CateringPackage | undefined> {
-    const doc = await CateringPackageModel.findById(id).lean();
-    return doc ? this.toCateringPackage(doc) : undefined;
+  async createPackage(pkg: any): Promise<any> {
+    return pkg;
   }
 
-  async createPackage(pkg: InsertCateringPackage): Promise<CateringPackage> {
-    const doc = await CateringPackageModel.create(pkg);
-    return this.toCateringPackage(doc);
-  }
-
-  async updatePackage(id: string, pkg: UpdateCateringPackage): Promise<CateringPackage | undefined> {
-    const doc = await CateringPackageModel.findByIdAndUpdate(id, pkg, { new: true }).lean();
-    return doc ? this.toCateringPackage(doc) : undefined;
+  async updatePackage(id: string, pkg: any): Promise<any | undefined> {
+    return undefined;
   }
 
   async deletePackage(id: string): Promise<boolean> {
-    const result = await CateringPackageModel.findByIdAndDelete(id);
-    return result !== null;
+    return false;
   }
 
   // Admin Notifications
