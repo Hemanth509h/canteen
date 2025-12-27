@@ -20,6 +20,7 @@ export async function connectToDatabase() {
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
       maxPoolSize: 10,
+      dbName: "canteen"
     });
     
     await isConnected;

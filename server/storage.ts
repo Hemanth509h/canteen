@@ -42,7 +42,7 @@ const foodItemSchema = new Schema<FoodItemDocument>({
   dietaryTags: [{ type: String }],
   price: { type: Number, default: 0 },
   rating: { type: Number, default: 0, min: 0, max: 5 },
-});
+}, { collection: 'foodItems' });
 
 export const FoodItemModel = mongoose.models?.FoodItem || mongoose.model<FoodItemDocument>("FoodItem", foodItemSchema);
 
@@ -89,7 +89,7 @@ const eventBookingSchema = new Schema<EventBookingDocument>({
   totalAmount: { type: Number, default: null },
   advanceAmount: { type: Number, default: null },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'eventBookings' });
 
 export const EventBookingModel = mongoose.models?.EventBooking || mongoose.model<EventBookingDocument>("EventBooking", eventBookingSchema);
 
@@ -135,7 +135,7 @@ const companyInfoSchema = new Schema<CompanyInfoDocument>({
   websiteUrl: { type: String, default: null },
   upiId: { type: String, default: null },
   minAdvanceBookingDays: { type: Number, default: 2 },
-});
+}, { collection: 'companyInfo' });
 
 export const CompanyInfoModel = mongoose.models?.CompanyInfo || mongoose.model<CompanyInfoDocument>("CompanyInfo", companyInfoSchema);
 
