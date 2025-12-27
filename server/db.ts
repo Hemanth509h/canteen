@@ -24,7 +24,7 @@ export async function connectToDatabase() {
     });
     
     await isConnected;
-    console.log("✅ Connected to MongoDB");
+    console.log("✅ Connected to MongoDB database: canteen");
     return isConnected;
   } catch (error) {
     isConnected = null;
