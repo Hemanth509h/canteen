@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { FoodItem, CompanyInfo, CustomerReview } from "@shared/schema";
 import { insertCustomerReviewSchema } from "@shared/schema";
+import { cn } from "@/lib/utils";
 
 const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
 
