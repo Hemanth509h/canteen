@@ -77,136 +77,77 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
     isCurrent?: boolean;
     position?: "prev" | "current" | "next";
   }) => {
-    const getAnimationClass = () => {
-      if (isCurrent) {
-        return "animate-in fade-in scale-100 zoom-in duration-700";
-      }
-      return "animate-in fade-in opacity-0 md:opacity-100 duration-700";
-    };
-
     return (
-      <div className={`transition-all duration-700 ${getAnimationClass()}`}>
-        <Card
-          className={`border-none rounded-2xl overflow-hidden transition-all duration-500 ${
-            isCurrent
-              ? "bg-primary text-primary-foreground shadow-2xl scale-100 md:scale-105"
-              : "bg-muted/50 text-foreground shadow-md hover-elevate opacity-75 hover:opacity-90"
-          }`}
-        >
-          <CardContent className="p-6 md:p-8 flex flex-col h-full">
-            {/* Stars with animation */}
-            <div className="flex gap-1 mb-6 animate-in fade-in slide-in-from-top duration-500 delay-100">
-              {[...Array(review.rating)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-4 h-4 fill-current transition-all duration-300 ${
-                    isCurrent ? "text-primary-foreground" : "text-primary"
-                  }`}
-                />
-              ))}
-            </div>
+      <Card
+        className={`border-none rounded-2xl overflow-hidden transition-all duration-500 review-card-animate ${
+          isCurrent
+            ? "bg-primary text-primary-foreground shadow-2xl scale-100 md:scale-105"
+            : "bg-muted/50 text-foreground shadow-md hover-elevate opacity-75 hover:opacity-90"
+        }`}
+        style={{
+          animation: isCurrent 
+            ? "fadeInScaleCenter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+            : position === "prev"
+              ? "slideInFromLeft 0.6s ease-out forwards"
+              : "slideInFromRight 0.6s ease-out forwards"
+        }}
+      >
+        <CardContent className="p-6 md:p-8 flex flex-col h-full">
+          {/* Stars with animation */}
+          <div 
+            className="flex gap-1 mb-6"
+            style={{ animation: "fadeInScale 0.5s ease-out 0.1s forwards", opacity: 0 }}
+          >
+            {[...Array(review.rating)].map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 fill-current transition-all duration-300 ${
+                  isCurrent ? "text-primary-foreground" : "text-primary"
+                }`}
+              />
+            ))}
+          </div>
 
-            {/* Comment with animation */}
+          {/* Comment with animation */}
+          <p
+            className={`font-light text-lg mb-8 flex-1 leading-relaxed italic ${
+              isCurrent ? "text-primary-foreground/90" : "text-muted-foreground"
+            }`}
+            style={{ animation: "slideInLeftText 0.7s ease-out 0.15s forwards", opacity: 0 }}
+          >
+            "{review.comment}"
+          </p>
+
+          {/* Customer Info with animation */}
+          <div
+            className={`pt-6 border-t ${
+              isCurrent ? "border-primary-foreground/20" : "border-border"
+            } space-y-2`}
+            style={{ animation: "slideInUpText 0.7s ease-out 0.2s forwards", opacity: 0 }}
+          >
+            <p className={`font-semibold text-base ${isCurrent ? "text-primary-foreground" : "text-foreground"}`}>
+              {review.customerName}
+            </p>
+            <p className={`text-sm font-medium ${isCurrent ? "text-primary-foreground/80" : "text-primary"}`}>
+              {review.eventType}
+            </p>
             <p
-              className={`font-light text-lg mb-8 flex-1 leading-relaxed italic animate-in fade-in slide-in-from-left duration-700 delay-150 ${
-                isCurrent ? "text-primary-foreground/90" : "text-muted-foreground"
+              className={`text-xs ${
+                isCurrent ? "text-primary-foreground/60" : "text-muted-foreground"
               }`}
             >
-              "{review.comment}"
+              {new Date(review.createdAt).toLocaleDateString()}
             </p>
-
-            {/* Customer Info with animation */}
-            <div
-              className={`pt-6 border-t ${
-                isCurrent ? "border-primary-foreground/20" : "border-border"
-              } space-y-2 animate-in fade-in slide-in-from-bottom duration-700 delay-200`}
-            >
-              <p className={`font-semibold text-base ${isCurrent ? "text-primary-foreground" : "text-foreground"}`}>
-                {review.customerName}
-              </p>
-              <p className={`text-sm font-medium ${isCurrent ? "text-primary-foreground/80" : "text-primary"}`}>
-                {review.eventType}
-              </p>
-              <p
-                className={`text-xs ${
-                  isCurrent ? "text-primary-foreground/60" : "text-muted-foreground"
-                }`}
-              >
-                {new Date(review.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
   return (
     <div className="w-full max-w-7xl mx-auto">
       <style>{`
-        @keyframes slideInLeft {
-          from {
-            transform: translateX(-20px);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideInRight {
-          from {
-            transform: translateX(20px);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideInUp {
-          from {
-            transform: translateY(10px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-
-        .slide-in-left {
-          animation: slideInLeft 0.6s ease-out forwards;
-        }
-
-        .slide-in-right {
-          animation: slideInRight 0.6s ease-out forwards;
-        }
-
-        .slide-in-up {
-          animation: slideInUp 0.6s ease-out forwards;
-        }
-
-        .dot-active {
-          animation: scaleUp 0.3s ease-out;
-        }
-
-        @keyframes scaleUp {
-          0% {
-            transform: scale(0.5);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
-        .review-card-enter {
-          animation: fadeInScale 0.5s ease-out;
-        }
-
-        @keyframes fadeInScale {
+        @keyframes fadeInScaleCenter {
           from {
             opacity: 0;
             transform: scale(0.95);
@@ -216,29 +157,99 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
             transform: scale(1);
           }
         }
+
+        @keyframes slideInFromLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slideInFromRight {
+          from {
+            opacity: 0;
+            transform: translateX(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes slideInLeftText {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slideInUpText {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes scaleUpDot {
+          0% {
+            transform: scale(0.5);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .dot-active {
+          animation: scaleUpDot 0.3s ease-out;
+        }
+
+        .review-card-animate {
+          animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
       `}</style>
 
       <div className="relative">
-        {/* Three Cards Display with stagger animation */}
+        {/* Three Cards Display */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 px-4 md:px-0">
           {/* Previous Review */}
-          <div className="hidden md:block slide-in-left" style={{ animationDelay: "0s" }}>
+          <div className="hidden md:block">
             <ReviewCard review={prevReviewData} isCurrent={false} position="prev" />
           </div>
 
           {/* Current Review */}
-          <div className="review-card-enter">
-            <ReviewCard review={currentReviewData} isCurrent={true} position="current" />
-          </div>
+          <ReviewCard review={currentReviewData} isCurrent={true} position="current" />
 
           {/* Next Review */}
-          <div className="hidden md:block slide-in-right" style={{ animationDelay: "0s" }}>
+          <div className="hidden md:block">
             <ReviewCard review={nextReviewData} isCurrent={false} position="next" />
           </div>
         </div>
 
-        {/* Navigation Buttons with hover animation */}
-        <div className="flex gap-4 justify-center items-center mt-8 animate-in fade-in slide-in-up duration-700 delay-300">
+        {/* Navigation Buttons */}
+        <div className="flex gap-4 justify-center items-center mt-8" style={{ animation: "fadeInScale 0.7s ease-out 0.3s forwards", opacity: 0 }}>
           <Button
             variant="ghost"
             size="icon"
@@ -249,7 +260,7 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
             <ChevronLeft className="w-5 h-5 transition-transform duration-300" />
           </Button>
 
-          {/* Dots with stagger animation */}
+          {/* Dots */}
           <div className="flex gap-2 items-center">
             {displayReviews.map((_, idx) => (
               <button
@@ -281,8 +292,8 @@ export default function ReviewsCarousel({ reviews = [], isLoading }: ReviewsCaro
           </Button>
         </div>
 
-        {/* Review Counter with animation */}
-        <div className="text-center mt-6 text-sm text-muted-foreground animate-in fade-in duration-700 delay-400">
+        {/* Review Counter */}
+        <div className="text-center mt-6 text-sm text-muted-foreground" style={{ animation: "fadeInScale 0.7s ease-out 0.4s forwards", opacity: 0 }}>
           <span className="inline-block transition-all duration-300">{currentIndex + 1}</span>
           <span> of </span>
           <span className="inline-block transition-all duration-300">{displayReviews.length}</span>
