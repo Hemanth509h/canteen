@@ -322,7 +322,7 @@ export default function CustomerHome() {
                 <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 md:mb-8 leading-tight px-2 animate-in fade-in duration-500">
                   {companyInfo?.companyName}
                 </h1>
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/95 mb-10 md:mb-14 font-light tracking-wide px-4 animate-in fade-in duration-500 delay-100">
+                <p className="text-xl font-medium text-muted-foreground animate-slide-up" style={{animationDelay sm:text-xl md:text-2xl lg:text-3xl text-white/95 mb-10 md:mb-14 font-light tracking-wide px-4 animate-in fade-in duration-500 delay-100">
                   {companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}
                 </p>
               </>
@@ -390,7 +390,7 @@ export default function CustomerHome() {
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-8 text-foreground leading-tight">
                 Culinary Excellence in Every Bite
               </h2>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl font-medium text-muted-foreground animate-slide-up" style={{animationDelay md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                 We bring together tradition, innovation, and passion to create memorable dining experiences that exceed expectations.
               </p>
             </div>
@@ -478,7 +478,7 @@ export default function CustomerHome() {
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">
                 Exquisite Menu Selection
               </h2>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
+              <p className="text-xl font-medium text-muted-foreground animate-slide-up" style={{animationDelay md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
                 Discover our carefully curated selection of gourmet dishes, crafted to delight every palate
               </p>
               
@@ -645,7 +645,7 @@ export default function CustomerHome() {
             </div>
 
             <div className="mt-20 max-w-2xl mx-auto">
-              <Card className="bg-card/70 backdrop-blur-sm border border-dashed border-border/50 hover:border-primary/30 transition-colors duration-300">
+              <Card className="bg-card hover-elevate animate-scale-in/70 backdrop-blur-sm border border-dashed border-border/50 hover:border-primary/30 transition-colors duration-300">
                 <CardHeader className="pb-8">
                   <CardTitle className="text-center font-serif text-2xl">Share Your Experience</CardTitle>
                   <CardDescription className="text-center text-base">How was our service? We'd love to hear from you!</CardDescription>
@@ -760,7 +760,7 @@ export default function CustomerHome() {
               <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
                 Ready to Create Something Extraordinary?
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-xl font-medium text-muted-foreground animate-slide-up" style={{animationDelay text-muted-foreground max-w-2xl mx-auto">
                 Let us transform your next event into an unforgettable culinary experience
               </p>
             </div>
