@@ -1,6 +1,6 @@
 import { Switch, Route, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
@@ -11,6 +11,7 @@ import PaymentConfirmation from "@/pages/staff/payment-confirmation";
 import AdminPaymentConfirmation from "@/pages/admin/admin-payment-confirmation";
 import StaffAssignment from "@/pages/staff/staff-assignment";
 import NotFound from "@/pages/not-found";
+import type { CompanyInfo } from "@shared/schema";
 
 function Router() {
   return (
@@ -27,6 +28,36 @@ function Router() {
   );
 }
 
+function Footer() {
+  const { data: companyInfo } = useQuery<CompanyInfo>({
+    queryKey: ["/api/company-info"],
+  });
+
+  const companyName = companyInfo?.companyName || "Elite Catering & Events";
+
+  return (
+    <footer className="border-t py-12 bg-muted/30">
+      <div className="container mx-auto px-4 flex flex-col items-center justify-center gap-6 text-center">
+        <div className="flex items-center gap-2">
+          <span className="font-serif text-2xl font-bold tracking-tight">{companyName}</span>
+        </div>
+        <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
+          {companyInfo?.aboutUs || "Crafting unforgettable culinary memories with passion, precision, and the finest ingredients."}
+        </p>
+        <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
+          <Link href="/admin/login" className="hover:text-primary transition-colors">Admin Portal</Link>
+          <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+        </div>
+        <div className="h-px w-24 bg-border/50" />
+        <p className="text-xs text-muted-foreground/60 tracking-wider uppercase">
+          © 2025 {companyName}. All rights reserved.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -36,25 +67,7 @@ function App() {
             <main className="flex-1">
               <Router />
             </main>
-            <footer className="border-t py-12 bg-muted/30">
-              <div className="container mx-auto px-4 flex flex-col items-center justify-center gap-6 text-center">
-                <div className="flex items-center gap-2">
-                  <span className="font-serif text-2xl font-bold tracking-tight">Elite Catering & Events</span>
-                </div>
-                <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
-                  Crafting unforgettable culinary memories with passion, precision, and the finest ingredients.
-                </p>
-                <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
-                  <Link href="/admin/login" className="hover:text-primary transition-colors">Admin Portal</Link>
-                  <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
-                  <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-                </div>
-                <div className="h-px w-24 bg-border/50" />
-                <p className="text-xs text-muted-foreground/60 tracking-wider uppercase">
-                  © 2025 Elite Catering & Events. All rights reserved.
-                </p>
-              </div>
-            </footer>
+            <Footer />
           </div>
           <Toaster />
         </TooltipProvider>

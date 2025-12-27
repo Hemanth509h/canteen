@@ -76,7 +76,7 @@ export default function CustomerHome() {
         </div>
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center">
           <Badge className="mb-6 bg-primary/20 text-primary border-primary/30 py-1.5 px-6 rounded-full text-sm font-medium tracking-wide">
-            Elite Catering & Events
+            {companyInfo?.companyName || "Elite Catering & Events"}
           </Badge>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-8 leading-tight tracking-tight max-w-4xl">
             Elevating Your <span className="text-primary italic">Events</span>
