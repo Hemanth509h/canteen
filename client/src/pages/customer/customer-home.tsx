@@ -172,8 +172,6 @@ export default function CustomerHome() {
     select: (data) => [...data].sort((a, b) => Number(b.id) - Number(a.id)),
   });
 
-  const dietaryOptions = ["Vegetarian", "Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
-
   const [heroOpacity, setHeroOpacity] = useState(1);
   const [heroScale, setHeroScale] = useState(1);
 
@@ -188,6 +186,8 @@ export default function CustomerHome() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const dietaryOptions = ["Vegetarian", "Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
@@ -209,17 +209,22 @@ export default function CustomerHome() {
       }
       
       const maxScroll = scrollContainer.scrollWidth / 2;
+      
       if (scrollContainer.scrollLeft >= maxScroll) {
         scrollContainer.scrollLeft = 0;
       } else {
-        scrollContainer.scrollLeft += 0.5;
+        scrollContainer.scrollLeft += 1;
       }
       animationFrameId = requestAnimationFrame(scroll);
     };
 
-    animationFrameId = requestAnimationFrame(scroll);
+    // Small delay to ensure layout is calculated
+    const timer = setTimeout(() => {
+      animationFrameId = requestAnimationFrame(scroll);
+    }, 500);
     
     return () => {
+      clearTimeout(timer);
       cancelAnimationFrame(animationFrameId);
       scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
       scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
