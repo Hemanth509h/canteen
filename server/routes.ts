@@ -684,6 +684,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/audit-history/:id", async (req, res) => {
+    try {
+      const result = await storage.deleteAuditHistory(req.params.id);
+      if (!result) {
+        return res.status(404).json({ error: "Audit history entry not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete audit history" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

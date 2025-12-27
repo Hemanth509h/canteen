@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState } from "react";
-import { History, CheckCircle, AlertCircle, Clock, Plus, RefreshCw } from "lucide-react";
+import { History, CheckCircle, AlertCircle, Clock, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ConfirmDialog } from "@/components/features/confirm-dialog";
 
 interface AuditHistoryEntry {
   id: string;
@@ -40,6 +43,9 @@ const actionIcons: Record<string, any> = {
 
 export default function AuditHistory() {
   const [entityTypeFilter, setEntityTypeFilter] = useState<string>("all");
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const { data: auditHistory, isLoading, isFetching, refetch } = useQuery<AuditHistoryEntry[]>({
     queryKey: ["/api/audit-history", entityTypeFilter],
@@ -50,6 +56,39 @@ export default function AuditHistory() {
       return response.json();
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("DELETE", `/api/audit-history/${id}`, undefined);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-history"] });
+      toast({
+        title: "Deleted",
+        description: "Audit history entry has been removed"
+      });
+      setDeleteTargetId(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Delete",
+        description: error?.message || "Unable to delete audit history entry",
+        variant: "destructive"
+      });
+    },
+  });
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteTargetId(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId) {
+      deleteMutation.mutate(deleteTargetId);
+      setDeleteConfirmOpen(false);
+    }
+  };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -133,7 +172,16 @@ export default function AuditHistory() {
                           {actionIcons[entry.action]}
                           {getActionLabel(entry.action)}
                         </Badge>
-                        <Badge variant="outline" className="text-xs capitalize">{entry.entityType}</Badge>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDeleteClick(entry.id)}
+                          disabled={deleteMutation.isPending}
+                          data-testid={`button-delete-audit-${entry.id}`}
+                          className="h-6 w-6"
+                        >
+                          <Trash2 className="w-3 h-3 text-destructive" />
+                        </Button>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">{formatDate(entry.createdAt)}</p>
                       <p className="text-xs font-mono text-muted-foreground">ID: {entry.entityId.slice(0, 8)}...</p>
@@ -152,6 +200,7 @@ export default function AuditHistory() {
                     <TableHead className="font-semibold">Type</TableHead>
                     <TableHead className="font-semibold">Entity ID</TableHead>
                     <TableHead className="font-semibold">Details</TableHead>
+                    <TableHead className="font-semibold text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -222,6 +271,17 @@ export default function AuditHistory() {
                             })()}
                           </div>
                         </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleDeleteClick(entry.id)}
+                            disabled={deleteMutation.isPending}
+                            data-testid={`button-delete-audit-${entry.id}`}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </TableCell>
                       </tr>
                     );
                   })}
@@ -238,6 +298,15 @@ export default function AuditHistory() {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Delete Audit Log Entry"
+        description="This action cannot be undone. Are you sure you want to delete this audit history entry?"
+        onConfirm={confirmDelete}
+        isDangerous
+      />
     </div>
   );
 }

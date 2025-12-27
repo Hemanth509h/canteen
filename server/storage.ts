@@ -312,6 +312,11 @@ export interface IStorage {
   markNotificationAsRead(id: string): Promise<boolean>;
   deleteNotification(id: string): Promise<boolean>;
 
+  // Audit History
+  getAuditHistory(entityType?: string, entityId?: string): Promise<AuditHistory[]>;
+  createAuditHistory(history: InsertAuditHistory): Promise<AuditHistory>;
+  deleteAuditHistory(id: string): Promise<boolean>;
+
   // Staff Booking Requests
   getStaffBookingRequests(bookingId: string): Promise<StaffBookingRequest[]>;
   getStaffBookingRequestByToken(token: string): Promise<StaffBookingRequest | undefined>;
@@ -776,5 +781,10 @@ export class MongoDBStorage implements IStorage {
       details: doc.details || {},
       createdAt: doc.createdAt.toISOString(),
     }));
+  }
+
+  async deleteAuditHistory(id: string): Promise<boolean> {
+    const result = await AuditHistoryModel.findByIdAndDelete(id);
+    return result !== null;
   }
 }
