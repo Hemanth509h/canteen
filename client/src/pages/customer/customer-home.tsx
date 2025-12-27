@@ -159,23 +159,18 @@ export default function CustomerHome() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
+  const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
+    queryKey: ["/api/food-items"],
+  });
 
-    let animationFrameId: number;
-    const scroll = () => {
-      if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
-        scrollContainer.scrollLeft = 0;
-      } else {
-        scrollContainer.scrollLeft += 1;
-      }
-      animationFrameId = requestAnimationFrame(scroll);
-    };
+  const { data: companyInfo, isLoading: loadingCompany } = useQuery<CompanyInfo>({
+    queryKey: ["/api/company-info"],
+  });
 
-    animationFrameId = requestAnimationFrame(scroll);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [reviews, loadingReviews]);
+  const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
+    queryKey: ["/api/reviews"],
+    select: (data) => [...data].sort((a, b) => Number(b.id) - Number(a.id)),
+  });
 
   const dietaryOptions = ["Vegetarian", "Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
@@ -194,18 +189,23 @@ export default function CustomerHome() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const { data: foodItems, isLoading: loadingFood } = useQuery<FoodItem[]>({
-    queryKey: ["/api/food-items"],
-  });
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
 
-  const { data: companyInfo, isLoading: loadingCompany } = useQuery<CompanyInfo>({
-    queryKey: ["/api/company-info"],
-  });
+    let animationFrameId: number;
+    const scroll = () => {
+      if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+        scrollContainer.scrollLeft = 0;
+      } else {
+        scrollContainer.scrollLeft += 1;
+      }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
 
-  const { data: reviews, isLoading: loadingReviews } = useQuery<CustomerReview[]>({
-    queryKey: ["/api/reviews"],
-    select: (data) => [...data].sort((a, b) => Number(b.id) - Number(a.id)),
-  });
+    animationFrameId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [reviews, loadingReviews, testimonials]);
 
   const reviewForm = useForm({
     resolver: zodResolver(insertCustomerReviewSchema),
