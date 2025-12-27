@@ -153,7 +153,7 @@ function FoodCardPreview({ item, onClose }: { item: FoodItem; onClose: () => voi
 export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
