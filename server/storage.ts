@@ -274,10 +274,10 @@ export interface IStorage {
   deleteReview(id: string): Promise<boolean>;
 
   // Catering Packages
-  getPackages(): Promise<CateringPackage[]>;
-  getPackage(id: string): Promise<CateringPackage | undefined>;
-  createPackage(pkg: InsertCateringPackage): Promise<CateringPackage>;
-  updatePackage(id: string, pkg: UpdateCateringPackage): Promise<CateringPackage | undefined>;
+  getPackages(): Promise<any[]>;
+  getPackage(id: string): Promise<any | undefined>;
+  createPackage(pkg: any): Promise<any>;
+  updatePackage(id: string, pkg: any): Promise<any | undefined>;
   deletePackage(id: string): Promise<boolean>;
 
   // Admin Notifications
@@ -566,26 +566,12 @@ export class MongoDBStorage implements IStorage {
     return result !== null;
   }
 
-  // Catering Packages
-  async getPackages(): Promise<any[]> {
-    return [];
-  }
-
-  async getPackage(id: string): Promise<any | undefined> {
-    return undefined;
-  }
-
-  async createPackage(pkg: any): Promise<any> {
-    return pkg;
-  }
-
-  async updatePackage(id: string, pkg: any): Promise<any | undefined> {
-    return undefined;
-  }
-
-  async deletePackage(id: string): Promise<boolean> {
-    return false;
-  }
+  // Catering Packages - Stubs
+  async getPackages(): Promise<any[]> { return []; }
+  async getPackage(id: string): Promise<any | undefined> { return undefined; }
+  async createPackage(pkg: any): Promise<any> { return pkg; }
+  async updatePackage(id: string, pkg: any): Promise<any | undefined> { return undefined; }
+  async deletePackage(id: string): Promise<boolean> { return false; }
 
   // Admin Notifications
   private toAdminNotification(doc: any): AdminNotification {
