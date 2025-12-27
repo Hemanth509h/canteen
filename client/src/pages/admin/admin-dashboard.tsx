@@ -46,12 +46,12 @@ function AppSidebar({ onLogout }: { onLogout: () => void }) {
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <ChefHat className="w-5 h-5 text-primary" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               {isLoading ? (
                 <Skeleton className="h-5 w-24 mb-1" />
               ) : (
-                <span className="font-serif font-bold text-lg block" data-testid="text-sidebar-company-name">
-                  {companyInfo?.companyName || "OM Caterers"}
+                <span className="font-serif font-bold text-lg block truncate" data-testid="text-sidebar-company-name">
+                  {companyInfo?.companyName || "Elite Catering"}
                 </span>
               )}
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin</Badge>
