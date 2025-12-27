@@ -254,17 +254,17 @@ export default function CustomerHome() {
   return (
     <>
       {showIntro && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 animate-in fade-in duration-300">
           <div className="text-center">
             <div className="mb-6 animate-in fade-in duration-300">
-              <div className="w-24 h-24 mx-auto bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center animate-pulse-glow">
-                <UtensilsCrossed className="w-12 h-12 text-amber-200" />
+              <div className="w-24 h-24 mx-auto bg-orange-400/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-pulse-glow border border-orange-400/30">
+                <UtensilsCrossed className="w-12 h-12 text-orange-300" />
               </div>
             </div>
             <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {companyInfo?.companyName}
             </h1>
-            <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-6 w-[250px] animate-in fade-in duration-1000 delay-300" />
+            <div className="h-1 bg-gradient-to-r from-transparent via-orange-400 to-transparent mx-auto mb-6 w-[250px] animate-in fade-in duration-1000 delay-300" />
             <p className="text-xl md:text-2xl text-white/90 font-light tracking-wide animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
               Crafting Culinary Excellence
             </p>
@@ -272,7 +272,7 @@ export default function CustomerHome() {
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="w-2 h-2 bg-amber-300 rounded-full animate-pulse"
+                  className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"
                 />
               ))}
             </div>
@@ -290,7 +290,7 @@ export default function CustomerHome() {
               transform: `scale(${heroScale})`,
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/75" />
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-950/85 via-purple-900/70 to-indigo-950/85" />
           </div>
 
           {floatingIcons.map(({ Icon, delay, x, y }, index) => (
@@ -307,8 +307,8 @@ export default function CustomerHome() {
 
           <div className="relative z-10 text-center px-4 max-w-6xl mx-auto animate-in fade-in duration-500 py-24">
             <div className="inline-flex items-center gap-3 mb-12 animate-in fade-in duration-500">
-              <div className="p-4 bg-primary/20 backdrop-blur-sm rounded-full border border-primary/40">
-                <UtensilsCrossed className="w-12 h-12 text-primary" />
+              <div className="p-4 bg-gradient-to-br from-orange-400/20 to-yellow-400/20 backdrop-blur-sm rounded-full border border-orange-400/50">
+                <UtensilsCrossed className="w-12 h-12 text-orange-400" />
               </div>
             </div>
 
@@ -331,7 +331,7 @@ export default function CustomerHome() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in duration-500 delay-200 mb-12">
               <Button 
                 size="lg"
-                className="group bg-primary text-primary-foreground px-10 py-7 text-lg font-medium"
+                className="group bg-gradient-to-r from-orange-400 to-yellow-400 text-slate-900 px-10 py-7 text-lg font-medium hover:shadow-lg hover:shadow-orange-400/50 transition-all duration-300"
                 data-testid="button-view-menu"
                 onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
@@ -341,7 +341,7 @@ export default function CustomerHome() {
               <Button
                 size="lg"
                 variant="outline"
-                className="bg-white/10 backdrop-blur-md text-white border-white/40 hover:bg-white/20 px-10 py-7 text-lg font-medium"
+                className="bg-white/15 backdrop-blur-md text-white border-white/50 hover:bg-white/25 px-10 py-7 text-lg font-medium transition-all duration-300"
                 data-testid="button-contact"
                 onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
               >
@@ -351,22 +351,22 @@ export default function CustomerHome() {
 
             <div className="mt-16 grid grid-cols-3 gap-6 md:gap-12 max-w-2xl mx-auto animate-in fade-in duration-500 delay-300">
               <div className="text-center" data-testid="stat-events">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary font-serif" data-testid="text-stat-events">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent font-serif" data-testid="text-stat-events">
                   <AnimatedCounter end={companyInfo?.eventsPerYear || 500} suffix="+" />
                 </p>
-                <p className="text-white/60 text-sm sm:text-base mt-2 font-light">Events Annually</p>
+                <p className="text-white/70 text-sm sm:text-base mt-2 font-light">Events Annually</p>
               </div>
               <div className="text-center" data-testid="stat-experience">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary font-serif" data-testid="text-stat-experience">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent font-serif" data-testid="text-stat-experience">
                   <AnimatedCounter end={15} suffix="+" />
                 </p>
-                <p className="text-white/60 text-sm sm:text-base mt-2 font-light">Years Experience</p>
+                <p className="text-white/70 text-sm sm:text-base mt-2 font-light">Years Experience</p>
               </div>
               <div className="text-center" data-testid="stat-cuisines">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary font-serif" data-testid="text-stat-cuisines">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent font-serif" data-testid="text-stat-cuisines">
                   <AnimatedCounter end={50} suffix="+" />
                 </p>
-                <p className="text-white/60 text-sm sm:text-base mt-2 font-light">Cuisines</p>
+                <p className="text-white/70 text-sm sm:text-base mt-2 font-light">Cuisines</p>
               </div>
             </div>
           </div>
