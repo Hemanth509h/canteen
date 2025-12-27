@@ -36,11 +36,7 @@ export default function CompanySettingsManager() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertCompanyInfo) => {
-      if (companyInfo) {
-        return apiRequest("PATCH", `/api/company-info/${companyInfo.id}`, data);
-      } else {
-        return apiRequest("POST", "/api/company-info", data);
-      }
+      return apiRequest("PATCH", "/api/company-info/settings", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/company-info"] });

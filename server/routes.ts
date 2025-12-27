@@ -386,12 +386,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.message });
       }
 
-      const info = await storage.updateCompanyInfo(req.params.id, result.data);
+      // Use a generic update regardless of ID for settings
+      const info = await storage.updateCompanyInfo("settings", result.data);
       if (!info) {
         return res.status(404).json({ error: "Company info not found" });
       }
       res.json(info);
     } catch (error) {
+      console.error("Update company info error:", error);
       res.status(500).json({ error: "Failed to update company info" });
     }
   });

@@ -306,13 +306,15 @@ export class MongoDBStorage implements IStorage {
   private toFoodItem(doc: any): FoodItem {
     return {
       id: doc._id.toString(),
-      name: doc.name,
-      description: doc.description,
-      category: doc.category,
-      imageUrl: doc.imageUrl || doc.image_url || null,
-      dietaryTags: doc.dietaryTags || doc.dietary_tags || [],
-      price: doc.price || 0,
-      rating: doc.rating || 0,
+      name: doc.name || doc.item_name || "Unnamed Item",
+      description: doc.description || doc.item_description || "No description available",
+      category: doc.category || doc.item_category || "Uncategorized",
+      imageUrl: doc.imageUrl || doc.image_url || doc.image || null,
+      dietaryTags: Array.isArray(doc.dietaryTags) ? doc.dietaryTags : 
+                   Array.isArray(doc.dietary_tags) ? doc.dietary_tags : 
+                   doc.dietary_tags ? [doc.dietary_tags] : ["Veg"],
+      price: doc.price || doc.item_price || 0,
+      rating: doc.rating || doc.item_rating || 5,
     };
   }
 
@@ -487,7 +489,7 @@ export class MongoDBStorage implements IStorage {
   }
 
   async updateCompanyInfo(id: string, info: Partial<InsertCompanyInfo>): Promise<CompanyInfo | undefined> {
-    const doc = await CompanyInfoModel.findByIdAndUpdate(id, info, { new: true }).lean();
+    const doc = await CompanyInfoModel.findOneAndUpdate({}, info, { new: true, upsert: true }).lean();
     return doc ? this.toCompanyInfo(doc) : undefined;
   }
 
