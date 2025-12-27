@@ -1,0 +1,709 @@
+organise the text an create pdf VEGETARIAN MENU
+
+Welcome Drink's
+
+Fruit Punch
+
+Coconut Delight
+
+Badam Milk Hot/Cool
+
+Orange Juice
+
+Apple Juice
+
+Grape Juice
+
+Pineapple Juice
+
+Watermelon Juice
+
+Guava Julce
+
+Sugarcane
+
+Mango Milk Shake
+
+Sapota Milk Shake
+
+Lychee Milk Shake
+
+Strawberry Milk Shake
+
+Vanilla Milk Shake
+
+Veg Soup
+
+Sweet Com
+
+Veg Clear Soup
+
+Tomato Soup
+
+Hot & Sour Soup
+
+Veg Manchow Soup
+
+HOTS
+
+Mirchi Bajji
+
+Onion Balji/Pakodi
+
+Alon Bajji
+
+Vankaya Bajji
+
+Aratikaya Bajji
+
+Capsicum Bajji
+
+Bread Bajji
+
+Pan Bajji
+
+Cut Mirchi
+
+Masala Vada
+
+Con Vada
+
+Minapa Garelu
+
+Veg Starters
+
+ROTIS
+
+Paneer Tikka
+
+Finger Paneer
+
+Paneer 65
+
+Chilli Paneer (Dry)
+
+Hara Bhara Kabab
+
+Veg Seekh Kebab
+
+Beetroot Kebab
+
+Stuffed Mushrooms
+
+Dahi Ke Kebab
+
+Aloo Tikki
+
+Samosa-Com/Onion
+
+Spring Rolls
+
+Palak Cheese Rolls
+
+Shanghai Roll
+
+Com Cheese Nuggets
+
+Chilly Mushroom
+
+Veg Cutlet
+
+Corn Cheese Batis
+
+Gobi 65
+
+Veg Manchuria
+
+Baby Com Manchurian
+
+Crispy Com
+
+Tandoori Broccoll
+
+Mushroom T
+
+Tandoori Seya Chose
+
+Vegetable Tempurs
+
+Haney Chilli Petztoes
+
+Chapati/Phuka
+
+Tandoori Roti
+
+Rumali Roti
+
+Butter Naan
+
+Garlic Naan
+
+Dii Naan
+
+Baby Naan
+
+Masala Kulcha
+
+Poorl
+
+Palak Poorl
+
+Methi Poori    Dhahi Vada
+
+Bobbarla Vada
+
+Aloo Paratha
+
+Indian Curries
+
+Paneer Butter Masala
+
+Palak Paneer
+
+Shahi Paneer
+
+Kadai Paneer
+
+Mushroom Paneer
+
+Gongoora Paneer
+
+Baby Corn Paneer
+
+Mushroom Kurme
+
+Paneer Capsicum Kurma
+
+Aloo Capsicum Kurma
+
+Thotakura Liver Kurma
+
+Capsicum Kaju Kurma
+
+Baby Con Kaju Kurma
+
+Poolmakhan Capsicum Kurma
+
+Mixed Veg Kurma
+
+Methi Chaman
+
+Aloo Capsicum Kurma
+
+Chana Mosala (Chole)
+
+Rajma Masala
+
+Aloo Gobi Masala
+
+Special Rice Items
+
+Chintha Pandu Pulihora
+
+Special Gravy Curries
+
+Gutthi Vankaya
+
+Gutthi Dondakaya
+
+Vankaya Green Piece
+
+Pesara Punugulu Curry
+
+Milmaker Curry
+
+Chikkudu Kaya Tomato Curry
+
+Vellulll Kaju Curry
+
+Kandha Buchall
+
+Beers Kaya Shanagapappu Curry
+
+Aratikaya Masala Curry
+
+Gokaarya Tomato Curry
+
+Mango Madras Onion Curry
+
+Drumstick Curry
+
+Gongoora Milmaker
+
+Gongoora Mushroom Curry
+
+Gobi Tomato Curry
+
+Gobi Tomato Curry
+
+Thati Munjala Curry
+
+Batthaya Thonala Curry
+
+Malai Kofta
+
+Vankaya Green Piece Curry
+
+Stuffed Vankaya
+
+Vankaya Also Curry
+
+Bhindi Masala Curry
+
+Mango Pulihora
+
+Lauki (Bottle gourd) Curry
+
+Lemon Pulihara
+
+Drumstick (Munakkada) Curry
+
+Coconut Rice
+
+Gongoora Kaju Rice
+
+Kadal Veg
+
+Vankaya Mango Curry
+
+Pudina Rice
+
+Vankaya Milmaker Curry
+
+Karivepak Rice
+
+Vankaya Kaju Curry
+
+Kothimeera Rice
+
+Vankaya Drumstick Curry
+
+Tomato Rice
+
+Ghee Karam Podi Rice
+
+Nuvvula Rice
+
+Milmaker Rice
+
+Vegetable Fried Rice
+
+Jeera Rice
+
+Corn Methi Rice
+
+Sambar Rice
+
+Aloo Tomato Curry
+
+Drumstick Bhendi Kaju Curry
+
+Drumstick Kaju Curry
+
+Drumstick Milmaker Curry
+
+Beerakaya Curry
+
+Beerakaya Alasandala Curry
+
+Beerakaya Tomato Curry
+
+Sorakaya Masala Curry
+
+Sorakaya Perugu Curry   Roti Chutney's
+
+Beerakaya Tomato Chutney
+
+Kothimenrs Themata Chutney
+
+Jamakaya Chutney
+
+Cabbage Chutney
+
+Nuvvuls Chutney
+
+Gongoora Chutney
+
+Kobbari Mamidikaya Thorumu Chutney
+
+Kobberi Chintakaya Chutney
+
+Palil Tomato Chutney
+
+Allam Chutney
+
+Dasaknys Mukkala Chutney
+
+i
+
+Dendaknya Mukkala Chutney
+
+Avakayalu
+
+Vellull Kaja Avakaya
+
+Lernen Avahaya
+
+Dosa Asaktys
+
+Mixed Veg Avakaye
+
+Madras Onion Avskaya
+
+Usirt Avakaya
+
+Gongoora Avakaya
+
+Vankaya Avalaya
+
+Munalanda Avakaya
+
+Mamlakaya Avakaya
+
+Thunias Avakays
+
+Grape Avskaya
+
+Beat Auskaye
+
+Podilu
+
+Kandhi Padi
+
+Robberri Shenaga Kararti
+
+Nuvvula Karam
+
+Zarivepak Karain
+
+Tum Kerom
+
+Chinese
+
+nfl Noodles
+
+gene Noodles
+
+Hoodies
+
+Curds
+
+Bucket Curd
+
+Pot Curd
+
+Raithe
+
+Papad's
+
+Appardailu
+
+Fryms
+
+Challa Mirshi
+
+Salad's
+
+Green Salad
+
+Sproute
+
+Russian Solad
+
+Papidi Chat
+
+Aloo Chans Salad
+
+Chat Items
+
+Pani Poori
+
+Also Bagate
+
+Rahathani Kachel
+
+Samosa Ragade
+
+Dhahi Poor
+
+Ragada Kachori
+
+Bhel pourl
+
+Aloo Tikia
+
+Laccio Kather
+
+Mocktails
+
+Virgin mojito
+
+Blue Lagoon
+
+gers Cordial
+
+Colasta
+
+Crewbiery Punch   American Chopes
+
+Aloo Manchurie
+
+Gobi Manchuria
+
+Veg Manchuria
+
+Mushroom Manchuria
+
+Baby Corn Manchuria
+
+Paneer Manchuria
+
+Scherwan Fried Rice
+
+Water Melon
+
+Guave Crush
+
+Veg Soup
+
+Sweet Com
+
+Veg Clear Soup
+
+Tomato Soup
+
+Hot & Sour Soup
+
+Veg Manchow Soup
+
+Italian Snacks
+
+Plaza
+
+Mini Plaza
+
+Garlic Bread
+
+Mini Burger
+
+Pasta (Red & White)
+
+Italian Stufled Roll
+
+Thin Crust Pizza
+
+Grilled Pizza
+
+Pizza Burns
+
+South Indian Tiffin's
+
+Idly
+
+Vada
+
+Thatta Idly
+
+Mysare Bej
+
+Tomato Bath
+
+Pongal
+
+Dosa-All Variettes
+
+Pesaruttu
+poori 
+Kobbert Chutney
+
+Palll Panels Chinry
+
+Ice Creams
+
+Vanilla
+
+Straw Barry
+
+Buther Scotch
+
+Caramel nuts
+
+Mathin
+
+Tooty Fruity
+
+Quavs
+
+Honey Moon Delight
+
+Sertha Phal
+
+Mango
+
+Anjeer Badham
+
+Chocolate
+
+Orange
+
+Kulfi
+
+Badem Kulfi
+
+Black Current    Avahaye Muddha Pappu Rice
+
+Cland Rice
+
+Risibella Bath
+
+Veg Biryani's
+
+Vegetable Dum Biryani
+
+Hyderabadi Ving Dum Biryani
+
+Andhra Veg Biryani
+
+Paneer Biryani
+
+Mushroom Dum Biryani
+
+Mushroom-Peas Biryani
+
+Venkaya Dum Biryani
+
+Ponasakaya Dum Biryen!
+
+Penasakaya Pulso
+
+Chitti Muthyalu Paneer Pulao
+
+Chim Muthyalu Mushroom Pulao
+
+Paneer Kaju Pulao
+
+Gongoora Kaju Dum Biryani
+
+Bagara Rice
+
+Plain Biryani
+
+Pendalem Manga Curry
+
+Veg Fry Items
+
+Dendi Kaju Fry
+
+Dondskaya Palodi Fry
+
+Alco Green Piece Fry
+
+Aloo Beans Carrot Fry
+
+Beans Carrot Dum Fry
+
+Vankaya Paladi Fry
+
+Aloo 05
+
+Minaker Beerstage Fry
+
+Kandha Pry
+
+Panasa Potter Pre
+
+Mustream Fry
+
+Thotakurs Liver Fry
+
+Capsicum Pakod
+
+Chamag adda Finger C
+
+Gobi ES
+
+Cabbage 55
+
+Cabbage Shanags Pappu Dum Pry
+
+Chilaty Keys Dun Fr
+
+Albo Poosa Fry
+
+Kandhe Pooss Frv
+
+Kakara Kaye Pry
+
+Dal Items
+
+Dosakays Pappu
+
+Tomato Pappu
+
+Manga Pappu
+
+Pelakuna Pappu
+
+Palakurs Mango Pappu
+
+Gangaveilli Mango Peppu
+
+Thotallure Pappu Mland Leaf Pempu
+
+Gongoors Peppu
+
+Beetskaya Pag
+
+Vankays Pappu
+
+Chinthakays Pepp
+
+Avskaya Peppu
+
+Modidhs Pepen
+
+Tomato Pasara Puppo
+
+Liquid Items
+
+Sambar
+
+Pappu Chans
+
+Pesars Pappu Charu
+
+Tomate Rasan
+
+Miriyats Rasam
+
+Arankaya Pulus
+
+Gumnadi Kaya Pulau
+
+Ulavacharu cres
+
+Chappalem
+
+Mentha Mag
+
+Pachi Pulusu  Mutton Snacks
+
+Mutton Keena Balls
+
+stone gosh
+
+Nalgonda Mutton
+
+Mutton Sheek Kabab
+
+Mutton Shikampuri
+
+Mutton Haleem Shots
+
+Mutton Ghee Roast
+
+Kamju Pitta Fry/Tikka/Iguru
+
+Natukodi Pulao
+
+Donne Biryani 
