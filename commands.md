@@ -1,32 +1,12 @@
-# Installation Commands
+# Application Production Commands
 
-## Backend
+## Build Command
 ```bash
-cd backend
-npm install
-npm run dev
+cd backend && npm run build && cd ../frontend && npm run build
 ```
 
-## Frontend
+## Start Command
 ```bash
-cd frontend
-npm install
-npm run dev
+# Start backend in background and then frontend
+cd backend && npm run start & cd ../frontend && npm run start
 ```
-
-# Build Commands (Production)
-
-## Backend
-```bash
-cd backend
-npm run build
-```
-
-## Frontend
-```bash
-cd frontend
-npm run build
-```
-
-# Environment Setup
-Make sure you have `NODE_ENV` set up. The `cross-env` package handles this in the scripts provided.
