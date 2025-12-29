@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search
 } from "lucide-react";
-import type { FoodItem, CompanyInfo, CustomerReview } from "@/schema";
 import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
@@ -41,21 +40,21 @@ const features = [
 export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
-  const { data: foodItems, isLoading: loadingFood, error: foodError } = useQuery<FoodItem[]>({
+  const { data: foodItems, isLoading: loadingFood, error: foodError } = useQuery({
     queryKey: ["/api/food-items"],
     staleTime: 0,
     gcTime: 0,
   });
 
-  const { data: companyInfo, error: companyError } = useQuery<CompanyInfo>({
+  const { data: companyInfo, error: companyError } = useQuery({
     queryKey: ["/api/company-info"],
     staleTime: 0,
     gcTime: 0,
   });
 
-  const { data: reviews, isLoading: loadingReviews, error: reviewsError } = useQuery<CustomerReview[]>({
+  const { data: reviews, isLoading: loadingReviews, error: reviewsError } = useQuery({
     queryKey: ["/api/reviews"],
     staleTime: 0,
     gcTime: 0,
@@ -83,7 +82,6 @@ export default function CustomerHome() {
 
   return (
     <div className="flex flex-col min-h-screen w-full overflow-hidden">
-      {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
@@ -116,7 +114,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Modern Value Prop Section */}
       <section className="py-16 sm:py-32 bg-background relative overflow-hidden flex flex-col items-center">
         <div className="container px-4 mx-auto relative z-10 flex flex-col items-center">
           <div className="max-w-4xl w-full text-center mb-12 sm:mb-20 flex flex-col items-center">
@@ -129,7 +126,7 @@ export default function CustomerHome() {
             </p>
             <div className="flex gap-8 sm:gap-12 justify-center w-full">
               <div className="text-center space-y-1 sm:space-y-2">
-                <h3 className="text-3xl sm:text-4xl font-bold text-primary">{(companyInfo as any)?.yearsExperience || 15}+</h3>
+                <h3 className="text-3xl sm:text-4xl font-bold text-primary">{companyInfo?.yearsExperience || 15}+</h3>
                 <p className="text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground font-semibold">Experience</p>
               </div>
               <div className="text-center space-y-1 sm:space-y-2">
@@ -153,7 +150,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Signature Dishes Showcase */}
       <section id="menu" className="py-16 sm:py-32 bg-muted/10 flex flex-col items-center border-y">
         <div className="container px-4 mx-auto">
           <div className="flex flex-col items-center text-center mb-12 sm:mb-24 max-w-4xl mx-auto">
@@ -222,7 +218,6 @@ export default function CustomerHome() {
                       className="group cursor-pointer relative" 
                       onClick={() => setSelectedItem(item)}
                     >
-                      {/* Base Card (Visible in grid) */}
                       <Card className="flex flex-row items-center overflow-hidden h-32 sm:h-36 border-none bg-[#FDFBF7] dark:bg-slate-900/80 shadow-sm transition-all duration-300 rounded-[24px] p-3 sm:p-4 hover-elevate">
                         <div className="relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden shrink-0 rounded-full border-2 border-white shadow-sm ml-1">
                           <img src={item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} alt={item.name} className="object-cover w-full h-full" />
@@ -238,7 +233,6 @@ export default function CustomerHome() {
                         </div>
                       </Card>
 
-                      {/* Pop-out Card (Visible on Click) */}
                       {selectedItem?.id === item.id && (
                         <div 
                           className="fixed inset-0 z-[1000000] flex items-center justify-center p-2 sm:p-4"
@@ -312,7 +306,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Customer Testimonials Section */}
       <section className="py-16 sm:py-32 bg-muted/20 flex flex-col items-center w-full">
         <div className="container px-4 mx-auto max-w-7xl">
           <div className="text-center mb-12 sm:mb-20 max-w-3xl mx-auto flex flex-col items-center">
@@ -328,7 +321,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Share Your Review Section */}
       <section className="py-16 sm:py-32 bg-background flex flex-col items-center w-full">
         <div className="container px-4 mx-auto max-w-4xl">
           <div className="text-center mb-12 sm:mb-16 max-w-3xl mx-auto flex flex-col items-center">
@@ -346,7 +338,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Premium CTA Section */}
       <section id="contact-section" className="py-16 sm:py-32 flex flex-col items-center w-full">
         <div className="container px-4 mx-auto max-w-7xl">
           <div className="relative rounded-[2rem] sm:rounded-[3rem] overflow-hidden bg-foreground text-background py-16 sm:py-24 px-6 sm:px-16 text-center shadow-3xl flex flex-col items-center">
