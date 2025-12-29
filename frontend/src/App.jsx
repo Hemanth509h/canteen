@@ -11,7 +11,6 @@ import PaymentConfirmation from "@/pages/staff/payment-confirmation";
 import AdminPaymentConfirmation from "@/pages/admin/admin-payment-confirmation";
 import StaffAssignment from "@/pages/staff/staff-assignment";
 import NotFound from "@/pages/not-found";
-import type { CompanyInfo } from "@/schema";
 
 function Router() {
   return (
@@ -30,7 +29,7 @@ function Router() {
 
 function Footer() {
   const [location] = useLocation();
-  const { data: companyInfo } = useQuery<CompanyInfo>({
+  const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
     staleTime: 0,
   });
