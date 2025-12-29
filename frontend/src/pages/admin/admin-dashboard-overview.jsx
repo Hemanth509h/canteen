@@ -1,21 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp, RefreshCw, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { UtensilsCrossed, CalendarDays, IndianRupee, RefreshCw, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { RevenueChart, BookingStatusChart, MonthlyBookingsChart } from "@/components/features/dashboard-charts";
 import { BookingCalendar } from "@/components/features/booking-calendar";
 import { PageLoader } from "@/components/features/loading-spinner";
-import type { FoodItem, EventBooking } from "@/schema";
 
 export default function DashboardOverview() {
-  const { data: foodItems, isLoading: loadingFood, isFetching: fetchingFood, refetch: refetchFood } = useQuery<FoodItem[]>({
+  const { data: foodItems, isLoading: loadingFood, isFetching: fetchingFood, refetch: refetchFood } = useQuery({
     queryKey: ["/api/food-items"],
   });
 
-  const { data: bookings, isLoading: loadingBookings, isFetching: fetchingBookings, refetch: refetchBookings } = useQuery<EventBooking[]>({
+  const { data: bookings, isLoading: loadingBookings, isFetching: fetchingBookings, refetch: refetchBookings } = useQuery({
     queryKey: ["/api/bookings"],
   });
 
@@ -31,8 +29,6 @@ export default function DashboardOverview() {
     }
     return sum;
   }, 0) || 0;
-
-  const activeEvents = bookings?.filter(b => b.status === "confirmed" || b.status === "pending").length || 0;
 
   const pendingPayments = bookings?.filter(b => 
     b.advancePaymentStatus === "pending" || b.finalPaymentStatus === "pending"
@@ -122,19 +118,14 @@ export default function DashboardOverview() {
         <PageLoader text="Loading charts..." />
       ) : bookings && bookings.length > 0 ? (
         <>
-          <div 
-            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 stagger-item"
-          >
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 stagger-item">
             <div className="card-hover-lift"><RevenueChart bookings={bookings} /></div>
             <div className="card-hover-lift"><BookingStatusChart bookings={bookings} /></div>
             <div className="card-hover-lift"><MonthlyBookingsChart bookings={bookings} /></div>
           </div>
 
-          <div 
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 stagger-item"
-          >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 stagger-item">
             <BookingCalendar bookings={bookings} />
-            
             <Card className="card-hover-lift transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-lg">Activity Timeline</CardTitle>
@@ -145,7 +136,6 @@ export default function DashboardOverview() {
                     const delay = index * 0.1;
                     const isPending = booking.advancePaymentStatus === "pending" || booking.finalPaymentStatus === "pending";
                     const isCompleted = booking.status === "completed";
-                    const isUpcoming = new Date(booking.eventDate) >= new Date();
                     
                     let icon = Clock;
                     let color = "text-blue-500";
