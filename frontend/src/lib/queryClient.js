@@ -1,20 +1,15 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 
-async function throwIfResNotOk(res: Response) {
+async function throwIfResNotOk(res) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
     throw new Error(`${res.status}: ${text}`);
   }
 }
 
-// Use relative paths for API calls to leverage Vite proxy
 const API_URL = "";
 
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-): Promise<Response> {
+export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
   const fullUrl = `${API_URL}${normalizedUrl}`;
   const res = await fetch(fullUrl, {
@@ -31,11 +26,7 @@ export async function apiRequest(
   return res;
 }
 
-type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
-  on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
+export const getQueryFn = ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const path = queryKey.join("/");
     const normalizedPath = path.startsWith("/") ? path : `/${path}`;
