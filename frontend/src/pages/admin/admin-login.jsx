@@ -15,7 +15,7 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -49,7 +49,6 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900 p-4 relative overflow-hidden animate-fade-in">
-      {/* Animated Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-20 animate-float">
           <UtensilsCrossed className="w-16 h-16 text-white" />
@@ -62,10 +61,7 @@ export default function AdminLogin() {
         </div>
       </div>
 
-      {/* Back to Home Link */}
-      <div 
-        className="absolute top-6 left-6 animate-slide-up"
-      >
+      <div className="absolute top-6 left-6 animate-slide-up">
         <Link href="/">
           <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 transition-all">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -74,20 +70,15 @@ export default function AdminLogin() {
         </Link>
       </div>
 
-      <div
-        className="w-full max-w-md relative z-10 animate-scale-in"
-      >
+      <div className="w-full max-w-md relative z-10 animate-scale-in">
         <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-sm card-hover-lift hover:shadow-3xl transition-all duration-300">
           <CardHeader className="space-y-4 text-center pb-2">
-            <div 
-              className="flex justify-center animate-scale-in"
-            >
+            <div className="flex justify-center animate-scale-in">
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20 animate-gentle-pulse">
                 <ChefHat className="w-10 h-10 text-primary animate-spin-slow" />
               </div>
             </div>
-            <div
-            >
+            <div>
               <CardTitle className="text-2xl font-serif font-bold">
                 Admin Portal
               </CardTitle>
@@ -98,10 +89,8 @@ export default function AdminLogin() {
           </CardHeader>
           <CardContent className="pt-4">
             <form onSubmit={handleLogin} className="space-y-5">
-              <div 
-                className="space-y-2"
-              >
-                <Label htmlFor="password" className="text-sm font-medium">Admin Password</Label>
+              <div className="space-y-2">
+                <Label htmlFor="password" alt="Admin Password">Admin Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -117,8 +106,7 @@ export default function AdminLogin() {
                   />
                 </div>
               </div>
-              <div
-              >
+              <div>
                 <Button
                   type="submit"
                   className="w-full py-5 text-base font-medium"
@@ -138,9 +126,7 @@ export default function AdminLogin() {
                   )}
                 </Button>
               </div>
-              <div 
-                className="text-center pt-2"
-              >
+              <div className="text-center pt-2">
                 <p className="text-xs text-muted-foreground">
                   Protected area for authorized personnel only
                 </p>
