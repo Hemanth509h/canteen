@@ -1,7 +1,6 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
-
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, History, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -20,25 +19,24 @@ import ReviewsManager from "./admin-reviews";
 import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
-import type { CompanyInfo } from "@/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const menuItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
-  { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
-  { title: "Reviews", url: "/admin/reviews", icon: Star },
-  { title: "Staff", url: "/admin/staff", icon: Users },
-  { title: "Audit History", url: "/admin/audit-history", icon: History },
-  { title: "Company Settings", url: "/admin/settings", icon: Settings },
-  { title: "Account Settings", url: "/admin/account", icon: UserCog },
-];
-
-function AppSidebar({ onLogout }: { onLogout: () => void }) {
+function AppSidebar({ onLogout }) {
   const [location] = useLocation();
-  const { data: companyInfo, isLoading } = useQuery<CompanyInfo>({
+  const { data: companyInfo, isLoading } = useQuery({
     queryKey: ["/api/company-info"],
   });
+
+  const menuItems = [
+    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+    { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
+    { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
+    { title: "Reviews", url: "/admin/reviews", icon: Star },
+    { title: "Staff", url: "/admin/staff", icon: Users },
+    { title: "Audit History", url: "/admin/audit-history", icon: History },
+    { title: "Company Settings", url: "/admin/settings", icon: Settings },
+    { title: "Account Settings", url: "/admin/account", icon: UserCog },
+  ];
 
   return (
     <Sidebar className="border-r border-border/50">
@@ -61,23 +59,19 @@ function AppSidebar({ onLogout }: { onLogout: () => void }) {
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
             <SidebarMenu>
-              {menuItems.map((item, index) => (
-                <div
-                  key={item.title}
-                >
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={location === item.url}
-                      className="rounded-lg transition-all duration-200"
-                    >
-                      <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`}>
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </div>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location === item.url}
+                    className="rounded-lg transition-all duration-200"
+                  >
+                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`}>
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -119,7 +113,6 @@ export default function AdminDashboard() {
     setIsAuthenticated(isAdminAuthenticated());
     setIsChecking(false);
     
-    // Refresh session on activity
     const handleActivity = () => refreshSession();
     window.addEventListener("click", handleActivity);
     window.addEventListener("keypress", handleActivity);
@@ -138,9 +131,7 @@ export default function AdminDashboard() {
   if (isChecking) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-amber-900/10 via-background to-orange-900/10">
-        <div 
-          className="text-center"
-        >
+        <div className="text-center">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <ChefHat className="w-8 h-8 text-primary animate-pulse" />
           </div>
@@ -154,13 +145,13 @@ export default function AdminDashboard() {
     return <Redirect to="/admin/login" />;
   }
 
-  const style = {
+  const sidebarStyle = {
     "--sidebar-width": "14rem",
     "--sidebar-width-icon": "2.5rem",
   };
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
+    <SidebarProvider style={sidebarStyle}>
       <div className="flex h-screen w-full">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">

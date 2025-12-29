@@ -1,18 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-interface ConfirmDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "default" | "destructive";
-  onConfirm: () => void;
-  isLoading?: boolean;
-}
-
 export function ConfirmDialog({
   open,
   onOpenChange,
@@ -23,7 +11,7 @@ export function ConfirmDialog({
   variant = "default",
   onConfirm,
   isLoading = false,
-}: ConfirmDialogProps) {
+}) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-[95vw] sm:w-full">

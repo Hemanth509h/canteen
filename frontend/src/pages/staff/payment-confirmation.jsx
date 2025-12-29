@@ -8,22 +8,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { UPIPayment } from "@/components/features/upi-payment";
-import { Invoice } from "@/components/features/invoice";
 import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Calendar, Utensils, RefreshCw } from "lucide-react";
-import { type EventBooking, type CompanyInfo } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 
 export default function PaymentConfirmation() {
-  const { bookingId } = useParams<{ bookingId: string }>();
+  const { bookingId } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [advanceFile, setAdvanceFile] = useState<File | null>(null);
-  const [finalFile, setFinalFile] = useState<File | null>(null);
-  const [advancePreview, setAdvancePreview] = useState<string | null>(null);
-  const [finalPreview, setFinalPreview] = useState<string | null>(null);
+  const [advanceFile, setAdvanceFile] = useState(null);
+  const [finalFile, setFinalFile] = useState(null);
+  const [advancePreview, setAdvancePreview] = useState(null);
+  const [finalPreview, setFinalPreview] = useState(null);
 
-  const { data: booking, isLoading: bookingLoading, isError: bookingError } = useQuery<EventBooking>({
+  const { data: booking, isLoading: bookingLoading, isError: bookingError } = useQuery({
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
@@ -34,18 +32,18 @@ export default function PaymentConfirmation() {
     enabled: !!bookingId,
   });
 
-  const { data: companyInfo } = useQuery<CompanyInfo>({
+  const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
   });
 
   const uploadScreenshotMutation = useMutation({
-    mutationFn: async (type: "advance" | "final") => {
+    mutationFn: async (type) => {
       const file = type === "advance" ? advanceFile : finalFile;
       if (!file) throw new Error("No file selected");
       if (file.size > 50 * 1024 * 1024) throw new Error("File is too large (max 50MB)");
 
       const reader = new FileReader();
-      return new Promise<string>((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error("Upload timed out. Please try again."));
         }, 60000);
@@ -53,7 +51,7 @@ export default function PaymentConfirmation() {
         reader.onload = async () => {
           clearTimeout(timeout);
           try {
-            const base64 = reader.result as string;
+            const base64 = reader.result;
             await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
               [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]: base64,
               [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
@@ -85,7 +83,7 @@ export default function PaymentConfirmation() {
         setFinalPreview(null);
       }
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: error?.message || "Failed to upload payment screenshot",
@@ -94,22 +92,22 @@ export default function PaymentConfirmation() {
     },
   });
 
-  const handleAdvanceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdvanceFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setAdvanceFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => setAdvancePreview(e.target?.result as string);
+      reader.onload = (e) => setAdvancePreview(e.target?.result);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleFinalFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFinalFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setFinalFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => setFinalPreview(e.target?.result as string);
+      reader.onload = (e) => setFinalPreview(e.target?.result);
       reader.readAsDataURL(file);
     }
   };
@@ -171,7 +169,6 @@ export default function PaymentConfirmation() {
   const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
   const finalAmount = totalAmount - advanceAmount;
   
-  // Updated business logic: Use approval status for customer-facing badges and visibility
   const advancePaid = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
   const finalPaid = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
   
@@ -477,8 +474,8 @@ export default function PaymentConfirmation() {
                         <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
                           <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
                           <div>
-                            <p className="font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
-                            <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your final payment has been confirmed and approved by the admin.</p>
+                            <p className="font-semibold text-green-700 dark:text-green-200">Final Payment Approved</p>
+                            <p className="text-sm text-green-600 dark:text-blue-300">Your final payment has been confirmed. Your booking is now fully paid!</p>
                           </div>
                         </div>
                         {booking.finalPaymentScreenshot && (
@@ -493,115 +490,21 @@ export default function PaymentConfirmation() {
                 </Card>
               </div>
             )}
-
-            {allPaid && (
-              <div className="animate-in fade-in duration-300 space-y-6">
-                <Invoice booking={booking} companyInfo={companyInfo} isAdmin={false} />
-                <Card className="border-green-300 dark:border-green-800 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/10 overflow-hidden">
-                  <CardContent className="pt-8 pb-8">
-                    <div className="text-center space-y-4">
-                      <div className="animate-in fade-in duration-300 relative"
-                      >
-                        <div className="absolute inset-0 bg-green-400/20 blur-xl rounded-full" />
-                        <CheckCircle className="w-20 h-20 text-green-600 mx-auto relative" data-testid="icon-all-paid" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-green-700 dark:text-green-200">All Payments Complete!</h3>
-                      <p className="text-muted-foreground max-w-md mx-auto">
-                        Your booking is fully confirmed. We'll contact you soon with event details and preparations.
-                      </p>
-                      <Button onClick={() => setLocation("/")} data-testid="button-back-home-final" className="mt-4">
-                        Back to Home
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
           </div>
 
-          <div className="animate-in fade-in duration-300">
-            <Card className="sticky top-4">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Payment Breakdown</CardTitle>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Need Help?</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Base Calculation</span>
-                  </div>
-                  <div className="bg-muted/50 p-3 rounded-lg space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>{booking.guestCount} guests</span>
-                      <span>× ₹{booking.pricePerPlate}</span>
-                    </div>
-                    <div className="flex justify-between font-medium border-t pt-1 mt-1">
-                      <span>Subtotal</span>
-                      <span data-testid="text-summary-subtotal">₹{baseAmount.toLocaleString('en-IN')}</span>
-                    </div>
-                    {booking.totalAmount && booking.totalAmount !== baseAmount && (
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>Adjusted Total</span>
-                        <span>₹{totalAmount.toLocaleString('en-IN')}</span>
-                      </div>
-                    )}
-                  </div>
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-sm font-semibold mb-1">Contact Support</p>
+                  <p className="text-2xl font-bold text-primary">{companyInfo?.contactPhone || 'Contacting...'}</p>
                 </div>
-
-                <div className="border-t pt-4 space-y-3">
-                  <div className={`flex items-center justify-between p-3 rounded-lg ${advancePaid ? 'bg-green-50 dark:bg-green-950/30' : 'bg-amber-50 dark:bg-amber-950/30'}`}>
-                    <div className="flex items-center gap-2">
-                      {advancePaid ? (
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <Clock className="w-5 h-5 text-amber-600" />
-                      )}
-                      <div>
-                        <span className="text-sm font-medium">Advance (50%)</span>
-                        <p className={`text-xs ${advancePaid ? 'text-green-600' : 'text-amber-600'}`} data-testid="text-advance-summary-status">
-                          {advancePaid ? "Paid" : "Awaiting"}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`font-semibold ${advancePaid ? 'text-green-600' : ''}`} data-testid="text-advance-summary">
-                      ₹{advanceAmount.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-
-                  <div className={`flex items-center justify-between p-3 rounded-lg ${finalPaid ? 'bg-green-50 dark:bg-green-950/30' : advancePaid ? 'bg-blue-50 dark:bg-blue-950/30' : 'bg-muted/50'}`}>
-                    <div className="flex items-center gap-2">
-                      {finalPaid ? (
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                      ) : advancePaid ? (
-                        <Clock className="w-5 h-5 text-blue-600" />
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30" />
-                      )}
-                      <div>
-                        <span className="text-sm font-medium">Final (50%)</span>
-                        <p className={`text-xs ${finalPaid ? 'text-green-600' : advancePaid ? 'text-blue-600' : 'text-muted-foreground'}`} data-testid="text-final-summary-status">
-                          {finalPaid ? "Paid" : advancePaid ? "Awaiting" : "After advance"}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`font-semibold ${finalPaid ? 'text-green-600' : ''}`} data-testid="text-final-summary">
-                      ₹{finalAmount.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Total</span>
-                    <span className="text-xl font-bold text-primary" data-testid="text-total-summary">
-                      ₹{totalAmount.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  {allPaid && (
-                    <div className="mt-2 text-center">
-                      <Badge variant="default" className="bg-green-600">Fully Paid</Badge>
-                    </div>
-                  )}
-                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  For any payment-related queries or if your payment is not getting updated, please reach out to us with your booking ID.
+                </p>
               </CardContent>
             </Card>
           </div>

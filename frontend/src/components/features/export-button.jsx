@@ -4,15 +4,6 @@ import { Download, FileSpreadsheet, FileText, Users, UtensilsCrossed } from "luc
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import type { EventBooking, FoodItem, Staff } from "@/schema";
-
-interface ExportButtonProps {
-  bookings?: EventBooking[];
-  foodItems?: FoodItem[];
-  staff?: Staff[];
-  filename?: string;
-  type?: "bookings" | "food" | "staff" | "all";
-}
 
 export function ExportButton({ 
   bookings = [], 
@@ -20,7 +11,7 @@ export function ExportButton({
   staff = [],
   filename = "export", 
   type = "bookings" 
-}: ExportButtonProps) {
+}) {
   const { toast } = useToast();
 
   const exportBookingsToExcel = () => {
@@ -205,7 +196,7 @@ export function ExportButton({
     const csvContent = [
       headers.join(","),
       ...rows.map((row) =>
-        row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
       ),
     ].join("\n");
 

@@ -5,37 +5,24 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Search, Calendar, User, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import type { EventBooking, Staff } from "@/schema";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 
-interface SearchResult {
-  type: "booking" | "staff";
-  id: string;
-  title: string;
-  subtitle: string;
-  status?: string;
-}
-
-interface GlobalSearchProps {
-  className?: string;
-}
-
-export function GlobalSearch({ className }: GlobalSearchProps) {
+export function GlobalSearch({ className }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef(null);
   const [, setLocation] = useLocation();
 
-  const { data: bookings } = useQuery<EventBooking[]>({
+  const { data: bookings } = useQuery({
     queryKey: ["/api/bookings"],
   });
 
-  const { data: staffList } = useQuery<Staff[]>({
+  const { data: staffList } = useQuery({
     queryKey: ["/api/staff"],
   });
 
-  const results: SearchResult[] = [];
+  const results = [];
 
   if (query.length >= 2) {
     const lowerQuery = query.toLowerCase();
@@ -74,7 +61,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
   }
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setOpen(true);
@@ -90,7 +77,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
     }
   }, [open]);
 
-  const handleSelect = (result: SearchResult) => {
+  const handleSelect = (result) => {
     setOpen(false);
     setQuery("");
     if (result.type === "booking") {
@@ -100,7 +87,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
     }
   };
 
-  const statusColors: Record<string, string> = {
+  const statusColors = {
     pending: "bg-amber-500/20 text-amber-700 dark:text-amber-400",
     confirmed: "bg-green-500/20 text-green-700 dark:text-green-400",
     completed: "bg-blue-500/20 text-blue-700 dark:text-blue-400",
