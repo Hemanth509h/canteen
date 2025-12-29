@@ -1,14 +1,5 @@
 import { Button } from "@/components/ui/button";
 
-interface EmptyStateProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  actionLabel?: string;
-  onAction?: () => void;
-  data_testid?: string;
-}
-
 export function EmptyState({
   icon,
   title,
@@ -16,7 +7,7 @@ export function EmptyState({
   actionLabel,
   onAction,
   data_testid,
-}: EmptyStateProps) {
+}) {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center" data-testid={data_testid}>
       <div className="text-muted-foreground mb-4">{icon}</div>

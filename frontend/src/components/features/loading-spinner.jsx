@@ -1,11 +1,6 @@
 import { cn } from "@/lib/utils";
 
-interface LoadingSpinnerProps {
-  size?: "sm" | "md" | "lg";
-  className?: string;
-}
-
-export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) {
+export function LoadingSpinner({ size = "md", className }) {
   const sizeClasses = {
     sm: "w-4 h-4",
     md: "w-8 h-8",
@@ -20,11 +15,7 @@ export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) 
   );
 }
 
-interface PageLoaderProps {
-  text?: string;
-}
-
-export function PageLoader({ text = "Loading..." }: PageLoaderProps) {
+export function PageLoader({ text = "Loading..." }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 animate-in fade-in duration-300">
       <LoadingSpinner size="lg" />
@@ -35,11 +26,7 @@ export function PageLoader({ text = "Loading..." }: PageLoaderProps) {
   );
 }
 
-interface CardSkeletonProps {
-  className?: string;
-}
-
-export function CardSkeleton({ className }: CardSkeletonProps) {
+export function CardSkeleton({ className }) {
   return (
     <div className={cn("rounded-md bg-muted p-4 space-y-3 animate-in fade-in duration-300", className)}>
       <div className="h-4 bg-muted-foreground/10 rounded w-3/4 animate-pulse" />
@@ -49,7 +36,7 @@ export function CardSkeleton({ className }: CardSkeletonProps) {
   );
 }
 
-export function TableSkeleton({ rows = 5 }: { rows?: number }) {
+export function TableSkeleton({ rows = 5 }) {
   return (
     <div className="space-y-2 animate-in fade-in duration-300">
       <div className="h-10 bg-muted rounded animate-pulse" />
