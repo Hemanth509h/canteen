@@ -170,8 +170,8 @@ export default function AdminDashboard() {
             </div>
           </header>
           <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20">
-            
-              
+            <ErrorBoundary>
+              <Switch>
                 <Route path="/admin" component={DashboardOverview} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/bookings" component={EventBookingsManager} />

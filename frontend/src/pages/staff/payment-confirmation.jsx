@@ -221,13 +221,11 @@ export default function PaymentConfirmation() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="animate-in fade-in duration-300 lg:col-span-2 space-y-6">
-            
-            
-              <CardContent className="space-y-6 pt-6">
+            <Card>
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Booking Summary</CardTitle>
               </CardHeader>
-              
+              <CardContent className="space-y-6 pt-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-muted/50 rounded-lg p-3 text-center">
                     <Users className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />

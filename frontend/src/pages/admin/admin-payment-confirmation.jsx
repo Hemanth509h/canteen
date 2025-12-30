@@ -207,8 +207,8 @@ export default function AdminPaymentConfirmation() {
   const storedAdvanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
   const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
   const finalAmount = displayTotal - advanceAmount;
-  const advancePaid = isEditing ? editAdvanceStatus === "paid" ooking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
-  const finalPaid = isEditing ? editFinalStatus === "paid" ooking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
+  const advancePaid = isEditing ? editAdvanceStatus === "paid" : booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
+  const finalPaid = isEditing ? editFinalStatus === "paid" : booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
   const allPaid = advancePaid && finalPaid;
   const advanceUploaded = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "pending";
   const finalUploaded = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "pending";
@@ -230,7 +230,7 @@ export default function AdminPaymentConfirmation() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => queryClient.invalidateQueries({ queryKey"/api/bookings", bookingId] })}
+              onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] })}
               className="gap-2"
               data-testid="button-refresh-admin-payment"
             >
@@ -249,7 +249,7 @@ export default function AdminPaymentConfirmation() {
                 className="text-sm px-3 py-1"
                 data-testid="badge-booking-status-admin"
               >
-                {allPaid ? "Fully Paid" dvancePaid ? "Advance Paid" : "Pending"}
+                {allPaid ? "Fully Paid" : advancePaid ? "Advance Paid" : "Pending"}
               </Badge>
               {!isEditing && (
                 <Button size="sm" variant="outline" onClick={handleEditClick} data-testid="button-edit-payment-admin">
