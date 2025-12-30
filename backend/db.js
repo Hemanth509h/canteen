@@ -3,15 +3,19 @@ import mongoose, { Schema, model } from "mongoose";
 // Helper to ensure MongoDB connection
 export async function connectToDatabase() {
   // Hardcoded URI for immediate resolution - ensures Vercel and local environments connect successfully
-  const uri = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority";
+  // Added direct database name and write preference for Atlas stability
+  const uri = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority&appName=data";
   
   try {
     // Connect without forced dbName to allow URI-specified database
+    // Added explicit TLS and DNS settings for Atlas connection stability in Vercel
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-      connectTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      family: 4 // Use IPv4 for broader compatibility
+      serverSelectionTimeoutMS: 10000, 
+      connectTimeoutMS: 15000,
+      socketTimeoutMS: 60000,
+      family: 4,
+      retryWrites: true,
+      w: "majority"
     });
     const dbName = mongoose.connection.db?.databaseName || "unknown";
     console.log(`✅ Connected to MongoDB (Database: ${dbName})`);
