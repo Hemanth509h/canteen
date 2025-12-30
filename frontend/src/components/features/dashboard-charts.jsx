@@ -5,14 +5,6 @@ import { TrendingUp, PieChartIcon, BarChart3, Calendar } from "lucide-react";
 import "@/schema";
 import { format, parseISO, startOfMonth, subMonths, isAfter, isBefore, endOfMonth } from "date-fns";
 
-interface DashboardChartsProps {
-  bookingsventBooking[];
-}
-
-interface FoodItemsChartsProps {
-  foodItemsoodItem[];
-}
-
 const COLORS = [
   "hsl(var(--chart-1))",
   "hsl(var(--chart-2))",
@@ -21,14 +13,14 @@ const COLORS = [
   "hsl(var(--chart-5))",
 ];
 
-export function RevenueChart({ bookings }ashboardChartsProps) {
+export function RevenueChart({ bookings }) {
   const monthlyData = useMemo(() => {
     const last6Months = Array.from({ length: 6 }, (_, i) => {
       const date = subMonths(new Date(), 5 - i);
       return {
-        monthormat(date, "MMM"),
-        starttartOfMonth(date),
-        endndOfMonth(date),
+        month: format(date, "MMM"),
+        start: startOfMonth(date),
+        end: endOfMonth(date),
         revenue: 0,
         bookings: 0,
       };
@@ -53,9 +45,9 @@ export function RevenueChart({ bookings }ashboardChartsProps) {
     });
 
     return last6Months.map((m) => ({
-      month.month,
-      revenue.revenue,
-      bookings.bookings,
+      month: m.month,
+      revenue: m.revenue,
+      bookings: m.bookings,
     }));
   }, [bookings]);
 
@@ -66,7 +58,7 @@ export function RevenueChart({ bookings }ashboardChartsProps) {
     : "0";
 
   return (
-    
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-primary" />
@@ -108,7 +100,7 @@ export function RevenueChart({ bookings }ashboardChartsProps) {
                   borderRadius: "8px",
                   color: "hsl(var(--popover-foreground))"
                 }}
-                formatter={(valueumber) => [`₹${value.toLocaleString("en-IN")}`, "Revenue"]}
+                formatter={(value) => [`₹${value.toLocaleString("en-IN")}`, "Revenue"]}
               />
               <Area
                 type="monotone"
@@ -125,9 +117,9 @@ export function RevenueChart({ bookings }ashboardChartsProps) {
   );
 }
 
-export function BookingStatusChart({ bookings }ashboardChartsProps) {
+export function BookingStatusChart({ bookings }) {
   const statusData = useMemo(() => {
-    const countsecord<string, number> = {
+    const counts = {
       pending: 0,
       confirmed: 0,
       completed: 0,
@@ -141,13 +133,13 @@ export function BookingStatusChart({ bookings }ashboardChartsProps) {
     });
 
     return Object.entries(counts).map(([name, value]) => ({
-      nameame.charAt(0).toUpperCase() + name.slice(1),
+      name: name.charAt(0).toUpperCase() + name.slice(1),
       value,
     })).filter((d) => d.value > 0);
   }, [bookings]);
 
   return (
-    
+    <Card>
       <CardHeader className="flex flex-row items-center gap-2 pb-2">
         <PieChartIcon className="w-5 h-5 text-primary" />
         <CardTitle className="text-lg">Booking Status</CardTitle>
@@ -155,7 +147,7 @@ export function BookingStatusChart({ bookings }ashboardChartsProps) {
       <CardContent className="pt-0">
         <div className="h-[200px] animate-in fade-in duration-300">
           <ResponsiveContainer width="100%" height="100%">
-            
+            <PieChart>
               <Pie
                 data={statusData}
                 cx="50%"
@@ -185,7 +177,7 @@ export function BookingStatusChart({ bookings }ashboardChartsProps) {
             <div key={entry.name} className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-full"
-                style={{ backgroundColorOLORS[index % COLORS.length] }}
+                style={{ backgroundColor: COLORS[index % COLORS.length] }}
               />
               <span className="text-xs text-muted-foreground">
                 {entry.name}: {entry.value}
@@ -198,14 +190,14 @@ export function BookingStatusChart({ bookings }ashboardChartsProps) {
   );
 }
 
-export function MonthlyBookingsChart({ bookings }ashboardChartsProps) {
+export function MonthlyBookingsChart({ bookings }) {
   const monthlyData = useMemo(() => {
     const last6Months = Array.from({ length: 6 }, (_, i) => {
       const date = subMonths(new Date(), 5 - i);
       return {
-        monthormat(date, "MMM"),
-        starttartOfMonth(date),
-        endndOfMonth(date),
+        month: format(date, "MMM"),
+        start: startOfMonth(date),
+        end: endOfMonth(date),
         count: 0,
       };
     });
@@ -225,13 +217,13 @@ export function MonthlyBookingsChart({ bookings }ashboardChartsProps) {
     });
 
     return last6Months.map((m) => ({
-      month.month,
-      bookings.count,
+      month: m.month,
+      bookings: m.count,
     }));
   }, [bookings]);
 
   return (
-    
+    <Card>
       <CardHeader className="flex flex-row items-center gap-2 pb-2">
         <BarChart3 className="w-5 h-5 text-primary" />
         <CardTitle className="text-lg">Monthly Bookings</CardTitle>
@@ -272,9 +264,9 @@ export function MonthlyBookingsChart({ bookings }ashboardChartsProps) {
   );
 }
 
-export function EventTypeChart({ bookings }ashboardChartsProps) {
+export function EventTypeChart({ bookings }) {
   const eventTypeData = useMemo(() => {
-    const countsecord<string, number> = {};
+    const counts = {};
 
     bookings.forEach((booking) => {
       const type = booking.eventType || "Other";
@@ -290,7 +282,7 @@ export function EventTypeChart({ bookings }ashboardChartsProps) {
   if (eventTypeData.length === 0) return null;
 
   return (
-    
+    <Card>
       <CardHeader className="flex flex-row items-center gap-2 pb-2">
         <Calendar className="w-5 h-5 text-primary" />
         <CardTitle className="text-lg">Event Types</CardTitle>
@@ -298,7 +290,7 @@ export function EventTypeChart({ bookings }ashboardChartsProps) {
       <CardContent className="pt-0">
         <div className="h-[200px] animate-in fade-in duration-300">
           <ResponsiveContainer width="100%" height="100%">
-            
+            <PieChart>
               <Pie
                 data={eventTypeData}
                 cx="50%"
@@ -330,9 +322,9 @@ export function EventTypeChart({ bookings }ashboardChartsProps) {
   );
 }
 
-export function CategoryDistributionChart({ foodItems }oodItemsChartsProps) {
+export function CategoryDistributionChart({ foodItems }) {
   const categoryData = useMemo(() => {
-    const countsecord<string, number> = {};
+    const counts = {};
 
     foodItems.forEach((item) => {
       const category = item.category || "Uncategorized";
@@ -348,7 +340,7 @@ export function CategoryDistributionChart({ foodItems }oodItemsChartsProps) {
   if (categoryData.length === 0) return null;
 
   return (
-    
+    <Card>
       <CardHeader className="flex flex-row items-center gap-2 pb-2">
         <BarChart3 className="w-5 h-5 text-primary" />
         <CardTitle className="text-lg">Menu Categories</CardTitle>
