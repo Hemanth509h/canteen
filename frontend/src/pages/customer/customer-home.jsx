@@ -41,7 +41,6 @@ export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [itemsToShow, setItemsToShow] = useState(9);
 
   const { data: foodItems, isLoading: isLoadingFood, error: foodError } = useQuery({
     queryKey: ["/api/food-items"],
@@ -80,12 +79,6 @@ export default function CustomerHome() {
       return matchesCategory && matchesSearch;
     }) || [];
   }, [foodItems, selectedCategory, searchQuery]);
-
-  const displayedItems = useMemo(() => {
-    return filteredItems.slice(0, itemsToShow);
-  }, [filteredItems, itemsToShow]);
-
-  const hasMoreItems = filteredItems.length > displayedItems.length;
 
   return (
     <div className="font-inter">
@@ -217,17 +210,18 @@ export default function CustomerHome() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-h-[400px]">
-            {isLoadingFood ? (
-              Array(6).fill(0).map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="h-48 w-full rounded-lg" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))
-            ) : displayedItems.length > 0 ? (
-              displayedItems.map((item, idx) => (
+          <div className="h-[1200px] sm:h-[900px] md:h-[1000px] overflow-y-auto rounded-xl border bg-white dark:bg-slate-800 p-4 sm:p-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {isLoadingFood ? (
+                Array(6).fill(0).map((_, i) => (
+                  <div key={i} className="space-y-4">
+                    <Skeleton className="h-48 w-full rounded-lg" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))
+              ) : filteredItems.length > 0 ? (
+                filteredItems.map((item, idx) => (
                 <div 
                   key={item.id} 
                   className="group cursor-pointer relative" 
@@ -307,29 +301,18 @@ export default function CustomerHome() {
                   )}
                 </div>
               ))
-            ) : (
-              <div className="col-span-full flex flex-col items-center justify-center min-h-[300px]">
-                <p className="text-base sm:text-lg text-muted-foreground mb-6 font-light">
-                  No culinary masterpieces found in this selection.
-                </p>
-                <Button onClick={() => setSelectedCategory("All")} className="mt-4 font-semibold">
-                  View All Selections
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {hasMoreItems && (
-            <div className="flex justify-center mt-10 sm:mt-12">
-              <Button 
-                onClick={() => setItemsToShow(prev => prev + 9)}
-                variant="outline"
-                className="px-8 py-3 rounded-full font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
-              >
-                Load More Dishes
-              </Button>
+              ) : (
+                <div className="col-span-full flex flex-col items-center justify-center min-h-[300px]">
+                  <p className="text-base sm:text-lg text-muted-foreground mb-6 font-light">
+                    No culinary masterpieces found in this selection.
+                  </p>
+                  <Button onClick={() => setSelectedCategory("All")} className="mt-4 font-semibold">
+                    View All Selections
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </section>
 
