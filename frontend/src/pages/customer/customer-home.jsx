@@ -15,10 +15,10 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const heroImages = [
-  "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?q=80&w=2000&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1626082869941-a7e46a15e303?q=80&w=2000&auto=format&fit=crop", // Indian Buffet
+  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2000&auto=format&fit=crop", // Elegant Setup
+  "https://images.unsplash.com/photo-1601050690597-df056fb4ce99?q=80&w=2000&auto=format&fit=crop", // Indian Platter
+  "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2000&auto=format&fit=crop"
 ];
 
 const features = [
@@ -105,16 +105,16 @@ export default function CustomerHome() {
     }) || [];
   }, [foodItems, selectedCategory, searchQuery]);
 
-  const defaultFoodImage = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop";
+  const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop"; // Indian Biryani Platter
 
   return (
-    <div className="font-inter relative overflow-hidden bg-background selection:bg-primary/20">
+    <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20">
       {/* Intro Animation Overlay */}
       {showIntro && (
-        <div className="intro-overlay">
+        <div className="intro-overlay bg-background">
           <div className="intro-logo flex flex-col items-center">
             <Sprout size={80} className="text-primary mb-6 animate-pulse" />
-            <h1 className="text-4xl font-poppins font-bold tracking-tighter">
+            <h1 className="text-4xl font-poppins font-bold tracking-tighter text-foreground">
               {companyInfo?.companyName || "ELITE"}
             </h1>
             <div className="w-12 h-1 bg-primary mt-4 rounded-full" />
@@ -124,9 +124,9 @@ export default function CustomerHome() {
 
       {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-20" />
-        <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-20" />
-        <BackgroundLeaf className="bottom-20 left-[10%] rotate-45 leaf-float-3 opacity-20" />
+        <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
+        <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-10 dark:opacity-20" />
+        <BackgroundLeaf className="bottom-20 left-[10%] rotate-45 leaf-float-3 opacity-10 dark:opacity-20" />
       </div>
 
       {/* Hero Section */}
@@ -280,28 +280,28 @@ export default function CustomerHome() {
                     className="group relative slide-up"
                     onClick={() => setSelectedItem(item)}
                   >
-                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[2rem] cursor-pointer group-hover:-translate-y-2 hover:ring-2 hover:ring-primary/20">
-                      <div className="h-48 sm:h-56 relative overflow-hidden">
+                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20">
+                      <div className="h-56 sm:h-64 relative overflow-hidden">
                         <img 
                           src={defaultFoodImage} 
                           alt={item.name}
                           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                         />
                         <div className="absolute top-4 left-4">
-                          <Badge className="bg-white/90 backdrop-blur-md text-primary border-none py-1 px-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                          <Badge className="bg-white/90 dark:bg-black/80 backdrop-blur-md text-primary border-none py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
                             {item.category}
                           </Badge>
                         </div>
                       </div>
-                      <div className="p-6">
-                        <h3 className="font-poppins font-bold text-xl mb-2 group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
-                        <p className="text-muted-foreground text-xs line-clamp-2 leading-relaxed font-light">{item.description}</p>
-                        <div className="mt-4 pt-4 border-t border-border/30 flex justify-between items-center opacity-60 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="p-8">
+                        <h3 className="font-poppins font-bold text-2xl mb-3 text-foreground group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
+                        <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
+                        <div className="mt-6 pt-6 border-t border-border/30 flex justify-between items-center opacity-70 group-hover:opacity-100 transition-opacity duration-500">
                           <div className="flex items-center gap-2">
-                            <Wind size={12} className="text-primary" />
-                            <span className="text-[10px] font-bold uppercase tracking-tighter">Organic</span>
+                            <Wind size={14} className="text-primary" />
+                            <span className="text-xs font-bold uppercase tracking-tighter text-foreground">Organic</span>
                           </div>
-                          <ChefHat size={16} className="text-primary" />
+                          <ChefHat size={20} className="text-primary" />
                         </div>
                       </div>
                     </Card>

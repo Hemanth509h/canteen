@@ -31,10 +31,11 @@ export function ThemeProvider({
     root.classList.add(theme);
   }, [theme]);
 
-  // Listen for system theme changes
+  // Handle system theme changes automatically
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e) => {
+      // Only auto-change if user hasn't manually set a preference
       if (!localStorage.getItem(storageKey)) {
         setTheme(e.matches ? "dark" : "light");
       }
