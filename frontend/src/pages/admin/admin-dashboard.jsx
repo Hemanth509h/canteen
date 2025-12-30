@@ -163,9 +163,9 @@ export default function AdminDashboard() {
             <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9 text-foreground" />
             <div className="flex items-center gap-1 sm:gap-2">
               <div className="hidden sm:block">
-                <GlobalSearch />
+                <GlobalSearch className="text-foreground" />
               </div>
-              <ThemeToggle />
+              <ThemeToggle className="text-foreground" />
             </div>
           </header>
           <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20">

@@ -293,7 +293,7 @@ export default function CustomerHome() {
                     <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20 h-full">
                       <div className="h-32 sm:h-64 relative overflow-hidden">
                         <img 
-                          src={defaultFoodImage} 
+                          src={item.imageUrl || defaultFoodImage} 
                           alt={item.name}
                           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                         />
