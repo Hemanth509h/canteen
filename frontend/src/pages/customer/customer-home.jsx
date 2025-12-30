@@ -220,17 +220,17 @@ export default function CustomerHome() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
               {features.map((feature, idx) => (
                 <div 
                   key={idx}
-                  className="p-6 sm:p-8 bg-card rounded-[1.5rem] sm:rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 group slide-up"
+                  className="p-4 sm:p-8 bg-card rounded-[1.5rem] sm:rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 group slide-up"
                 >
-                  <div className="w-12 h-12 sm:w-14 h-14 rounded-xl sm:rounded-2xl bg-primary/5 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary transition-colors duration-500">
-                    <feature.icon className="w-6 h-6 sm:w-7 h-7 text-primary group-hover:text-white transition-colors duration-500" />
+                  <div className="w-10 h-10 sm:w-14 h-14 rounded-xl sm:rounded-2xl bg-primary/5 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary transition-colors duration-500">
+                    <feature.icon className="w-5 h-5 sm:w-7 h-7 text-primary group-hover:text-white transition-colors duration-500" />
                   </div>
-                  <h3 className="font-poppins font-bold text-base sm:text-lg mb-2 sm:mb-3">{feature.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-inter">{feature.description}</p>
+                  <h3 className="font-poppins font-bold text-sm sm:text-lg mb-2 sm:mb-3">{feature.title}</h3>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground leading-relaxed font-inter line-clamp-2">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -277,11 +277,11 @@ export default function CustomerHome() {
           </div>
 
           <div className="max-h-[600px] sm:max-h-[800px] overflow-y-auto pr-2 sm:pr-4 custom-scrollbar">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-10">
               {isLoadingFood ? (
                 Array(6).fill(0).map((_, i) => (
                   <div key={i} className="space-y-4 slide-up">
-                    <Skeleton className="h-64 sm:h-80 w-full rounded-[1.5rem] sm:rounded-[2.5rem]" />
+                    <Skeleton className="h-48 sm:h-80 w-full rounded-[1rem] sm:rounded-[2.5rem]" />
                     <Skeleton className="h-4 w-2/3" />
                   </div>
                 ))
@@ -292,28 +292,28 @@ export default function CustomerHome() {
                     className="group relative slide-up"
                     onClick={() => setSelectedItem(item)}
                   >
-                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1.5rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20">
-                      <div className="h-48 sm:h-64 relative overflow-hidden">
+                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20 h-full">
+                      <div className="h-32 sm:h-64 relative overflow-hidden">
                         <img 
                           src={defaultFoodImage} 
                           alt={item.name}
                           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                         />
-                        <div className="absolute top-3 left-3 sm:top-4 left-4">
-                          <Badge className="bg-white/90 dark:bg-black/80 backdrop-blur-md text-primary border-none py-1 px-3 sm:py-1.5 sm:px-4 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest shadow-lg">
+                        <div className="absolute top-2 left-2 sm:top-4 left-4">
+                          <Badge className="bg-white/90 dark:bg-black/80 backdrop-blur-md text-primary border-none py-0.5 px-2 sm:py-1.5 sm:px-4 rounded-full text-[8px] sm:text-xs font-bold uppercase tracking-widest shadow-lg">
                             {item.category}
                           </Badge>
                         </div>
                       </div>
-                      <div className="p-6 sm:p-8">
-                        <h3 className="font-poppins font-bold text-xl sm:text-2xl mb-2 sm:mb-3 text-foreground group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
-                        <p className="text-muted-foreground text-xs sm:text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
-                        <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/30 flex justify-between items-center opacity-70 group-hover:opacity-100 transition-opacity duration-500">
-                          <div className="flex items-center gap-2">
-                            <Wind size={12} className="text-primary" />
-                            <span className="text-[10px] font-bold uppercase tracking-tighter text-foreground">Organic</span>
+                      <div className="p-3 sm:p-8">
+                        <h3 className="font-poppins font-bold text-xs sm:text-2xl mb-1 sm:mb-3 text-foreground group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
+                        <p className="text-muted-foreground text-[10px] sm:text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
+                        <div className="mt-2 sm:mt-6 pt-2 sm:pt-6 border-t border-border/30 flex justify-between items-center opacity-70 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <Wind size={10} sm:size={12} className="text-primary" />
+                            <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-tighter text-foreground">Organic</span>
                           </div>
-                          <ChefHat size={16} sm:size={20} className="text-primary" />
+                          <ChefHat size={12} sm:size={20} className="text-primary" />
                         </div>
                       </div>
                     </Card>
