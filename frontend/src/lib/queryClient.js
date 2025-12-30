@@ -7,7 +7,9 @@ async function throwIfResNotOk(res) {
   }
 }
 
-const API_URL = "https://canteen-bt65.vercel.app";
+export const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('replit')
+  ? 'https://canteen-bt65.vercel.app'
+  : ''; // Relative for same-domain prod deployment
 
 export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
