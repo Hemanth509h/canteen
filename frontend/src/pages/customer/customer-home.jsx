@@ -227,16 +227,16 @@ export default function CustomerHome() {
                   onClick={() => setSelectedItem(item)}
                 >
                   {/* Base Card (Visible in grid) */}
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300">
-                    <div className="aspect-square bg-muted overflow-hidden rounded-t-lg">
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 h-[420px] sm:h-[450px] flex flex-col">
+                    <div className="h-48 sm:h-56 bg-muted overflow-hidden rounded-t-lg">
                       <img 
                         src={item.image || "/placeholder.png"} 
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>
-                    <div className="p-5 sm:p-6">
-                      <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3">
+                    <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+                      <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3 line-clamp-2">
                         {item.name}
                       </h3>
                       <p className="text-sm text-muted-foreground line-clamp-2 font-light">
