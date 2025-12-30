@@ -103,6 +103,7 @@ export default function FoodItemsManager() {
 
   const filteredCategories = useMemo(() => {
     return allCategories.filter(cat => {
+      const isSeasonal = cat === "Seasonal Selections";
       if (selectedType === "Veg") {
         return cat.toLowerCase().includes("veg") || 
                ["Welcome Drinks", "Hots", "Rotis", "Curds", "Papads", "Salads", "Chat Items", "Ice Creams", "Seasonal Selections"].includes(cat);
