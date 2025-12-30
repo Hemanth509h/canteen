@@ -78,7 +78,10 @@ export default function CustomerHome() {
   });
 
   const dynamicHeroImages = useMemo(() => {
-    return companyInfo?.heroImages || [
+    if (companyInfo?.heroImages && companyInfo.heroImages.length > 0) {
+      return companyInfo.heroImages;
+    }
+    return [
       "/images/luxury_indian_wedding_buffet_setup.png",
       "/images/gourmet_indian_food_platter_biryani_thali.png",
       "/images/indian_event_catering_dessert_station.png",
