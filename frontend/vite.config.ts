@@ -15,7 +15,7 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://0.0.0.0:3000",
+        target: "https://canteen-bt65.vercel.app/",
         changeOrigin: true,
       },
     },
