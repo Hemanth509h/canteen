@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
 
-const heroImage = "/images/Elegant_catering_buffet_hero_image_05c8db1b.png";
+const heroImage = "/images/nature-hero.png";
 
 const features = [
   { 
