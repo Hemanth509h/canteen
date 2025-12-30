@@ -140,7 +140,7 @@ export default function CustomerHome() {
       </div>
 
       {/* Hero Section */}
-      <div className="relative h-[450px] sm:h-[550px] md:h-[650px] overflow-hidden">
+      <div className="relative h-screen min-h-[600px] overflow-hidden">
         <div className="absolute top-6 right-6 z-50 fade-in theme-toggle-container">
           <ThemeToggle />
         </div>
