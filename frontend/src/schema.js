@@ -16,7 +16,8 @@ export const insertFoodItemSchema = z.object({
     .max(500, "Description must be less than 500 characters")
     .transform(sanitizeString),
   category: z.string().min(1, "Category is required").max(50),
-  imageUrl: z.string().url("Invalid image URL").nullable().optional(),
+  type: z.enum(["Veg", "Non-Veg"], { required_error: "Type (Veg/Non-Veg) is required" }),
+  imageUrl: z.string().url("Invalid image URL").min(1, "Image URL is required"),
   dietaryTags: z.array(z.string()).optional(),
   price: z.number().int().min(1, "Price must be at least 1").optional(),
 });

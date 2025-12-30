@@ -91,6 +91,7 @@ export default function FoodItemsManager() {
     defaultValues: {
       name: "",
       description: "",
+      type: "Veg",
       category: "Veg Starters",
       imageUrl: "",
     },
@@ -169,6 +170,7 @@ export default function FoodItemsManager() {
     form.reset({
       name: item.name,
       description: item.description,
+      type: item.type || "Veg",
       category: item.category,
       imageUrl: item.imageUrl || "",
       dietaryTags: item.dietaryTags || [],
@@ -287,24 +289,60 @@ export default function FoodItemsManager() {
                 />
                 <FormField
                   control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Veg">Veg</SelectItem>
+                          <SelectItem value="Non-Veg">Non-Veg</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="category"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-food-category">
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="max-h-60">
-                          {allCategories.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex gap-2">
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-food-category" className="flex-1">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="max-h-60">
+                            {allCategories.map((category) => (
+                              <SelectItem key={category} value={category}>
+                                {category}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="icon"
+                          onClick={() => {
+                            const newCat = prompt("Enter new category name:");
+                            if (newCat && newCat.trim()) {
+                              field.onChange(newCat.trim());
+                            }
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -314,7 +352,7 @@ export default function FoodItemsManager() {
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image URL (optional)</FormLabel>
+                      <FormLabel>Image URL</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="Enter image URL" 
