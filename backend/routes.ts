@@ -381,7 +381,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bookingsWithItems = [];
       for (const booking of filteredBookings) {
         const items = await getStorageInstance().getBookingItems(booking.id);
-        bookingsWithItems.push({ ...booking, items });
+        
+        // Populate foodItem details for each item
+        const itemsWithFoodDetails = [];
+        for (const item of items) {
+          const foodItem = await getStorageInstance().getFoodItem(item.foodItemId);
+          itemsWithFoodDetails.push({
+            ...item,
+            foodItem: foodItem || { id: item.foodItemId, name: "Unknown Item", category: "Other" }
+          });
+        }
+        
+        bookingsWithItems.push({ ...booking, items: itemsWithFoodDetails });
       }
       
       const groupedByDate: Record<string, typeof bookingsWithItems> = {};
