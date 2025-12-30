@@ -15,14 +15,12 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const heroImages = [
-  "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=2000&auto=format&fit=crop", // Indian Biryani/Dining
-  "https://images.unsplash.com/photo-1626082869941-a7e46a15e303?q=80&w=2000&auto=format&fit=crop", // Indian Buffet Setup
-  "https://images.unsplash.com/photo-1601050690597-df056fb4ce99?q=80&w=2000&auto=format&fit=crop", // Indian Samosa/Snacks
-  "https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?q=80&w=2000&auto=format&fit=crop", // Indian Thali/Food Platter
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2000&auto=format&fit=crop", // Elegant Dining Hall
-  "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2000&auto=format&fit=crop", // Fine Dining Table Setup
-  "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2000&auto=format&fit=crop", // Indian Catering Service
-  "https://images.unsplash.com/photo-1589302168068-964664d93dc0?q=80&w=2000&auto=format&fit=crop"  // Curry/Event Food
+  "/images/generated/luxury_indian_wedding_buffet_setup.png",
+  "/images/generated/gourmet_indian_food_platter_biryani_thali.png",
+  "/images/generated/indian_event_catering_dessert_station.png",
+  "/images/generated/elegant_indian_dining_table_arrangement.png",
+  "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1626082869941-a7e46a15e303?q=80&w=2000&auto=format&fit=crop"
 ];
 
 // Preload component
