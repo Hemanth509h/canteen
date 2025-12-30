@@ -486,47 +486,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {selectedItem && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            onClick={() => setSelectedItem(null)}
-          />
-          <div className="relative bg-card rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl max-w-3xl w-full overflow-hidden z-10 slide-up max-h-[90vh] overflow-y-auto">
-            <div className="flex flex-col sm:flex-row">
-              <div className="w-full sm:w-2/5 h-[200px] sm:h-auto">
-                <img src={selectedItem.imageUrl || defaultFoodImage} className="w-full h-full object-cover" alt={selectedItem.name} />
-              </div>
-              <div className="w-full sm:w-3/5 p-6 sm:p-12">
-                <Badge className="mb-3 rounded-full px-3 py-1 text-[9px] sm:text-[10px] uppercase tracking-widest">{selectedItem.category}</Badge>
-                <h2 className="text-xl sm:text-3xl font-poppins font-bold mb-3 sm:mb-4 leading-tight">{selectedItem.name}</h2>
-                <p className="text-muted-foreground text-xs sm:text-base leading-relaxed mb-6 sm:mb-8 font-light italic">
-                  {selectedItem.description}
-                </p>
-                <div className="flex gap-3 sm:gap-4">
-                  <Button 
-                    className="flex-1 h-10 sm:h-12 rounded-xl text-xs sm:text-sm font-bold shadow-xl hover:shadow-primary/30 transition-all duration-500"
-                    onClick={() => {
-                      setSelectedItem(null);
-                      document.getElementById("contact-section")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    Inquire Now
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-10 sm:h-12 w-10 sm:w-12 rounded-xl p-0 border-2"
-                    onClick={() => setSelectedItem(null)}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <WhatsAppButton phone={companyInfo?.phone} />
       <Footer companyInfo={companyInfo} />
     </div>
