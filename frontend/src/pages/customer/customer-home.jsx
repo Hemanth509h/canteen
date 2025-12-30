@@ -40,26 +40,6 @@ const Testimonials = ({ reviews }) => (
   </section>
 );
 
-const Gallery = () => (
-  <section className="py-24 px-6">
-    <div className="max-w-7xl mx-auto">
-      <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-16 text-center">Event Highlights</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2074&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2069&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1522413452208-996ff3f3e71c?q=80&w=2070&auto=format&fit=crop"
-        ].map((img, idx) => (
-          <div key={idx} className="aspect-square rounded-3xl overflow-hidden group">
-            <img src={img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-);
-
 const Footer = ({ companyInfo }) => (
   <footer className="bg-card pt-24 pb-12 px-6 border-t border-border/30">
     <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16 text-left">
