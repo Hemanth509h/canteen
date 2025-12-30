@@ -43,6 +43,33 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.4);
   }
+
+  /* Intro Animation */
+  .intro-overlay {
+    position: fixed;
+    inset: 0;
+    background: hsl(var(--background));
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeOutIntro 0.8s ease-in-out forwards 2s;
+  }
+
+  .intro-logo {
+    animation: introLogoScale 2s ease-in-out forwards;
+  }
+
+  @keyframes introLogoScale {
+    0% { transform: scale(0.8); opacity: 0; filter: blur(10px); }
+    50% { transform: scale(1.1); opacity: 1; filter: blur(0px); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes fadeOutIntro {
+    to { opacity: 0; visibility: hidden; }
+  }
 }
 
 @keyframes fadeIn {

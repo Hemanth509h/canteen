@@ -49,6 +49,13 @@ export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showIntro, setShowIntro] = useState(true);
+
+  // Auto-hide intro after animation
+  useMemo(() => {
+    const timer = setTimeout(() => setShowIntro(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const { data: foodItems, isLoading: isLoadingFood, error: foodError } = useQuery({
     queryKey: ["/api/food-items"],
@@ -88,10 +95,25 @@ export default function CustomerHome() {
 
   return (
     <div className="font-inter relative overflow-hidden bg-background selection:bg-primary/20">
+      {/* Intro Animation Overlay */}
+      {showIntro && (
+        <div className="intro-overlay">
+          <div className="intro-logo flex flex-col items-center">
+            <Sprout size={80} className="text-primary mb-6 animate-pulse" />
+            <h1 className="text-4xl font-poppins font-bold tracking-tighter">
+              {companyInfo?.companyName || "ELITE"}
+            </h1>
+            <div className="w-12 h-1 bg-primary mt-4 rounded-full" />
+          </div>
+        </div>
+      )}
+
       {/* Animated Background Elements */}
-      <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1" />
-      <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2" />
-      <BackgroundLeaf className="bottom-20 left-[10%] rotate-45 leaf-float-3" />
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-20" />
+        <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-20" />
+        <BackgroundLeaf className="bottom-20 left-[10%] rotate-45 leaf-float-3 opacity-20" />
+      </div>
 
       {/* Hero Section */}
       <div className="relative h-[450px] sm:h-[550px] md:h-[650px] overflow-hidden">
@@ -277,25 +299,25 @@ export default function CustomerHome() {
 
       {/* Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in">
           <div 
-            className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
             onClick={() => setSelectedItem(null)}
           />
-          <div className="relative bg-card rounded-[3.5rem] shadow-2xl max-w-5xl w-full overflow-hidden z-10 slide-up">
-            <div className="flex flex-col md:flex-row">
-              <div className="md:w-1/2 h-[400px] md:h-auto">
+          <div className="relative bg-card rounded-[2.5rem] shadow-2xl max-w-3xl w-full overflow-hidden z-10 slide-up">
+            <div className="flex flex-col sm:flex-row">
+              <div className="sm:w-2/5 h-[250px] sm:h-auto">
                 <img src={defaultFoodImage} className="w-full h-full object-cover" />
               </div>
-              <div className="md:w-1/2 p-12 md:p-20">
-                <Badge className="mb-8 rounded-full px-6 py-2">{selectedItem.category}</Badge>
-                <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-8 leading-tight">{selectedItem.name}</h2>
-                <p className="text-muted-foreground text-xl leading-relaxed mb-12 font-light italic">
+              <div className="sm:w-3/5 p-8 sm:p-12">
+                <Badge className="mb-4 rounded-full px-4 py-1 text-[10px] uppercase tracking-widest">{selectedItem.category}</Badge>
+                <h2 className="text-2xl sm:text-3xl font-poppins font-bold mb-4 leading-tight">{selectedItem.name}</h2>
+                <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-8 font-light italic">
                   {selectedItem.description}
                 </p>
-                <div className="flex gap-6">
+                <div className="flex gap-4">
                   <Button 
-                    className="flex-1 h-16 rounded-[1.5rem] text-xl font-bold shadow-2xl hover:shadow-primary/40 transition-all duration-500"
+                    className="flex-1 h-12 rounded-xl text-sm font-bold shadow-xl hover:shadow-primary/30 transition-all duration-500"
                     onClick={() => {
                       setSelectedItem(null);
                       document.getElementById("contact-section")?.scrollIntoView({ behavior: "smooth" });
@@ -305,7 +327,7 @@ export default function CustomerHome() {
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="h-16 w-16 rounded-[1.5rem] p-0 border-2"
+                    className="h-12 w-12 rounded-xl p-0 border-2"
                     onClick={() => setSelectedItem(null)}
                   >
                     ✕
