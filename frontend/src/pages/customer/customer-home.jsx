@@ -447,7 +447,15 @@ export default function CustomerHome() {
       </section>
 
       <Testimonials reviews={reviews} />
-      <Gallery />
+      
+      <section className="py-24 px-6 bg-secondary/5">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-poppins font-bold mb-12 text-center">Share Your Experience</h2>
+          <Card className="p-8 bg-card border-none shadow-xl rounded-[2rem]">
+            <ReviewForm />
+          </Card>
+        </div>
+      </section>
 
       <section id="contact-section" className="py-20 sm:py-32 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto relative slide-up">
