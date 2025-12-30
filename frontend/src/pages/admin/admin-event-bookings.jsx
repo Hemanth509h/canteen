@@ -46,6 +46,8 @@ export default function EventBookingsManager() {
   const [dateTo, setDateTo] = useState("");
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [foodSearchQuery, setFoodSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -91,6 +93,19 @@ export default function EventBookingsManager() {
     
     return sortOrder === "asc" ? compareValue : -compareValue;
   });
+
+  const debouncedFoodSearch = useDebouncedValue(foodSearchQuery, 300);
+
+  const getCategories = () => {
+    const categories = new Set(foodItems?.map(item => item.category).filter(Boolean));
+    return Array.from(categories).sort();
+  };
+
+  const filteredFoodItems = foodItems?.filter((item) => {
+    const matchesSearch = item.name.toLowerCase().includes(debouncedFoodSearch.toLowerCase());
+    const matchesCategory = !selectedCategory || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  }) || [];
 
   const getDomain = () => {
     if (typeof window !== 'undefined') {
@@ -473,45 +488,78 @@ export default function EventBookingsManager() {
                     {foodItems?.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4">No food items available. Please add food items first.</p>
                     ) : (
-                      <div className="space-y-3 max-h-48 overflow-y-auto">
-                        {foodItems?.map((item) => {
-                          const selectedItem = selectedItems.find(si => si.foodItemId === item.id);
-                          return (
-                            <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                              <input
-                                type="checkbox"
-                                checked={!!selectedItem}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedItems([...selectedItems, { foodItemId: item.id, quantity: 1 }]);
-                                  } else {
-                                    setSelectedItems(selectedItems.filter(si => si.foodItemId !== item.id));
-                                  }
-                                }}
-                                className="w-4 h-4"
-                              />
-                              <div className="flex-1">
-                                <p className="font-medium text-sm">{item.name}</p>
-                                <p className="text-xs text-muted-foreground">₹{item.price}</p>
-                              </div>
-                              {selectedItem && (
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={selectedItem.quantity}
-                                  onChange={(e) => {
-                                    setSelectedItems(selectedItems.map(si =>
-                                      si.foodItemId === item.id ? { ...si, quantity: parseInt(e.target.value) || 1 } : si
-                                    ));
-                                  }}
-                                  className="w-16 px-2 py-1 border rounded text-sm"
-                                  placeholder="Qty"
-                                />
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+                      <>
+                        <div className="space-y-3 mb-4">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Search food items..."
+                              value={foodSearchQuery}
+                              onChange={(e) => setFoodSearchQuery(e.target.value)}
+                              className="pl-9"
+                            />
+                          </div>
+                          {getCategories().length > 0 && (
+                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Filter by category..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="">All Categories</SelectItem>
+                                {getCategories().map((category) => (
+                                  <SelectItem key={category} value={category}>
+                                    {category}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                        <div className="space-y-3 max-h-48 overflow-y-auto">
+                          {filteredFoodItems.length === 0 ? (
+                            <p className="text-sm text-muted-foreground py-4">No food items found</p>
+                          ) : (
+                            filteredFoodItems.map((item) => {
+                              const selectedItem = selectedItems.find(si => si.foodItemId === item.id);
+                              return (
+                                <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                                  <input
+                                    type="checkbox"
+                                    checked={!!selectedItem}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        const guestCount = form.getValues("guestCount") || 0;
+                                        setSelectedItems([...selectedItems, { foodItemId: item.id, quantity: guestCount > 0 ? guestCount : 1 }]);
+                                      } else {
+                                        setSelectedItems(selectedItems.filter(si => si.foodItemId !== item.id));
+                                      }
+                                    }}
+                                    className="w-4 h-4"
+                                  />
+                                  <div className="flex-1">
+                                    <p className="font-medium text-sm">{item.name}</p>
+                                    <p className="text-xs text-muted-foreground">₹{item.price}</p>
+                                  </div>
+                                  {selectedItem && (
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={selectedItem.quantity}
+                                      onChange={(e) => {
+                                        setSelectedItems(selectedItems.map(si =>
+                                          si.foodItemId === item.id ? { ...si, quantity: parseInt(e.target.value) || 1 } : si
+                                        ));
+                                      }}
+                                      className="w-16 px-2 py-1 border rounded text-sm"
+                                      placeholder="Qty"
+                                    />
+                                  )}
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
 
@@ -603,7 +651,7 @@ export default function EventBookingsManager() {
                           <Button size="icon" variant="ghost" onClick={() => handleEdit(booking)} title="Edit">
                             <Pencil className="w-4 h-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" onClick={() => setLocation(`/admin/payment-confirmation/${booking.id}`)} title="Manage Payments">
+                          <Button size="icon" variant="ghost" onClick={() => setLocation(`/admin/payment/${booking.id}`)} title="Manage Payments">
                             <DollarSign className="w-4 h-4" />
                           </Button>
                           <Button size="icon" variant="ghost" onClick={() => {
