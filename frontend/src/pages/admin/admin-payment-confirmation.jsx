@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Invoice } from "@/components/features/invoice";
 import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon, RefreshCw } from "lucide-react";
-import { type EventBooking, type CompanyInfo } from "@/schema";
+import { EventBooking, CompanyInfo } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 
@@ -31,7 +31,7 @@ export default function AdminPaymentConfirmation() {
     queryFn: () => fetch(`/api/bookings/${bookingId}`).then(r => r.json()),
   });
 
-  const { dataompanyInfo } = useQuery({
+  const { data: companyInfo } = useQuery({
     queryKey"/api/company-info"],
   });
 
@@ -107,7 +107,7 @@ export default function AdminPaymentConfirmation() {
   };
 
   const approvePaymentMutation = useMutation({
-    mutationFnsync (type: "advance" | "final") => {
+    mutationFnsync (type) => {
       return apiRequest("PATCH", `/api/bookings/${bookingId}`, {
         [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
         [type === "advance" ? "advancePaymentApprovalStatus" : "finalPaymentApprovalStatus"]: "approved",

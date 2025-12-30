@@ -15,7 +15,7 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleLogin = async (eeact.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -23,7 +23,7 @@ export default function AdminLogin() {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        bodySON.stringify({ password }),
+        body: JSON.stringify({ password }),
       });
 
       if (response.ok) {

@@ -10,22 +10,21 @@ import { useToast } from "@/hooks/use-toast";
 import { UPIPayment } from "@/components/features/upi-payment";
 import { Invoice } from "@/components/features/invoice";
 import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Calendar, Utensils, RefreshCw } from "lucide-react";
-import { type EventBooking, type CompanyInfo } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 
 export default function PaymentConfirmation() {
-  const { bookingId } = useParams<{ bookingIdtring }>();
+  const { bookingId } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [advanceFile, setAdvanceFile] = useState<File | null>(null);
-  const [finalFile, setFinalFile] = useState<File | null>(null);
-  const [advancePreview, setAdvancePreview] = useState<string | null>(null);
-  const [finalPreview, setFinalPreview] = useState<string | null>(null);
+  const [advanceFile, setAdvanceFile] = useState(null);
+  const [finalFile, setFinalFile] = useState(null);
+  const [advancePreview, setAdvancePreview] = useState(null);
+  const [finalPreview, setFinalPreview] = useState(null);
 
-  const { dataooking, isLoadingookingLoading, isErrorookingError } = useQuery({
-    queryKey"/api/bookings", bookingId],
-    queryFnsync () => {
+  const { data: booking, isLoading: bookingLoading, isError: bookingError } = useQuery({
+    queryKey: ["/api/bookings", bookingId],
+    queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
       const response = await fetch(`/api/bookings/${bookingId}`);
       if (!response.ok) throw new Error("Failed to fetch booking");
@@ -34,13 +33,13 @@ export default function PaymentConfirmation() {
     enabled: !!bookingId,
   });
 
-  const { dataompanyInfo } = useQuery({
-    queryKey"/api/company-info"],
+  const { data: companyInfo } = useQuery({
+    queryKey: ["/api/company-info"],
   });
 
   const uploadScreenshotMutation = useMutation({
-    mutationFnsync (type: "advance" | "final") => {
-      const file = type === "advance" ? advanceFile inalFile;
+    mutationFn: async (type) => {
+      const file = type === "advance" ? advanceFile : finalFile;
       if (!file) throw new Error("No file selected");
       if (file.size > 50 * 1024 * 1024) throw new Error("File is too large (max 50MB)");
 

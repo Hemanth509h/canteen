@@ -49,7 +49,7 @@ export default function CustomerHome() {
     gcTime: 0,
   });
 
-  const { dataompanyInfo, errorompanyError } = useQuery({
+  const { data: companyInfo, errorompanyError } = useQuery({
     queryKey"/api/company-info"],
     staleTime: 0,
     gcTime: 0,

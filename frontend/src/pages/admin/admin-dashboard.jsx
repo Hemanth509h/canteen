@@ -24,20 +24,20 @@ import "@/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
-  { title: "Dashboard", url: "/admin", iconayoutDashboard },
-  { title: "Food Items", url: "/admin/food-items", icontensilsCrossed },
-  { title: "Event Bookings", url: "/admin/bookings", iconalendarDays },
-  { title: "Reviews", url: "/admin/reviews", icontar },
-  { title: "Staff", url: "/admin/staff", iconsers },
-  { title: "Audit History", url: "/admin/audit-history", iconistory },
-  { title: "Company Settings", url: "/admin/settings", iconettings },
-  { title: "Account Settings", url: "/admin/account", iconserCog },
+  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+  { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
+  { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
+  { title: "Reviews", url: "/admin/reviews", icon: Star },
+  { title: "Staff", url: "/admin/staff", icon: Users },
+  { title: "Audit History", url: "/admin/audit-history", icon: History },
+  { title: "Company Settings", url: "/admin/settings", icon: Settings },
+  { title: "Account Settings", url: "/admin/account", icon: UserCog },
 ];
 
-function AppSidebar({ onLogout }: { onLogout: () => void }) {
+function AppSidebar({ onLogout }) {
   const [location] = useLocation();
-  const { dataompanyInfo, isLoading } = useQuery({
-    queryKey"/api/company-info"],
+  const { data: companyInfo, isLoading } = useQuery({
+    queryKey: ["/api/company-info"],
   });
 
   return (

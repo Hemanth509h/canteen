@@ -6,20 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, Calendar, Users, MapPin } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import "@/schema";
-
-interface StaffAssignmentData {
-  requesttaffBookingRequest;
-  bookingventBooking;
-  stafftaff;
-}
 
 export default function StaffAssignment() {
-  const { token } = useParams<{ tokentring }>();
+  const { token } = useParams();
   const { toast } = useToast();
 
   const { data, isLoading, error } = useQuery({
-    queryKey"/api/staff-requests", token],
+    queryKey: ["/api/staff-requests", token],
     enabled: !!token,
   });
   
@@ -27,12 +20,12 @@ export default function StaffAssignment() {
   const hasResponded = currentStatus === 'accepted' || currentStatus === 'rejected';
 
   const updateMutation = useMutation({
-    mutationFnsync (status: "accepted" | "rejected") => {
+    mutationFn: async (status) => {
       const response = await apiRequest("PATCH", `/api/staff-requests/${token}`, { status });
-      return response.json() as Promise;
+      return response.json();
     },
-    onSuccesssync (responseDatataffBookingRequest) => {
-      await queryClient.invalidateQueries({ queryKey"/api/staff-requests", token], refetchType: 'all' });
+    onSuccess: async (responseData) => {
+      await queryClient.invalidateQueries({ queryKey: ["/api/staff-requests", token] });
       if (responseData.status === "accepted") {
         toast({
           title: "Accepted!",

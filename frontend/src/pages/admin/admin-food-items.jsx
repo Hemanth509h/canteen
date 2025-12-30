@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } from "lucide-react";
-import { insertFoodItemSchema, type FoodItem, type InsertFoodItem } from "@/schema";
+import { insertFoodItemSchema, FoodItem, InsertFoodItem } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { EmptyState } from "@/components/features/empty-state";

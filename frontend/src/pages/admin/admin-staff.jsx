@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, User, Search, RefreshCw } from "lucide-react";
-import { insertStaffSchema, updateStaffSchema, type Staff, type InsertStaff, type UpdateStaff } from "@/schema";
+import { insertStaffSchema, updateStaffSchema, Staff, InsertStaff, UpdateStaff } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { EmptyState } from "@/components/features/empty-state";

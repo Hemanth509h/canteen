@@ -2,15 +2,9 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import "@/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface ReviewsCarouselProps {
-  reviewsustomerReview[] | undefined;
-  isLoadingoolean;
-}
-
-export default function ReviewsCarousel({ reviews = [], isLoading }eviewsCarouselProps) {
+export default function ReviewsCarousel({ reviews = [], isLoading }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const displayReviews = reviews || [];

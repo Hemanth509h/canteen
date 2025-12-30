@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, MessageCircle, Users, RefreshCw, List } from "lucide-react";
-import { insertEventBookingSchema, updateEventBookingSchema, type EventBooking, type InsertEventBooking, type UpdateEventBooking, type FoodItem, type BookingItem, type CompanyInfo, type Staff } from "@/schema";
+import { insertEventBookingSchema, updateEventBookingSchema, EventBooking, InsertEventBooking, UpdateEventBooking, FoodItem, BookingItem, CompanyInfo, Staff } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { UPIPayment } from "@/components/features/upi-payment";
@@ -68,7 +68,7 @@ export default function EventBookingsManager() {
     queryKey"/api/food-items"],
   });
 
-  const { dataompanyInfo } = useQuery({
+  const { data: companyInfo } = useQuery({
     queryKey"/api/company-info"],
   });
 
@@ -195,7 +195,7 @@ export default function EventBookingsManager() {
     if (editingBooking) {
       fetch(`/api/bookings/${editingBooking.id}/items`)
         .then(res => res.json())
-        .then((items: (BookingItem & { foodItemoodItem })[]) => {
+        .then((items)[]) => {
           setSelectedItems(items.map(item => ({
             foodItemIdtem.foodItemId,
             quantitytem.quantity

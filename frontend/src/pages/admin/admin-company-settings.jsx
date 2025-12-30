@@ -8,13 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Building2, RefreshCw } from "lucide-react";
-import { type CompanyInfo, type InsertCompanyInfo } from "@/schema";
+import { CompanyInfo, InsertCompanyInfo } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function CompanySettingsManager() {
   const { toast } = useToast();
 
-  const { dataompanyInfo, isLoading, isFetching, refetch } = useQuery({
+  const { data: companyInfo, isLoading, isFetching, refetch } = useQuery({
     queryKey"/api/company-info"],
   });
 

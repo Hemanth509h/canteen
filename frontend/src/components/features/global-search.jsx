@@ -28,11 +28,11 @@ export function GlobalSearch({ className }lobalSearchProps) {
   const [, setLocation] = useLocation();
 
   const { dataookings } = useQuery<EventBooking[]>({
-    queryKey"/api/bookings"],
+    queryKey: "/api/bookings"],
   });
 
   const { datataffList } = useQuery<Staff[]>({
-    queryKey"/api/staff"],
+    queryKey: "/api/staff"],
   });
 
   const resultsearchResult[] = [];
