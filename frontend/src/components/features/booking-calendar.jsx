@@ -4,24 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday } from "date-fns";
-import "@/schema";
 import { cn } from "@/lib/utils";
 
-interface BookingCalendarProps {
-  bookingsventBooking[];
-  onSelectBooking?: (bookingventBooking) => void;
-}
-
-const statusColorsecord<string, string> = {
+const statusColors = {
   pending: "bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/30",
   confirmed: "bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30",
   completed: "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30",
   cancelled: "bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/30",
 };
 
-export function BookingCalendar({ bookings, onSelectBooking }ookingCalendarProps) {
+export function BookingCalendar({ bookings, onSelectBooking }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const days = useMemo(() => {
     const start = startOfMonth(currentMonth);
@@ -34,13 +28,13 @@ export function BookingCalendar({ bookings, onSelectBooking }ookingCalendarProps
   }, [currentMonth]);
 
   const bookingsByDate = useMemo(() => {
-    const map = new Map<string, EventBooking[]>();
+    const map = new Map();
     bookings.forEach((booking) => {
       const dateKey = booking.eventDate.split("T")[0];
       if (!map.has(dateKey)) {
         map.set(dateKey, []);
       }
-      map.get(dateKey)?.push(booking);
+      map.get(dateKey).push(booking);
     });
     return map;
   }, [bookings]);
@@ -94,7 +88,7 @@ export function BookingCalendar({ bookings, onSelectBooking }ookingCalendarProps
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1">
-          {Array.from({ lengthirstDayOfWeek }).map((_, i) => (
+          {Array.from({ length: firstDayOfWeek }).map((_, i) => (
             <div key={`empty-${i}`} className="aspect-square" />
           ))}
           {days.map((day) => {
