@@ -2,14 +2,17 @@ import mongoose, { Schema, model } from "mongoose";
 
 // Helper to ensure MongoDB connection
 export async function connectToDatabase() {
-  const uri = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority";
+  const uri = process.env.MONGODB_URI;
   if (!uri) {
+    console.error("❌ MONGODB_URI not found in environment variables. Please check your secrets/env vars.");
     throw new Error("MONGODB_URI not found in environment variables");
   }
 
   try {
     // Connect without forced dbName to allow URI-specified database
-    await mongoose.connect(uri);
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    });
     const dbName = mongoose.connection.db?.databaseName || "unknown";
     console.log(`✅ Connected to MongoDB (Database: ${dbName})`);
     
