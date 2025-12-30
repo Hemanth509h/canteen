@@ -1,11 +1,18 @@
-// Use Vercel backend URL
-export const API_URL = "https://canteen-bt65.vercel.app/api";
+// Use relative path by default, but allow override
+export const API_URL = "/api";
 
 export async function apiRequest(method, url, data) {
-  const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
-  const fullUrl = `${API_URL}${normalizedUrl}`;
+  // Normalize the URL: remove any leading slash from the input url
+  const cleanUrl = url.startsWith("/") ? url.slice(1) : url;
   
-  const res = await fetch(fullUrl, {
+  // If the cleanUrl already starts with 'api/', don't double it
+  const finalPath = cleanUrl.startsWith("api/") 
+    ? `/${cleanUrl}` 
+    : `/api/${cleanUrl}`;
+    
+  console.log(`[API] Requesting: ${finalPath}`);
+
+  const res = await fetch(finalPath, {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
@@ -26,10 +33,16 @@ export const getQueryFn =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const path = queryKey.join("/");
-    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-    const fullUrl = `${API_URL}${normalizedPath}`;
+    const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+    
+    // Ensure the path starts with /api
+    const finalPath = cleanPath.startsWith("api/")
+      ? `/${cleanPath}`
+      : `/api/${cleanPath}`;
+
+    console.log(`[QUERY] Fetching: ${finalPath}`);
       
-    const res = await fetch(fullUrl, {
+    const res = await fetch(finalPath, {
       credentials: "include",
     });
 

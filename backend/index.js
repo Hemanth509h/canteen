@@ -14,15 +14,11 @@ function log(message, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-// Enable CORS for frontend communication - consolidated for reliability
+// Enable CORS for frontend communication - wide open for troubleshooting
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
