@@ -8,48 +8,40 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
-  Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter
+  Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
-const Testimonials = ({ reviews }) => (
-  <section className="py-24 px-6 bg-secondary/5">
-    <div className="max-w-7xl mx-auto text-center">
-      <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-16">What Our Clients Say</h2>
-      <div className="grid md:grid-cols-3 gap-8">
-        {(reviews || [
-          { customerName: "Sarah J.", eventType: "Wedding", comment: "The food was absolutely divine! Every guest was impressed by the presentation and flavor." },
-          { customerName: "Michael R.", eventType: "Corporate", comment: "Professional service and exceptional quality. They made our event truly special." },
-          { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering experience we've ever had. Highly recommend their organic menu!" }
-        ]).slice(0, 3).map((review, idx) => (
-          <Card key={idx} className="p-8 bg-card border-none shadow-xl rounded-[2rem] hover:-translate-y-2 transition-transform">
-            <Quote className="text-primary/20 mb-6" size={40} />
-            <p className="text-lg italic mb-6">"{review.comment}"</p>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
-            </div>
-            <h4 className="font-bold">{review.customerName}</h4>
-            <span className="text-sm text-muted-foreground">{review.eventType}</span>
-          </Card>
-        ))}
-      </div>
-    </div>
-  </section>
+const WhatsAppButton = ({ phone }) => (
+  <a 
+    href={`https://wa.me/${phone?.replace(/\D/g, '') || '1234567890'}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="fixed bottom-6 left-6 z-[90] bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center group"
+  >
+    <MessageCircle size={32} />
+    <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-3 transition-all duration-500 whitespace-nowrap font-bold">
+      Chat with us
+    </span>
+  </a>
 );
 
 const Footer = ({ companyInfo }) => (
-  <footer className="bg-card pt-24 pb-12 px-6 border-t border-border/30">
-    <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16 text-left">
+  <footer className="bg-card pt-24 pb-12 px-6 border-t border-border/30 relative overflow-hidden">
+    <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+       <Leaf size={300} className="absolute -bottom-20 -left-20 rotate-45" />
+    </div>
+    <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16 text-left relative z-10">
       <div className="col-span-2">
         <div className="flex items-center gap-3 mb-6">
           <Sprout className="text-primary" size={32} />
           <h3 className="text-2xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
         </div>
-        <p className="text-muted-foreground max-w-sm mb-8 leading-relaxed">
-          {companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}
+        <p className="text-muted-foreground max-w-sm mb-8 leading-relaxed italic">
+          "{companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}"
         </p>
         <div className="flex gap-4">
           <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
@@ -64,24 +56,24 @@ const Footer = ({ companyInfo }) => (
         </div>
       </div>
       <div>
-        <h4 className="font-bold mb-6">Quick Links</h4>
+        <h4 className="font-bold mb-6 tracking-widest uppercase text-xs">Quick Links</h4>
         <ul className="space-y-4 text-muted-foreground">
-          <li><button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors">Home</button></li>
-          <li><button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Our Menu</button></li>
-          <li><button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Contact Us</button></li>
-          <li><a href="/admin/login" className="hover:text-primary transition-colors">Admin Portal</a></li>
+          <li><button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors flex items-center gap-2"><ChevronRight size={14} /> Home</button></li>
+          <li><button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors flex items-center gap-2"><ChevronRight size={14} /> Our Menu</button></li>
+          <li><button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors flex items-center gap-2"><ChevronRight size={14} /> Contact Us</button></li>
+          <li><a href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={14} /> Admin Portal</a></li>
         </ul>
       </div>
       <div>
-        <h4 className="font-bold mb-6">Contact</h4>
+        <h4 className="font-bold mb-6 tracking-widest uppercase text-xs">Contact</h4>
         <ul className="space-y-4 text-muted-foreground">
-          <li className="flex items-center gap-3"><MapPin size={18} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</li>
-          <li className="flex items-center gap-3"><Clock size={18} className="text-primary" /> Mon - Sun: 9AM - 10PM</li>
+          <li className="flex items-start gap-3"><MapPin size={18} className="text-primary shrink-0" /> {companyInfo?.address || "123 Culinary St, Food City"}</li>
+          <li className="flex items-center gap-3"><Clock size={18} className="text-primary shrink-0" /> Mon - Sun: 9AM - 10PM</li>
         </ul>
       </div>
     </div>
-    <div className="max-w-7xl mx-auto pt-8 border-t border-border/10 text-center text-sm text-muted-foreground">
-      © 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.
+    <div className="max-w-7xl mx-auto pt-8 border-t border-border/10 text-center text-sm text-muted-foreground relative z-10">
+      <p>© 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.</p>
     </div>
   </footer>
 );
@@ -353,8 +345,14 @@ export default function CustomerHome() {
                     placeholder="Find your flavor..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    list="food-suggestions"
                     className="pl-12 sm:pl-14 rounded-2xl sm:rounded-3xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg"
                   />
+                  <datalist id="food-suggestions">
+                    {foodItems?.map((item, idx) => (
+                      <option key={idx} value={item.name} />
+                    ))}
+                  </datalist>
                 </div>
               </div>
             </div>
@@ -479,6 +477,7 @@ export default function CustomerHome() {
         </div>
       )}
 
+      <WhatsAppButton phone={companyInfo?.phone} />
       <Footer companyInfo={companyInfo} />
     </div>
   );
