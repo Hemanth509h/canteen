@@ -3,15 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Smartphone, Copy, Check, QrCode, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface UPIPaymentProps {
-  upiIdtring;
-  totalAmountumber;
-  bookingIdtring;
-  clientNametring;
-  paymentType?: "advance" | "final";
-}
-
-export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentType = "advance" }PIPaymentProps) {
+export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentType = "advance" }) {
   const [copied, setCopied] = useState(false);
   const [amountCopied, setAmountCopied] = useState(false);
   const [qrCode, setQrCode] = useState<string>("");

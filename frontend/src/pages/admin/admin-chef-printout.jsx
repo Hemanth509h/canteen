@@ -43,10 +43,10 @@ export default function ChefPrintout() {
         combinedItems[item.foodItemId].totalGuests += booking.guestCount;
       } else {
         combinedItems[item.foodItemId] = {
-          nameoodItem.name,
-          categoryoodItem.category,
-          totalQuantitytem.quantity,
-          totalGuestsooking.guestCount
+          name: foodItem.name,
+          category: foodItem.category,
+          totalQuantity: item.quantity,
+          totalGuests: booking.guestCount
         };
       }
     });
@@ -57,7 +57,7 @@ export default function ChefPrintout() {
     ...data
   }));
 
-  const groupedByCategoryecord<string, typeof combinedItemsArray> = {};
+  const groupedByCategory = {} = {};
   combinedItemsArray.forEach(item => {
     if (!groupedByCategory[item.category]) {
       groupedByCategory[item.category] = [];

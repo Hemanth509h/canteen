@@ -27,17 +27,12 @@ import { TableSkeleton } from "@/components/features/loading-spinner";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { EmptyState } from "@/components/features/empty-state";
 
-const statusColorsecord<string, "default" | "secondary" | "destructive"> = {
+const statusColors = {
   pending: "secondary",
   confirmed: "default",
   completed: "default",
   cancelled: "destructive",
 };
-
-interface SelectedItem {
-  foodItemIdtring;
-  quantityumber;
-}
 
 export default function EventBookingsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -60,20 +55,20 @@ export default function EventBookingsManager() {
   
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
-  const { dataookings, isLoading, isFetching, refetch } = useQuery<EventBooking[]>({
-    queryKey"/api/bookings"],
+  const { data: bookings, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["/api/bookings"],
   });
 
-  const { dataoodItems } = useQuery<FoodItem[]>({
-    queryKey"/api/food-items"],
+  const { data: foodItems } = useQuery({
+    queryKey: ["/api/food-items"],
   });
 
   const { data: companyInfo } = useQuery({
-    queryKey"/api/company-info"],
+    queryKey: ["/api/company-info"],
   });
 
-  const { datataffList } = useQuery<Staff[]>({
-    queryKey"/api/staff"],
+  const { data: staffList } = useQuery({
+    queryKey: ["/api/staff"],
   });
 
   const filteredBookings = bookings?.filter((booking) => {
@@ -405,7 +400,7 @@ export default function EventBookingsManager() {
           </Button>
           <div className="flex items-center border rounded-md">
             <Button
-              variant={viewType === "list" ? "secondary" : "ghost"}
+              variant={viewType === "list" ?const statusColors = {: "ghost"}
               size="sm"
               onClick={() => setViewType("list")}
               className="rounded-r-none"
@@ -414,7 +409,7 @@ export default function EventBookingsManager() {
               <List className="w-4 h-4" />
             </Button>
             <Button
-              variant={viewType === "calendar" ? "secondary" : "ghost"}
+              variant={viewType === "calendar" ?const statusColors = {: "ghost"}
               size="sm"
               onClick={() => setViewType("calendar")}
               className="rounded-l-none"

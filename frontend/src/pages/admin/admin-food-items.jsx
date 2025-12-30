@@ -133,7 +133,7 @@ export default function FoodItemsManager() {
       setEditingItem(null);
       form.reset();
     },
-    onError: (errorny) => {
+    onError: (error: any) => {
       toast({ 
         title: "Update Failed", 
         descriptionrror?.message || "Unable to update food item. Please try again.",
@@ -154,7 +154,7 @@ export default function FoodItemsManager() {
       });
       setDeleteTargetId(null);
     },
-    onError: (errorny) => {
+    onError: (error: any) => {
       toast({ 
         title: "Delete Failed", 
         descriptionrror?.message || "Unable to remove this food item.",

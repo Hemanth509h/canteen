@@ -20,13 +20,13 @@ import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { EmptyState } from "@/components/features/empty-state";
 import { PageLoader, TableSkeleton } from "@/components/features/loading-spinner";
 
-const roleMapecord<string, string> = {
+const roleMap = {
   "chef": "Chef",
   "worker": "Worker",
   "serving_boy": "Serving Boy"
 };
 
-const roleColorsecord<string, "default" | "secondary" | "destructive"> = {
+const roleColors = {
   chef: "default",
   worker: "secondary",
   serving_boy: "secondary",
@@ -45,8 +45,8 @@ export default function StaffManager() {
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
-  const { datataffList, isLoading, isFetching, refetch } = useQuery<Staff[]>({
-    queryKey"/api/staff"],
+  const { data: staffList, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["/api/staff"],
   });
 
   const filteredStaffList = staffList?.filter((staff) => {

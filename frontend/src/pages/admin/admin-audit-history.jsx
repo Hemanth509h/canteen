@@ -12,16 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
 
-interface AuditHistoryEntry {
-  idtring;
-  actiontring;
-  entityType: "booking" | "staff" | "payment" | "assignment";
-  entityIdtring;
-  detailsecord<string, unknown>;
-  createdAttring;
-}
-
-const actionColorMapecord<string, { bgtring; texttring }> = {
+const actionColorMap = {
   booking_created: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-300" },
   booking_updated: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-300" },
   staff_created: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-300" },
@@ -31,7 +22,7 @@ const actionColorMapecord<string, { bgtring; texttring }> = {
   assignment_deleted: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-300" },
 };
 
-const actionIconsecord<string, any> = {
+const actionIcons = {
   booking_createdPlus className="w-4 h-4" />,
   booking_updatedClock className="w-4 h-4" />,
   staff_createdPlus className="w-4 h-4" />,
@@ -69,7 +60,7 @@ export default function AuditHistory() {
       });
       setDeleteTargetId(null);
     },
-    onError: (errorny) => {
+    onError: (error: any) => {
       toast({
         title: "Failed to Delete",
         descriptionrror?.message || "Unable to delete audit history entry",

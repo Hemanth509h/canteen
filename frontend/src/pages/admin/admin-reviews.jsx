@@ -23,7 +23,7 @@ import { PageLoader, TableSkeleton } from "@/components/features/loading-spinner
 
 const eventTypes = ["Wedding", "Corporate Event", "Birthday Party", "Anniversary", "Engagement", "Conference", "Other"];
 
-const getRatingColor = (ratingumber) => {
+const getRatingColor = (rating) => {
   if (rating >= 4) return "default";
   if (rating >= 3) return "secondary";
   return "destructive";
@@ -75,7 +75,7 @@ export default function ReviewsManager() {
       setIsDialogOpen(false);
       form.reset();
     },
-    onError: (errorny) => {
+    onError: (error: any) => {
       toast({ 
         title: "Failed to Add Review", 
         descriptionrror?.message || "Please check that all required fields are filled correctly.",
@@ -98,7 +98,7 @@ export default function ReviewsManager() {
       setEditingReview(null);
       form.reset();
     },
-    onError: (errorny) => {
+    onError: (error: any) => {
       toast({ 
         title: "Update Failed", 
         descriptionrror?.message || "Unable to update review. Please try again.",
@@ -119,7 +119,7 @@ export default function ReviewsManager() {
       });
       setDeleteTargetId(null);
     },
-    onError: (errorny) => {
+    onError: (error: any) => {
       toast({ 
         title: "Delete Failed", 
         descriptionrror?.message || "Unable to remove this review.",

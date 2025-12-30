@@ -15,23 +15,23 @@ export default function CompanySettingsManager() {
   const { toast } = useToast();
 
   const { data: companyInfo, isLoading, isFetching, refetch } = useQuery({
-    queryKey"/api/company-info"],
+    queryKey: ["/api/company-info"],
   });
 
   const form = useForm({
-    valuesompanyInfo ? {
-      companyNameompanyInfo.companyName,
-      taglineompanyInfo.tagline,
-      descriptionompanyInfo.description,
-      emailompanyInfo.email,
-      phoneompanyInfo.phone,
-      addressompanyInfo.address,
-      eventsPerYearompanyInfo.eventsPerYear,
-      yearsExperienceompanyInfo.yearsExperience || 15,
-      websiteUrlompanyInfo.websiteUrl || "",
-      upiIdompanyInfo.upiId || "",
-      minAdvanceBookingDaysompanyInfo.minAdvanceBookingDays || 2,
-    } ndefined,
+    defaultValues: companyInfo ? {
+      companyName: companyInfo.companyName,
+      tagline: companyInfo.tagline,
+      description: companyInfo.description,
+      email: companyInfo.email,
+      phone: companyInfo.phone,
+      address: companyInfo.address,
+      eventsPerYear: companyInfo.eventsPerYear,
+      yearsExperience: companyInfo.yearsExperience || 15,
+      websiteUrl: companyInfo.websiteUrl || "",
+      upiId: companyInfo.upiId || "",
+      minAdvanceBookingDays: companyInfo.minAdvanceBookingDays || 2,
+    } : undefined,
   });
 
   const updateMutation = useMutation({
