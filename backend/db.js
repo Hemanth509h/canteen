@@ -3,37 +3,38 @@ import mongoose, { Schema, model } from "mongoose";
 // Helper to ensure MongoDB connection
 export async function connectToDatabase() {
   // Direct Atlas URI with specific configuration for Vercel
-  const uri = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority";
+  // Using the standard SRV connection string which is required for modern Atlas clusters
+  const uri = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority&appName=data";
   
-  console.log("Connecting to MongoDB...");
+  console.log("Connecting to MongoDB Atlas...");
   
   try {
-    // Force specific options that often help with Atlas in serverless environments
+    // In serverless environments, we should check if we're already connected
+    if (mongoose.connection.readyState === 1) {
+      console.log("Using existing MongoDB connection");
+      return true;
+    }
+
     const options = {
-      serverSelectionTimeoutMS: 15000, 
-      connectTimeoutMS: 15000,
-      family: 4, // Force IPv4
-      maxPoolSize: 1, // Minimize connections in serverless
+      serverSelectionTimeoutMS: 20000, // Increased to 20s for slow cold starts
+      connectTimeoutMS: 20000,
+      family: 4, // Force IPv4 to avoid DNS resolution issues in serverless
+      maxPoolSize: 1, 
       minPoolSize: 0,
-      heartbeatFrequencyMS: 10000,
-      socketTimeoutMS: 45000,
+      socketTimeoutMS: 60000,
+      // Removed direct retryWrites/w parameters to let URI handle them
     };
 
     await mongoose.connect(uri, options);
-    const dbName = mongoose.connection.db?.databaseName || "unknown";
-    console.log(`✅ Connected to MongoDB (Database: ${dbName})`);
-    
-    const collections = mongoose.connection.db 
-      ? await mongoose.connection.db.listCollections().toArray()
-      : [];
-    console.log("📂 Available collections:", collections.map(c => c.name).join(", "));
+    const dbName = mongoose.connection.db?.databaseName || "canteen";
+    console.log(`✅ Connected to MongoDB Atlas (Database: ${dbName})`);
     
     return true;
   } catch (error) {
-    console.error("❌ MongoDB connection error:", error);
-    // Provide a more descriptive error for Vercel logs
+    console.error("❌ MongoDB connection error details:", error);
+    
     if (error.name === 'MongooseServerSelectionError') {
-      console.error("CRITICAL: IP Whitelisting required. Add 0.0.0.0/0 to MongoDB Atlas Access List.");
+      console.error("CRITICAL: Connection refused. Verify: 1. Network Access (0.0.0.0/0), 2. DB User Credentials, 3. Connection String Format.");
     }
     throw error;
   }
