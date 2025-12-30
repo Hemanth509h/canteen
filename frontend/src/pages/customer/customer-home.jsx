@@ -165,18 +165,18 @@ export default function CustomerHome() {
             <span className="text-sm font-medium tracking-wider uppercase">Nature's Finest Catering</span>
           </div>
           
-          <h2 className="text-5xl sm:text-7xl md:text-8xl font-poppins font-bold mb-8 leading-[1.1] tracking-tight slide-up">
+          <h2 className="text-3xl sm:text-7xl md:text-8xl font-poppins font-bold mb-4 sm:mb-8 leading-[1.1] tracking-tight slide-up">
             {companyInfo?.companyName || "Elite Catering"}
           </h2>
           
-          <p className="text-lg sm:text-xl md:text-2xl max-w-2xl mb-12 font-inter font-light opacity-90 slide-up">
+          <p className="text-base sm:text-xl md:text-2xl max-w-2xl mb-8 sm:mb-12 font-inter font-light opacity-90 slide-up">
             {companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto slide-up">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto slide-up">
             <Button 
               size="lg" 
-              className="group rounded-2xl px-12 py-8 text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary hover:scale-105"
+              className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary hover:scale-105"
               onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
             >
               Explore Menu
@@ -185,7 +185,7 @@ export default function CustomerHome() {
             <Button 
               size="lg" 
               variant="outline"
-              className="rounded-2xl px-12 py-8 text-xl text-white border-white/40 hover:bg-white hover:text-black transition-all duration-500 font-bold backdrop-blur-md"
+              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl text-white border-white/40 hover:bg-white hover:text-black transition-all duration-500 font-bold backdrop-blur-md"
             >
               Custom Quote
             </Button>
