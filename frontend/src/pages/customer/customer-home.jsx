@@ -83,7 +83,7 @@ export default function CustomerHome() {
   return (
     <div className="font-inter">
       {/* Hero Section */}
-      <div className="relative h-[500px] sm:h-[600px] md:h-[700px] overflow-hidden">
+      <div className="relative h-[350px] sm:h-[450px] md:h-[550px] overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{ backgroundImage: `url(${heroImage})` }}
@@ -119,20 +119,20 @@ export default function CustomerHome() {
       </div>
 
       {/* Modern Value Prop Section */}
-      <section className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+      <section className="py-12 sm:py-16 md:py-20 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center mb-16">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center mb-12">
             <div>
-              <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-poppins font-bold mb-4 sm:mb-6 leading-tight tracking-tight">
                 Our Philosophy
               </h2>
-              <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-8 sm:mb-10 leading-relaxed">
+              <h3 className="text-xl md:text-2xl font-inter font-300 text-primary mb-4 sm:mb-6 leading-relaxed">
                 Crafting Unforgettable Culinary Memories
               </h3>
-              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 leading-relaxed font-inter">
+              <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 leading-relaxed font-inter">
                 {companyInfo?.description || "We believe that food is the heart of every event. Our team of expert chefs uses only the freshest, locally sourced ingredients to create dishes that are as beautiful as they are delicious."}
               </p>
-              <div className="flex gap-12 sm:gap-16 mb-8">
+              <div className="flex gap-8 sm:gap-12 mb-6">
                 <div className="text-center">
                   <div className="text-4xl sm:text-5xl font-bold text-primary mb-3">
                     {(companyInfo)?.yearsExperience || 15}+
@@ -164,20 +164,20 @@ export default function CustomerHome() {
       </section>
 
       {/* Signature Dishes Showcase */}
-      <section id="menu" className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12">
+      <section id="menu" className="py-12 sm:py-16 md:py-20 px-6 sm:px-8 md:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl md:text-4xl font-poppins font-bold mb-4 sm:mb-6 leading-tight tracking-tight">
               Curated Gastronomy
             </h2>
-            <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-6 sm:mb-8 leading-relaxed">
+            <h3 className="text-xl md:text-2xl font-inter font-300 text-primary mb-4 sm:mb-6 leading-relaxed">
               A Symphony of Flavors
             </h3>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 sm:mb-12 font-inter leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 font-inter leading-relaxed">
               Experience our hand-crafted selection of signature dishes, each telling a story of tradition and innovation.
             </p>
 
-            <div className="flex justify-center mb-8 sm:mb-10">
+            <div className="flex justify-center mb-6 sm:mb-8">
               <div className="relative w-full max-w-md">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input 
@@ -190,7 +190,7 @@ export default function CustomerHome() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 sm:gap-4 justify-center mb-8 sm:mb-10">
+            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-6 sm:mb-8">
               {categories.map((cat) => (
                 <Button 
                   key={cat} 
@@ -210,7 +210,7 @@ export default function CustomerHome() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 min-h-[400px]">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-h-[400px]">
             {isLoadingFood ? (
               Array(6).fill(0).map((_, i) => (
                 <div key={i} className="space-y-4">
@@ -315,16 +315,16 @@ export default function CustomerHome() {
       </section>
 
       {/* Customer Testimonials Section */}
-      <section className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+      <section className="py-12 sm:py-16 md:py-20 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl md:text-4xl font-poppins font-bold mb-4 sm:mb-6 leading-tight tracking-tight">
               Cherished Memories
             </h2>
-            <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-6 sm:mb-8 leading-relaxed">
+            <h3 className="text-xl md:text-2xl font-inter font-300 text-primary mb-4 sm:mb-6 leading-relaxed">
               What Our Clients Say
             </h3>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto font-inter leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto font-inter leading-relaxed">
               Real stories from those who trusted us with their most important moments
             </p>
           </div>
@@ -333,16 +333,16 @@ export default function CustomerHome() {
       </section>
 
       {/* Share Your Review Section */}
-      <section className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12">
+      <section className="py-12 sm:py-16 md:py-20 px-6 sm:px-8 md:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl md:text-4xl font-poppins font-bold mb-4 sm:mb-6 leading-tight tracking-tight">
               Your Feedback Matters
             </h2>
-            <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-6 sm:mb-8 leading-relaxed">
+            <h3 className="text-xl md:text-2xl font-inter font-300 text-primary mb-4 sm:mb-6 leading-relaxed">
               Tell Us Your Story
             </h3>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto font-inter leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto font-inter leading-relaxed">
               We'd love to hear about your experience with Elite Catering & Events
             </p>
           </div>
@@ -353,13 +353,13 @@ export default function CustomerHome() {
       </section>
 
       {/* Premium CTA Section */}
-      <section id="contact-section" className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-primary/5 to-primary/10">
+      <section id="contact-section" className="py-12 sm:py-16 md:py-20 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-12 md:p-16 text-center shadow-lg">
-            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 md:p-12 text-center shadow-lg">
+            <h2 className="text-3xl md:text-4xl font-poppins font-bold mb-4 sm:mb-6 leading-tight tracking-tight">
               Begin Your Culinary Journey
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground mb-10 sm:mb-12 max-w-2xl mx-auto font-inter leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto font-inter leading-relaxed">
               We are ready to design an experience that perfectly matches your vision. Our consultants are standing by to assist you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
