@@ -117,7 +117,10 @@ export default function CustomerHome() {
 
   const filteredItems = useMemo(() => {
     return foodItems?.filter((item) => {
-      const matchesType = !selectedType || item.type === selectedType;
+      // If we're searching, search across both types
+      const isSearching = searchQuery !== "";
+      const matchesType = isSearching ? true : (!selectedType || item.type === selectedType);
+      
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
       const matchesSearch = searchQuery === "" || 
                            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
