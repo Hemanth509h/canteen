@@ -6,11 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { 
-  ChefHat, Award, Users, Clock, Utensils, Search, Lock
+  ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const heroImage = "/images/nature-hero.png";
 
@@ -84,6 +85,9 @@ export default function CustomerHome() {
     <div className="font-inter">
       {/* Hero Section */}
       <div className="relative h-[350px] sm:h-[450px] md:h-[550px] overflow-hidden">
+        <div className="absolute top-4 right-4 z-50">
+          <ThemeToggle />
+        </div>
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{ backgroundImage: `url(${heroImage})` }}
