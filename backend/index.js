@@ -80,26 +80,37 @@ const dbMiddleware = async (req, res, next) => {
   }
 };
 
-// In serverless, we need to ensure routes are registered
-const { registerRoutes } = await import("./routes.js");
-await registerRoutes(app);
+// Handle initialization for serverless
+let routesRegistered = false;
+const initServerless = async (req, res, next) => {
+  if (!routesRegistered) {
+    const { registerRoutes } = await import("./routes.js");
+    await registerRoutes(app);
+    routesRegistered = true;
+  }
+  next();
+};
 
-// Use DB middleware for all /api routes in serverless
 if (process.env.VERCEL) {
+  app.use(initServerless);
   app.use("/api", dbMiddleware);
 }
 
 // ONLY listen if not running in a serverless environment
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   const port = 3000;
-  const { connectToDatabase } = await import("./db.js");
-  await connectToDatabase();
-  app.listen({
-    port,
-    host: "0.0.0.0",
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  (async () => {
+    const { connectToDatabase } = await import("./db.js");
+    await connectToDatabase();
+    const { registerRoutes } = await import("./routes.js");
+    await registerRoutes(app);
+    app.listen({
+      port,
+      host: "0.0.0.0",
+    }, () => {
+      log(`serving on port ${port}`);
+    });
+  })();
 }
 
 export default app;
