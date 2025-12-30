@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
   Leaf, Sprout, Wind, ChevronRight
@@ -53,6 +54,7 @@ const BackgroundLeaf = ({ className }) => (
 );
 
 export default function CustomerHome() {
+  const [selectedType, setSelectedType] = useState("Veg");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -106,19 +108,23 @@ export default function CustomerHome() {
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
-    const uniqueCategories = Array.from(new Set(foodItems.map(item => item.category))).sort();
+    const filteredByItems = foodItems.filter(item => 
+      !selectedType || item.type === selectedType
+    );
+    const uniqueCategories = Array.from(new Set(filteredByItems.map(item => item.category))).sort();
     return ["All", ...uniqueCategories];
-  }, [foodItems]);
+  }, [foodItems, selectedType]);
 
   const filteredItems = useMemo(() => {
     return foodItems?.filter((item) => {
+      const matchesType = !selectedType || item.type === selectedType;
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
       const matchesSearch = searchQuery === "" || 
                            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            item.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      return matchesType && matchesCategory && matchesSearch;
     }) || [];
-  }, [foodItems, selectedCategory, searchQuery]);
+  }, [foodItems, selectedType, selectedCategory, searchQuery]);
 
   const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop";
 
@@ -244,14 +250,30 @@ export default function CustomerHome() {
             <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-6 sm:mb-8 rounded-full" />
             
             <div className="flex justify-center mb-8 sm:mb-12">
-              <div className="relative w-full max-w-xl group">
-                <Search className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                <Input 
-                  placeholder="Find your flavor..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 sm:pl-14 rounded-2xl sm:rounded-3xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg"
-                />
+              <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
+                <div className="w-full sm:w-1/3">
+                  <Select value={selectedType} onValueChange={(val) => {
+                    setSelectedType(val);
+                    setSelectedCategory("All");
+                  }}>
+                    <SelectTrigger className="rounded-2xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg">
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Veg">Veg</SelectItem>
+                      <SelectItem value="Non-Veg">Non-Veg</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="relative flex-1 group">
+                  <Search className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                  <Input 
+                    placeholder="Find your flavor..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-12 sm:pl-14 rounded-2xl sm:rounded-3xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg"
+                  />
+                </div>
               </div>
             </div>
 
