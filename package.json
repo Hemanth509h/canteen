@@ -17,6 +17,7 @@
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "cross-env": "^10.1.0",
+    "framer-motion": "^12.23.26",
     "mongoose": "^9.0.2",
     "tsx": "^4.21.0"
   }
