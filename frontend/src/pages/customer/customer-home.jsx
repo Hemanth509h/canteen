@@ -175,12 +175,8 @@ export default function CustomerHome() {
       if (validImages.length > 0) return validImages;
     }
     
-    // Fallback to defaults if no valid custom images are found
-    return [
-      "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1587339144367-f1cac9c17e48?q=80&w=2070&auto=format&fit=crop"
-    ];
+    // Fallback to empty if no valid custom images are found
+    return [];
   }, [companyInfo?.heroImages]);
 
   // Hero Slider Effect

@@ -15,12 +15,7 @@ export default function HeroImagesManager() {
     queryKey: ["/api/company-info"],
   });
 
-  const heroImages = companyInfo?.heroImages || [
-    "/images/luxury_indian_wedding_buffet_setup.png",
-    "/images/gourmet_indian_food_platter_biryani_thali.png",
-    "/images/indian_event_catering_dessert_station.png",
-    "/images/elegant_indian_dining_table_arrangement.png"
-  ];
+  const heroImages = companyInfo?.heroImages || [];
 
   const updateMutation = useMutation({
     mutationFn: async (newImages) => {
