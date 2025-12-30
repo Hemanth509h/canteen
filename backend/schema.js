@@ -2,21 +2,11 @@ import { z } from "zod";
 
 // ==================== VALIDATION HELPERS ====================
 
-const sanitizeString = (val: string) => val.trim().slice(0, 500);
-const sanitizeName = (val: string) => val.trim().slice(0, 100);
-const sanitizePhone = (val: string) => val.replace(/\D/g, "").slice(0, 15);
+const sanitizeString = (val) => val.trim().slice(0, 500);
+const sanitizeName = (val) => val.trim().slice(0, 100);
+const sanitizePhone = (val) => val.replace(/\D/g, "").slice(0, 15);
 
 // ==================== FOOD ITEMS ====================
-
-export interface FoodItem {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  imageUrl: string | null;
-  dietaryTags?: string[];
-  price?: number;
-}
 
 export const insertFoodItemSchema = z.object({
   name: z.string()
@@ -35,32 +25,7 @@ export const insertFoodItemSchema = z.object({
   price: z.number().int().min(1, "Price must be at least 1").optional(),
 });
 
-export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
-
 // ==================== EVENT BOOKINGS ====================
-
-export interface EventBooking {
-  id: string;
-  clientName: string;
-  eventDate: string;
-  eventType: string;
-  guestCount: number;
-  pricePerPlate: number;
-  servingBoysNeeded: number;
-  status: string;
-  contactEmail: string;
-  contactPhone: string;
-  specialRequests: string | null;
-  advancePaymentStatus: string;
-  finalPaymentStatus: string;
-  advancePaymentApprovalStatus?: "pending" | "approved" | "rejected";
-  finalPaymentApprovalStatus?: "pending" | "approved" | "rejected";
-  advancePaymentScreenshot?: string | null;
-  finalPaymentScreenshot?: string | null;
-  totalAmount?: number;
-  advanceAmount?: number;
-  createdAt: string;
-}
 
 export const insertEventBookingSchema = z.object({
   clientName: z.string()
@@ -93,18 +58,7 @@ export const updateEventBookingSchema = insertEventBookingSchema.partial().exten
   advanceAmount: z.number().int().positive().optional(),
 });
 
-export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;
-export type UpdateEventBooking = z.infer<typeof updateEventBookingSchema>;
-
 // ==================== BOOKING ITEMS ====================
-
-export interface BookingItem {
-  id: string;
-  bookingId: string;
-  foodItemId: string;
-  quantity: number;
-  createdAt: string;
-}
 
 export const insertBookingItemSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
@@ -112,24 +66,7 @@ export const insertBookingItemSchema = z.object({
   quantity: z.number().int().positive("Quantity must be positive").default(1),
 });
 
-export type InsertBookingItem = z.infer<typeof insertBookingItemSchema>;
-
 // ==================== COMPANY INFO ====================
-
-export interface CompanyInfo {
-  id: string;
-  companyName: string;
-  tagline: string;
-  description: string;
-  email: string;
-  phone: string;
-  address: string;
-  eventsPerYear: number;
-  yearsExperience?: number;
-  websiteUrl?: string;
-  upiId?: string;
-  minAdvanceBookingDays?: number;
-}
 
 export const insertCompanyInfoSchema = z.object({
   companyName: z.string().max(100, "Company name too long").optional(),
@@ -145,17 +82,7 @@ export const insertCompanyInfoSchema = z.object({
   minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
 });
 
-export type InsertCompanyInfo = z.infer<typeof insertCompanyInfoSchema>;
-
 // ==================== STAFF ====================
-
-export interface Staff {
-  id: string;
-  name: string;
-  role: string;
-  phone: string;
-  createdAt: string;
-}
 
 export const insertStaffSchema = z.object({
   name: z.string()
@@ -169,19 +96,7 @@ export const insertStaffSchema = z.object({
 
 export const updateStaffSchema = insertStaffSchema.partial();
 
-export type InsertStaff = z.infer<typeof insertStaffSchema>;
-export type UpdateStaff = z.infer<typeof updateStaffSchema>;
-
 // ==================== CUSTOMER REVIEWS ====================
-
-export interface CustomerReview {
-  id: string;
-  customerName: string;
-  eventType: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
 
 export const insertCustomerReviewSchema = z.object({
   customerName: z.string().min(1, "Name is required"),
@@ -192,20 +107,7 @@ export const insertCustomerReviewSchema = z.object({
 
 export const updateCustomerReviewSchema = insertCustomerReviewSchema.partial();
 
-export type InsertCustomerReview = z.infer<typeof insertCustomerReviewSchema>;
-export type UpdateCustomerReview = z.infer<typeof updateCustomerReviewSchema>;
-
 // ==================== ADMIN NOTIFICATIONS ====================
-
-export interface AdminNotification {
-  id: string;
-  type: "booking" | "payment";
-  title: string;
-  message: string;
-  bookingId?: string;
-  read: boolean;
-  createdAt: string;
-}
 
 export const insertAdminNotificationSchema = z.object({
   type: z.enum(["booking", "payment"]),
@@ -215,18 +117,7 @@ export const insertAdminNotificationSchema = z.object({
   read: z.boolean().default(false),
 });
 
-export type InsertAdminNotification = z.infer<typeof insertAdminNotificationSchema>;
-
 // ==================== STAFF BOOKING REQUESTS ====================
-
-export interface StaffBookingRequest {
-  id: string;
-  bookingId: string;
-  staffId: string;
-  status: "pending" | "accepted" | "rejected";
-  token: string;
-  createdAt: string;
-}
 
 export const insertStaffBookingRequestSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
@@ -239,19 +130,7 @@ export const updateStaffBookingRequestSchema = z.object({
   status: z.enum(["pending", "accepted", "rejected"]),
 });
 
-export type InsertStaffBookingRequest = z.infer<typeof insertStaffBookingRequestSchema>;
-export type UpdateStaffBookingRequest = z.infer<typeof updateStaffBookingRequestSchema>;
-
 // ==================== AUDIT HISTORY ====================
-
-export interface AuditHistory {
-  id: string;
-  action: string;
-  entityType: "booking" | "staff" | "payment" | "assignment";
-  entityId: string;
-  details: Record<string, unknown>;
-  createdAt: string;
-}
 
 export const insertAuditHistorySchema = z.object({
   action: z.string().min(1, "Action is required"),
@@ -259,5 +138,3 @@ export const insertAuditHistorySchema = z.object({
   entityId: z.string().min(1, "Entity ID is required"),
   details: z.record(z.unknown()).default({}),
 });
-
-export type InsertAuditHistory = z.infer<typeof insertAuditHistorySchema>;

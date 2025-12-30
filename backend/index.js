@@ -1,10 +1,9 @@
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import cors from "cors";
+import express from "express";
+import { registerRoutes } from "./routes.js";
 
 const app = express();
 
-function log(message: string, source = "express") {
+function log(message, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -13,12 +12,6 @@ function log(message: string, source = "express") {
   });
 
   console.log(`${formattedTime} [${source}] ${message}`);
-}
-
-declare module 'http' {
-  interface IncomingMessage {
-    rawBody: unknown
-  }
 }
 
 // Enable CORS for frontend communication - consolidated for reliability
@@ -48,7 +41,7 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse = undefined;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -76,13 +69,13 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const { connectToDatabase } = await import("./db");
+  const { connectToDatabase } = await import("./db.js");
   await connectToDatabase();
 
   const server = await registerRoutes(app);
 
   // Error handling middleware
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
     res.status(status).json({ message });
@@ -100,5 +93,4 @@ app.use((req, res, next) => {
   }
 })();
 
-// Export the app for serverless environments
 export default app;

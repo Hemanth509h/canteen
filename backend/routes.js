@@ -1,17 +1,28 @@
 import bcrypt from "bcryptjs";
-import type { Express } from "express";
-import { createServer, type Server } from "http";
+import { createServer } from "http";
 import { randomUUID } from "crypto";
-import { getStorage } from "./db";
-import { insertFoodItemSchema, insertEventBookingSchema, updateEventBookingSchema, insertCompanyInfoSchema, insertStaffSchema, updateStaffSchema, insertBookingItemSchema, insertCustomerReviewSchema, updateCustomerReviewSchema, insertStaffBookingRequestSchema, updateStaffBookingRequestSchema } from "./schema";
+import { getStorage } from "./db.js";
+import { 
+  insertFoodItemSchema, 
+  insertEventBookingSchema, 
+  updateEventBookingSchema, 
+  insertCompanyInfoSchema, 
+  insertStaffSchema, 
+  updateStaffSchema, 
+  insertBookingItemSchema, 
+  insertCustomerReviewSchema, 
+  updateCustomerReviewSchema, 
+  insertStaffBookingRequestSchema, 
+  updateStaffBookingRequestSchema 
+} from "./schema.js";
 import { fromZodError } from "zod-validation-error";
-import { verifyPassword, updatePassword } from "./password-manager";
+import { verifyPassword, updatePassword } from "./password-manager.js";
 import { z } from "zod";
 
 // Get storage instance (initialized after connectToDatabase is called)
 const getStorageInstance = () => getStorage();
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app) {
   // Admin Login Route
   app.post("/api/admin/login", async (req, res) => {
     try {
@@ -268,13 +279,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // If it was previously approved/paid, treat the old total as the "paid" part of the new total
           // Effectively, the advance payment now contains everything paid so far, 
           // and the final payment status is reset to 'pending' for the remaining balance.
-          if (oldBooking.finalPaymentStatus === 'paid' || (oldBooking.finalPaymentApprovalStatus as string) === 'approved') {
+          if (oldBooking.finalPaymentStatus === 'paid' || (oldBooking.finalPaymentApprovalStatus) === 'approved') {
             updateData.advanceAmount = oldBooking.totalAmount; // Old total becomes new advance (already paid)
             updateData.advancePaymentStatus = 'paid';
             updateData.advancePaymentApprovalStatus = 'approved';
             
             updateData.finalPaymentStatus = 'pending';
-            updateData.finalPaymentApprovalStatus = 'pending' as any;
+            updateData.finalPaymentApprovalStatus = 'pending';
             updateData.status = 'confirmed'; // Revert to confirmed if it was completed
           } else {
             // Normal behavior for pending bookings
@@ -372,10 +383,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { date } = req.query;
       const allBookings = await getStorageInstance().getBookings();
       
-      let filteredBookings = allBookings.filter((b: any) => b.status === 'confirmed' || b.status === 'pending');
+      let filteredBookings = allBookings.filter((b) => b.status === 'confirmed' || b.status === 'pending');
       
       if (date) {
-        filteredBookings = filteredBookings.filter((b: any) => b.eventDate === date);
+        filteredBookings = filteredBookings.filter((b) => b.eventDate === date);
       }
       
       const bookingsWithItems = [];
@@ -395,7 +406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         bookingsWithItems.push({ ...booking, items: itemsWithFoodDetails });
       }
       
-      const groupedByDate: Record<string, typeof bookingsWithItems> = {};
+      const groupedByDate = {};
       for (const booking of bookingsWithItems) {
         if (!groupedByDate[booking.eventDate]) {
           groupedByDate[booking.eventDate] = [];
@@ -422,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate total events served dynamically from confirmed bookings
       const allBookings = await getStorageInstance().getBookings();
-      const confirmedBookingsCount = allBookings.filter((b: any) => b.status === 'confirmed').length;
+      const confirmedBookingsCount = allBookings.filter((b) => b.status === 'confirmed').length;
       
       // Return company info with dynamic events served count
       res.json({
@@ -643,7 +654,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Staff Booking Requests Routes
-  app.get("/api/bookings/:bookingId/staff-requests", async (req, res) => {
+  app.get("/api/staff-requests/:bookingId", async (req, res) => {
     try {
       const requests = await getStorageInstance().getStaffBookingRequests(req.params.bookingId);
       res.json(requests);
@@ -652,19 +663,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bookings/:bookingId/staff-requests", async (req, res) => {
+  app.post("/api/staff-requests", async (req, res) => {
     try {
-      const { staffId } = req.body;
-      const token = randomUUID();
-      const result = insertStaffBookingRequestSchema.safeParse({
-        bookingId: req.params.bookingId,
-        staffId,
-        status: "pending",
-        token
-      });
+      const result = insertStaffBookingRequestSchema.safeParse(req.body);
       if (!result.success) {
-        return res.status(400).json({ error: fromZodError(result.error).message });
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
       }
+
       const request = await getStorageInstance().createStaffBookingRequest(result.data);
       res.status(201).json(request);
     } catch (error) {
@@ -672,131 +678,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/bookings/:bookingId/assigned-staff", async (req, res) => {
+  app.patch("/api/staff-requests/:id", async (req, res) => {
     try {
-      const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.bookingId);
-      res.json(staff);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch assigned staff" });
-    }
-  });
-
-  app.post("/api/bookings/:id/assign-staff", async (req, res) => {
-    try {
-      const { staffId } = req.body;
-      if (!staffId) {
-        return res.status(400).json({ error: "Staff ID is required" });
-      }
-      const token = randomUUID();
-      const result = insertStaffBookingRequestSchema.safeParse({
-        bookingId: req.params.id,
-        staffId,
-        status: "accepted",
-        token
-      });
+      const result = updateStaffBookingRequestSchema.safeParse(req.body);
       if (!result.success) {
-        return res.status(400).json({ error: fromZodError(result.error).message });
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
       }
-      const request = await getStorageInstance().createStaffBookingRequest(result.data);
-      res.status(201).json(request);
+
+      const request = await getStorageInstance().updateStaffBookingRequest(req.params.id, result.data);
+      if (!request) {
+        return res.status(404).json({ error: "Staff request not found" });
+      }
+      res.json(request);
     } catch (error) {
-      res.status(500).json({ error: "Failed to assign staff" });
+      res.status(500).json({ error: "Failed to update staff request" });
     }
   });
 
-  app.delete("/api/bookings/:id/assigned-staff/:staffId", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteStaffBookingRequest(req.params.id, req.params.staffId);
-      if (!deleted) {
-        return res.status(404).json({ error: "Staff assignment not found" });
-      }
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ error: "Failed to remove staff assignment" });
-    }
-  });
-
-  app.delete("/api/bookings/:bookingId/staff-requests/:staffId", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteStaffBookingRequest(req.params.bookingId, req.params.staffId);
-      if (!deleted) {
-        return res.status(404).json({ error: "Staff assignment not found" });
-      }
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ error: "Failed to remove staff assignment" });
-    }
-  });
-
-  // Staff Assignment Public Routes (by token)
-  app.get("/api/staff-requests/:token", async (req, res) => {
+  app.get("/api/staff-requests/token/:token", async (req, res) => {
     try {
       const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
       if (!request) {
-        return res.status(404).json({ error: "Request not found" });
+        return res.status(404).json({ error: "Invalid token" });
       }
+      
       const booking = await getStorageInstance().getBooking(request.bookingId);
       const staff = await getStorageInstance().getStaffMember(request.staffId);
-      if (!booking || !staff) {
-        return res.status(404).json({ error: "Booking or staff not found" });
-      }
+      
       res.json({ request, booking, staff });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch request details" });
+      res.status(500).json({ error: "Failed to fetch request by token" });
     }
   });
 
-  app.patch("/api/staff-requests/:token", async (req, res) => {
+  app.get("/api/bookings/:id/accepted-staff", async (req, res) => {
     try {
-      console.log("[PATCH] Starting - Token:", req.params.token, "Body:", JSON.stringify(req.body));
-      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
-      console.log("[PATCH] Found request:", JSON.stringify(request));
-      if (!request) {
-        console.log("[PATCH] Request not found for token:", req.params.token);
-        return res.status(404).json({ error: "Request not found" });
-      }
-      const { status } = req.body;
-      console.log("[PATCH] Received status:", status);
-      if (!status || !["pending", "accepted", "rejected"].includes(status)) {
-        console.log("[PATCH] Invalid status:", status);
-        return res.status(400).json({ error: "Invalid status" });
-      }
-      console.log("[PATCH] Updating with ID:", request.id, "Status:", status);
-      const updatedRequest = await getStorageInstance().updateStaffBookingRequest(request.id, { status });
-      console.log("[PATCH] Updated successfully:", JSON.stringify(updatedRequest));
-      if (!updatedRequest) {
-        console.log("[PATCH] Update failed - no result");
-        return res.status(404).json({ error: "Failed to update request" });
-      }
-
-      // Add audit history for staff response
-      await getStorageInstance().createAuditHistory({
-        action: `staff_${status}`,
-        entityType: "assignment",
-        entityId: request.bookingId,
-        details: { staffId: request.staffId, status }
-      });
-
-      console.log("[PATCH] Sending response:", JSON.stringify(updatedRequest));
-      res.json(updatedRequest);
+      const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
+      res.json(staff);
     } catch (error) {
-      console.error("[PATCH] ERROR:", error instanceof Error ? error.message : String(error));
-      console.error("[PATCH] Full error:", error);
-      res.status(500).json({ error: error instanceof Error ? error.message : "Failed to update request" });
-    }
-  });
-
-  // Availability Check Route
-  app.get("/api/available-dates", async (_req, res) => {
-    try {
-      const bookings = await getStorageInstance().getBookings();
-      const bookedDates = bookings
-        .filter(b => b.status === 'confirmed' || b.status === 'pending')
-        .map(b => b.eventDate);
-      
-      res.json({ bookedDates });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch available dates" });
+      res.status(500).json({ error: "Failed to fetch accepted staff" });
     }
   });
 
@@ -804,7 +725,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/audit-history", async (req, res) => {
     try {
       const { entityType, entityId } = req.query;
-      const history = await getStorageInstance().getAuditHistory(entityType as string, entityId as string);
+      const history = await getStorageInstance().getAuditHistory(
+        entityType,
+        entityId
+      );
       res.json(history);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch audit history" });
@@ -813,22 +737,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/audit-history", async (req, res) => {
     try {
-      const history = await getStorageInstance().createAuditHistory(req.body);
-      res.json(history);
+      const { action, entityType, entityId, details } = req.body;
+      const log = await getStorageInstance().createAuditHistory({
+        action,
+        entityType,
+        entityId,
+        details: details || {}
+      });
+      res.status(201).json(log);
     } catch (error) {
       res.status(500).json({ error: "Failed to create audit history" });
-    }
-  });
-
-  app.delete("/api/audit-history/:id", async (req, res) => {
-    try {
-      const result = await getStorageInstance().deleteAuditHistory(req.params.id);
-      if (!result) {
-        return res.status(404).json({ error: "Audit history entry not found" });
-      }
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete audit history" });
     }
   });
 
