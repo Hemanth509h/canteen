@@ -63,8 +63,8 @@ export default function FoodItemsManager() {
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
-  const { dataoodItems, isLoading, isFetching, refetch } = useQuery<FoodItem[]>({
-    queryKey"/api/food-items"],
+  const { data: foodItems, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["/api/food-items"],
   });
 
   const filteredFoodItems = foodItems?.filter((item) => {
@@ -85,7 +85,7 @@ export default function FoodItemsManager() {
 
   const allCategories = foodItems 
     ? Array.from(new Set([...defaultCategories, ...foodItems.map(item => item.category)])).sort()
-    efaultCategories;
+    : defaultCategories;
 
   const form = useForm({
     resolverodResolver(insertFoodItemSchema),

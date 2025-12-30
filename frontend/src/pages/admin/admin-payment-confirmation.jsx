@@ -263,8 +263,7 @@ export default function AdminPaymentConfirmation() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="animate-in fade-in duration-300 lg:col-span-2 space-y-6">
-            
-            
+            <Card>
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
                   Booking Details
@@ -325,6 +324,7 @@ export default function AdminPaymentConfirmation() {
                     <p className="font-medium" data-testid="text-event-type-admin">{booking.eventType}</p>
                   </div>
                 </div>
+              <CardContent className="space-y-6 pt-6">
               </CardContent>
             </Card>
 

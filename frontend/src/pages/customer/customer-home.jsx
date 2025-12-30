@@ -82,9 +82,9 @@ export default function CustomerHome() {
   }, [foodItems, selectedCategory, searchQuery]);
 
   return (
-    
+    <div>
       {/* Hero Section */}
-      
+      <div className="relative h-[500px] sm:h-[600px] md:h-[700px] overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{ backgroundImage: `url(${heroImage})` }}

@@ -11,15 +11,15 @@ import { PageLoader } from "@/components/features/loading-spinner";
 import "@/schema";
 
 export default function DashboardOverview() {
-  const { dataoodItems, isLoadingoadingFood, isFetchingetchingFood, refetchefetchFood } = useQuery<FoodItem[]>({
-    queryKey"/api/food-items"],
+  const { data: foodItems, isLoading: isLoadingFood, isFetching: isFetchingFood, refetch: refetchFood } = useQuery({
+    queryKey: ["/api/food-items"],
   });
 
-  const { dataookings, isLoadingoadingBookings, isFetchingetchingBookings, refetchefetchBookings } = useQuery<EventBooking[]>({
-    queryKey"/api/bookings"],
+  const { data: bookings, isLoading: isLoadingBookings, isFetching: isFetchingBookings, refetch: refetchBookings } = useQuery({
+    queryKey: ["/api/bookings"],
   });
 
-  const isFetching = fetchingFood || fetchingBookings;
+  const isFetching = isFetchingFood || isFetchingBookings;
   const handleRefresh = () => {
     refetchFood();
     refetchBookings();
