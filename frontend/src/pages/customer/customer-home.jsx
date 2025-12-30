@@ -80,16 +80,22 @@ export default function CustomerHome() {
   });
 
   const dynamicHeroImages = useMemo(() => {
-    if (companyInfo?.heroImages && Array.isArray(companyInfo.heroImages) && companyInfo.heroImages.length > 0) {
-      // Filter out any empty strings or invalid entries
-      const validImages = companyInfo.heroImages.filter(img => typeof img === 'string' && img.trim() !== "");
+    if (companyInfo?.heroImages && Array.isArray(companyInfo.heroImages)) {
+      // Filter out invalid URLs, empty strings, and null/undefined values
+      const validImages = companyInfo.heroImages.filter(img => 
+        typeof img === 'string' && 
+        img.trim() !== "" && 
+        (img.startsWith('http') || img.startsWith('/'))
+      );
+      
       if (validImages.length > 0) return validImages;
     }
+    
+    // Fallback to defaults if no valid custom images are found
     return [
-      "/images/luxury_indian_wedding_buffet_setup.png",
-      "/images/gourmet_indian_food_platter_biryani_thali.png",
-      "/images/indian_event_catering_dessert_station.png",
-      "/images/elegant_indian_dining_table_arrangement.png"
+      "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1587339144367-f1cac9c17e48?q=80&w=2070&auto=format&fit=crop"
     ];
   }, [companyInfo?.heroImages]);
 
