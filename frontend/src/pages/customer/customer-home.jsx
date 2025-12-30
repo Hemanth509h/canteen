@@ -15,10 +15,10 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const heroImages = [
+  "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=2000&auto=format&fit=crop", // Biryani
+  "https://images.unsplash.com/photo-1601050690597-df056fb4ce99?q=80&w=2000&auto=format&fit=crop", // Samosa Platter
   "https://images.unsplash.com/photo-1626082869941-a7e46a15e303?q=80&w=2000&auto=format&fit=crop", // Indian Buffet
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2000&auto=format&fit=crop", // Elegant Setup
-  "https://images.unsplash.com/photo-1601050690597-df056fb4ce99?q=80&w=2000&auto=format&fit=crop", // Indian Platter
-  "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2000&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?q=80&w=2000&auto=format&fit=crop"  // Thali
 ];
 
 const features = [
@@ -384,6 +384,12 @@ export default function CustomerHome() {
           </div>
         </div>
       </section>
+      {/* Footer (Embedded Contact Info already acts as footer) */}
+      <footer className="py-12 px-6 border-t border-border/30 text-center">
+        <p className="text-muted-foreground dark:text-gray-400 text-sm font-light">
+          © 2025 {companyInfo?.companyName || "Elite Catering"}. Nature's finest flavors.
+        </p>
+      </footer>
     </div>
   );
 }

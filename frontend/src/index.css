@@ -44,6 +44,14 @@
     background: hsl(var(--primary) / 0.4);
   }
 
+  footer p {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .dark footer p {
+    color: #9ca3af !important; /* gray-400 */
+  }
+
   /* Theme Toggle Visibility */
   .theme-toggle-container {
     background: hsl(var(--background) / 0.5);
