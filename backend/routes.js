@@ -613,6 +613,93 @@ export async function registerRoutes(app) {
     }
   });
 
+  // Staff Booking Requests Routes
+  app.get("/api/bookings/:id/staff-requests", async (req, res) => {
+    try {
+      const requests = await getStorageInstance().getStaffBookingRequests(req.params.id);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staff booking requests" });
+    }
+  });
+
+  app.get("/api/staff-requests/token/:token", async (req, res) => {
+    try {
+      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
+      if (!request) {
+        return res.status(404).json({ error: "Staff request not found" });
+      }
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staff request" });
+    }
+  });
+
+  app.post("/api/staff-requests", async (req, res) => {
+    try {
+      const result = insertStaffBookingRequestSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      // Check if already assigned
+      const existing = await getStorageInstance().getStaffBookingRequests(result.data.bookingId);
+      const alreadyAssigned = existing.find(r => r.staffId === result.data.staffId);
+      if (alreadyAssigned) {
+        return res.json(alreadyAssigned);
+      }
+
+      const request = await getStorageInstance().createStaffBookingRequest({
+        ...result.data,
+        status: "pending",
+        token: randomUUID()
+      });
+      res.status(201).json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create staff booking request" });
+    }
+  });
+
+  app.patch("/api/staff-requests/:id", async (req, res) => {
+    try {
+      const result = updateStaffBookingRequestSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      const request = await getStorageInstance().updateStaffBookingRequest(req.params.id, result.data);
+      if (!request) {
+        return res.status(404).json({ error: "Staff request not found" });
+      }
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update staff request" });
+    }
+  });
+
+  app.delete("/api/staff-requests/booking/:bookingId/staff/:staffId", async (req, res) => {
+    try {
+      const deleted = await getStorageInstance().deleteStaffBookingRequest(req.params.bookingId, req.params.staffId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Staff assignment not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete staff assignment" });
+    }
+  });
+
+  app.get("/api/bookings/:id/accepted-staff", async (req, res) => {
+    try {
+      const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
+      res.json(staff);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch accepted staff" });
+    }
+  });
+
   // Admin Notifications Routes
   app.get("/api/notifications", async (_req, res) => {
     try {
