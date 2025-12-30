@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
 import { TrendingUp, PieChartIcon, BarChart3, Calendar } from "lucide-react";
-import "@/schema";
 import { format, parseISO, startOfMonth, subMonths, isAfter, isBefore, endOfMonth } from "date-fns";
 
 const COLORS = [

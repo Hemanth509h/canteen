@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock
 } from "lucide-react";
-import { EventBooking } from "@/schema";
 import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";

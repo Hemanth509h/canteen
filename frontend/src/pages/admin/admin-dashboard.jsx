@@ -20,7 +20,6 @@ import ReviewsManager from "./admin-reviews";
 import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
-import "@/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [

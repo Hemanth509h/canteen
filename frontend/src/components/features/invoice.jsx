@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Printer } from "lucide-react";
-import { EventBooking, CompanyInfo } from "@/schema";
 
 export function Invoice({ booking, companyInfo, isAdmin = false }) {
   const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);

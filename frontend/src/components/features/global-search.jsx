@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Search, Calendar, User, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { EventBooking, Staff } from "@/schema";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 

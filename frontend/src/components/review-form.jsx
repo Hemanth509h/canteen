@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Star } from "lucide-react";
 import { insertCustomerReviewSchema } from "@/schema";
 import { apiRequest } from "@/lib/queryClient";
-import "@/schema";
 
 export default function ReviewForm() {
   const { toast } = useToast();
