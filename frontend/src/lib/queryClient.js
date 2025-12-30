@@ -1,5 +1,5 @@
 // Base URL for API calls
-export const API_URL = "/api";
+export const API_URL = "https://canteen-bt65.vercel.app/api";
 
 export async function apiRequest(method, url, data) {
   // Normalize the URL: remove any leading slash and any leading 'api/'
@@ -7,7 +7,7 @@ export async function apiRequest(method, url, data) {
   if (cleanPath.startsWith("api/")) {
     cleanPath = cleanPath.slice(4);
   }
-  
+
   const finalUrl = `${API_URL}/${cleanPath}`;
   console.log(`[API] Requesting: ${finalUrl}`);
 
@@ -36,10 +36,10 @@ export const getQueryFn =
     if (cleanPath.startsWith("api/")) {
       cleanPath = cleanPath.slice(4);
     }
-    
+
     const finalUrl = `${API_URL}/${cleanPath}`;
     console.log(`[QUERY] Fetching: ${finalUrl}`);
-      
+
     const res = await fetch(finalUrl, {
       credentials: "include",
     });
