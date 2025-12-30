@@ -1,13 +1,14 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { GlobalSearch } from "@/components/features/global-search";
 import { ErrorBoundary } from "@/components/layout/error-boundary";
 import DashboardOverview from "./admin-dashboard-overview";
+import HeroImagesManager from "./admin-hero-images";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
 import AdminPaymentConfirmation from "./admin-payment-confirmation";
@@ -24,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+  { title: "Hero Images", url: "/admin/hero-images", icon: ImagePlus },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Reviews", url: "/admin/reviews", icon: Star },
@@ -172,6 +174,7 @@ export default function AdminDashboard() {
             <ErrorBoundary>
               <Switch>
                 <Route path="/admin" component={DashboardOverview} />
+                <Route path="/admin/hero-images" component={HeroImagesManager} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/bookings" component={EventBookingsManager} />
                 <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />

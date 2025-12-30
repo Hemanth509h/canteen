@@ -481,6 +481,16 @@ export async function registerRoutes(app) {
     }
   });
 
+  // Additional route specifically for hero images if needed, or just use the generic one above
+  app.patch("/api/company-info", async (req, res) => {
+    try {
+      const info = await getStorageInstance().updateCompanyInfo("settings", req.body);
+      res.json(info);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update company info" });
+    }
+  });
+
   // Staff Routes
   app.get("/api/staff", async (_req, res) => {
     try {
