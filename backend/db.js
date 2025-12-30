@@ -113,7 +113,12 @@ class MongoStorage {
   async deleteFoodItem(id) { return (await FoodItemModel.findByIdAndDelete(id)) !== null; }
 
   async getBookings() { return (await EventBookingModel.find()).map(toJSON); }
-  async getBooking(id) { return toJSON(await EventBookingModel.findById(id)); }
+  async getBooking(id) { 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return toJSON(await EventBookingModel.findOne({ id: id }));
+    }
+    return toJSON(await EventBookingModel.findById(id)); 
+  }
   async createBooking(booking) { return toJSON(await EventBookingModel.create(booking)); }
   async updateBooking(id, booking) { return toJSON(await EventBookingModel.findByIdAndUpdate(id, booking, { new: true })); }
   async deleteBooking(id) { return (await EventBookingModel.findByIdAndDelete(id)) !== null; }
