@@ -681,6 +681,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/bookings/:id/assign-staff", async (req, res) => {
+    try {
+      const { staffId } = req.body;
+      if (!staffId) {
+        return res.status(400).json({ error: "Staff ID is required" });
+      }
+      const token = randomUUID();
+      const result = insertStaffBookingRequestSchema.safeParse({
+        bookingId: req.params.id,
+        staffId,
+        status: "accepted",
+        token
+      });
+      if (!result.success) {
+        return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+      const request = await getStorageInstance().createStaffBookingRequest(result.data);
+      res.status(201).json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to assign staff" });
+    }
+  });
+
+  app.delete("/api/bookings/:id/assigned-staff/:staffId", async (req, res) => {
+    try {
+      const deleted = await getStorageInstance().deleteStaffBookingRequest(req.params.id, req.params.staffId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Staff assignment not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove staff assignment" });
+    }
+  });
+
   app.delete("/api/bookings/:bookingId/staff-requests/:staffId", async (req, res) => {
     try {
       const deleted = await getStorageInstance().deleteStaffBookingRequest(req.params.bookingId, req.params.staffId);
