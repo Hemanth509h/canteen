@@ -7,7 +7,7 @@ async function throwIfResNotOk(res) {
   }
 }
 
-const API_URL = "";
+const API_URL = "https://canteen-bt65.vercel.app";
 
 export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
@@ -30,7 +30,7 @@ export const getQueryFn = ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const path = queryKey.join("/");
     const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-    const fullUrl = `${normalizedPath}`;
+    const fullUrl = `${API_URL}${normalizedPath}`;
     const res = await fetch(fullUrl, {
       credentials: "include",
     });
