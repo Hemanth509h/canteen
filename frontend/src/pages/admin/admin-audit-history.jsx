@@ -23,24 +23,24 @@ const actionColorMap = {
 };
 
 const actionIcons = {
-  booking_createdPlus className="w-4 h-4" />,
-  booking_updatedClock className="w-4 h-4" />,
-  staff_createdPlus className="w-4 h-4" />,
-  staff_updatedClock className="w-4 h-4" />,
-  assignment_createdCheckCircle className="w-4 h-4" />,
-  assignment_updatedCheckCircle className="w-4 h-4" />,
-  assignment_deletedAlertCircle className="w-4 h-4" />,
+  booking_created: <Plus className="w-4 h-4" />,
+  booking_updated: <Clock className="w-4 h-4" />,
+  staff_created: <Plus className="w-4 h-4" />,
+  staff_updated: <Clock className="w-4 h-4" />,
+  assignment_created: <CheckCircle className="w-4 h-4" />,
+  assignment_updated: <CheckCircle className="w-4 h-4" />,
+  assignment_deleted: <AlertCircle className="w-4 h-4" />,
 };
 
 export default function AuditHistory() {
-  const [entityTypeFilter, setEntityTypeFilter] = useState<string>("all");
+  const [entityTypeFilter, setEntityTypeFilter] = useState("all");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
   const { toast } = useToast();
 
-  const { datauditHistory, isLoading, isFetching, refetch } = useQuery<AuditHistoryEntry[]>({
-    queryKey"/api/audit-history", entityTypeFilter],
-    queryFnsync () => {
+  const { data: auditHistory, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["/api/audit-history", entityTypeFilter],
+    queryFn: async () => {
       const params = entityTypeFilter !== "all" ? `?entityType=${entityTypeFilter}` : "";
       const response = await fetch(`/api/audit-history${params}`);
       if (!response.ok) throw new Error("Failed to fetch audit history");
@@ -49,11 +49,11 @@ export default function AuditHistory() {
   });
 
   const deleteMutation = useMutation({
-    mutationFnsync (idtring) => {
+    mutationFn: async (id) => {
       return apiRequest("DELETE", `/api/audit-history/${id}`, undefined);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/audit-history"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-history"] });
       toast({
         title: "Deleted",
         description: "Audit history entry has been removed"
@@ -69,7 +69,7 @@ export default function AuditHistory() {
     },
   });
 
-  const handleDeleteClick = (idtring) => {
+  const handleDeleteClick = (id) => {
     setDeleteTargetId(id);
     setDeleteConfirmOpen(true);
   };

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentType = "advance" }) {
   const [copied, setCopied] = useState(false);
   const [amountCopied, setAmountCopied] = useState(false);
-  const [qrCode, setQrCode] = useState<string>("");
+  const [qrCode, setQrCode] = useState("");
 
   const paymentLabel = paymentType === "advance" ? "Advance" : "Final";
   const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(clientName)}&tn=${paymentLabel}%20Payment%20${bookingId}&am=${totalAmount}&tr=${bookingId}-${paymentType}`;
@@ -90,7 +90,7 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
                 data-testid="button-copy-amount"
                 className="gap-1"
               >
-                {amountCopied ? <Check className="w-4 h-4 text-green-600" /> Copy className="w-4 h-4" />}
+                {amountCopied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                 {amountCopied ? "Copied" : "Copy"}
               </Button>
             </div>
@@ -109,7 +109,7 @@ export function UPIPayment({ upiId, totalAmount, bookingId, clientName, paymentT
                 data-testid="button-copy-upi"
                 className="h-12 w-12 shrink-0"
               >
-                {copied ? <Check className="w-5 h-5 text-green-600" /> Copy className="w-5 h-5" />}
+                {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5" />}
               </Button>
             </div>
             {copied && (

@@ -31,12 +31,12 @@ const getRatingColor = (rating) => {
 
 export default function ReviewsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingReview, setEditingReview] = useState<CustomerReview | null>(null);
+  const [editingReview, setEditingReview] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [ratingFilter, setRatingFilter] = useState<string>("");
+  const [ratingFilter, setRatingFilter] = useState("");
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [deleteTargetName, setDeleteTargetName] = useState<string>("");
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetName, setDeleteTargetName] = useState("");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -75,17 +75,17 @@ export default function ReviewsManager() {
       setIsDialogOpen(false);
       form.reset();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({ 
         title: "Failed to Add Review", 
-        descriptionrror?.message || "Please check that all required fields are filled correctly.",
+        description: error?.message || "Please check that all required fields are filled correctly.",
         variant: "destructive" 
       });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFnsync ({ id, data }: { idtring; datapdateCustomerReview }) => {
+    mutationFn: async ({ id, data }) => {
       return apiRequest("PATCH", `/api/reviews/${id}`, data);
     },
     onSuccess: () => {
@@ -108,11 +108,11 @@ export default function ReviewsManager() {
   });
 
   const deleteMutation = useMutation({
-    mutationFnsync (idtring) => {
+    mutationFn: async (id) => {
       return apiRequest("DELETE", `/api/reviews/${id}`, undefined);
     },
-    onSuccesssync () => {
-      await queryClient.invalidateQueries({ queryKey"/api/reviews"], refetchType: 'all' });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["/api/reviews"], refetchType: 'all' });
       toast({ 
         title: "Removed", 
         description: `Review from ${deleteTargetName} has been removed` 

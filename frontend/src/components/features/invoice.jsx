@@ -4,13 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Printer } from "lucide-react";
 import { EventBooking, CompanyInfo } from "@/schema";
 
-interface InvoiceProps {
-  bookingventBooking;
-  companyInfo?ompanyInfo;
-  isAdmin?oolean;
-}
-
-export function Invoice({ booking, companyInfo, isAdmin = false }nvoiceProps) {
+export function Invoice({ booking, companyInfo, isAdmin = false }) {
   const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
   // Use stored advance amount if available, otherwise calculate 50%
   const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
@@ -45,9 +39,9 @@ export function Invoice({ booking, companyInfo, isAdmin = false }nvoiceProps) {
 
   return (
     <Card className="w-full">
-      
+      <CardHeader>
         <div className="flex items-center justify-between">
-          Payment Receipt & Invoice</CardTitle>
+          <CardTitle>Payment Receipt & Invoice</CardTitle>
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -141,7 +135,7 @@ export function Invoice({ booking, companyInfo, isAdmin = false }nvoiceProps) {
                         : 'text-amber-600'
                     }`}
                   >
-                    {advancePaid ? 'Approved' ooking.advancePaymentStatus === 'paid' ? 'Pending Approval' : 'Pending'}
+                    {advancePaid ? 'Approved' : (booking.advancePaymentStatus === 'paid' ? 'Pending Approval' : 'Pending')}
                   </p>
                 </div>
               </div>
@@ -158,7 +152,7 @@ export function Invoice({ booking, companyInfo, isAdmin = false }nvoiceProps) {
                         dvancePaid ? 'text-blue-600' : 'text-muted-foreground'
                     }`}
                   >
-                    {finalPaid ? 'Approved' ooking.finalPaymentStatus === 'paid' ? 'Pending Approval' dvancePaid ? 'Pending' : 'Awaiting Advance'}
+                    {finalPaid ? 'Approved' : (booking.finalPaymentStatus === 'paid' ? 'Pending Approval' : (advancePaid ? 'Pending' : 'Awaiting Advance'))}
                   </p>
                 </div>
               </div>
