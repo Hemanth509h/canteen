@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://canteen-bt65.vercel.app/"
+      "destination": "/api/:path*"
     },
     {
       "source": "/(.*)",
