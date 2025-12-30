@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +59,8 @@ export default function FoodItemsManager() {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [deleteTargetName, setDeleteTargetName] = useState("");
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -96,6 +98,23 @@ export default function FoodItemsManager() {
       imageUrl: "",
     },
   });
+
+  const selectedType = form.watch("type");
+
+  const filteredCategories = useMemo(() => {
+    return allCategories.filter(cat => {
+      if (selectedType === "Veg") {
+        return cat.toLowerCase().includes("veg") || 
+               ["Welcome Drinks", "Hots", "Rotis", "Curds", "Papads", "Salads", "Chat Items", "Ice Creams", "Seasonal Selections"].includes(cat);
+      } else {
+        return cat.toLowerCase().includes("mutton") || 
+               cat.toLowerCase().includes("chicken") || 
+               cat.toLowerCase().includes("fish") ||
+               cat.toLowerCase().includes("non-veg") ||
+               ["Welcome Drinks", "Hots", "Rotis", "Seasonal Selections"].includes(cat);
+      }
+    });
+  }, [selectedType, allCategories]);
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
@@ -322,7 +341,7 @@ export default function FoodItemsManager() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="max-h-60">
-                            {allCategories.map((category) => (
+                            {filteredCategories.map((category) => (
                               <SelectItem key={category} value={category}>
                                 {category}
                               </SelectItem>
@@ -333,12 +352,7 @@ export default function FoodItemsManager() {
                           type="button" 
                           variant="outline" 
                           size="icon"
-                          onClick={() => {
-                            const newCat = prompt("Enter new category name:");
-                            if (newCat && newCat.trim()) {
-                              field.onChange(newCat.trim());
-                            }
-                          }}
+                          onClick={() => setIsCategoryDialogOpen(true)}
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
@@ -413,6 +427,43 @@ export default function FoodItemsManager() {
               </form>
             </Form>
           </DialogContent>
+          </Dialog>
+
+          <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add New Category</DialogTitle>
+                <DialogDescription>
+                  Enter the name of the new category you want to add.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <FormLabel>Category Name</FormLabel>
+                  <Input 
+                    placeholder="e.g. Special Desserts" 
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setIsCategoryDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (newCategoryName.trim()) {
+                      form.setValue("category", newCategoryName.trim());
+                      setIsCategoryDialogOpen(false);
+                      setNewCategoryName("");
+                    }
+                  }}
+                >
+                  Add Category
+                </Button>
+              </div>
+            </DialogContent>
           </Dialog>
         </div>
       </div>
