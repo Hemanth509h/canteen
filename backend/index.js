@@ -68,29 +68,41 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  const { connectToDatabase } = await import("./db.js");
-  await connectToDatabase();
+// ONLY listen if not running in a serverless environment
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  const port = 3000;
+  (async () => {
+    const { connectToDatabase } = await import("./db.js");
+    await connectToDatabase();
+    await registerRoutes(app);
+    
+    // Error handling middleware
+    app.use((err, _req, res, _next) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
+      res.status(status).json({ message });
+    });
 
-  const server = await registerRoutes(app);
-
-  // Error handling middleware
-  app.use((err, _req, res, _next) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-  });
-
-  // ONLY listen if not running in a serverless environment
-  if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-    const port = 3000;
-    server.listen({
+    app.listen({
       port,
       host: "0.0.0.0",
     }, () => {
       log(`serving on port ${port}`);
     });
-  }
-})();
+  })();
+} else {
+  // In serverless, we need to ensure DB is connected and routes are registered
+  const { connectToDatabase } = await import("./db.js");
+  connectToDatabase().then(() => {
+    registerRoutes(app).then(() => {
+      // Error handling middleware for serverless
+      app.use((err, _req, res, _next) => {
+        const status = err.status || err.statusCode || 500;
+        const message = err.message || "Internal Server Error";
+        res.status(status).json({ message });
+      });
+    });
+  });
+}
 
 export default app;
