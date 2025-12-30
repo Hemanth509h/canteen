@@ -3,45 +3,49 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, User, Search, RefreshCw } from "lucide-react";
-import { insertStaffSchema, updateStaffSchema, Staff, InsertStaff, UpdateStaff } from "@/schema";
+import { insertStaffSchema, updateStaffSchema } from "@/schema";
+import { UserPlus, Search, MoreVertical, Pencil, Trash2, Phone, RefreshCw, User } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
-import { EmptyState } from "@/components/features/empty-state";
-import { PageLoader, TableSkeleton } from "@/components/features/loading-spinner";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const roleMap = {
   "chef": "Chef",
   "worker": "Worker",
-  "serving_boy": "Serving Boy"
+  "serving_boy": "Serving Boy",
+  "manager": "Manager",
+  "server": "Server",
+  "cleaner": "Cleaner"
 };
 
 const roleColors = {
   chef: "default",
   worker: "secondary",
   serving_boy: "secondary",
+  manager: "outline",
+  server: "secondary",
+  cleaner: "outline"
 };
 
 export default function StaffManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
+  const [editingStaff, setEditingStaff] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"name" | "role">("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [roleFilter, setRoleFilter] = useState<string>("");
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [deleteTargetName, setDeleteTargetName] = useState<string>("");
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState(null);
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -49,24 +53,8 @@ export default function StaffManager() {
     queryKey: ["/api/staff"],
   });
 
-  const filteredStaffList = staffList?.filter((staff) => {
-    const matchesSearch = staff.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      roleMap[staff.role].toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      (staff.phone && staff.phone.includes(debouncedSearch));
-    const matchesRole = !roleFilter || staff.role === roleFilter;
-    return matchesSearch && matchesRole;
-  }).sort((a, b) => {
-    let compareValue = 0;
-    if (sortBy === "name") {
-      compareValue = a.name.localeCompare(b.name);
-    } else if (sortBy === "role") {
-      compareValue = roleMap[a.role].localeCompare(roleMap[b.role]);
-    }
-    return sortOrder === "asc" ? compareValue : -compareValue;
-  });
-
   const form = useForm({
-    resolverodResolver(editingStaff ? updateStaffSchema nsertStaffSchema),
+    resolver: zodResolver(editingStaff ? updateStaffSchema : insertStaffSchema),
     defaultValues: {
       name: "",
       role: "chef",
@@ -75,129 +63,102 @@ export default function StaffManager() {
   });
 
   const createMutation = useMutation({
-    mutationFnsync (datansertStaff) => {
+    mutationFn: async (data) => {
       return apiRequest("POST", "/api/staff", data);
     },
-    onSuccess: (datany) => {
-      queryClient.invalidateQueries({ queryKey"/api/staff"] });
-      toast({ 
-        title: "Staff Added", 
-        description: `${data.name} has been added to your team` 
-      });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
+      toast({ title: "Staff Added", description: `${data.name} has been added to your team` });
       setIsDialogOpen(false);
-      form.reset({
-        name: "",
-        role: "chef",
-        phone: "",
-      });
+      form.reset();
     },
-    onError: (errorny) => {
-      toast({ 
-        title: "Failed to Add Staff", 
-        descriptionrror?.message || "Please check that all required fields are filled correctly.",
-        variant: "destructive" 
-      });
+    onError: (error) => {
+      toast({ title: "Failed to Add Staff", description: error.message, variant: "destructive" });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFnsync ({ id, data }: { idtring; datapdateStaff }) => {
-      return apiRequest("PATCH", `/api/staff/${id}`, data);
+    mutationFn: async (data) => {
+      return apiRequest("PATCH", `/api/staff/${editingStaff.id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/staff"] });
-      toast({ 
-        title: "Updated", 
-        description: "Staff member details have been updated successfully" 
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
+      toast({ title: "Updated", description: "Staff member details have been updated successfully" });
       setIsDialogOpen(false);
       setEditingStaff(null);
       form.reset();
     },
-    onError: (errorny) => {
-      toast({ 
-        title: "Update Failed", 
-        descriptionrror?.message || "Unable to update staff member. Please try again.",
-        variant: "destructive" 
-      });
+    onError: (error) => {
+      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFnsync (idtring) => {
-      return apiRequest("DELETE", `/api/staff/${id}`, undefined);
+    mutationFn: async (id) => {
+      return apiRequest("DELETE", `/api/staff/${id}`);
     },
-    onSuccesssync () => {
-      await queryClient.invalidateQueries({ queryKey"/api/staff"], refetchType: 'all' });
-      toast({ 
-        title: "Removed", 
-        description: `${deleteTargetName} has been removed from the team` 
-      });
-      setDeleteTargetId(null);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
+      toast({ title: "Removed", description: "Staff member has been removed from the team" });
+      setDeleteConfirmOpen(false);
+      setStaffToDelete(null);
     },
-    onError: (errorny) => {
-      toast({ 
-        title: "Delete Failed", 
-        descriptionrror?.message || "Unable to remove this staff member.",
-        variant: "destructive" 
-      });
+    onError: (error) => {
+      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
     },
   });
 
-  const handleEdit = (stafftaff) => {
+  const handleEdit = (staff) => {
     setEditingStaff(staff);
     form.reset({
-      nametaff.name,
-      roletaff.role,
-      phonetaff.phone,
+      name: staff.name,
+      role: staff.role,
+      phone: staff.phone,
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (idtring, nametring) => {
-    setDeleteTargetId(id);
-    setDeleteTargetName(name);
-    setConfirmDeleteOpen(true);
+  const handleDelete = (staff) => {
+    setStaffToDelete(staff);
+    setDeleteConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (deleteTargetId) {
-      deleteMutation.mutate(deleteTargetId);
+  const filteredStaffList = staffList?.filter((staff) => {
+    const matchesSearch = staff.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (roleMap[staff.role] || staff.role).toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (staff.phone && staff.phone.includes(debouncedSearch));
+    const matchesRole = !roleFilter || staff.role === roleFilter;
+    return matchesSearch && matchesRole;
+  }).sort((a, b) => {
+    let compareValue = 0;
+    if (sortBy === "name") {
+      compareValue = a.name.localeCompare(b.name);
+    } else if (sortBy === "role") {
+      compareValue = (roleMap[a.role] || a.role).localeCompare(roleMap[b.role] || b.role);
     }
-  };
+    return sortOrder === "asc" ? compareValue : -compareValue;
+  });
 
-  const onSubmit = (datapdateStaff) => {
+  const onSubmit = (data) => {
     if (editingStaff) {
-      updateMutation.mutate({ idditingStaff.id, data });
+      updateMutation.mutate(data);
     } else {
-      createMutation.mutate(data as InsertStaff);
-    }
-  };
-
-  const handleDialogClose = (openoolean) => {
-    if (!open) {
-      setIsDialogOpen(false);
-      setEditingStaff(null);
-      form.reset({
-        name: "",
-        role: "chef",
-        phone: "",
-      });
+      createMutation.mutate(data);
     }
   };
 
   return (
-    <div className="p-6 sm:p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
             Staff Management
           </h2>
           <p className="text-muted-foreground">
-            Manage your team members and their details
+            Manage your catering team and their roles
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
@@ -207,121 +168,21 @@ export default function StaffManager() {
           >
             <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            if (open) {
-              setIsDialogOpen(true);
-            } else {
-              handleDialogClose(false);
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-staff">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Staff Member
-              </Button>
-            </DialogTrigger>
-          <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-            
-              <DialogTitle className="text-lg sm:text-xl">
-                {editingStaff ? "Edit Staff Member" : "Add New Staff Member"}
-              </DialogTitle>
-              <DialogDescription className="text-sm">
-                {editingStaff ? "Update staff member details" : "Add a new team member"}
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    
-                      Name</FormLabel>
-                      
-                        <Input placeholder="Staff member name" {...field} data-testid="input-staff-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      
-                        Role</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          
-                            <SelectTrigger data-testid="select-staff-role">
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          
-                            <SelectItem value="chef">Chef</SelectItem>
-                            <SelectItem value="worker">Worker</SelectItem>
-                            <SelectItem value="serving_boy">Serving Boy</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      
-                        Phone</FormLabel>
-                        
-                          <Input 
-                            type="tel" 
-                            placeholder="+91 XXXXX XXXXX" 
-                            {...field} 
-                            data-testid="input-staff-phone"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => handleDialogClose(false)}
-                    data-testid="button-cancel"
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                    data-testid="button-submit-staff"
-                  >
-                    {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+          <Button onClick={() => {
+            setEditingStaff(null);
+            form.reset({ name: "", role: "chef", phone: "" });
+            setIsDialogOpen(true);
+          }} data-testid="button-add-staff">
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add Staff
+          </Button>
         </div>
       </div>
 
-      
-        
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                All Staff Members</CardTitle>
-                
-                  {filteredStaffList?.length || 0} of {staffList?.length || 0} team members
-                </CardDescription>
-              </div>
-            </div>
-            <div className="relative">
+      <Card className="border border-border/50 shadow-sm">
+        <CardHeader className="pb-4 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search staff..."
@@ -331,162 +192,200 @@ export default function StaffManager() {
                 data-testid="input-search-staff"
               />
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Select value={sortBy} onValueChange={(valueny) => setSortBy(value)} data-testid="select-sort-staff">
-                <SelectTrigger className="w-full sm:w-48">
+            <div className="flex flex-wrap gap-2">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
-                
+                <SelectContent>
                   <SelectItem value="name">Name</SelectItem>
                   <SelectItem value="role">Role</SelectItem>
                 </SelectContent>
               </Select>
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                data-testid="button-toggle-sort-staff"
-                className="w-full sm:w-auto"
+                data-testid="button-toggle-sort"
               >
-                {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
+                {sortOrder === "asc" ? "↑" : "↓"}
               </Button>
-              <Select value={roleFilter || "none"} onValueChange={(value) => setRoleFilter(value === "none" ? "" alue)} data-testid="select-role-filter">
-                <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue placeholder="Filter by role" />
+              <Select value={roleFilter || "all"} onValueChange={(v) => setRoleFilter(v === "all" ? "" : v)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Filter role" />
                 </SelectTrigger>
-                
-                  <SelectItem value="none">All Roles</SelectItem>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="chef">Chef</SelectItem>
-                  <SelectItem value="worker">Worker</SelectItem>
-                  <SelectItem value="serving_boy">Serving Boy</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="server">Server</SelectItem>
+                  <SelectItem value="cleaner">Cleaner</SelectItem>
                 </SelectContent>
               </Select>
-              {roleFilter && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setRoleFilter("")}
-                  data-testid="button-clear-role-filter"
-                >
-                  Clear Filter
-                </Button>
-              )}
             </div>
           </div>
         </CardHeader>
-        
-          {isLoading ? (
-            <TableSkeleton rows={5} />
-          ) ilteredStaffList && filteredStaffList.length > 0 ? (
-            <>
-              {/* Mobile Card View */}
-              <div className="block md:hidden space-y-3">
-                {filteredStaffList.map((staff) => (
-                  <div key={staff.id} className="p-3 border border-border rounded-lg flex items-center gap-3 justify-between" data-testid={`card-staff-mobile-${staff.id}`}>
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center">
-                        <User className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm" data-testid={`text-staff-name-${staff.id}`}>{staff.name}</p>
-                        <p className="text-xs text-muted-foreground" data-testid={`text-phone-${staff.id}`}>{staff.phone}</p>
-                        <Badge variant={roleColors[staff.role]} className="text-xs mt-1" data-testid={`badge-role-${staff.id}`}>
-                          {roleMap[staff.role]}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleEdit(staff)} data-testid={`button-edit-mobile-${staff.id}`}>
-                        <Pencil className="w-3 h-3" />
-                      </Button>
-                      <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleDelete(staff.id, staff.name)} disabled={deleteMutation.isPending} data-testid={`button-delete-mobile-${staff.id}`}>
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto">
-                
-                  
-                    
-                      Name</TableHead>
-                      Role</TableHead>
-                      Phone</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[250px] font-semibold">Name</TableHead>
+                  <TableHead className="font-semibold">Role</TableHead>
+                  <TableHead className="font-semibold">Phone Number</TableHead>
+                  <TableHead className="text-right font-semibold">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-10 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-28" /></TableCell>
+                      <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                     </TableRow>
-                  </TableHeader>
-                  
-                    {filteredStaffList.map((staff) => (
-                      <TableRow key={staff.id} data-testid={`row-staff-${staff.id}`}>
-                        
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                              <User className="w-5 h-5 text-muted-foreground" />
-                            </div>
-                            <p className="font-semibold" data-testid={`text-staff-name-${staff.id}`}>{staff.name}</p>
+                  ))
+                ) : filteredStaffList?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                      No staff members found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredStaffList?.map((staff) => (
+                    <TableRow key={staff.id} className="group hover:bg-muted/40 transition-colors">
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                            <User className="w-4 h-4 text-muted-foreground" />
                           </div>
-                        </TableCell>
-                        
-                          <Badge variant={roleColors[staff.role]} data-testid={`badge-role-${staff.id}`}>
-                            {roleMap[staff.role]}
-                          </Badge>
-                        </TableCell>
-                        <TableCell data-testid={`text-phone-${staff.id}`}>{staff.phone}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEdit(staff)}
-                              data-testid={`button-edit-${staff.id}`}
-                            >
-                              <Pencil className="w-4 h-4" />
+                          {staff.name}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={roleColors[staff.role] || "secondary"} className="capitalize">
+                          {roleMap[staff.role] || staff.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3" />
+                          {staff.phone}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="w-4 h-4" />
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDelete(staff.id, staff.name)}
-                              disabled={deleteMutation.isPending}
-                              data-testid={`button-delete-${staff.id}`}
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEdit(staff)}>
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDelete(staff)}
                             >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </>
-
-          ) : (
-            <div className="text-center py-12">
-              <User className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No staff members yet</h3>
-              <p className="text-muted-foreground mb-4">Get started by adding your first team member</p>
-              <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-staff">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Staff Member
-              </Button>
-            </div>
-          )}
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{editingStaff ? "Edit Staff Member" : "Add Staff Member"}</DialogTitle>
+            <DialogDescription>
+              Enter the staff member's details below.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} data-testid="input-staff-name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-staff-role">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="chef">Chef</SelectItem>
+                        <SelectItem value="manager">Manager</SelectItem>
+                        <SelectItem value="server">Server</SelectItem>
+                        <SelectItem value="cleaner">Cleaner</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+91 9876543210" {...field} data-testid="input-staff-phone" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="pt-4">
+                <Button 
+                  type="submit" 
+                  className="w-full sm:w-auto"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  data-testid="button-save-staff"
+                >
+                  {createMutation.isPending || updateMutation.isPending ? "Saving..." : editingStaff ? "Update Staff" : "Add Staff"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
       <ConfirmDialog
-        open={confirmDeleteOpen}
-        onOpenChange={setConfirmDeleteOpen}
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
         title="Remove Staff Member"
-        description={`Are you sure you want to remove ${deleteTargetName} from the team? This action cannot be undone.`}
-        confirmText="Remove"
-        cancelText="Keep"
-        variant="destructive"
-        onConfirm={confirmDelete}
-        isLoading={deleteMutation.isPending}
+        description={`Are you sure you want to remove ${staffToDelete?.name} from your staff? This action cannot be undone.`}
+        onConfirm={() => deleteMutation.mutate(staffToDelete.id)}
+        isDangerous
       />
     </div>
   );

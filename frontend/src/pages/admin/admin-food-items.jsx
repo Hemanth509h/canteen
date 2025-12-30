@@ -16,11 +16,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } from "lucide-react";
-import { insertFoodItemSchema, FoodItem, InsertFoodItem } from "@/schema";
+import { insertFoodItemSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
-import { EmptyState } from "@/components/features/empty-state";
-import { PageLoader, TableSkeleton } from "@/components/features/loading-spinner";
 
 const defaultCategories = [
   "Welcome Drinks",
@@ -52,14 +50,14 @@ const defaultCategories = [
 
 export default function FoodItemsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
+  const [editingItem, setEditingItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"name" | "category">("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [deleteTargetName, setDeleteTargetName] = useState<string>("");
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetName, setDeleteTargetName] = useState("");
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -133,31 +131,31 @@ export default function FoodItemsManager() {
       setEditingItem(null);
       form.reset();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({ 
         title: "Update Failed", 
-        descriptionrror?.message || "Unable to update food item. Please try again.",
+        description: error?.message || "Unable to update food item. Please try again.",
         variant: "destructive" 
       });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFnsync (idtring) => {
+    mutationFn: async (id) => {
       return apiRequest("DELETE", `/api/food-items/${id}`, undefined);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/food-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
       toast({ 
         title: "Removed", 
         description: `${deleteTargetName} has been removed from your menu` 
       });
       setDeleteTargetId(null);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({ 
         title: "Delete Failed", 
-        descriptionrror?.message || "Unable to remove this food item.",
+        description: error?.message || "Unable to remove this food item.",
         variant: "destructive" 
       });
     },
@@ -165,19 +163,19 @@ export default function FoodItemsManager() {
 
   const dietaryOptions = ["Vegan", "Gluten-Free", "Non-Veg", "Spicy", "Nut-Free", "Dairy-Free"];
 
-  const handleEdit = (itemoodItem) => {
+  const handleEdit = (item) => {
     setEditingItem(item);
     form.reset({
-      nametem.name,
-      descriptiontem.description,
-      categorytem.category,
-      imageUrltem.imageUrl || "",
-      dietaryTagstem.dietaryTags || [],
+      name: item.name,
+      description: item.description,
+      category: item.category,
+      imageUrl: item.imageUrl || "",
+      dietaryTags: item.dietaryTags || [],
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (idtring, nametring) => {
+  const handleDelete = (id, name) => {
     setDeleteTargetId(id);
     setDeleteTargetName(name);
     setConfirmDeleteOpen(true);
@@ -189,9 +187,9 @@ export default function FoodItemsManager() {
     }
   };
 
-  const onSubmit = (datansertFoodItem) => {
+  const onSubmit = (data) => {
     if (editingItem) {
-      updateMutation.mutate({ idditingItem.id, data });
+      updateMutation.mutate({ id: editingItem.id, data });
     } else {
       createMutation.mutate(data);
     }
@@ -245,7 +243,7 @@ export default function FoodItemsManager() {
               </Button>
             </DialogTrigger>
           <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-            
+            <DialogHeader>
               <DialogTitle className="text-lg sm:text-xl">
                 {editingItem ? "Edit Food Item" : "Add New Food Item"}
               </DialogTitle>
@@ -259,9 +257,9 @@ export default function FoodItemsManager() {
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    
-                      Name</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
                         <Input placeholder="Food item name" {...field} data-testid="input-food-name" />
                       </FormControl>
                       <FormMessage />
@@ -272,9 +270,9 @@ export default function FoodItemsManager() {
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    
-                      Description</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
                         <Textarea 
                           placeholder="Describe the food item" 
                           {...field} 
@@ -290,10 +288,10 @@ export default function FoodItemsManager() {
                   control={form.control}
                   name="category"
                   render={({ field }) => (
-                    
-                      Category</FormLabel>
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
-                        
+                        <FormControl>
                           <SelectTrigger data-testid="select-food-category">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
@@ -314,9 +312,9 @@ export default function FoodItemsManager() {
                   control={form.control}
                   name="imageUrl"
                   render={({ field }) => (
-                    
-                      Image URL (optional)</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Image URL (optional)</FormLabel>
+                      <FormControl>
                         <Input 
                           placeholder="Enter image URL" 
                           {...field}
@@ -332,8 +330,8 @@ export default function FoodItemsManager() {
                   control={form.control}
                   name="dietaryTags"
                   render={({ field }) => (
-                    
-                      Dietary Tags (optional)</FormLabel>
+                    <FormItem>
+                      <FormLabel>Dietary Tags (optional)</FormLabel>
                       <div className="flex flex-wrap gap-2">
                         {dietaryOptions.map((tag) => (
                           <label key={tag} className="flex items-center gap-2 cursor-pointer">
@@ -343,7 +341,7 @@ export default function FoodItemsManager() {
                               onChange={(e) => {
                                 const newTags = e.target.checked
                                   ? [...(field.value || []), tag]
-                                  ield.value?.filter(t => t !== tag) || [];
+                                  : field.value?.filter(t => t !== tag) || [];
                                 field.onChange(newTags);
                               }}
                               className="w-4 h-4"
@@ -380,14 +378,12 @@ export default function FoodItemsManager() {
         </div>
       </div>
 
-      <div
-      >
-        
-        
+      <Card>
+        <CardHeader>
           <div className="space-y-4">
             <div>
-              Menu Items</CardTitle>
-              
+              <CardTitle>Menu Items</CardTitle>
+              <CardDescription>
                 {filteredFoodItems?.length || 0} of {foodItems?.length || 0} items in your menu
               </CardDescription>
             </div>
@@ -403,11 +399,11 @@ export default function FoodItemsManager() {
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Select value={sortBy} onValueChange={(valueny) => setSortBy(value)} data-testid="select-sort-food">
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value)} data-testid="select-sort-food">
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
-                
+                <SelectContent>
                   <SelectItem value="name">Name</SelectItem>
                   <SelectItem value="category">Category</SelectItem>
                 </SelectContent>
@@ -421,7 +417,7 @@ export default function FoodItemsManager() {
               >
                 {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
               </Button>
-              <Select value={categoryFilter || "none"} onValueChange={(value) => setCategoryFilter(value === "none" ? "" alue)} data-testid="select-category-filter">
+              <Select value={categoryFilter || "none"} onValueChange={(value) => setCategoryFilter(value === "none" ? "" : value)} data-testid="select-category-filter">
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
@@ -447,14 +443,14 @@ export default function FoodItemsManager() {
             </div>
           </div>
         </CardHeader>
-        
+        <CardContent>
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-          ) ilteredFoodItems && filteredFoodItems.length > 0 ? (
+          ) : filteredFoodItems && filteredFoodItems.length > 0 ? (
             <>
               {/* Mobile Card View */}
               <div className="block md:hidden space-y-3 max-h-[500px] overflow-y-auto">
@@ -502,19 +498,19 @@ export default function FoodItemsManager() {
 
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto max-h-[600px] overflow-y-auto">
-                
-                  
-                    
-                      Image</TableHead>
-                      Name</TableHead>
-                      Category</TableHead>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Image</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Category</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
-                  
+                  <TableBody>
                     {filteredFoodItems.map((item) => (
                       <TableRow key={item.id} data-testid={`row-food-${item.id}`}>
-                        
+                        <TableCell>
                           <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
                             {item.imageUrl ? (
                               <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
@@ -525,13 +521,13 @@ export default function FoodItemsManager() {
                             )}
                           </div>
                         </TableCell>
-                        
+                        <TableCell>
                           <div>
                             <p className="font-semibold">{item.name}</p>
                             <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
                           </div>
                         </TableCell>
-                        
+                        <TableCell>
                           <Badge variant="secondary">{item.category}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
@@ -561,7 +557,7 @@ export default function FoodItemsManager() {
                 </Table>
               </div>
             </>
-          ) oodItems && foodItems.length > 0 ? (
+          ) : foodItems && foodItems.length > 0 ? (
             <div className="text-center py-12">
               <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">No items match your search</p>
@@ -577,8 +573,7 @@ export default function FoodItemsManager() {
             </div>
           )}
         </CardContent>
-        </Card>
-      </div>
+      </Card>
 
       <ConfirmDialog
         open={confirmDeleteOpen}
@@ -586,10 +581,7 @@ export default function FoodItemsManager() {
         title="Remove Food Item"
         description={`Are you sure you want to remove "${deleteTargetName}" from your menu? This action cannot be undone.`}
         confirmText="Remove"
-        cancelText="Keep"
-        variant="destructive"
         onConfirm={confirmDelete}
-        isLoading={deleteMutation.isPending}
       />
     </div>
   );
