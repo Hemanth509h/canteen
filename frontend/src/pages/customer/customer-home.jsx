@@ -457,6 +457,35 @@ export default function CustomerHome() {
         </div>
       </section>
 
+      <section id="contact-section" className="py-20 sm:py-32 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto relative slide-up">
+          <div className="bg-primary rounded-[2.5rem] sm:rounded-[4rem] p-8 sm:p-24 text-center text-primary-foreground shadow-[0_40px_100px_-20px_rgba(var(--primary),0.4)] overflow-hidden relative">
+            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+               <Wind size={200} className="absolute -top-20 -left-20 animate-pulse" />
+               <Leaf size={200} className="absolute -bottom-20 -right-20 animate-pulse" />
+            </div>
+            
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-6 sm:mb-10 leading-tight">Start Your Organic Journey</h2>
+            <p className="text-base sm:text-xl opacity-90 mb-8 sm:mb-16 max-w-2xl mx-auto font-light leading-relaxed">
+              Let us curate a breathtaking culinary experience that honors your most precious moments.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
+              <a href={`tel:${companyInfo?.phone || "+1234567890"}`} className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500 hover:scale-105">
+                  Call: {companyInfo?.phone || "+1234567890"}
+                </Button>
+              </a>
+              <a href={`mailto:${companyInfo?.email || "hello@elitecatering.com"}`} className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/40 text-white hover:bg-white/10 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500">
+                  Email: {companyInfo?.email || "hello@elitecatering.com"}
+                </Button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {selectedItem && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
           <div 
