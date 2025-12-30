@@ -45,7 +45,8 @@ const defaultCategories = [
   "Veg Fry Items",
   "Dal Items",
   "Liquid Items",
-  "Mutton Snacks"
+  "Mutton Snacks",
+  "Seasonal Selections"
 ];
 
 export default function FoodItemsManager() {
