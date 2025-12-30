@@ -23,6 +23,9 @@ import { z } from "zod";
 const getStorageInstance = () => getStorage();
 
 export async function registerRoutes(app) {
+  // All routes are defined relative to the root now, but they still have /api prefix
+  // If Vercel rewrites /api/* to this handler, it needs to match the full path
+  
   // Admin Login Route
   app.post("/api/admin/login", async (req, res) => {
     try {

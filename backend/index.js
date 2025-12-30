@@ -96,30 +96,19 @@ const initServerless = async (req, res, next) => {
   next();
 };
 
-if (process.env.VERCEL) {
-  app.use(initServerless);
-  app.use("/api", dbMiddleware);
-}
+// Global API Middleware
+app.use(initServerless);
+app.use(dbMiddleware);
 
 // ALWAYS start the local server if not on Vercel
 if (!process.env.VERCEL) {
   const port = 3000;
-  (async () => {
-    try {
-      const { connectToDatabase } = await import("./db.js");
-      await connectToDatabase();
-      const { registerRoutes } = await import("./routes.js");
-      await registerRoutes(app);
-      app.listen({
-        port,
-        host: "0.0.0.0",
-      }, () => {
-        log(`serving on port ${port}`);
-      });
-    } catch (err) {
-      console.error("Failed to start local server:", err);
-    }
-  })();
+  app.listen({
+    port,
+    host: "0.0.0.0",
+  }, () => {
+    log(`serving on port ${port}`);
+  });
 }
 
 export default app;
