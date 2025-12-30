@@ -196,7 +196,7 @@ export default function PaymentConfirmation() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => queryClient.invalidateQueries({ queryKey"/api/bookings", bookingId] })}
+              onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] })}
               className="gap-2"
               data-testid="button-refresh-payment"
             >
@@ -214,7 +214,7 @@ export default function PaymentConfirmation() {
               className="w-fit text-sm px-3 py-1"
               data-testid="badge-booking-status"
             >
-              {allPaid ? "Fully Paid" dvancePaid ? "Advance Paid" : "Payment Pending"}
+              {allPaid ? "Fully Paid" : advancePaid ? "Advance Paid" : "Payment Pending"}
             </Badge>
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function PaymentConfirmation() {
                       </div>
                     </div>
                   </>
-                ) dvanceUploaded ? (
+                ) : advanceUploaded ? (
                   <div className="animate-in fade-in duration-300 space-y-4"
                   >
                     <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
@@ -453,7 +453,7 @@ export default function PaymentConfirmation() {
                           </div>
                         </div>
                       </>
-                    ) inalUploaded ? (
+                    ) : finalUploaded ? (
                       <div className="animate-in fade-in duration-300 space-y-4"
                       >
                         <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
