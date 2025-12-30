@@ -4,15 +4,6 @@ import { Download, FileSpreadsheet, FileText, Users, UtensilsCrossed } from "luc
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import "@/schema";
-
-interface ExportButtonProps {
-  bookings?ventBooking[];
-  foodItems?oodItem[];
-  staff?taff[];
-  filename?tring;
-  type?: "bookings" | "food" | "staff" | "all";
-}
 
 export function ExportButton({ 
   bookings = [], 
@@ -20,7 +11,7 @@ export function ExportButton({
   staff = [],
   filename = "export", 
   type = "bookings" 
-}xportButtonProps) {
+}) {
   const { toast } = useToast();
 
   const exportBookingsToExcel = () => {
@@ -30,26 +21,25 @@ export function ExportButton({
     }
 
     const data = bookings.map((booking) => ({
-      "Client Name"ooking.clientName,
-      "Event Date"ooking.eventDate,
-      "Event Type"ooking.eventType,
-      "Guest Count"ooking.guestCount,
-      "Price Per Plate"ooking.pricePerPlate,
-      "Total Amount"ooking.totalAmount || booking.guestCount * booking.pricePerPlate,
-      "Status"ooking.status,
-      "Contact Email"ooking.contactEmail,
-      "Contact Phone"ooking.contactPhone,
-      "Advance Payment"ooking.advancePaymentStatus,
-      "Final Payment"ooking.finalPaymentStatus,
-      "Special Requests"ooking.specialRequests || "",
-      "Created At"ooking.createdAt,
+      "Client Name": booking.clientName,
+      "Event Date": booking.eventDate,
+      "Event Type": booking.eventType,
+      "Guest Count": booking.guestCount,
+      "Price Per Plate": booking.pricePerPlate,
+      "Total Amount": booking.totalAmount || booking.guestCount * booking.pricePerPlate,
+      "Status": booking.status,
+      "Contact Email": booking.contactEmail,
+      "Contact Phone": booking.contactPhone,
+      "Advance Payment": booking.advancePaymentStatus,
+      "Final Payment": booking.finalPaymentStatus,
+      "Special Requests": booking.specialRequests || "",
+      "Created At": booking.createdAt,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
     
-    // Auto-size columns
     const colWidths = Object.keys(data[0] || {}).map(() => ({ wch: 20 }));
     worksheet["!cols"] = colWidths;
 
@@ -69,13 +59,13 @@ export function ExportButton({
     }
 
     const data = foodItems.map((item) => ({
-      "Name"tem.name,
-      "Description"tem.description,
-      "Category"tem.category,
-      "Price"tem.price || "",
-      "Rating"tem.rating || "",
-      "Dietary Tags"tem.dietaryTags?.join(", ") || "",
-      "Image URL"tem.imageUrl || "",
+      "Name": item.name,
+      "Description": item.description,
+      "Category": item.category,
+      "Price": item.price || "",
+      "Rating": item.rating || "",
+      "Dietary Tags": item.dietaryTags?.join(", ") || "",
+      "Image URL": item.imageUrl || "",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -98,10 +88,10 @@ export function ExportButton({
     }
 
     const data = staff.map((member) => ({
-      "Name"ember.name,
-      "Role"ember.role,
-      "Phone"ember.phone,
-      "Created At"ember.createdAt,
+      "Name": member.name,
+      "Role": member.role,
+      "Phone": member.phone,
+      "Created At": member.createdAt,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -124,15 +114,15 @@ export function ExportButton({
     if (bookings.length > 0) {
       hasData = true;
       const bookingData = bookings.map((booking) => ({
-        "Client Name"ooking.clientName,
-        "Event Date"ooking.eventDate,
-        "Event Type"ooking.eventType,
-        "Guest Count"ooking.guestCount,
-        "Price Per Plate"ooking.pricePerPlate,
-        "Total Amount"ooking.totalAmount || booking.guestCount * booking.pricePerPlate,
-        "Status"ooking.status,
-        "Advance Payment"ooking.advancePaymentStatus,
-        "Final Payment"ooking.finalPaymentStatus,
+        "Client Name": booking.clientName,
+        "Event Date": booking.eventDate,
+        "Event Type": booking.eventType,
+        "Guest Count": booking.guestCount,
+        "Price Per Plate": booking.pricePerPlate,
+        "Total Amount": booking.totalAmount || booking.guestCount * booking.pricePerPlate,
+        "Status": booking.status,
+        "Advance Payment": booking.advancePaymentStatus,
+        "Final Payment": booking.finalPaymentStatus,
       }));
       const ws = XLSX.utils.json_to_sheet(bookingData);
       XLSX.utils.book_append_sheet(workbook, ws, "Bookings");
@@ -141,10 +131,10 @@ export function ExportButton({
     if (foodItems.length > 0) {
       hasData = true;
       const foodData = foodItems.map((item) => ({
-        "Name"tem.name,
-        "Category"tem.category,
-        "Price"tem.price || "",
-        "Dietary Tags"tem.dietaryTags?.join(", ") || "",
+        "Name": item.name,
+        "Category": item.category,
+        "Price": item.price || "",
+        "Dietary Tags": item.dietaryTags?.join(", ") || "",
       }));
       const ws = XLSX.utils.json_to_sheet(foodData);
       XLSX.utils.book_append_sheet(workbook, ws, "Food Items");
@@ -153,9 +143,9 @@ export function ExportButton({
     if (staff.length > 0) {
       hasData = true;
       const staffData = staff.map((member) => ({
-        "Name"ember.name,
-        "Role"ember.role,
-        "Phone"ember.phone,
+        "Name": member.name,
+        "Role": member.role,
+        "Phone": member.phone,
       }));
       const ws = XLSX.utils.json_to_sheet(staffData);
       XLSX.utils.book_append_sheet(workbook, ws, "Staff");
@@ -217,7 +207,7 @@ export function ExportButton({
 
   if (type === "bookings") {
     return (
-      
+      <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" data-testid="button-export-bookings">
             <Download className="w-4 h-4 mr-2" />
@@ -257,7 +247,7 @@ export function ExportButton({
   }
 
   return (
-    
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" data-testid="button-export-all">
           <Download className="w-4 h-4 mr-2" />
