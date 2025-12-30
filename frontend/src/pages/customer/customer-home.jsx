@@ -14,13 +14,6 @@ import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
-const heroImages = [
-  "/images/luxury_indian_wedding_buffet_setup.png",
-  "/images/gourmet_indian_food_platter_biryani_thali.png",
-  "/images/indian_event_catering_dessert_station.png",
-  "/images/elegant_indian_dining_table_arrangement.png"
-];
-
 // Preload component
 const ImagePreloader = ({ images }) => (
   <div className="hidden">
@@ -66,33 +59,19 @@ export default function CustomerHome() {
   const [showIntro, setShowIntro] = useState(true);
   const [heroIndex, setHeroIndex] = useState(0);
 
-  // Hero Slider Effect
-  useMemo(() => {
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % dynamicHeroImages.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [dynamicHeroImages.length]);
-
-  // Auto-hide intro after animation
-  useMemo(() => {
-    const timer = setTimeout(() => setShowIntro(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const { data: foodItems, isLoading: isLoadingFood, error: foodError } = useQuery({
+  const { data: foodItems, isLoading: isLoadingFood } = useQuery({
     queryKey: ["/api/food-items"],
     staleTime: 0,
     gcTime: 0,
   });
 
-  const { data: companyInfo, error: companyError } = useQuery({
+  const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
     staleTime: 0,
     gcTime: 0,
   });
 
-  const { data: reviews, isLoading: isLoadingReviews, error: reviewsError } = useQuery({
+  const { data: reviews, isLoading: isLoadingReviews } = useQuery({
     queryKey: ["/api/reviews"],
     staleTime: 0,
     gcTime: 0,
@@ -106,6 +85,21 @@ export default function CustomerHome() {
       "/images/elegant_indian_dining_table_arrangement.png"
     ];
   }, [companyInfo?.heroImages]);
+
+  // Hero Slider Effect
+  useMemo(() => {
+    if (!dynamicHeroImages || dynamicHeroImages.length === 0) return;
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % dynamicHeroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [dynamicHeroImages?.length]);
+
+  // Auto-hide intro after animation
+  useMemo(() => {
+    const timer = setTimeout(() => setShowIntro(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
@@ -123,12 +117,11 @@ export default function CustomerHome() {
     }) || [];
   }, [foodItems, selectedCategory, searchQuery]);
 
-  const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop"; // Indian Biryani Platter
+  const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop";
 
   return (
     <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20">
       <ImagePreloader images={dynamicHeroImages} />
-      {/* Intro Animation Overlay */}
       {showIntro && (
         <div className="intro-overlay bg-background">
           <div className="intro-logo flex flex-col items-center">
@@ -141,20 +134,17 @@ export default function CustomerHome() {
         </div>
       )}
 
-      {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
         <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-10 dark:opacity-20" />
         <BackgroundLeaf className="bottom-20 left-[10%] rotate-45 leaf-float-3 opacity-10 dark:opacity-20" />
       </div>
 
-      {/* Hero Section */}
       <div className="relative h-screen min-h-[600px] overflow-hidden">
         <div className="absolute top-6 right-6 z-50 fade-in theme-toggle-container">
           <ThemeToggle />
         </div>
         
-        {/* Sliding Hero Background */}
         <div className="absolute inset-0 flex transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
           {dynamicHeroImages.map((img, idx) => (
             <div 
@@ -200,7 +190,6 @@ export default function CustomerHome() {
         </div>
       </div>
 
-      {/* Philosophy Section */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 relative">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-20 items-center">
@@ -214,7 +203,7 @@ export default function CustomerHome() {
               <div className="grid grid-cols-2 gap-8 sm:gap-12">
                 <div className="group">
                   <div className="text-4xl sm:text-6xl font-bold text-primary mb-2 transition-transform group-hover:scale-110 duration-500">
-                    {(companyInfo)?.yearsExperience || 15}+
+                    {companyInfo?.yearsExperience || 15}+
                   </div>
                   <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Years of Craft</div>
                 </div>
@@ -245,7 +234,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Menu Section */}
       <section id="menu" className="py-16 sm:py-24 px-4 sm:px-6 bg-secondary/5 rounded-[2rem] sm:rounded-[4rem] mx-2 sm:mx-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 sm:mb-20 slide-up">
@@ -293,7 +281,7 @@ export default function CustomerHome() {
                   </div>
                 ))
               ) : (
-                filteredItems.map((item, idx) => (
+                filteredItems.map((item) => (
                   <div 
                     key={item.id}
                     className="group relative slide-up"
@@ -317,10 +305,10 @@ export default function CustomerHome() {
                         <p className="text-muted-foreground text-[10px] sm:text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
                         <div className="mt-2 sm:mt-6 pt-2 sm:pt-6 border-t border-border/30 flex justify-between items-center opacity-70 group-hover:opacity-100 transition-opacity duration-500">
                           <div className="flex items-center gap-1 sm:gap-2">
-                            <Wind size={10} sm:size={12} className="text-primary" />
+                            <Wind size={10} className="text-primary" />
                             <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-tighter text-foreground">Organic</span>
                           </div>
-                          <ChefHat size={12} sm:size={20} className="text-primary" />
+                          <ChefHat size={12} className="text-primary" />
                         </div>
                       </div>
                     </Card>
@@ -332,7 +320,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Modal */}
       {selectedItem && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
           <div 
@@ -342,7 +329,7 @@ export default function CustomerHome() {
           <div className="relative bg-card rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl max-w-3xl w-full overflow-hidden z-10 slide-up max-h-[90vh] overflow-y-auto">
             <div className="flex flex-col sm:flex-row">
               <div className="w-full sm:w-2/5 h-[200px] sm:h-auto">
-                <img src={defaultFoodImage} className="w-full h-full object-cover" />
+                <img src={selectedItem.imageUrl || defaultFoodImage} className="w-full h-full object-cover" alt={selectedItem.name} />
               </div>
               <div className="w-full sm:w-3/5 p-6 sm:p-12">
                 <Badge className="mb-3 rounded-full px-3 py-1 text-[9px] sm:text-[10px] uppercase tracking-widest">{selectedItem.category}</Badge>
@@ -374,13 +361,12 @@ export default function CustomerHome() {
         </div>
       )}
 
-      {/* Contact Section */}
       <section id="contact-section" className="py-20 sm:py-32 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto relative slide-up">
           <div className="bg-primary rounded-[2.5rem] sm:rounded-[4rem] p-8 sm:p-24 text-center text-primary-foreground shadow-[0_40px_100px_-20px_rgba(var(--primary),0.4)] overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-               <Wind size={200} sm:size={400} className="absolute -top-20 sm:-top-40 -left-20 sm:-left-40 animate-pulse" />
-               <Leaf size={200} sm:size={400} className="absolute -bottom-20 sm:-bottom-40 -right-20 sm:-right-40 animate-pulse" />
+               <Wind size={200} className="absolute -top-20 -left-20 animate-pulse" />
+               <Leaf size={200} className="absolute -bottom-20 -right-20 animate-pulse" />
             </div>
             
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-6 sm:mb-10 leading-tight">Start Your Organic Journey</h2>
@@ -403,7 +389,6 @@ export default function CustomerHome() {
           </div>
         </div>
       </section>
-      {/* Footer (Embedded Contact Info already acts as footer) */}
       <footer className="py-12 px-6 border-t border-border/30 text-center">
         <p className="text-muted-foreground dark:text-gray-400 text-sm font-light">
           © 2025 {companyInfo?.companyName || "Elite Catering"}. Nature's finest flavors.
