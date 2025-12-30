@@ -366,7 +366,7 @@ export default function AdminPaymentConfirmation() {
                         <SelectTrigger className="w-28" data-testid="select-advance-status-edit">
                           <SelectValue />
                         </SelectTrigger>
-                        
+                        <SelectContent>
                           <SelectItem value="pending">Pending</SelectItem>
                           <SelectItem value="paid">Paid</SelectItem>
                         </SelectContent>
@@ -389,15 +389,15 @@ export default function AdminPaymentConfirmation() {
                         <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
                           Awaiting payment screenshot from customer
                         </div>
-                      ) dvanceUploaded ? (
+                      ) : advanceUploaded ? (
                         <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
                           <p className="text-sm font-semibold text-amber-700 dark:text-amber-200 mb-2">Payment Pending Your Approval</p>
                         </div>
-                      ) dvancePaid ? (
+                      ) : advancePaid ? (
                         <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
                           <p className="text-sm font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
                         </div>
-                      ) ull}
+                      ) : null}
                       {!isEditing && (
                         <div className="flex gap-2">
                           <Button 
@@ -428,13 +428,13 @@ export default function AdminPaymentConfirmation() {
                 </CardContent>
               </Card>
 
-              <Card className={finalPaid ? "border-green-300 dark:border-green-800" dvancePaid ? "border-blue-300 dark:border-blue-800" : "border-muted"}>
+              <Card className={finalPaid ? "border-green-300 dark:border-green-800" : advancePaid ? "border-blue-300 dark:border-blue-800" : "border-muted"}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${finalPaid ? 'bg-green-100 dark:bg-green-900' dvancePaid ? 'bg-blue-100 dark:bg-blue-900' : 'bg-muted'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${finalPaid ? 'bg-green-100 dark:bg-green-900' : advancePaid ? 'bg-blue-100 dark:bg-blue-900' : 'bg-muted'}`}>
                       {finalPaid ? (
                         <CheckCircle className="w-5 h-5 text-green-600" data-testid="icon-final-paid-admin" />
-                      ) dvancePaid ? (
+                      ) : advancePaid ? (
                         <Clock className="w-5 h-5 text-blue-600" data-testid="icon-final-pending-admin" />
                       ) : (
                         <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30" />
@@ -455,7 +455,7 @@ export default function AdminPaymentConfirmation() {
                           <SelectTrigger className="w-28" data-testid="select-final-status-edit" disabled={editAdvanceStatus !== "paid"}>
                             <SelectValue />
                           </SelectTrigger>
-                          
+                          <SelectContent>
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="paid" disabled={editAdvanceStatus !== "paid"}>Paid</SelectItem>
                           </SelectContent>
@@ -466,7 +466,7 @@ export default function AdminPaymentConfirmation() {
                       </div>
                     ) : (
                       <Badge variant={finalPaid ? "default" : "secondary"} data-testid="badge-final-status-admin">
-                        {finalPaid ? "Paid" dvancePaid ? "Pending" : "Waiting"}
+                        {finalPaid ? "Paid" : advancePaid ? "Pending" : "Waiting"}
                       </Badge>
                     )}
                   </div>
@@ -482,15 +482,15 @@ export default function AdminPaymentConfirmation() {
                         <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
                           Awaiting payment screenshot from customer
                         </div>
-                      ) inalUploaded ? (
+                      ) : finalUploaded ? (
                         <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
                           <p className="text-sm font-semibold text-amber-700 dark:text-amber-200 mb-2">Payment Pending Your Approval</p>
                         </div>
-                      ) inalPaid ? (
+                      ) : finalPaid ? (
                         <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
                           <p className="text-sm font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
                         </div>
-                      ) ull}
+                      ) : null}
                       {!isEditing && (
                         <div className="flex gap-2">
                           <Button 
