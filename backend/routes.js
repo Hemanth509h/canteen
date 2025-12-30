@@ -635,6 +635,8 @@ export async function registerRoutes(app) {
       const { staffId } = req.body;
       const bookingId = req.params.id;
 
+      console.log(`[API] POST /api/bookings/${bookingId}/assign-staff`, { staffId });
+
       if (!staffId) {
         return res.status(400).json({ error: "Staff ID is required" });
       }
@@ -643,15 +645,17 @@ export async function registerRoutes(app) {
       const existing = await getStorageInstance().getStaffBookingRequests(bookingId);
       const alreadyAssigned = existing.find(r => r.staffId === staffId);
       if (alreadyAssigned) {
+        console.log(`[API] Staff ${staffId} already assigned to booking ${bookingId}`);
         return res.json(alreadyAssigned);
       }
 
       const request = await getStorageInstance().createStaffBookingRequest({
         bookingId,
         staffId,
-        status: "pending",
+        status: "accepted", // Auto-accept when assigned by admin
         token: randomUUID()
       });
+      console.log(`[API] Created staff assignment:`, request);
       res.status(201).json(request);
     } catch (error) {
       console.error("Assign staff error:", error);
