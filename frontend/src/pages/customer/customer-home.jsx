@@ -80,8 +80,10 @@ export default function CustomerHome() {
   });
 
   const dynamicHeroImages = useMemo(() => {
-    if (companyInfo?.heroImages && companyInfo.heroImages.length > 0) {
-      return companyInfo.heroImages;
+    if (companyInfo?.heroImages && Array.isArray(companyInfo.heroImages) && companyInfo.heroImages.length > 0) {
+      // Filter out any empty strings or invalid entries
+      const validImages = companyInfo.heroImages.filter(img => typeof img === 'string' && img.trim() !== "");
+      if (validImages.length > 0) return validImages;
     }
     return [
       "/images/luxury_indian_wedding_buffet_setup.png",
