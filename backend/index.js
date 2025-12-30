@@ -106,7 +106,7 @@ app.use(async (req, res, next) => {
 // Remove old environment-specific middleware and listeners
 // ALWAYS start the local server if not on Vercel
 if (!process.env.VERCEL) {
-  const port = process.env.PORT || 3000;
+  const port = 3000;
   app.listen(port, "0.0.0.0", () => {
     log(`API server listening on port ${port}`);
   });
