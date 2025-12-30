@@ -14,11 +14,17 @@ function log(message, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+// Debug log for incoming requests on Vercel
+app.use((req, res, next) => {
+  if (process.env.VERCEL) {
+    log(`Vercel Request: ${req.method} ${req.url}`);
+  }
+  next();
+});
+
 // Enable CORS for frontend communication
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  // Allow the specific Vercel domain or all origins for debugging
-  res.header('Access-Control-Allow-Origin', origin || '*');
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');

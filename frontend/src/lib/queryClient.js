@@ -1,14 +1,17 @@
-// Use relative paths for API calls when hosted on the same domain
+// Use relative path for API calls on Vercel
 export const API_URL = "/api";
 
 export async function apiRequest(method, url, data) {
-  // Normalize the URL: ensure it starts with a slash but not double /api
-  const cleanUrl = url.startsWith("/") ? url : `/${url}`;
-  const fullUrl = cleanUrl.startsWith("/api") ? cleanUrl : `/api${cleanUrl}`;
+  // Normalize the URL: remove any leading slash and any leading 'api/'
+  let cleanPath = url.startsWith("/") ? url.slice(1) : url;
+  if (cleanPath.startsWith("api/")) {
+    cleanPath = cleanPath.slice(4);
+  }
   
-  console.log(`[API] Requesting: ${fullUrl}`);
+  const finalUrl = `/api/${cleanPath}`;
+  console.log(`[API] Requesting: ${finalUrl}`);
 
-  const res = await fetch(fullUrl, {
+  const res = await fetch(finalUrl, {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
@@ -29,12 +32,15 @@ export const getQueryFn =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const path = queryKey.join("/");
-    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-    const fullUrl = normalizedPath.startsWith("/api") ? normalizedPath : `/api${normalizedPath}`;
-
-    console.log(`[QUERY] Fetching: ${fullUrl}`);
+    let cleanPath = path.startsWith("/") ? path.slice(1) : path;
+    if (cleanPath.startsWith("api/")) {
+      cleanPath = cleanPath.slice(4);
+    }
+    
+    const finalUrl = `/api/${cleanPath}`;
+    console.log(`[QUERY] Fetching: ${finalUrl}`);
       
-    const res = await fetch(fullUrl, {
+    const res = await fetch(finalUrl, {
       credentials: "include",
     });
 
