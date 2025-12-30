@@ -8,12 +8,102 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
-  Leaf, Sprout, Wind, ChevronRight
+  Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+
+const Testimonials = ({ reviews }) => (
+  <section className="py-24 px-6 bg-secondary/5">
+    <div className="max-w-7xl mx-auto text-center">
+      <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-16">What Our Clients Say</h2>
+      <div className="grid md:grid-cols-3 gap-8">
+        {(reviews || [
+          { customerName: "Sarah J.", eventType: "Wedding", comment: "The food was absolutely divine! Every guest was impressed by the presentation and flavor." },
+          { customerName: "Michael R.", eventType: "Corporate", comment: "Professional service and exceptional quality. They made our event truly special." },
+          { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering experience we've ever had. Highly recommend their organic menu!" }
+        ]).slice(0, 3).map((review, idx) => (
+          <Card key={idx} className="p-8 bg-card border-none shadow-xl rounded-[2rem] hover:-translate-y-2 transition-transform">
+            <Quote className="text-primary/20 mb-6" size={40} />
+            <p className="text-lg italic mb-6">"{review.comment}"</p>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
+            </div>
+            <h4 className="font-bold">{review.customerName}</h4>
+            <span className="text-sm text-muted-foreground">{review.eventType}</span>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Gallery = () => (
+  <section className="py-24 px-6">
+    <div className="max-w-7xl mx-auto">
+      <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-16 text-center">Event Highlights</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2074&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2069&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1522413452208-996ff3f3e71c?q=80&w=2070&auto=format&fit=crop"
+        ].map((img, idx) => (
+          <div key={idx} className="aspect-square rounded-3xl overflow-hidden group">
+            <img src={img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Footer = ({ companyInfo }) => (
+  <footer className="bg-card pt-24 pb-12 px-6 border-t border-border/30">
+    <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16 text-left">
+      <div className="col-span-2">
+        <div className="flex items-center gap-3 mb-6">
+          <Sprout className="text-primary" size={32} />
+          <h3 className="text-2xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
+        </div>
+        <p className="text-muted-foreground max-w-sm mb-8 leading-relaxed">
+          {companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}
+        </p>
+        <div className="flex gap-4">
+          <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
+            <Instagram size={20} />
+          </Button>
+          <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
+            <Facebook size={20} />
+          </Button>
+          <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
+            <Twitter size={20} />
+          </Button>
+        </div>
+      </div>
+      <div>
+        <h4 className="font-bold mb-6">Quick Links</h4>
+        <ul className="space-y-4 text-muted-foreground">
+          <li><button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors">Home</button></li>
+          <li><button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Our Menu</button></li>
+          <li><button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Contact Us</button></li>
+        </ul>
+      </div>
+      <div>
+        <h4 className="font-bold mb-6">Contact</h4>
+        <ul className="space-y-4 text-muted-foreground">
+          <li className="flex items-center gap-3"><MapPin size={18} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</li>
+          <li className="flex items-center gap-3"><Clock size={18} className="text-primary" /> Mon - Sun: 9AM - 10PM</li>
+        </ul>
+      </div>
+    </div>
+    <div className="max-w-7xl mx-auto pt-8 border-t border-border/10 text-center text-sm text-muted-foreground">
+      © 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.
+    </div>
+  </footer>
+);
 
 // Preload component
 const ImagePreloader = ({ images }) => (
@@ -356,7 +446,10 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {selectedItem && (
+      <Testimonials reviews={reviews} />
+      <Gallery />
+
+      <section id="contact-section" className="py-20 sm:py-32 px-4 sm:px-6">
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-md"
@@ -425,11 +518,7 @@ export default function CustomerHome() {
           </div>
         </div>
       </section>
-      <footer className="py-12 px-6 border-t border-border/30 text-center">
-        <p className="text-muted-foreground dark:text-gray-400 text-sm font-light">
-          © 2025 {companyInfo?.companyName || "Elite Catering"}. Nature's finest flavors.
-        </p>
-      </footer>
+      <Footer companyInfo={companyInfo} />
     </div>
   );
 }
