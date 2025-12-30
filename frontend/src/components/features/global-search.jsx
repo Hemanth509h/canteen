@@ -99,12 +99,12 @@ export function GlobalSearch({ className }) {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className={cn("relative gap-2 text-muted-foreground", className)}
+          className={cn("relative gap-2 text-foreground dark:text-white border-border", className)}
           data-testid="button-global-search"
         >
           <Search className="w-4 h-4" />
           <span className="hidden sm:inline">Search...</span>
-          <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+          <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 dark:text-white">
             <span className="text-xs">⌘</span>K
           </kbd>
         </Button>
