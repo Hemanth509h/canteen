@@ -84,6 +84,8 @@ export default function CustomerHome() {
     }) || [];
   }, [foodItems, selectedCategory, searchQuery]);
 
+  const defaultFoodImage = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop";
+
   return (
     <div className="font-inter relative overflow-hidden bg-background selection:bg-primary/20">
       {/* Animated Background Elements */}
@@ -92,15 +94,15 @@ export default function CustomerHome() {
       <BackgroundLeaf className="bottom-20 left-[10%] rotate-45 leaf-float-3" />
 
       {/* Hero Section */}
-      <div className="relative h-[550px] sm:h-[650px] md:h-[750px] overflow-hidden">
+      <div className="relative h-[450px] sm:h-[550px] md:h-[650px] overflow-hidden">
         <div className="absolute top-6 right-6 z-50 fade-in">
           <ThemeToggle />
         </div>
         <div 
-          className="absolute inset-0 bg-cover bg-center scale-105 animate-[kenburns_20s_ease-out_infinite]"
+          className="absolute inset-0 bg-cover bg-center animate-[kenburns_20s_ease-out_infinite]"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-background/20 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-black/40" />
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8 slide-up">
@@ -219,54 +221,56 @@ export default function CustomerHome() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            {isLoadingFood ? (
-              Array(6).fill(0).map((_, i) => (
-                <div key={i} className="space-y-4 slide-up">
-                  <Skeleton className="h-80 w-full rounded-[2.5rem]" />
-                  <Skeleton className="h-4 w-2/3" />
-                </div>
-              ))
-            ) : (
-              filteredItems.map((item, idx) => (
-                <div 
-                  key={item.id}
-                  className="group relative slide-up"
-                  onClick={() => setSelectedItem(item)}
-                >
-                  <Card className="overflow-hidden bg-background border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[3rem] cursor-pointer group-hover:-translate-y-4">
-                    <div className="h-80 relative overflow-hidden">
-                      <img 
-                        src={item.image || "/placeholder.png"} 
-                        alt={item.name}
-                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                      />
-                      <div className="absolute top-6 left-6">
-                        <Badge className="bg-white/80 backdrop-blur-md text-primary border-none py-2 px-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
-                          {item.category}
-                        </Badge>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10">
-                        <div className="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500">
-                           <Button className="w-full rounded-2xl h-14 font-bold text-lg">View Details</Button>
+          <div className="max-h-[800px] overflow-y-auto pr-4 custom-scrollbar">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+              {isLoadingFood ? (
+                Array(6).fill(0).map((_, i) => (
+                  <div key={i} className="space-y-4 slide-up">
+                    <Skeleton className="h-80 w-full rounded-[2.5rem]" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ))
+              ) : (
+                filteredItems.map((item, idx) => (
+                  <div 
+                    key={item.id}
+                    className="group relative slide-up"
+                    onClick={() => setSelectedItem(item)}
+                  >
+                    <Card className="overflow-hidden bg-background border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[3rem] cursor-pointer group-hover:-translate-y-4 hover:ring-2 hover:ring-primary/20">
+                      <div className="h-80 relative overflow-hidden">
+                        <img 
+                          src={defaultFoodImage} 
+                          alt={item.name}
+                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                        />
+                        <div className="absolute top-6 left-6">
+                          <Badge className="bg-white/80 backdrop-blur-md text-primary border-none py-2 px-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                            {item.category}
+                          </Badge>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10">
+                          <div className="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500">
+                             <Button className="w-full rounded-2xl h-14 font-bold text-lg">View Details</Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="p-10">
-                      <h3 className="font-poppins font-bold text-2xl mb-4 group-hover:text-primary transition-colors duration-500">{item.name}</h3>
-                      <p className="text-muted-foreground text-base line-clamp-2 leading-relaxed font-light">{item.description}</p>
-                      <div className="mt-8 pt-8 border-t border-border/30 flex justify-between items-center opacity-60 group-hover:opacity-100 transition-opacity duration-500">
-                        <div className="flex items-center gap-2">
-                          <Wind size={16} className="text-primary" />
-                          <span className="text-xs font-bold uppercase tracking-tighter">Freshly Sourced</span>
+                      <div className="p-10">
+                        <h3 className="font-poppins font-bold text-2xl mb-4 group-hover:text-primary transition-colors duration-500">{item.name}</h3>
+                        <p className="text-muted-foreground text-base line-clamp-2 leading-relaxed font-light">{item.description}</p>
+                        <div className="mt-8 pt-8 border-t border-border/30 flex justify-between items-center opacity-60 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="flex items-center gap-2">
+                            <Wind size={16} className="text-primary" />
+                            <span className="text-xs font-bold uppercase tracking-tighter">Freshly Sourced</span>
+                          </div>
+                          <ChefHat size={20} className="text-primary" />
                         </div>
-                        <ChefHat size={20} className="text-primary" />
                       </div>
-                    </div>
-                  </Card>
-                </div>
-              ))
-            )}
+                    </Card>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -281,7 +285,7 @@ export default function CustomerHome() {
           <div className="relative bg-card rounded-[3.5rem] shadow-2xl max-w-5xl w-full overflow-hidden z-10 slide-up">
             <div className="flex flex-col md:flex-row">
               <div className="md:w-1/2 h-[400px] md:h-auto">
-                <img src={selectedItem.image} className="w-full h-full object-cover" />
+                <img src={defaultFoodImage} className="w-full h-full object-cover" />
               </div>
               <div className="md:w-1/2 p-12 md:p-20">
                 <Badge className="mb-8 rounded-full px-6 py-2">{selectedItem.category}</Badge>
