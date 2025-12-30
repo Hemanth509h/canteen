@@ -15,35 +15,35 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 
 export default function AdminPaymentConfirmation() {
-  const { bookingId } = useParams<{ bookingIdtring }>();
+  const { bookingId } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [editTotalAmount, setEditTotalAmount] = useState<number | null>(null);
-  const [editAdvanceAmount, setEditAdvanceAmount] = useState<number | null>(null);
-  const [editAdvanceStatus, setEditAdvanceStatus] = useState<"pending" | "paid" | null>(null);
-  const [editFinalStatus, setEditFinalStatus] = useState<"pending" | "paid" | null>(null);
+  const [editTotalAmount, setEditTotalAmount] = useState(null);
+  const [editAdvanceAmount, setEditAdvanceAmount] = useState(null);
+  const [editAdvanceStatus, setEditAdvanceStatus] = useState(null);
+  const [editFinalStatus, setEditFinalStatus] = useState(null);
   const [approvingAdvance, setApprovingAdvance] = useState(false);
   const [approvingFinal, setApprovingFinal] = useState(false);
 
-  const { dataooking, isLoadingookingLoading } = useQuery({
-    queryKey"/api/bookings", bookingId],
+  const { data: booking, isLoading: isLoadingBooking } = useQuery({
+    queryKey: ["/api/bookings", bookingId],
     queryFn: () => fetch(`/api/bookings/${bookingId}`).then(r => r.json()),
   });
 
   const { data: companyInfo } = useQuery({
-    queryKey"/api/company-info"],
+    queryKey: ["/api/company-info"],
   });
 
   useEffect(() => {
     if (booking && !isEditing) {
-      setEditAdvanceStatus(booking.advancePaymentStatus as "pending" | "paid");
-      setEditFinalStatus(booking.finalPaymentStatus as "pending" | "paid");
+      setEditAdvanceStatus(booking.advancePaymentStatus);
+      setEditFinalStatus(booking.finalPaymentStatus);
     }
   }, [booking, isEditing]);
 
   const updatePaymentMutation = useMutation({
-    mutationFnsync () => {
+    mutationFn: async () => {
       if (!booking) return;
       
       // Validate payment states - final cannot be paid if advance isn't paid
@@ -51,7 +51,7 @@ export default function AdminPaymentConfirmation() {
         throw new Error("Final payment cannot be marked as paid before advance payment");
       }
       
-      const updateDataecord<string, any> = {};
+      const updateData = {};
       if (editAdvanceStatus !== null && editAdvanceStatus !== booking.advancePaymentStatus) {
         updateData.advancePaymentStatus = editAdvanceStatus;
       }
@@ -70,7 +70,7 @@ export default function AdminPaymentConfirmation() {
       return apiRequest("PATCH", `/api/bookings/${bookingId}`, updateData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/bookings", bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
       toast({
         title: "Success",
         description: "Payment details updated successfully",
@@ -90,8 +90,8 @@ export default function AdminPaymentConfirmation() {
 
   const handleEditClick = () => {
     if (booking && !isEditing) {
-      setEditAdvanceStatus(booking.advancePaymentStatus as "pending" | "paid");
-      setEditFinalStatus(booking.finalPaymentStatus as "pending" | "paid");
+      setEditAdvanceStatus(booking.advancePaymentStatus);
+      setEditFinalStatus(booking.finalPaymentStatus);
       setEditTotalAmount(totalAmount);
       setEditAdvanceAmount(booking.advanceAmount ?? Math.ceil(totalAmount * 0.5));
     }
@@ -107,14 +107,14 @@ export default function AdminPaymentConfirmation() {
   };
 
   const approvePaymentMutation = useMutation({
-    mutationFnsync (type) => {
+    mutationFn: async (type) => {
       return apiRequest("PATCH", `/api/bookings/${bookingId}`, {
         [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
         [type === "advance" ? "advancePaymentApprovalStatus" : "finalPaymentApprovalStatus"]: "approved",
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/bookings", bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
       toast({
         title: "Success",
         description: "Payment approved successfully",
@@ -203,9 +203,9 @@ export default function AdminPaymentConfirmation() {
 
   const baseAmount = booking.guestCount * booking.pricePerPlate;
   const totalAmount = booking.totalAmount ?? baseAmount;
-  const displayTotal = isEditing && editTotalAmount !== null ? editTotalAmount otalAmount;
+  const displayTotal = isEditing && editTotalAmount !== null ? editTotalAmount : totalAmount;
   const storedAdvanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
-  const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount toredAdvanceAmount;
+  const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
   const finalAmount = displayTotal - advanceAmount;
   const advancePaid = isEditing ? editAdvanceStatus === "paid" ooking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
   const finalPaid = isEditing ? editFinalStatus === "paid" ooking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
@@ -362,7 +362,7 @@ export default function AdminPaymentConfirmation() {
                       <p className="text-3xl font-bold" data-testid="text-advance-amount-admin">₹{advanceAmount.toLocaleString('en-IN')}</p>
                     )}
                     {isEditing ? (
-                      <Select value={editAdvanceStatus || "pending"} onValueChange={(val) => setEditAdvanceStatus(val as "pending" | "paid")}>
+                      <Select value={editAdvanceStatus || "pending"} onValueChange={(val) => setEditAdvanceStatus(val)}>
                         <SelectTrigger className="w-28" data-testid="select-advance-status-edit">
                           <SelectValue />
                         </SelectTrigger>
@@ -451,7 +451,7 @@ export default function AdminPaymentConfirmation() {
                     <p className="text-3xl font-bold" data-testid="text-final-amount-admin">₹{finalAmount.toLocaleString('en-IN')}</p>
                     {isEditing ? (
                       <div className="flex flex-col gap-2">
-                        <Select value={editFinalStatus || "pending"} onValueChange={(val) => setEditFinalStatus(val as "pending" | "paid")} disabled={editAdvanceStatus !== "paid"}>
+                        <Select value={editFinalStatus || "pending"} onValueChange={(val) => setEditFinalStatus(val)} disabled={editAdvanceStatus !== "paid"}>
                           <SelectTrigger className="w-28" data-testid="select-final-status-edit" disabled={editAdvanceStatus !== "paid"}>
                             <SelectValue />
                           </SelectTrigger>

@@ -43,7 +43,7 @@ function AppSidebar({ onLogout }) {
   return (
     <Sidebar className="border-r border-border/50">
       <SidebarContent className="bg-gradient-to-b from-sidebar to-sidebar/95">
-        
+        <SidebarGroup>
           <SidebarGroupLabel className="flex items-center gap-3 px-4 py-6 mb-2">
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <ChefHat className="w-5 h-5 text-primary" />
@@ -60,24 +60,20 @@ function AppSidebar({ onLogout }) {
             </div>
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
-            
-              {menuItems.map((item, index) => (
-                <div
-                  key={item.title}
-                >
-                  
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={location === item.url}
-                      className="rounded-lg transition-all duration-200"
-                    >
-                      <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`}>
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </div>
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location === item.url}
+                    className="rounded-lg transition-all duration-200"
+                  >
+                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`}>
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

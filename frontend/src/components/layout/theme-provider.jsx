@@ -1,20 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "dark" | "light";
-
-type ThemeProviderProps = {
-  childreneact.ReactNode;
-  defaultTheme?heme;
-  storageKey?tring;
-};
-
-type ThemeProviderState = {
-  themeheme;
-  setTheme: (themeheme) => void;
-  toggleTheme: () => void;
-};
-
-const initialStatehemeProviderState = {
+const initialState = {
   theme: "light",
   setTheme: () => null,
   toggleTheme: () => null,
@@ -27,10 +13,11 @@ export function ThemeProvider({
   defaultTheme = "light",
   storageKey = "ui-theme",
   ...props
-}hemeProviderProps) {
-  const [theme, setTheme] = useState(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+}) {
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem(storageKey);
+    return stored || defaultTheme;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -40,9 +27,9 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (themeheme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+    setTheme: (newTheme) => {
+      localStorage.setItem(storageKey, newTheme);
+      setTheme(newTheme);
     },
     toggleTheme: () => {
       const newTheme = theme === "light" ? "dark" : "light";
