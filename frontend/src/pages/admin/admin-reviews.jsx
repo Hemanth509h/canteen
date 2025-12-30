@@ -139,7 +139,7 @@ export default function ReviewsManager() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (idtring, nametring) => {
+  const handleDelete = (id, name) => {
     setDeleteTargetId(id);
     setDeleteTargetName(name);
     setConfirmDeleteOpen(true);
@@ -151,11 +151,9 @@ export default function ReviewsManager() {
     }
   };
 
-  const onSubmit = (datapdateCustomerReview) => {
+  const onSubmit = (data) => {
     if (editingReview) {
-      updateMutation.mutate({ idditingReview.id, data });
-    } else {
-      createMutation.mutate(data as InsertCustomerReview);
+      updateMutation.mutate({ id: editingReview.id, data });
     }
   };
 
@@ -209,7 +207,7 @@ export default function ReviewsManager() {
               </Button>
             </DialogTrigger>
             <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-              
+              <DialogHeader>
                 <DialogTitle className="text-lg sm:text-xl">
                   {editingReview ? "Edit Review" : "Add New Review"}
                 </DialogTitle>
@@ -223,9 +221,9 @@ export default function ReviewsManager() {
                     control={form.control}
                     name="customerName"
                     render={({ field }) => (
-                      
-                        Customer Name</FormLabel>
-                        
+                      <FormItem>
+                        <FormLabel>Customer Name</FormLabel>
+                        <FormControl>
                           <Input placeholder="Enter customer name" {...field} data-testid="input-review-name" />
                         </FormControl>
                         <FormMessage />
@@ -236,15 +234,15 @@ export default function ReviewsManager() {
                     control={form.control}
                     name="eventType"
                     render={({ field }) => (
-                      
-                        Event Type</FormLabel>
+                      <FormItem>
+                        <FormLabel>Event Type</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
-                          
+                          <FormControl>
                             <SelectTrigger data-testid="select-review-event">
                               <SelectValue placeholder="Select event type" />
                             </SelectTrigger>
                           </FormControl>
-                          
+                          <SelectContent>
                             {eventTypes.map((type) => (
                               <SelectItem key={type} value={type}>
                                 {type}
@@ -260,15 +258,15 @@ export default function ReviewsManager() {
                     control={form.control}
                     name="rating"
                     render={({ field }) => (
-                      
-                        Rating (1-5)</FormLabel>
+                      <FormItem>
+                        <FormLabel>Rating (1-5)</FormLabel>
                         <Select onValueChange={(val) => field.onChange(parseInt(val))} value={String(field.value)}>
-                          
+                          <FormControl>
                             <SelectTrigger data-testid="select-review-rating">
                               <SelectValue placeholder="Select rating" />
                             </SelectTrigger>
                           </FormControl>
-                          
+                          <SelectContent>
                             <SelectItem value="1">1 Star - Poor</SelectItem>
                             <SelectItem value="2">2 Stars - Fair</SelectItem>
                             <SelectItem value="3">3 Stars - Good</SelectItem>
@@ -284,9 +282,9 @@ export default function ReviewsManager() {
                     control={form.control}
                     name="comment"
                     render={({ field }) => (
-                      
-                        Review Comment</FormLabel>
-                        
+                      <FormItem>
+                        <FormLabel>Review Comment</FormLabel>
+                        <FormControl>
                           <Textarea 
                             placeholder="Enter customer review" 
                             {...field} 
@@ -323,12 +321,12 @@ export default function ReviewsManager() {
       </div>
 
       <div className="space-y-4">
-        
-          
+        <Card>
+          <CardHeader>
             <div className="space-y-4">
               <div>
-                Reviews</CardTitle>
-                
+                <CardTitle>Reviews</CardTitle>
+                <CardDescription>
                   {filteredReviews?.length || 0} of {reviews?.length || 0} reviews
                 </CardDescription>
               </div>
@@ -344,11 +342,11 @@ export default function ReviewsManager() {
                     data-testid="input-search-reviews"
                   />
                 </div>
-                <Select value={ratingFilter || "none"} onValueChange={(value) => setRatingFilter(value === "none" ? "" alue)}>
+                <Select value={ratingFilter || "none"} onValueChange={(value) => setRatingFilter(value === "none" ? "" : value)}>
                   <SelectTrigger className="w-full sm:w-48">
                     <SelectValue placeholder="Filter by rating" />
                   </SelectTrigger>
-                  
+                  <SelectContent>
                     <SelectItem value="none">All Ratings</SelectItem>
                     <SelectItem value="5">5 Stars</SelectItem>
                     <SelectItem value="4">4 Stars</SelectItem>
@@ -370,7 +368,7 @@ export default function ReviewsManager() {
               </div>
             </div>
           </CardHeader>
-          
+          <CardContent>
             {filteredReviews && filteredReviews.length > 0 ? (
               <div className="space-y-3 overflow-x-auto">
                 {filteredReviews.map((review) => (

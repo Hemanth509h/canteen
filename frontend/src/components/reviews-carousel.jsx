@@ -69,7 +69,7 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
   }) => {
     const animationName = isCurrent 
       ? "cardFadeInScale"
-      osition === "prev"
+      : position === "prev"
         ? "cardSlideInLeft"
         : "cardSlideInRight";
 
@@ -94,10 +94,10 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
             <div 
               className="absolute inset-0 opacity-20"
               style={{
-                backgroundsCurrent
+                background: isCurrent
                   ? "radial-gradient(circle at top right, rgba(255,255,255,0.1), transparent)"
                   : "radial-gradient(circle at bottom left, rgba(0,0,0,0.05), transparent)",
-                animationsCurrent ? "bgPulse 3s ease-in-out infinite" : "none",
+                animation: isCurrent ? "bgPulse 3s ease-in-out infinite" : "none",
               }}
             />
           </div>

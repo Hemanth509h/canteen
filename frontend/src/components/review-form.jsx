@@ -101,6 +101,7 @@ export default function ReviewForm() {
                 <FormItem>
                   <FormLabel>Rating</FormLabel>
                   <FormControl>
+                    <div className="flex gap-2" data-testid="select-review-rating">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
