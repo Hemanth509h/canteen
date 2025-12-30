@@ -1,6 +1,6 @@
 export const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('replit')
-  ? '' // Use proxy on local/replit
-  : 'https://canteen-bt65.vercel.app'; // Use direct URL on production
+  ? '' // Use relative paths for local proxy
+  : 'https://canteen-bt65.vercel.app'; // Direct URL for production
 
 export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
