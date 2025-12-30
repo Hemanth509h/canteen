@@ -42,7 +42,7 @@ const SidebarContextPropsType = {
   toggleSidebar: () => {},
 }
 
-const SidebarContext = React.createContext<SidebarContextProps | null>(null)
+const SidebarContext = React.createContext(null)
 
 function useSidebar() {
   const context = React.useContext(SidebarContext)
@@ -129,10 +129,10 @@ function SidebarProvider({
           data-slot="sidebar-wrapper"
           style={
             {
-              "--sidebar-width"IDEBAR_WIDTH,
-              "--sidebar-width-icon"IDEBAR_WIDTH_ICON,
+              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
               ...style,
-            } as React.CSSProperties
+            }
           }
           className={cn(
             "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
@@ -154,10 +154,6 @@ function Sidebar({
   className,
   children,
   ...props
-}eact.ComponentProps<"div"> & {
-  side?: "left" | "right"
-  variant?: "sidebar" | "floating" | "inset"
-  collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
@@ -186,14 +182,14 @@ function Sidebar({
           className="bg-sidebar text-sidebar-foreground w-[var(--sidebar-width)] p-0 [&>button]:hidden"
           style={
             {
-              "--sidebar-width"IDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
+              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+            }
           }
           side={side}
         >
           <SheetHeader className="sr-only">
-            Sidebar</SheetTitle>
-            Displays the mobile sidebar.</SheetDescription>
+            <SheetTitle>Sidebar</SheetTitle>
+            <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
@@ -253,7 +249,7 @@ function SidebarTrigger({
   className,
   onClick,
   ...props
-}eact.ComponentProps<typeof Button>) {
+}) {
   const { toggleSidebar } = useSidebar()
 
   return (
@@ -275,10 +271,10 @@ function SidebarTrigger({
   )
 }
 
-function SidebarRail({ className, ...props }eact.ComponentProps<"button">) {
+function SidebarRail({ className, ...props }) {
   const { toggleSidebar } = useSidebar()
 
-  // Noteailwind v3.4 doesn't support "in-" selectors. So the rail won't work perfectly.
+  // Note: Tailwind v3.4 doesn't support "in-" selectors. So the rail won't work perfectly.
   return (
     <button
       data-sidebar="rail"
@@ -301,7 +297,7 @@ function SidebarRail({ className, ...props }eact.ComponentProps<"button">) {
   )
 }
 
-function SidebarInset({ className, ...props }eact.ComponentProps<"main">) {
+function SidebarInset({ className, ...props }) {
   return (
     <main
       data-slot="sidebar-inset"
@@ -318,7 +314,7 @@ function SidebarInset({ className, ...props }eact.ComponentProps<"main">) {
 function SidebarInput({
   className,
   ...props
-}eact.ComponentProps<typeof Input>) {
+}) {
   return (
     <Input
       data-slot="sidebar-input"
@@ -329,7 +325,7 @@ function SidebarInput({
   )
 }
 
-function SidebarHeader({ className, ...props }eact.ComponentProps<"div">) {
+function SidebarHeader({ className, ...props }) {
   return (
     <div
       data-slot="sidebar-header"
@@ -340,7 +336,7 @@ function SidebarHeader({ className, ...props }eact.ComponentProps<"div">) {
   )
 }
 
-function SidebarFooter({ className, ...props }eact.ComponentProps<"div">) {
+function SidebarFooter({ className, ...props }) {
   return (
     <div
       data-slot="sidebar-footer"
@@ -354,7 +350,7 @@ function SidebarFooter({ className, ...props }eact.ComponentProps<"div">) {
 function SidebarSeparator({
   className,
   ...props
-}eact.ComponentProps<typeof Separator>) {
+}) {
   return (
     <Separator
       data-slot="sidebar-separator"
@@ -365,7 +361,7 @@ function SidebarSeparator({
   )
 }
 
-function SidebarContent({ className, ...props }eact.ComponentProps<"div">) {
+function SidebarContent({ className, ...props }) {
   return (
     <div
       data-slot="sidebar-content"
@@ -379,7 +375,7 @@ function SidebarContent({ className, ...props }eact.ComponentProps<"div">) {
   )
 }
 
-function SidebarGroup({ className, ...props }eact.ComponentProps<"div">) {
+function SidebarGroup({ className, ...props }) {
   return (
     <div
       data-slot="sidebar-group"
@@ -394,7 +390,7 @@ function SidebarGroupLabel({
   className,
   asChild = false,
   ...props
-}eact.ComponentProps<"div"> & { asChild?oolean }) {
+}) {
   const Comp = asChild ? Slot : "div"
 
   return (
@@ -415,7 +411,7 @@ function SidebarGroupAction({
   className,
   asChild = false,
   ...props
-}eact.ComponentProps<"button"> & { asChild?oolean }) {
+}) {
   const Comp = asChild ? Slot : "button"
 
   return (
@@ -437,7 +433,7 @@ function SidebarGroupAction({
 function SidebarGroupContent({
   className,
   ...props
-}eact.ComponentProps<"div">) {
+}) {
   return (
     <div
       data-slot="sidebar-group-content"
@@ -448,7 +444,7 @@ function SidebarGroupContent({
   )
 }
 
-function SidebarMenu({ className, ...props }eact.ComponentProps<"ul">) {
+function SidebarMenu({ className, ...props }) {
   return (
     <ul
       data-slot="sidebar-menu"
@@ -459,7 +455,7 @@ function SidebarMenu({ className, ...props }eact.ComponentProps<"ul">) {
   )
 }
 
-function SidebarMenuItem({ className, ...props }eact.ComponentProps<"li">) {
+function SidebarMenuItem({ className, ...props }) {
   return (
     <li
       data-slot="sidebar-menu-item"
@@ -500,11 +496,7 @@ function SidebarMenuButton({
   tooltip,
   className,
   ...props
-}eact.ComponentProps<"button"> & {
-  asChild?oolean
-  isActive?oolean
-  tooltip?tring | React.ComponentProps<typeof TooltipContent>
-} & VariantProps<typeof sidebarMenuButtonVariants>) {
+}) {
   const Comp = asChild ? Slot : "button"
   const { isMobile, state } = useSidebar()
 
@@ -525,12 +517,12 @@ function SidebarMenuButton({
 
   if (typeof tooltip === "string") {
     tooltip = {
-      childrenooltip,
+      children: tooltip,
     }
   }
 
   return (
-    
+    <Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent
         side="right"
@@ -547,9 +539,6 @@ function SidebarMenuAction({
   asChild = false,
   showOnHover = false,
   ...props
-}eact.ComponentProps<"button"> & {
-  asChild?oolean
-  showOnHover?oolean
 }) {
   const Comp = asChild ? Slot : "button"
 
@@ -577,7 +566,7 @@ function SidebarMenuAction({
 function SidebarMenuBadge({
   className,
   ...props
-}eact.ComponentProps<"div">) {
+}) {
   return (
     <div
       data-slot="sidebar-menu-badge"
@@ -600,8 +589,6 @@ function SidebarMenuSkeleton({
   className,
   showIcon = false,
   ...props
-}eact.ComponentProps<"div"> & {
-  showIcon?oolean
 }) {
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
@@ -626,15 +613,15 @@ function SidebarMenuSkeleton({
         data-sidebar="menu-skeleton-text"
         style={
           {
-            "--skeleton-width"idth,
-          } as React.CSSProperties
+            "--skeleton-width": width,
+          }
         }
       />
     </div>
   )
 }
 
-function SidebarMenuSub({ className, ...props }eact.ComponentProps<"ul">) {
+function SidebarMenuSub({ className, ...props }) {
   return (
     <ul
       data-slot="sidebar-menu-sub"
@@ -652,7 +639,7 @@ function SidebarMenuSub({ className, ...props }eact.ComponentProps<"ul">) {
 function SidebarMenuSubItem({
   className,
   ...props
-}eact.ComponentProps<"li">) {
+}) {
   return (
     <li
       data-slot="sidebar-menu-sub-item"
@@ -669,10 +656,6 @@ function SidebarMenuSubButton({
   isActive = false,
   className,
   ...props
-}eact.ComponentProps<"a"> & {
-  asChild?oolean
-  size?: "sm" | "md"
-  isActive?oolean
 }) {
   const Comp = asChild ? Slot : "a"
 

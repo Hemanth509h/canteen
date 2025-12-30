@@ -5,37 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Search, Calendar, User, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import "@/schema";
+import { EventBooking, Staff } from "@/schema";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 
-interface SearchResult {
-  type: "booking" | "staff";
-  idtring;
-  titletring;
-  subtitletring;
-  status?tring;
-}
-
-interface GlobalSearchProps {
-  className?tring;
-}
-
-export function GlobalSearch({ className }lobalSearchProps) {
+export function GlobalSearch({ className }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef(null);
   const [, setLocation] = useLocation();
 
-  const { dataookings } = useQuery<EventBooking[]>({
-    queryKey: "/api/bookings"],
+  const { data: bookings } = useQuery({
+    queryKey: ["/api/bookings"],
   });
 
-  const { datataffList } = useQuery<Staff[]>({
-    queryKey: "/api/staff"],
+  const { data: staffList } = useQuery({
+    queryKey: ["/api/staff"],
   });
 
-  const resultsearchResult[] = [];
+  const results = [];
 
   if (query.length >= 2) {
     const lowerQuery = query.toLowerCase();
@@ -49,10 +37,10 @@ export function GlobalSearch({ className }lobalSearchProps) {
       ) {
         results.push({
           type: "booking",
-          idooking.id,
-          titleooking.clientName,
+          id: booking.id,
+          title: booking.clientName,
           subtitle: `${booking.eventType} - ${booking.eventDate}`,
-          statusooking.status,
+          status: booking.status,
         });
       }
     });
@@ -65,8 +53,8 @@ export function GlobalSearch({ className }lobalSearchProps) {
       ) {
         results.push({
           type: "staff",
-          idtaff.id,
-          titletaff.name,
+          id: staff.id,
+          title: staff.name,
           subtitle: `${staff.role} - ${staff.phone}`,
         });
       }
@@ -74,7 +62,7 @@ export function GlobalSearch({ className }lobalSearchProps) {
   }
 
   useEffect(() => {
-    const handleKeyDown = (eeyboardEvent) => {
+    const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setOpen(true);
@@ -90,7 +78,7 @@ export function GlobalSearch({ className }lobalSearchProps) {
     }
   }, [open]);
 
-  const handleSelect = (resultearchResult) => {
+  const handleSelect = (result) => {
     setOpen(false);
     setQuery("");
     if (result.type === "booking") {
@@ -100,7 +88,7 @@ export function GlobalSearch({ className }lobalSearchProps) {
     }
   };
 
-  const statusColorsecord<string, string> = {
+  const statusColors = {
     pending: "bg-amber-500/20 text-amber-700 dark:text-amber-400",
     confirmed: "bg-green-500/20 text-green-700 dark:text-green-400",
     completed: "bg-blue-500/20 text-blue-700 dark:text-blue-400",
@@ -152,7 +140,7 @@ export function GlobalSearch({ className }lobalSearchProps) {
             <div className="text-sm text-muted-foreground text-center py-8 animate-in fade-in duration-300">
               Type at least 2 characters to search
             </div>
-          ) esults.length === 0 ? (
+          ) : results.length === 0 ? (
             <div className="text-sm text-muted-foreground text-center py-8 animate-in fade-in duration-300">
               No results found for "{query}"
             </div>
@@ -162,7 +150,7 @@ export function GlobalSearch({ className }lobalSearchProps) {
                 <button
                   key={`${result.type}-${result.id}`}
                   onClick={() => handleSelect(result)}
-                  className="w-full flex items-center gap-3 p-3 rounded-md text-left hover-elevate active-elevate-2"
+                  className="w-full flex items-center gap-3 p-3 rounded-md text-left hover:bg-muted active:bg-muted/80"
                   data-testid={`search-result-${result.type}-${result.id}`}
                 >
                   <div className="shrink-0">

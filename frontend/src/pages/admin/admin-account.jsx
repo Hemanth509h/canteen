@@ -13,21 +13,19 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 
 const changePasswordSchema = z.object({
-  currentPassword.string().min(1, "Current password is required"),
-  newPassword.string().min(6, "New password must be at least 6 characters"),
-  confirmPassword.string().min(1, "Please confirm your password"),
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(6, "New password must be at least 6 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: "Passwords don't match",
-  path"confirmPassword"],
+  path: ["confirmPassword"],
 });
-
-type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
 
 export default function AdminAccount() {
   const { toast } = useToast();
 
   const form = useForm({
-    resolverodResolver(changePasswordSchema),
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -36,10 +34,10 @@ export default function AdminAccount() {
   });
 
   const changePasswordMutation = useMutation({
-    mutationFnsync (datahangePasswordForm) => {
+    mutationFn: async (data) => {
       return apiRequest("POST", "/api/admin/change-password", {
-        currentPasswordata.currentPassword,
-        newPasswordata.newPassword,
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
       });
     },
     onSuccess: () => {
@@ -49,16 +47,16 @@ export default function AdminAccount() {
       });
       form.reset();
     },
-    onError: (errorny) => {
+    onError: (error) => {
       toast({
         title: "Error",
-        descriptionrror.message || "Failed to change password",
+        description: error?.message || "Failed to change password",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (datahangePasswordForm) => {
+  const onSubmit = (data) => {
     changePasswordMutation.mutate(data);
   };
 
@@ -74,26 +72,26 @@ export default function AdminAccount() {
       </div>
 
       <div className="grid gap-6 max-w-2xl">
-        
-          
+        <Card>
+          <CardHeader>
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" />
-              Change Password</CardTitle>
+              <CardTitle>Change Password</CardTitle>
             </div>
-            
+            <CardDescription>
               Update your admin password to keep your account secure
             </CardDescription>
           </CardHeader>
-          
+          <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
                   name="currentPassword"
                   render={({ field }) => (
-                    
-                      Current Password</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Current Password</FormLabel>
+                      <FormControl>
                         <Input
                           type="password"
                           placeholder="Enter current password"
@@ -110,9 +108,9 @@ export default function AdminAccount() {
                   control={form.control}
                   name="newPassword"
                   render={({ field }) => (
-                    
-                      New Password</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>New Password</FormLabel>
+                      <FormControl>
                         <Input
                           type="password"
                           placeholder="Enter new password (min 6 characters)"
@@ -129,9 +127,9 @@ export default function AdminAccount() {
                   control={form.control}
                   name="confirmPassword"
                   render={({ field }) => (
-                    
-                      Confirm New Password</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Confirm New Password</FormLabel>
+                      <FormControl>
                         <Input
                           type="password"
                           placeholder="Confirm new password"
@@ -157,10 +155,10 @@ export default function AdminAccount() {
           </CardContent>
         </Card>
 
-        
-          
-            Security Information</CardTitle>
-            
+        <Card>
+          <CardHeader>
+            <CardTitle>Security Information</CardTitle>
+            <CardDescription>
               Important notes about your account security
             </CardDescription>
           </CardHeader>
