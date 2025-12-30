@@ -81,7 +81,7 @@ export default function CustomerHome() {
   }, [foodItems, selectedCategory, searchQuery]);
 
   return (
-    <div className="font-sans">
+    <div className="font-inter">
       {/* Hero Section */}
       <div className="relative h-[500px] sm:h-[600px] md:h-[700px] overflow-hidden">
         <div 
@@ -90,13 +90,13 @@ export default function CustomerHome() {
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 sm:px-6 md:px-8">
-          <h2 className="text-5xl sm:text-6xl md:text-7xl font-serif font-bold mb-6 sm:mb-8 leading-tight">
+          <h2 className="text-5xl sm:text-6xl md:text-7xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
             {companyInfo?.companyName || "Elite Catering & Events"}
           </h2>
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-light mb-6 sm:mb-8 tracking-wide">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-inter font-300 mb-6 sm:mb-8 tracking-wide">
             Elevating Your Events
           </h3>
-          <p className="text-base sm:text-lg md:text-xl max-w-2xl mb-8 sm:mb-12 font-light leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl max-w-2xl mb-8 sm:mb-12 font-inter font-light leading-relaxed">
             {companyInfo?.tagline || "From intimate gatherings to grand celebrations, we provide a sophisticated culinary experience tailored to your unique taste."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
@@ -123,13 +123,13 @@ export default function CustomerHome() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center mb-16">
             <div>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 sm:mb-8 leading-tight">
+              <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
                 Our Philosophy
               </h2>
-              <h3 className="text-2xl md:text-3xl font-light text-primary mb-8 sm:mb-10 leading-relaxed">
+              <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-8 sm:mb-10 leading-relaxed">
                 Crafting Unforgettable Culinary Memories
               </h3>
-              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 leading-relaxed font-light">
+              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 leading-relaxed font-inter">
                 {companyInfo?.description || "We believe that food is the heart of every event. Our team of expert chefs uses only the freshest, locally sourced ingredients to create dishes that are as beautiful as they are delicious."}
               </p>
               <div className="flex gap-12 sm:gap-16 mb-8">
@@ -154,8 +154,8 @@ export default function CustomerHome() {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-5 sm:mb-6">
                     <feature.icon className="w-8 h-8 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-lg sm:text-xl mb-3 sm:mb-4">{feature.title}</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground font-light leading-relaxed">{feature.description}</p>
+                  <h3 className="font-poppins font-semibold text-lg sm:text-xl mb-3 sm:mb-4">{feature.title}</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground font-inter leading-relaxed">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -167,13 +167,13 @@ export default function CustomerHome() {
       <section id="menu" className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 sm:mb-8 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
               Curated Gastronomy
             </h2>
-            <h3 className="text-2xl md:text-3xl font-light text-primary mb-6 sm:mb-8 leading-relaxed">
+            <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-6 sm:mb-8 leading-relaxed">
               A Symphony of Flavors
             </h3>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 sm:mb-12 font-light leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 sm:mb-12 font-inter leading-relaxed">
               Experience our hand-crafted selection of signature dishes, each telling a story of tradition and innovation.
             </p>
 
@@ -236,10 +236,10 @@ export default function CustomerHome() {
                       />
                     </div>
                     <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
-                      <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3 line-clamp-2">
+                      <h3 className="font-poppins font-semibold text-base sm:text-lg mb-2 sm:mb-3 line-clamp-2">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2 font-light">
+                      <p className="text-sm text-muted-foreground line-clamp-2 font-inter">
                         {item.description}
                       </p>
                     </div>
@@ -267,10 +267,10 @@ export default function CustomerHome() {
                           <div className="md:w-1/2 flex flex-col justify-between">
                             <div>
                               <Badge className="mb-4 text-xs sm:text-sm py-1 sm:py-1.5">{item.category}</Badge>
-                              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4 sm:mb-5 leading-tight">
+                              <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold mb-4 sm:mb-5 leading-tight tracking-tight">
                                 {item.name}
                               </h2>
-                              <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 font-light leading-relaxed">
+                              <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 font-inter leading-relaxed">
                                 {item.description}
                               </p>
                             </div>
@@ -318,13 +318,13 @@ export default function CustomerHome() {
       <section className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 sm:mb-8 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
               Cherished Memories
             </h2>
-            <h3 className="text-2xl md:text-3xl font-light text-primary mb-6 sm:mb-8 leading-relaxed">
+            <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-6 sm:mb-8 leading-relaxed">
               What Our Clients Say
             </h3>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto font-inter leading-relaxed">
               Real stories from those who trusted us with their most important moments
             </p>
           </div>
@@ -336,13 +336,13 @@ export default function CustomerHome() {
       <section className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 sm:mb-8 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
               Your Feedback Matters
             </h2>
-            <h3 className="text-2xl md:text-3xl font-light text-primary mb-6 sm:mb-8 leading-relaxed">
+            <h3 className="text-2xl md:text-3xl font-inter font-300 text-primary mb-6 sm:mb-8 leading-relaxed">
               Tell Us Your Story
             </h3>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto font-inter leading-relaxed">
               We'd love to hear about your experience with Elite Catering & Events
             </p>
           </div>
@@ -356,10 +356,10 @@ export default function CustomerHome() {
       <section id="contact-section" className="py-24 sm:py-28 md:py-32 px-6 sm:px-8 md:px-12 bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-12 md:p-16 text-center shadow-lg">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 sm:mb-8 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight tracking-tight">
               Begin Your Culinary Journey
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground mb-10 sm:mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground mb-10 sm:mb-12 max-w-2xl mx-auto font-inter leading-relaxed">
               We are ready to design an experience that perfectly matches your vision. Our consultants are standing by to assist you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
