@@ -103,7 +103,7 @@ export default function EventBookingsManager() {
 
   const filteredFoodItems = foodItems?.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(debouncedFoodSearch.toLowerCase());
-    const matchesCategory = !selectedCategory || item.category === selectedCategory;
+    const matchesCategory = !selectedCategory || selectedCategory === "all" || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   }) || [];
 
@@ -505,7 +505,7 @@ export default function EventBookingsManager() {
                                 <SelectValue placeholder="Filter by category..." />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">All Categories</SelectItem>
+                                <SelectItem value="all">All Categories</SelectItem>
                                 {getCategories().map((category) => (
                                   <SelectItem key={category} value={category}>
                                     {category}

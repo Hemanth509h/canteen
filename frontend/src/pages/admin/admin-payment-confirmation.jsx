@@ -57,11 +57,15 @@ export default function AdminPaymentConfirmation() {
       if (editFinalStatus !== null && editFinalStatus !== booking.finalPaymentStatus) {
         updateData.finalPaymentStatus = editFinalStatus;
       }
-      if (editTotalAmount !== null && editTotalAmount !== totalAmount) {
-        updateData.totalAmount = editTotalAmount;
-        // When amount changes, reset approval statuses to pending for re-verification
-        updateData.advancePaymentApprovalStatus = undefined;
-        updateData.finalPaymentApprovalStatus = undefined;
+      if (editTotalAmount !== null) {
+        const baseAmount = booking.guestCount * booking.pricePerPlate;
+        const currentTotal = booking.totalAmount ?? baseAmount;
+        if (editTotalAmount !== currentTotal) {
+          updateData.totalAmount = editTotalAmount;
+          // When amount changes, reset approval statuses to pending for re-verification
+          updateData.advancePaymentApprovalStatus = undefined;
+          updateData.finalPaymentApprovalStatus = undefined;
+        }
       }
       if (editAdvanceAmount !== null) {
         updateData.advanceAmount = editAdvanceAmount;
@@ -89,10 +93,12 @@ export default function AdminPaymentConfirmation() {
 
   const handleEditClick = () => {
     if (booking && !isEditing) {
+      const baseAmount = booking.guestCount * booking.pricePerPlate;
+      const currentTotal = booking.totalAmount ?? baseAmount;
       setEditAdvanceStatus(booking.advancePaymentStatus);
       setEditFinalStatus(booking.finalPaymentStatus);
-      setEditTotalAmount(totalAmount);
-      setEditAdvanceAmount(booking.advanceAmount ?? Math.ceil(totalAmount * 0.5));
+      setEditTotalAmount(currentTotal);
+      setEditAdvanceAmount(booking.advanceAmount ?? Math.ceil(currentTotal * 0.5));
     }
     setIsEditing(!isEditing);
   };
@@ -167,7 +173,7 @@ export default function AdminPaymentConfirmation() {
     window.open(`/payment/${bookingId}`, "_blank");
   };
 
-  if (bookingLoading) {
+  if (isLoadingBooking) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
         <div className="max-w-5xl mx-auto space-y-6">
