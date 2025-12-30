@@ -44,6 +44,16 @@
     background: hsl(var(--primary) / 0.4);
   }
 
+  /* Theme Toggle Visibility */
+  .theme-toggle-container {
+    background: hsl(var(--background) / 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border));
+    border-radius: 9999px;
+    padding: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
   /* Intro Animation */
   .intro-overlay {
     position: fixed;

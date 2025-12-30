@@ -14,7 +14,12 @@ import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
-const heroImage = "/images/nature-hero.png";
+const heroImages = [
+  "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?q=80&w=2000&auto=format&fit=crop"
+];
 
 const features = [
   { 
@@ -50,6 +55,15 @@ export default function CustomerHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  // Hero Slider Effect
+  useMemo(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Auto-hide intro after animation
   useMemo(() => {
@@ -117,13 +131,20 @@ export default function CustomerHome() {
 
       {/* Hero Section */}
       <div className="relative h-[450px] sm:h-[550px] md:h-[650px] overflow-hidden">
-        <div className="absolute top-6 right-6 z-50 fade-in">
+        <div className="absolute top-6 right-6 z-50 fade-in theme-toggle-container">
           <ThemeToggle />
         </div>
-        <div 
-          className="absolute inset-0 bg-cover bg-center animate-[kenburns_20s_ease-out_infinite]"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
+        
+        {/* Sliding Hero Background */}
+        <div className="absolute inset-0 flex transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
+          {heroImages.map((img, idx) => (
+            <div 
+              key={idx}
+              className="min-w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${img})` }}
+            />
+          ))}
+        </div>
         <div className="absolute inset-0 bg-black/40" />
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
@@ -259,33 +280,28 @@ export default function CustomerHome() {
                     className="group relative slide-up"
                     onClick={() => setSelectedItem(item)}
                   >
-                    <Card className="overflow-hidden bg-background border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[3rem] cursor-pointer group-hover:-translate-y-4 hover:ring-2 hover:ring-primary/20">
-                      <div className="h-80 relative overflow-hidden">
+                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[2rem] cursor-pointer group-hover:-translate-y-2 hover:ring-2 hover:ring-primary/20">
+                      <div className="h-48 sm:h-56 relative overflow-hidden">
                         <img 
                           src={defaultFoodImage} 
                           alt={item.name}
                           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                         />
-                        <div className="absolute top-6 left-6">
-                          <Badge className="bg-white/80 backdrop-blur-md text-primary border-none py-2 px-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                        <div className="absolute top-4 left-4">
+                          <Badge className="bg-white/90 backdrop-blur-md text-primary border-none py-1 px-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
                             {item.category}
                           </Badge>
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10">
-                          <div className="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500">
-                             <Button className="w-full rounded-2xl h-14 font-bold text-lg">View Details</Button>
-                          </div>
-                        </div>
                       </div>
-                      <div className="p-10">
-                        <h3 className="font-poppins font-bold text-2xl mb-4 group-hover:text-primary transition-colors duration-500">{item.name}</h3>
-                        <p className="text-muted-foreground text-base line-clamp-2 leading-relaxed font-light">{item.description}</p>
-                        <div className="mt-8 pt-8 border-t border-border/30 flex justify-between items-center opacity-60 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="p-6">
+                        <h3 className="font-poppins font-bold text-xl mb-2 group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
+                        <p className="text-muted-foreground text-xs line-clamp-2 leading-relaxed font-light">{item.description}</p>
+                        <div className="mt-4 pt-4 border-t border-border/30 flex justify-between items-center opacity-60 group-hover:opacity-100 transition-opacity duration-500">
                           <div className="flex items-center gap-2">
-                            <Wind size={16} className="text-primary" />
-                            <span className="text-xs font-bold uppercase tracking-tighter">Freshly Sourced</span>
+                            <Wind size={12} className="text-primary" />
+                            <span className="text-[10px] font-bold uppercase tracking-tighter">Organic</span>
                           </div>
-                          <ChefHat size={20} className="text-primary" />
+                          <ChefHat size={16} className="text-primary" />
                         </div>
                       </div>
                     </Card>
@@ -354,12 +370,16 @@ export default function CustomerHome() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 rounded-2xl px-14 py-9 text-xl font-bold transition-all duration-500 hover:scale-105">
-                Call Studio
-              </Button>
-              <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 rounded-2xl px-14 py-9 text-xl font-bold transition-all duration-500">
-                Send Message
-              </Button>
+              <a href={`tel:${companyInfo?.phone || "+1234567890"}`}>
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90 rounded-2xl px-14 py-9 text-xl font-bold transition-all duration-500 hover:scale-105">
+                  Call: {companyInfo?.phone || "+1234567890"}
+                </Button>
+              </a>
+              <a href={`mailto:${companyInfo?.email || "hello@elitecatering.com"}`}>
+                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 rounded-2xl px-14 py-9 text-xl font-bold transition-all duration-500">
+                  Email: {companyInfo?.email || "hello@elitecatering.com"}
+                </Button>
+              </a>
             </div>
           </div>
         </div>
