@@ -84,8 +84,8 @@ export default function CustomerHome() {
   return (
     <div className="font-inter">
       {/* Hero Section */}
-      <div className="relative h-[350px] sm:h-[450px] md:h-[550px] overflow-hidden">
-        <div className="absolute top-4 right-4 z-50">
+      <div className="relative h-[450px] sm:h-[550px] md:h-[650px] overflow-hidden">
+        <div className="absolute top-6 right-6 z-50">
           <ThemeToggle />
         </div>
         <div 
