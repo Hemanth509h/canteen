@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "node index.js",
-    "build": "mkdir -p public",
+    "build": "echo 'Build complete'",
     "start": "node index.js"
   },
   "dependencies": {
