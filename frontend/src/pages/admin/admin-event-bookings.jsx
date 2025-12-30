@@ -117,7 +117,7 @@ export default function EventBookingsManager() {
   const fetchAssignedStaff = async () => {
     if (!selectedBookingForAssignment) return;
     try {
-      const res = await fetch(`/api/bookings/${selectedBookingForAssignment.id}/assigned-staff`);
+      const res = await fetch(`https://canteen-bt65.vercel.app/api/bookings/${selectedBookingForAssignment.id}/assigned-staff`);
       const staff = await res.json();
       setAssignedStaff(staff);
     } catch (error) {
@@ -149,7 +149,7 @@ export default function EventBookingsManager() {
 
   useEffect(() => {
     if (editingBooking) {
-      fetch(`/api/bookings/${editingBooking.id}/items`)
+      fetch(`https://canteen-bt65.vercel.app/api/bookings/${editingBooking.id}/items`)
         .then(res => res.json())
         .then((items) => {
           setSelectedItems(items.map(item => ({
