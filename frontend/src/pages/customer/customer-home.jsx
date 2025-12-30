@@ -69,10 +69,10 @@ export default function CustomerHome() {
   // Hero Slider Effect
   useMemo(() => {
     const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+      setHeroIndex((prev) => (prev + 1) % dynamicHeroImages.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [heroImages.length]);
+  }, [dynamicHeroImages.length]);
 
   // Auto-hide intro after animation
   useMemo(() => {
@@ -98,7 +98,7 @@ export default function CustomerHome() {
     gcTime: 0,
   });
 
-  const heroImages = useMemo(() => {
+  const dynamicHeroImages = useMemo(() => {
     return companyInfo?.heroImages || [
       "/images/luxury_indian_wedding_buffet_setup.png",
       "/images/gourmet_indian_food_platter_biryani_thali.png",
@@ -127,7 +127,7 @@ export default function CustomerHome() {
 
   return (
     <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20">
-      <ImagePreloader images={heroImages} />
+      <ImagePreloader images={dynamicHeroImages} />
       {/* Intro Animation Overlay */}
       {showIntro && (
         <div className="intro-overlay bg-background">
@@ -156,7 +156,7 @@ export default function CustomerHome() {
         
         {/* Sliding Hero Background */}
         <div className="absolute inset-0 flex transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
-          {heroImages.map((img, idx) => (
+          {dynamicHeroImages.map((img, idx) => (
             <div 
               key={idx}
               className="min-w-full h-full bg-cover bg-center"
