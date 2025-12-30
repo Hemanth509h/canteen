@@ -159,8 +159,8 @@ export default function AdminDashboard() {
       <div className="flex h-screen w-full">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm z-10 flex-wrap">
-            <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9" />
+          <header className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border bg-background z-10 flex-wrap">
+            <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9 text-foreground" />
             <div className="flex items-center gap-1 sm:gap-2">
               <div className="hidden sm:block">
                 <GlobalSearch />
