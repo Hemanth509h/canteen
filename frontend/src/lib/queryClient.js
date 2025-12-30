@@ -1,4 +1,4 @@
-export const API_URL = '';
+export const API_URL = "https://canteen-bt65.vercel.app/api";
 
 export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
@@ -7,7 +7,7 @@ export async function apiRequest(method, url, data) {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
-      "Accept": "application/json",
+      Accept: "application/json",
     },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
@@ -20,10 +20,15 @@ export async function apiRequest(method, url, data) {
   return res;
 }
 
-export const getQueryFn = ({ on401: unauthorizedBehavior }) =>
+export const getQueryFn =
+  ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const path = queryKey.join("/");
-    const normalizedPath = path.startsWith("/api") ? path : path.startsWith("/") ? path : `/api/${path}`;
+    const normalizedPath = path.startsWith("/api")
+      ? path
+      : path.startsWith("/")
+        ? path
+        : `/api/${path}`;
     const fullUrl = `${API_URL}${normalizedPath}`;
     const res = await fetch(fullUrl, {
       credentials: "include",
