@@ -1,4 +1,4 @@
-export const API_URL = 'https://canteen-bt65.vercel.app';
+export const API_URL = '';
 
 export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
