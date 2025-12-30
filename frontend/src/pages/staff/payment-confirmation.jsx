@@ -13,6 +13,8 @@ import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Cale
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 
+import { API_URL } from "@/lib/queryClient";
+
 export default function PaymentConfirmation() {
   const { bookingId } = useParams();
   const [, setLocation] = useLocation();
@@ -26,7 +28,7 @@ export default function PaymentConfirmation() {
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
-      const response = await fetch(`/api/bookings/${bookingId}`);
+      const response = await fetch(`${API_URL}/api/bookings/${bookingId}`);
       if (!response.ok) throw new Error("Failed to fetch booking");
       return response.json();
     },

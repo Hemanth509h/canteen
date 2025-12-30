@@ -181,12 +181,15 @@ export async function registerRoutes(app) {
 
   app.get("/api/bookings/:id", async (req, res) => {
     try {
-      const booking = await getStorageInstance().getBooking(req.params.id);
+      const id = req.params.id;
+      const booking = await getStorageInstance().getBooking(id);
       if (!booking) {
+        console.log(`[API] Booking not found for ID: ${id}`);
         return res.status(404).json({ error: "Booking not found" });
       }
       res.json(booking);
     } catch (error) {
+      console.error(`[API] Error fetching booking ${req.params.id}:`, error);
       res.status(500).json({ error: "Failed to fetch booking" });
     }
   });
