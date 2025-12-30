@@ -41,6 +41,7 @@ export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [itemsToShow, setItemsToShow] = useState(9);
 
   const { data: foodItems, isLoading: isLoadingFood, error: foodError } = useQuery({
     queryKey: ["/api/food-items"],
@@ -79,6 +80,12 @@ export default function CustomerHome() {
       return matchesCategory && matchesSearch;
     }) || [];
   }, [foodItems, selectedCategory, searchQuery]);
+
+  const displayedItems = useMemo(() => {
+    return filteredItems.slice(0, itemsToShow);
+  }, [filteredItems, itemsToShow]);
+
+  const hasMoreItems = filteredItems.length > displayedItems.length;
 
   return (
     <div className="font-inter">
@@ -219,8 +226,8 @@ export default function CustomerHome() {
                   <Skeleton className="h-4 w-1/2" />
                 </div>
               ))
-            ) : filteredItems.length > 0 ? (
-              filteredItems.map((item, idx) => (
+            ) : displayedItems.length > 0 ? (
+              displayedItems.map((item, idx) => (
                 <div 
                   key={item.id} 
                   className="group cursor-pointer relative" 
@@ -311,6 +318,18 @@ export default function CustomerHome() {
               </div>
             )}
           </div>
+
+          {hasMoreItems && (
+            <div className="flex justify-center mt-10 sm:mt-12">
+              <Button 
+                onClick={() => setItemsToShow(prev => prev + 9)}
+                variant="outline"
+                className="px-8 py-3 rounded-full font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
+              >
+                Load More Dishes
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
