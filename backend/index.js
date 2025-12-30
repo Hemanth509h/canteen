@@ -73,41 +73,42 @@ app.use((req, res, next) => {
   next();
 });
 
-// Database connection middleware for serverless
-const dbMiddleware = async (req, res, next) => {
+// Database connection management for serverless
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  const { connectToDatabase } = await import("./db.js");
+  await connectToDatabase();
+  isConnected = true;
+};
+
+// Handle routes registration once
+let isRoutesRegistered = false;
+const initApp = async () => {
+  if (isRoutesRegistered) return;
+  const { registerRoutes } = await import("./routes.js");
+  await registerRoutes(app);
+  isRoutesRegistered = true;
+};
+
+// Global Middleware to ensure DB and Routes are ready
+app.use(async (req, res, next) => {
   try {
-    const { connectToDatabase } = await import("./db.js");
-    await connectToDatabase();
+    await connectDB();
+    await initApp();
     next();
   } catch (error) {
-    console.error("Database connection middleware error:", error);
-    res.status(500).json({ error: "Internal Server Error (Database Connection Failed)" });
+    console.error("Initialization error:", error);
+    res.status(500).json({ error: "Failed to initialize API" });
   }
-};
+});
 
-// Handle initialization for serverless
-let routesRegistered = false;
-const initServerless = async (req, res, next) => {
-  if (!routesRegistered) {
-    const { registerRoutes } = await import("./routes.js");
-    await registerRoutes(app);
-    routesRegistered = true;
-  }
-  next();
-};
-
-// Global API Middleware
-app.use(initServerless);
-app.use(dbMiddleware);
-
+// Remove old environment-specific middleware and listeners
 // ALWAYS start the local server if not on Vercel
 if (!process.env.VERCEL) {
-  const port = 3000;
-  app.listen({
-    port,
-    host: "0.0.0.0",
-  }, () => {
-    log(`serving on port ${port}`);
+  const port = process.env.PORT || 3000;
+  app.listen(port, "0.0.0.0", () => {
+    log(`API server listening on port ${port}`);
   });
 }
 
