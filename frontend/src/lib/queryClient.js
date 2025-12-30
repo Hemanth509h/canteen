@@ -29,7 +29,7 @@ export async function apiRequest(method, url, data) {
 export const getQueryFn = ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const path = queryKey.join("/");
-    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    const normalizedPath = path.startsWith("/api") ? path : path.startsWith("/") ? path : `/api/${path}`;
     const fullUrl = `${API_URL}${normalizedPath}`;
     const res = await fetch(fullUrl, {
       credentials: "include",
