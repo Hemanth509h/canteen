@@ -1,6 +1,4 @@
-export const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('replit')
-  ? 'https://canteen-bt65.vercel.app'
-  : ''; // Use relative paths for production on same domain
+export const API_URL = 'https://canteen-bt65.vercel.app';
 
 export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;

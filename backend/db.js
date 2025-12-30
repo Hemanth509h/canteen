@@ -116,11 +116,25 @@ class MongoStorage {
   async getBooking(id) { 
     if (!id) return null;
     try {
+      console.log(`[STORAGE] Fetching booking with ID: ${id}`);
+      // 1. Try finding by MongoDB ObjectId
       if (mongoose.Types.ObjectId.isValid(id)) {
         const doc = await EventBookingModel.findById(id);
-        if (doc) return toJSON(doc);
+        if (doc) {
+          console.log(`[STORAGE] Found by _id: ${id}`);
+          return toJSON(doc);
+        }
       }
-      return toJSON(await EventBookingModel.findOne({ id: id }));
+      
+      // 2. Try finding by custom booking reference (e.g., BK-123)
+      const docById = await EventBookingModel.findOne({ id: id });
+      if (docById) {
+        console.log(`[STORAGE] Found by custom id: ${id}`);
+        return toJSON(docById);
+      }
+
+      console.log(`[STORAGE] Booking not found for ID: ${id}`);
+      return null;
     } catch (e) {
       console.error("getBooking error:", e);
       return null;

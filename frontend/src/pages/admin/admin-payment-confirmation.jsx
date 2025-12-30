@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Invoice } from "@/components/features/invoice";
 import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon, RefreshCw } from "lucide-react";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, API_URL } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 
 export default function AdminPaymentConfirmation() {
@@ -28,10 +28,18 @@ export default function AdminPaymentConfirmation() {
   const { data: booking, isLoading: isLoadingBooking } = useQuery({
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/api/bookings/${bookingId}`);
-      if (!res.ok) throw new Error("Booking not found");
+      if (!bookingId) throw new Error("No booking ID provided");
+      const url = `${API_URL}/api/bookings/${bookingId}`;
+      console.log('Fetching from URL:', url);
+      const res = await fetch(url);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Fetch failed:', res.status, errorText);
+        throw new Error("Booking not found");
+      }
       return res.json();
-    }
+    },
+    enabled: !!bookingId,
   });
 
   const { data: companyInfo } = useQuery({
