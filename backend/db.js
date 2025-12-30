@@ -114,10 +114,17 @@ class MongoStorage {
 
   async getBookings() { return (await EventBookingModel.find()).map(toJSON); }
   async getBooking(id) { 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!id) return null;
+    try {
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        const doc = await EventBookingModel.findById(id);
+        if (doc) return toJSON(doc);
+      }
       return toJSON(await EventBookingModel.findOne({ id: id }));
+    } catch (e) {
+      console.error("getBooking error:", e);
+      return null;
     }
-    return toJSON(await EventBookingModel.findById(id)); 
   }
   async createBooking(booking) { return toJSON(await EventBookingModel.create(booking)); }
   async updateBooking(id, booking) { return toJSON(await EventBookingModel.findByIdAndUpdate(id, booking, { new: true })); }

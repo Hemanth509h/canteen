@@ -27,7 +27,7 @@ export default function AdminPaymentConfirmation() {
 
   const { data: booking, isLoading: isLoadingBooking } = useQuery({
     queryKey: ["/api/bookings", bookingId],
-    queryFn: () => fetch(`/api/bookings/${bookingId}`).then(r => r.json()),
+    queryFn: () => fetch(`${API_URL}/api/bookings/${bookingId}`).then(r => r.json()),
   });
 
   const { data: companyInfo } = useQuery({
