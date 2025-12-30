@@ -68,40 +68,37 @@ app.use((req, res, next) => {
   next();
 });
 
+// Database connection middleware for serverless
+const dbMiddleware = async (req, res, next) => {
+  try {
+    const { connectToDatabase } = await import("./db.js");
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error("Database connection middleware error:", error);
+    res.status(500).json({ error: "Internal Server Error (Database Connection Failed)" });
+  }
+};
+
+// In serverless, we need to ensure routes are registered
+const { registerRoutes } = await import("./routes.js");
+await registerRoutes(app);
+
+// Use DB middleware for all /api routes in serverless
+if (process.env.VERCEL) {
+  app.use("/api", dbMiddleware);
+}
+
 // ONLY listen if not running in a serverless environment
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   const port = 3000;
-  (async () => {
-    const { connectToDatabase } = await import("./db.js");
-    await connectToDatabase();
-    await registerRoutes(app);
-    
-    // Error handling middleware
-    app.use((err, _req, res, _next) => {
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-      res.status(status).json({ message });
-    });
-
-    app.listen({
-      port,
-      host: "0.0.0.0",
-    }, () => {
-      log(`serving on port ${port}`);
-    });
-  })();
-} else {
-  // In serverless, we need to ensure DB is connected and routes are registered
   const { connectToDatabase } = await import("./db.js");
-  connectToDatabase().then(() => {
-    registerRoutes(app).then(() => {
-      // Error handling middleware for serverless
-      app.use((err, _req, res, _next) => {
-        const status = err.status || err.statusCode || 500;
-        const message = err.message || "Internal Server Error";
-        res.status(status).json({ message });
-      });
-    });
+  await connectToDatabase();
+  app.listen({
+    port,
+    host: "0.0.0.0",
+  }, () => {
+    log(`serving on port ${port}`);
   });
 }
 
