@@ -60,10 +60,10 @@ export default function AuditHistory() {
       });
       setDeleteTargetId(null);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Failed to Delete",
-        descriptionrror?.message || "Unable to delete audit history entry",
+        description: error?.message || "Unable to delete audit history entry",
         variant: "destructive"
       });
     },

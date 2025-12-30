@@ -66,10 +66,6 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
     review,
     isCurrent = false,
     position = "next",
-  }: {
-    reviewustomerReview;
-    isCurrent?oolean;
-    position?: "prev" | "current" | "next";
   }) => {
     const animationName = isCurrent 
       ? "cardFadeInScale"
@@ -87,7 +83,7 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
         style={{
           animation: `${animationName} 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
           opacity: 0,
-          transformsCurrent ? "scale(1)" : "scale(1)",
+          transform: isCurrent ? "scale(1)" : "scale(1)",
         }}
       >
         <div className={`relative p-6 md:p-8 flex flex-col h-full min-h-80 transition-all duration-500 ${
@@ -177,33 +173,33 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
         @keyframes cardFadeInScale {
           from {
             opacity: 0;
-            transformcale(0.92);
+            transform: scale(0.92);
           }
           to {
             opacity: 1;
-            transformcale(1);
+            transform: scale(1);
           }
         }
 
         @keyframes cardSlideInLeft {
           from {
             opacity: 0;
-            transformranslateX(-50px);
+            transform: translateX(-50px);
           }
           to {
             opacity: 1;
-            transformranslateX(0);
+            transform: translateX(0);
           }
         }
 
         @keyframes cardSlideInRight {
           from {
             opacity: 0;
-            transformranslateX(50px);
+            transform: translateX(50px);
           }
           to {
             opacity: 1;
-            transformranslateX(0);
+            transform: translateX(0);
           }
         }
 
@@ -211,44 +207,44 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
         @keyframes contentFadeIn {
           from {
             opacity: 0;
-            transformcale(0.8);
+            transform: scale(0.8);
           }
           to {
             opacity: 1;
-            transformcale(1);
+            transform: scale(1);
           }
         }
 
         @keyframes contentSlideInLeft {
           from {
             opacity: 0;
-            transformranslateX(-20px);
+            transform: translateX(-20px);
           }
           to {
             opacity: 1;
-            transformranslateX(0);
+            transform: translateX(0);
           }
         }
 
         @keyframes contentSlideInUp {
           from {
             opacity: 0;
-            transformranslateY(15px);
+            transform: translateY(15px);
           }
           to {
             opacity: 1;
-            transformranslateY(0);
+            transform: translateY(0);
           }
         }
 
         @keyframes starBounce {
           0% {
             opacity: 0;
-            transformcale(0.5) translateY(-10px);
+            transform: scale(0.5) translateY(-10px);
           }
           100% {
             opacity: 1;
-            transformcale(1) translateY(0);
+            transform: scale(1) translateY(0);
           }
         }
 
@@ -275,11 +271,11 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
         @keyframes navFadeIn {
           from {
             opacity: 0;
-            transformranslateY(10px);
+            transform: translateY(10px);
           }
           to {
             opacity: 1;
-            transformranslateY(0);
+            transform: translateY(0);
           }
         }
 
@@ -294,25 +290,25 @@ export default function ReviewsCarousel({ reviews = [], isLoading }) {
 
         @keyframes dotPulse {
           0%, 100% {
-            transformcale(1);
+            transform: scale(1);
           }
           50% {
-            transformcale(1.2);
+            transform: scale(1.2);
           }
         }
 
         .nav-container {
-          animationavFadeIn 0.6s ease-out 0.35s forwards;
+          animation: navFadeIn 0.6s ease-out 0.35s forwards;
           opacity: 0;
         }
 
         .counter-text {
-          animationounterFadeIn 0.6s ease-out 0.4s forwards;
+          animation: counterFadeIn 0.6s ease-out 0.4s forwards;
           opacity: 0;
         }
 
         .dot-active {
-          animationotPulse 0.4s ease-out;
+          animation: dotPulse 0.4s ease-out;
         }
       `}</style>
 

@@ -19,7 +19,7 @@ export default function ReviewForm() {
   const [hoveredRating, setHoveredRating] = useState(0);
 
   const form = useForm({
-    resolverodResolver(insertCustomerReviewSchema),
+    resolver: zodResolver(insertCustomerReviewSchema),
     defaultValues: {
       customerName: "",
       eventType: "",
@@ -29,7 +29,7 @@ export default function ReviewForm() {
   });
 
   const submitMutation = useMutation({
-    mutationFnsync (datansertCustomerReview) => {
+    mutationFn: async (data) => {
       return apiRequest("POST", "/api/reviews", data);
     },
     onSuccess: () => {
@@ -39,7 +39,7 @@ export default function ReviewForm() {
       });
       form.reset();
       setHoveredRating(0);
-      queryClient.invalidateQueries({ queryKey"/api/reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
     },
     onError: () => {
       toast({
@@ -50,7 +50,7 @@ export default function ReviewForm() {
     },
   });
 
-  const onSubmit = (datansertCustomerReview) => {
+  const onSubmit = (data) => {
     submitMutation.mutate(data);
   };
 
@@ -58,9 +58,9 @@ export default function ReviewForm() {
     <Card className="border-none bg-muted/30 rounded-2xl shadow-md">
       <CardHeader className="space-y-2">
         <CardTitle className="text-2xl">Share Your Experience</CardTitle>
-        Tell us about your event and how we can improve</CardDescription>
+        <CardDescription>Tell us about your event and how we can improve</CardDescription>
       </CardHeader>
-      
+      <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Customer Name */}
@@ -68,9 +68,9 @@ export default function ReviewForm() {
               control={form.control}
               name="customerName"
               render={({ field }) => (
-                
-                  Your Name</FormLabel>
-                  
+                <FormItem>
+                  <FormLabel>Your Name</FormLabel>
+                  <FormControl>
                     <Input placeholder="John Doe" {...field} data-testid="input-review-name" />
                   </FormControl>
                   <FormMessage />
@@ -83,9 +83,9 @@ export default function ReviewForm() {
               control={form.control}
               name="eventType"
               render={({ field }) => (
-                
-                  Event Type</FormLabel>
-                  
+                <FormItem>
+                  <FormLabel>Event Type</FormLabel>
+                  <FormControl>
                     <Input placeholder="Wedding, Birthday, Corporate Event..." {...field} data-testid="input-review-event" />
                   </FormControl>
                   <FormMessage />
@@ -98,10 +98,9 @@ export default function ReviewForm() {
               control={form.control}
               name="rating"
               render={({ field }) => (
-                
-                  Rating</FormLabel>
-                  
-                    <div className="flex gap-2" data-testid="select-review-rating">
+                <FormItem>
+                  <FormLabel>Rating</FormLabel>
+                  <FormControl>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
@@ -133,9 +132,9 @@ export default function ReviewForm() {
               control={form.control}
               name="comment"
               render={({ field }) => (
-                
-                  Your Review</FormLabel>
-                  
+                <FormItem>
+                  <FormLabel>Your Review</FormLabel>
+                  <FormControl>
                     <Textarea
                       placeholder="Share your experience... (minimum 10 characters)"
                       className="min-h-24 resize-none"

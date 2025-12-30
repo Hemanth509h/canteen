@@ -89,7 +89,7 @@ export default function ReviewsManager() {
       return apiRequest("PATCH", `/api/reviews/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
       toast({ 
         title: "Updated", 
         description: "Review has been updated successfully" 
@@ -98,10 +98,10 @@ export default function ReviewsManager() {
       setEditingReview(null);
       form.reset();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({ 
         title: "Update Failed", 
-        descriptionrror?.message || "Unable to update review. Please try again.",
+        description: error?.message || "Unable to update review. Please try again.",
         variant: "destructive" 
       });
     },
@@ -119,22 +119,22 @@ export default function ReviewsManager() {
       });
       setDeleteTargetId(null);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({ 
         title: "Delete Failed", 
-        descriptionrror?.message || "Unable to remove this review.",
+        description: error?.message || "Unable to remove this review.",
         variant: "destructive" 
       });
     },
   });
 
-  const handleEdit = (reviewustomerReview) => {
+  const handleEdit = (review) => {
     setEditingReview(review);
     form.reset({
-      customerNameeview.customerName,
-      eventTypeeview.eventType,
-      ratingeview.rating,
-      commenteview.comment,
+      customerName: review.customerName,
+      eventType: review.eventType,
+      rating: review.rating,
+      comment: review.comment,
     });
     setIsDialogOpen(true);
   };

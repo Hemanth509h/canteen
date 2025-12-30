@@ -122,23 +122,24 @@ export default function ChefPrintout() {
           
           /* Repeat table headers on each page */
           thead {
-            displayable-header-group;
+          thead {
+            display: table-header-group;
           }
           
           tbody {
-            displayable-row-group;
+            display: table-row-group;
           }
           
           /* Preserve colors and backgrounds */
           * {
-            -webkit-print-color-adjustxact !important;
-            print-color-adjustxact !important;
-            color-adjustxact !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
           
           /* Remove shadows and unnecessary styles */
           .shadow-sm, .shadow, .shadow-md, .shadow-lg {
-            box-shadowone !important;
+            box-shadow: none !important;
           }
           
           /* Ensure borders are visible */
@@ -152,13 +153,13 @@ export default function ChefPrintout() {
           }
           
           h1, h2, h3, h4, h5, h6 {
-            page-break-aftervoid;
+            page-break-after: avoid;
           }
         }
         
         @page {
           margin: 0.5in;
-          sizeortrait;
+          size: portrait;
         }
       `}</style>
 
@@ -178,7 +179,7 @@ export default function ChefPrintout() {
                 <SelectTrigger className="w-[200px]" data-testid="select-date">
                   <SelectValue placeholder="Select a date" />
                 </SelectTrigger>
-                
+                <SelectContent>
                   {dates.map(date => (
                     <SelectItem key={date} value={date}>
                       {date}
@@ -220,8 +221,8 @@ export default function ChefPrintout() {
         ) : (
           <>
             <Card className="print-section-avoid print-summary">
-              
-                Daily Summary - {activeDate}</CardTitle>
+              <CardHeader>
+                <CardTitle>Daily Summary - {activeDate}</CardTitle>
               </CardHeader>
               
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -248,8 +249,8 @@ export default function ChefPrintout() {
             </Card>
 
             <Card className="print-section-avoid print-events">
-              
-                Events for {activeDate}</CardTitle>
+              <CardHeader>
+                <CardTitle>Events for {activeDate}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {bookingsForDate.map((booking, idx) => (
@@ -312,9 +313,9 @@ export default function ChefPrintout() {
               <>
                 {Object.entries(groupedByCategory).map(([category, items]) => (
                   <Card key={category} className="print-section-table">
-                    <CardHeader className="bg-primary text-primary-foreground rounded-t-md">
-                      {category}</CardTitle>
-                    </CardHeader>
+              <CardHeader className="bg-primary text-primary-foreground rounded-t-md">
+                <CardTitle>{category}</CardTitle>
+              </CardHeader>
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
                         <table className="w-full">

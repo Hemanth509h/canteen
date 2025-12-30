@@ -64,7 +64,7 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
           </div>
         </div>
       </CardHeader>
-      
+      <CardContent>
         <div
           id="invoice-content"
           className="space-y-6 bg-white dark:bg-slate-950 p-6 rounded-lg print:bg-white"
@@ -130,9 +130,9 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
                     className={`text-xs ${
                       advancePaid
                         ? 'text-green-600'
-                        ooking.advancePaymentStatus === 'paid' && !advancePaid
+                        : (booking.advancePaymentStatus === 'paid' && !advancePaid
                         ? 'text-amber-600'
-                        : 'text-amber-600'
+                        : 'text-amber-600')
                     }`}
                   >
                     {advancePaid ? 'Approved' : (booking.advancePaymentStatus === 'paid' ? 'Pending Approval' : 'Pending')}
@@ -147,9 +147,9 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
                     className={`text-xs ${
                       finalPaid
                         ? 'text-green-600'
-                        ooking.finalPaymentStatus === 'paid' && !finalPaid
+                        : (booking.finalPaymentStatus === 'paid' && !finalPaid
                         ? 'text-amber-600'
-                        dvancePaid ? 'text-blue-600' : 'text-muted-foreground'
+                        : (advancePaid ? 'text-blue-600' : 'text-muted-foreground'))
                     }`}
                   >
                     {finalPaid ? 'Approved' : (booking.finalPaymentStatus === 'paid' ? 'Pending Approval' : (advancePaid ? 'Pending' : 'Awaiting Advance'))}
