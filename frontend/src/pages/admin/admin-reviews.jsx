@@ -40,8 +40,8 @@ export default function ReviewsManager() {
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
-  const { dataeviews, isLoading, isFetching, refetch } = useQuery<CustomerReview[]>({
-    queryKey"/api/reviews"],
+  const { data: reviews, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["/api/reviews"],
   });
 
   const filteredReviews = reviews?.filter((review) => {
@@ -53,7 +53,7 @@ export default function ReviewsManager() {
   }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const form = useForm({
-    resolverodResolver(editingReview ? updateCustomerReviewSchema nsertCustomerReviewSchema),
+    resolver: zodResolver(editingReview ? updateCustomerReviewSchema : insertCustomerReviewSchema),
     defaultValues: {
       customerName: "",
       eventType: "Wedding",
@@ -63,11 +63,11 @@ export default function ReviewsManager() {
   });
 
   const createMutation = useMutation({
-    mutationFnsync (datansertCustomerReview) => {
+    mutationFn: async (data) => {
       return apiRequest("POST", "/api/reviews", data);
     },
-    onSuccess: (datany) => {
-      queryClient.invalidateQueries({ queryKey"/api/reviews"] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
       toast({ 
         title: "Review Added", 
         description: `Review from ${data.customerName} has been added` 

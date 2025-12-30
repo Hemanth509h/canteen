@@ -88,33 +88,36 @@ export default function CustomerHome() {
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{ backgroundImage: `url(${heroImage})` }}
-        >
-          
-        
-        
-          
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold mb-4">
             {companyInfo?.companyName || "Elite Catering & Events"}
-          
-          
+          </h2>
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-light mb-6">
             Elevating Your Events
-          
-          
+          </h3>
+          <p className="text-lg sm:text-xl max-w-2xl mb-8">
             {companyInfo?.tagline || "From intimate gatherings to grand celebrations, we provide a sophisticated culinary experience tailored to your unique taste."}
-          
-          
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               size="lg" 
               className="rounded-full px-8 sm:px-12 py-6 sm:py-7 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-300 active-elevate-2 w-full sm:w-auto"
               onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
             >
               View Menu
-            
-            
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="rounded-full px-8 sm:px-12 py-6 sm:py-7 text-lg sm:text-xl text-white border-white hover:bg-white hover:text-black transition-all duration-300 active-elevate-2 w-full sm:w-auto"
+            >
               Get Quote
-            
-          
-        
-      
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Modern Value Prop Section */}
       
@@ -139,16 +142,16 @@ export default function CustomerHome() {
             
           
 
-          
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => (
-              
-                
-                  
-                
-                {feature.title}
-                {feature.description}
-              
-            ))}
+              <div key={idx} className="flex flex-col items-center text-center p-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  {feature.icon}
+                </div>
+                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground">{feature.description}</p>
+              </div>
+            ))}</div>
           
         
       

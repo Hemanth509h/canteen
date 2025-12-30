@@ -88,7 +88,7 @@ export default function FoodItemsManager() {
     : defaultCategories;
 
   const form = useForm({
-    resolverodResolver(insertFoodItemSchema),
+    resolver: zodResolver(insertFoodItemSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -98,11 +98,11 @@ export default function FoodItemsManager() {
   });
 
   const createMutation = useMutation({
-    mutationFnsync (datansertFoodItem) => {
+    mutationFn: async (data) => {
       return apiRequest("POST", "/api/food-items", data);
     },
-    onSuccess: (datany) => {
-      queryClient.invalidateQueries({ queryKey"/api/food-items"] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
       toast({ 
         title: "Item Added", 
         description: `${data.name} has been added to your menu` 
@@ -110,21 +110,21 @@ export default function FoodItemsManager() {
       setIsDialogOpen(false);
       form.reset();
     },
-    onError: (errorny) => {
+    onError: (error) => {
       toast({ 
         title: "Failed to Add Item", 
-        descriptionrror?.message || "Please check that all required fields are filled correctly.",
+        description: error?.message || "Please check that all required fields are filled correctly.",
         variant: "destructive" 
       });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFnsync ({ id, data }: { idtring; datansertFoodItem }) => {
+    mutationFn: async ({ id, data }) => {
       return apiRequest("PATCH", `/api/food-items/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/food-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/food-items"] });
       toast({ 
         title: "Updated", 
         description: "Food item details have been updated successfully" 

@@ -273,7 +273,7 @@ export default function AdminPaymentConfirmation() {
                   </Button>
                 </CardTitle>
               </CardHeader>
-              
+              <CardContent className="space-y-6 pt-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div className="bg-muted/50 rounded-lg p-3 text-center">
                     <Users className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
@@ -324,7 +324,6 @@ export default function AdminPaymentConfirmation() {
                     <p className="font-medium" data-testid="text-event-type-admin">{booking.eventType}</p>
                   </div>
                 </div>
-              <CardContent className="space-y-6 pt-6">
               </CardContent>
             </Card>
 
@@ -603,11 +602,11 @@ export default function AdminPaymentConfirmation() {
                     </span>
                   </div>
 
-                  <div className={`flex items-center justify-between p-3 rounded-lg ${finalPaid ? 'bg-green-50 dark:bg-green-950/30' dvancePaid ? 'bg-blue-50 dark:bg-blue-950/30' : 'bg-muted/50'}`}>
+                  <div className={`flex items-center justify-between p-3 rounded-lg ${finalPaid ? 'bg-green-50 dark:bg-green-950/30' : advancePaid ? 'bg-blue-50 dark:bg-blue-950/30' : 'bg-muted/50'}`}>
                     <div className="flex items-center gap-2">
                       {finalPaid ? (
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                      ) dvancePaid ? (
+                      ) : advancePaid ? (
                         <Clock className="w-4 h-4 text-blue-600" />
                       ) : (
                         <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />

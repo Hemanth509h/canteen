@@ -7,35 +7,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Printer, Calendar, RefreshCw } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 
-interface BookingWithItems extends EventBooking {
-  items: (BookingItem & { foodItemoodItem })[];
-}
-
-type GroupedBookings = Record<string, BookingWithItems[]>;
-
 export default function ChefPrintout() {
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState("");
 
-  const { dataroupedBookings, isLoading, isRefetching } = useQuery({
-    queryKey"/api/chef-printout"],
+  const { data: groupedBookings, isLoading, isRefetching } = useQuery({
+    queryKey: ["/api/chef-printout"],
   });
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey"/api/chef-printout"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/chef-printout"] });
   };
 
   const dates = groupedBookings 
     ? Object.keys(groupedBookings).filter(date => date && date.trim() !== '').sort() 
-    ;
+    : [];
   const activeDate = selectedDate || dates[0] || "";
-  const bookingsForDate = activeDate && groupedBookings ? groupedBookings[activeDate] || [] ;
+  const bookingsForDate = activeDate && groupedBookings ? groupedBookings[activeDate] || [] : [];
 
-  const combinedItemsecord<string, { 
-    nametring; 
-    categorytring; 
-    totalQuantityumber;
-    totalGuestsumber;
-  }> = {};
+  const combinedItems = {};
 
   let totalMembers = 0;
 

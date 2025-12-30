@@ -32,14 +32,14 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-type SidebarContextProps = {
-  state: "expanded" | "collapsed"
-  openoolean
-  setOpen: (openoolean) => void
-  openMobileoolean
-  setOpenMobile: (openoolean) => void
-  isMobileoolean
-  toggleSidebar: () => void
+const SidebarContextPropsType = {
+  state: "expanded",
+  open: false,
+  setOpen: () => {},
+  openMobile: false,
+  setOpenMobile: () => {},
+  isMobile: false,
+  toggleSidebar: () => {},
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
@@ -55,16 +55,12 @@ function useSidebar() {
 
 function SidebarProvider({
   defaultOpen = true,
-  openpenProp,
-  onOpenChangeetOpenProp,
+  open: openProp,
+  onOpenChange: setOpenProp,
   className,
   style,
   children,
   ...props
-}eact.ComponentProps<"div"> & {
-  defaultOpen?oolean
-  open?oolean
-  onOpenChange?: (openoolean) => void
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
@@ -74,8 +70,8 @@ function SidebarProvider({
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
   const setOpen = React.useCallback(
-    (valueoolean | ((valueoolean) => boolean)) => {
-      const openState = typeof value === "function" ? value(open) alue
+    (value) => {
+      const openState = typeof value === "function" ? value(open) : value
       if (setOpenProp) {
         setOpenProp(openState)
       } else {
@@ -90,12 +86,12 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) etOpen((open) => !open)
+    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
-    const handleKeyDown = (eventeyboardEvent) => {
+    const handleKeyDown = (event) => {
       if (
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
         (event.metaKey || event.ctrlKey)

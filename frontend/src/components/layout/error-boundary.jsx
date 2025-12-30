@@ -1,34 +1,27 @@
-import { Component, ErrorInfo, ReactNode } from "react";
+import { Component } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
-interface Props {
-  childreneactNode;
-  fallback?eactNode;
-}
-
-interface State {
-  hasErroroolean;
-  errorrror | null;
-}
-
-export class ErrorBoundary extends Component<Props, State> {
-  public statetate = {
-    hasErroralse,
-    errorull,
-  };
-
-  public static getDerivedStateFromError(errorrror)tate {
-    return { hasErrorrue, error };
+export class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+    };
   }
 
-  public componentDidCatch(errorrror, errorInforrorInfo) {
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
     console.error("Uncaught error:", error, errorInfo);
   }
 
   private handleRetry = () => {
-    this.setState({ hasErroralse, errorull });
+    this.setState({ hasError: false, error: null });
   };
 
   public render() {
@@ -44,7 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
                 <AlertTriangle className="w-6 h-6 text-destructive" />
               </div>
-              Something went wrong</CardTitle>
+              <CardTitle>Something went wrong</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-sm text-muted-foreground">
