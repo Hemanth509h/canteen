@@ -15,12 +15,10 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const heroImages = [
-  "/images/generated/luxury_indian_wedding_buffet_setup.png",
-  "/images/generated/gourmet_indian_food_platter_biryani_thali.png",
-  "/images/generated/indian_event_catering_dessert_station.png",
-  "/images/generated/elegant_indian_dining_table_arrangement.png",
-  "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1626082869941-a7e46a15e303?q=80&w=2000&auto=format&fit=crop"
+  "/images/luxury_indian_wedding_buffet_setup.png",
+  "/images/gourmet_indian_food_platter_biryani_thali.png",
+  "/images/indian_event_catering_dessert_station.png",
+  "/images/elegant_indian_dining_table_arrangement.png"
 ];
 
 // Preload component
