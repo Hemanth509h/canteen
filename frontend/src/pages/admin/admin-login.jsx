@@ -9,6 +9,8 @@ import { ChefHat, Lock, ArrowLeft, UtensilsCrossed } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { setAdminSession } from "@/lib/auth";
 
+import { API_URL } from "@/lib/queryClient";
+
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const [password, setPassword] = useState("");
@@ -20,7 +22,7 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/admin/login", {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
