@@ -9,7 +9,10 @@
     "strict": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "types": ["node"]
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": false
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "**/*.js"],
+  "exclude": ["node_modules", "dist"]
 }
