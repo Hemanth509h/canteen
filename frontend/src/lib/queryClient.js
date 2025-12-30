@@ -1,15 +1,6 @@
-import { QueryClient } from "@tanstack/react-query";
-
-async function throwIfResNotOk(res) {
-  if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
-  }
-}
-
 export const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('replit')
-  ? 'https://canteen-bt65.vercel.app'
-  : ''; // Relative for same-domain prod deployment
+  ? '' // Use proxy on local/replit
+  : 'https://canteen-bt65.vercel.app'; // Use direct URL on production
 
 export async function apiRequest(method, url, data) {
   const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
@@ -24,7 +15,10 @@ export async function apiRequest(method, url, data) {
     credentials: "include",
   });
 
-  await throwIfResNotOk(res);
+  if (!res.ok) {
+    const text = (await res.text()) || res.statusText;
+    throw new Error(`${res.status}: ${text}`);
+  }
   return res;
 }
 
@@ -41,10 +35,14 @@ export const getQueryFn = ({ on401: unauthorizedBehavior }) =>
       return null;
     }
 
-    await throwIfResNotOk(res);
+    if (!res.ok) {
+      const text = (await res.text()) || res.statusText;
+      throw new Error(`${res.status}: ${text}`);
+    }
     return await res.json();
   };
 
+import { QueryClient } from "@tanstack/react-query";
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -31,19 +31,19 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend Dev Server"
+args = "Full Stack Dev"
 
 [[workflows.workflow]]
-name = "Frontend Dev Server"
+name = "Full Stack Dev"
 author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd frontend && npm run dev"
-waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev:all"
+waitForPort = 5000
 
 [agent]
 expertMode = true
