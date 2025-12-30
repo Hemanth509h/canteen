@@ -29,6 +29,31 @@ const WhatsAppButton = ({ phone }) => (
   </a>
 );
 
+const Testimonials = ({ reviews }) => (
+  <section className="py-24 px-6 bg-secondary/5">
+    <div className="max-w-7xl mx-auto text-center">
+      <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-16">What Our Clients Say</h2>
+      <div className="grid md:grid-cols-3 gap-8">
+        {(reviews || [
+          { customerName: "Sarah J.", eventType: "Wedding", comment: "The food was absolutely divine! Every guest was impressed by the presentation and flavor." },
+          { customerName: "Michael R.", eventType: "Corporate", comment: "Professional service and exceptional quality. They made our event truly special." },
+          { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering experience we've ever had. Highly recommend their organic menu!" }
+        ]).slice(0, 3).map((review, idx) => (
+          <Card key={idx} className="p-8 bg-card border-none shadow-xl rounded-[2rem] hover:-translate-y-2 transition-transform">
+            <Quote className="text-primary/20 mb-6" size={40} />
+            <p className="text-lg italic mb-6">"{review.comment}"</p>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
+            </div>
+            <h4 className="font-bold">{review.customerName}</h4>
+            <span className="text-sm text-muted-foreground">{review.eventType}</span>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
 const Footer = ({ companyInfo }) => (
   <footer className="bg-card pt-24 pb-12 px-6 border-t border-border/30 relative overflow-hidden">
     <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
