@@ -4,11 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { UtensilsCrossed, CalendarDays, IndianRupee, TrendingUp, RefreshCw, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { UtensilsCrossed, CalendarDays, IndianRupee, RefreshCw, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { RevenueChart, BookingStatusChart, MonthlyBookingsChart } from "@/components/features/dashboard-charts";
 import { BookingCalendar } from "@/components/features/booking-calendar";
 import { PageLoader } from "@/components/features/loading-spinner";
-import "@/schema";
 
 export default function DashboardOverview() {
   const { data: foodItems, isLoading: isLoadingFood, isFetching: isFetchingFood, refetch: refetchFood } = useQuery({
@@ -20,13 +19,15 @@ export default function DashboardOverview() {
   });
 
   const isFetching = isFetchingFood || isFetchingBookings;
+  const isLoading = isLoadingFood || isLoadingBookings;
+
   const handleRefresh = () => {
     refetchFood();
     refetchBookings();
   };
 
   const totalRevenue = bookings?.reduce((sum, booking) => {
-    if (booking.status === "confirmed") {
+    if (booking.status === "confirmed" || booking.status === "completed") {
       return sum + (booking.guestCount * booking.pricePerPlate);
     }
     return sum;
@@ -47,30 +48,30 @@ export default function DashboardOverview() {
     {
       title: "Total Revenue",
       value: `₹${totalRevenue.toLocaleString('en-IN')}`,
-      iconndianRupee,
+      icon: IndianRupee,
       color: "text-green-600",
-      loadingoadingBookings,
+      loading: isLoadingBookings,
     },
     {
       title: "Upcoming Bookings",
-      valuepcomingBookings,
-      iconalendarDays,
+      value: upcomingBookings,
+      icon: CalendarDays,
       color: "text-blue-600",
-      loadingoadingBookings,
+      loading: isLoadingBookings,
     },
     {
       title: "Pending Payments",
-      valueendingPayments,
-      iconlertCircle,
+      value: pendingPayments,
+      icon: AlertCircle,
       color: "text-orange-600",
-      loadingoadingBookings,
+      loading: isLoadingBookings,
     },
     {
       title: "Total Menu Items",
-      valueoodItems?.length || 0,
-      icontensilsCrossed,
+      value: foodItems?.length || 0,
+      icon: UtensilsCrossed,
       color: "text-purple-600",
-      loadingoadingFood,
+      loading: isLoadingFood,
     },
   ];
 
@@ -118,9 +119,9 @@ export default function DashboardOverview() {
         ))}
       </div>
 
-      {loadingBookings ? (
+      {isLoadingBookings ? (
         <PageLoader text="Loading charts..." />
-      ) ookings && bookings.length > 0 ? (
+      ) : bookings && bookings.length > 0 ? (
         <>
           <div 
             className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 stagger-item"
@@ -136,16 +137,15 @@ export default function DashboardOverview() {
             <BookingCalendar bookings={bookings} />
             
             <Card className="card-hover-lift transition-all duration-300">
-              
+              <CardHeader>
                 <CardTitle className="text-lg">Activity Timeline</CardTitle>
               </CardHeader>
-              
+              <CardContent>
                 <div className="space-y-4">
                   {bookings.slice(0, 5).map((booking, index) => {
                     const delay = index * 0.1;
                     const isPending = booking.advancePaymentStatus === "pending" || booking.finalPaymentStatus === "pending";
                     const isCompleted = booking.status === "completed";
-                    const isUpcoming = new Date(booking.eventDate) >= new Date();
                     
                     let icon = Clock;
                     let color = "text-blue-500";

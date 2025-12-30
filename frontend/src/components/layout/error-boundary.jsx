@@ -20,11 +20,11 @@ export class ErrorBoundary extends Component {
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  private handleRetry = () => {
+  handleRetry = () => {
     this.setState({ hasError: false, error: null });
   };
 
-  public render() {
+  render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;

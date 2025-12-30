@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Building2, RefreshCw } from "lucide-react";
-import { CompanyInfo, InsertCompanyInfo } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function CompanySettingsManager() {
@@ -31,15 +30,27 @@ export default function CompanySettingsManager() {
       websiteUrl: companyInfo.websiteUrl || "",
       upiId: companyInfo.upiId || "",
       minAdvanceBookingDays: companyInfo.minAdvanceBookingDays || 2,
-    } : undefined,
+    } : {
+      companyName: "",
+      tagline: "",
+      description: "",
+      email: "",
+      phone: "",
+      address: "",
+      eventsPerYear: 0,
+      yearsExperience: 15,
+      websiteUrl: "",
+      upiId: "",
+      minAdvanceBookingDays: 2,
+    },
   });
 
   const updateMutation = useMutation({
-    mutationFnsync (datansertCompanyInfo) => {
+    mutationFn: async (data) => {
       return apiRequest("PATCH", "/api/company-info/settings", data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey"/api/company-info"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/company-info"] });
       toast({ title: "Success", description: "Company information updated successfully" });
     },
     onError: () => {
@@ -47,7 +58,7 @@ export default function CompanySettingsManager() {
     },
   });
 
-  const onSubmit = (datansertCompanyInfo) => {
+  const onSubmit = (data) => {
     updateMutation.mutate(data);
   };
 
@@ -73,19 +84,19 @@ export default function CompanySettingsManager() {
         </Button>
       </div>
 
-      
-        
+      <Card>
+        <CardHeader>
           <div className="flex items-center gap-3">
             <Building2 className="w-6 h-6 text-primary" />
             <div>
-              Business Information</CardTitle>
-              
+              <CardTitle>Business Information</CardTitle>
+              <CardDescription>
                 This information will be displayed on your customer-facing website
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        
+        <CardContent>
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(7)].map((_, i) => (
@@ -102,9 +113,9 @@ export default function CompanySettingsManager() {
                   control={form.control}
                   name="companyName"
                   render={({ field }) => (
-                    
-                      Company Name</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Company Name</FormLabel>
+                      <FormControl>
                         <Input placeholder="Premium Catering Services" {...field} data-testid="input-company-name" />
                       </FormControl>
                       <FormMessage />
@@ -115,9 +126,9 @@ export default function CompanySettingsManager() {
                   control={form.control}
                   name="tagline"
                   render={({ field }) => (
-                    
-                      Tagline</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Tagline</FormLabel>
+                      <FormControl>
                         <Input placeholder="Exceptional Food for Unforgettable Events" {...field} data-testid="input-tagline" />
                       </FormControl>
                       <FormMessage />
@@ -128,9 +139,9 @@ export default function CompanySettingsManager() {
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    
-                      Description</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
                         <Textarea 
                           placeholder="Tell customers about your catering business..." 
                           {...field} 
@@ -147,9 +158,9 @@ export default function CompanySettingsManager() {
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                      
-                        Email</FormLabel>
-                        
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
                           <Input type="email" placeholder="info@catering.com" {...field} data-testid="input-email" />
                         </FormControl>
                         <FormMessage />
@@ -160,9 +171,9 @@ export default function CompanySettingsManager() {
                     control={form.control}
                     name="phone"
                     render={({ field }) => (
-                      
-                        Phone</FormLabel>
-                        
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
                           <Input type="tel" placeholder="+1 (555) 123-4567" {...field} data-testid="input-phone" />
                         </FormControl>
                         <FormMessage />
@@ -174,9 +185,9 @@ export default function CompanySettingsManager() {
                   control={form.control}
                   name="address"
                   render={({ field }) => (
-                    
-                      Address</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
                         <Input placeholder="123 Main St, City, State 12345" {...field} data-testid="input-address" />
                       </FormControl>
                       <FormMessage />
@@ -188,9 +199,9 @@ export default function CompanySettingsManager() {
                     control={form.control}
                     name="eventsPerYear"
                     render={({ field }) => (
-                      
-                        Total Events Served</FormLabel>
-                        
+                      <FormItem>
+                        <FormLabel>Total Events Served</FormLabel>
+                        <FormControl>
                           <Input 
                             type="number" 
                             placeholder="500" 
@@ -208,9 +219,9 @@ export default function CompanySettingsManager() {
                     control={form.control}
                     name="yearsExperience"
                     render={({ field }) => (
-                      
-                        Years of Experience</FormLabel>
-                        
+                      <FormItem>
+                        <FormLabel>Years of Experience</FormLabel>
+                        <FormControl>
                           <Input 
                             type="number" 
                             placeholder="15" 
@@ -229,9 +240,9 @@ export default function CompanySettingsManager() {
                   control={form.control}
                   name="websiteUrl"
                   render={({ field }) => (
-                    
-                      Website URL</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Website URL</FormLabel>
+                      <FormControl>
                         <Input 
                           type="url" 
                           placeholder="https://www.example.com" 
@@ -248,9 +259,9 @@ export default function CompanySettingsManager() {
                   control={form.control}
                   name="upiId"
                   render={({ field }) => (
-                    
-                      UPI ID (for payment collection)</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>UPI ID (for payment collection)</FormLabel>
+                      <FormControl>
                         <Input 
                           placeholder="example@upi" 
                           {...field}
@@ -266,9 +277,9 @@ export default function CompanySettingsManager() {
                   control={form.control}
                   name="minAdvanceBookingDays"
                   render={({ field }) => (
-                    
-                      Minimum Advance Booking Days</FormLabel>
-                      
+                    <FormItem>
+                      <FormLabel>Minimum Advance Booking Days</FormLabel>
+                      <FormControl>
                         <Input 
                           type="number" 
                           placeholder="2" 

@@ -1,18 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-interface ConfirmDialogProps {
-  openoolean;
-  onOpenChange: (openoolean) => void;
-  titletring;
-  descriptiontring;
-  confirmText?tring;
-  cancelText?tring;
-  variant?: "default" | "destructive";
-  onConfirm: () => void;
-  isLoading?oolean;
-}
-
 export function ConfirmDialog({
   open,
   onOpenChange,
@@ -23,11 +11,11 @@ export function ConfirmDialog({
   variant = "default",
   onConfirm,
   isLoading = false,
-}onfirmDialogProps) {
+}) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-[95vw] sm:w-full">
-        
+        <DialogHeader>
           <DialogTitle className="text-lg sm:text-base">{title}</DialogTitle>
           <DialogDescription className="text-sm">{description}</DialogDescription>
         </DialogHeader>
@@ -51,7 +39,7 @@ export function ConfirmDialog({
             data-testid="button-confirm-action"
             className="w-full sm:w-auto"
           >
-            {isLoading ? "Please wait..." onfirmText}
+            {isLoading ? "Please wait..." : confirmText}
           </Button>
         </DialogFooter>
       </DialogContent>

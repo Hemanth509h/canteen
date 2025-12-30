@@ -81,7 +81,7 @@ export default function AuditHistory() {
     }
   };
 
-  const formatDate = (dateStrtring) => {
+  const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleString("en-IN", {
       year: "numeric",
@@ -93,14 +93,12 @@ export default function AuditHistory() {
     });
   };
 
-  const getActionLabel = (actiontring) => {
+  const getActionLabel = (action) => {
     return action.split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   };
 
   return (
-    <div
-      className="space-y-6 p-6"
-    >
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -132,7 +130,7 @@ export default function AuditHistory() {
                 <SelectTrigger data-testid="select-entity-type-filter">
                   <SelectValue placeholder="Filter by type..." />
                 </SelectTrigger>
-                
+                <SelectContent>
                   <SelectItem value="all">All Actions</SelectItem>
                   <SelectItem value="booking">Bookings</SelectItem>
                   <SelectItem value="staff">Staff</SelectItem>
@@ -143,18 +141,18 @@ export default function AuditHistory() {
             </div>
           </div>
         </CardHeader>
-        
+        <CardContent>
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
-          ) uditHistory && auditHistory.length > 0 ? (
+          ) : auditHistory && auditHistory.length > 0 ? (
             <div className="space-y-3">
               {/* Mobile View */}
               <div className="block md:hidden space-y-2">
-                {auditHistory.map((entry, index) => {
+                {auditHistory.map((entry) => {
                   const colors = actionColorMap[entry.action] || { bg: "bg-gray-100", text: "text-gray-700" };
                   return (
                     <div key={entry.id} className="p-3 border border-border rounded-lg bg-card/50">
@@ -183,101 +181,101 @@ export default function AuditHistory() {
               
               {/* Desktop View */}
               <div className="hidden md:block overflow-x-auto">
-              
-                
-                  <TableRow className="hover:bg-transparent border-b border-border/50">
-                    <TableHead className="font-semibold">Time</TableHead>
-                    <TableHead className="font-semibold">Action</TableHead>
-                    <TableHead className="font-semibold">Type</TableHead>
-                    <TableHead className="font-semibold">Entity ID</TableHead>
-                    <TableHead className="font-semibold">Details</TableHead>
-                    <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                
-                  {auditHistory.map((entry, index) => {
-                    const colors = actionColorMap[entry.action] || { bg: "bg-gray-100", text: "text-gray-700" };
-                    return (
-                      <tr
-                        key={entry.id}
-                        className="animate-in fade-in duration-300 border-b border-border/30 hover:bg-muted/40 transition-colors"
-                      >
-                        <TableCell className="text-sm text-muted-foreground py-3">
-                          {formatDate(entry.createdAt)}
-                        </TableCell>
-                        
-                          <Badge className={`${colors.bg} ${colors.text} border-0 flex items-center gap-1.5 w-fit`}>
-                            {actionIcons[entry.action]}
-                            {getActionLabel(entry.action)}
-                          </Badge>
-                        </TableCell>
-                        
-                          <Badge variant="outline" className="capitalize">
-                            {entry.entityType}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm text-muted-foreground">
-                          {entry.entityId.slice(0, 8)}...
-                        </TableCell>
-                        <TableCell className="text-sm max-w-md">
-                          <div className="bg-muted/50 p-2 rounded text-xs space-y-1">
-                            {entry.details.clientName && (
-                              <div><span className="font-semibold">Client:</span> {String(entry.details.clientName)}</div>
-                            )}
-                            {entry.details.eventType && (
-                              <div><span className="font-semibold">Event:</span> {String(entry.details.eventType)}</div>
-                            )}
-                            {entry.details.eventDate && (
-                              <div><span className="font-semibold">Date:</span> {String(entry.details.eventDate)}</div>
-                            )}
-                            {entry.details.guestCount && (
-                              <div><span className="font-semibold">Guests:</span> {String(entry.details.guestCount)}</div>
-                            )}
-                            {entry.details.name && (
-                              <div><span className="font-semibold">Name:</span> {String(entry.details.name)}</div>
-                            )}
-                            {entry.details.role && (
-                              <div><span className="font-semibold">Role:</span> {String(entry.details.role)}</div>
-                            )}
-                            {entry.details.status && (
-                              <div><span className="font-semibold">Status:</span> {String(entry.details.status)}</div>
-                            )}
-                            {entry.details.newStatus && (
-                              <div><span className="font-semibold">New Status:</span> {String(entry.details.newStatus)}</div>
-                            )}
-                            {entry.details.advancePaymentStatus && (
-                              <div><span className="font-semibold">Advance:</span> {String(entry.details.advancePaymentStatus)}</div>
-                            )}
-                            {entry.details.finalPaymentStatus && (
-                              <div><span className="font-semibold">Final:</span> {String(entry.details.finalPaymentStatus)}</div>
-                            )}
-                            {(() => {
-                              const hasKnownField = entry.details.clientName || entry.details.eventType || 
-                                entry.details.eventDate || entry.details.guestCount || entry.details.name || 
-                                entry.details.role || entry.details.status || entry.details.newStatus || 
-                                entry.details.advancePaymentStatus || entry.details.finalPaymentStatus;
-                              return !hasKnownField ? (
-                                <div className="font-mono text-muted-foreground">{JSON.stringify(entry.details).slice(0, 150)}</div>
-                              ) ull;
-                            })()}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleDeleteClick(entry.id)}
-                            disabled={deleteMutation.isPending}
-                            data-testid={`button-delete-audit-${entry.id}`}
-                          >
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </TableCell>
-                      </tr>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent border-b border-border/50">
+                      <TableHead className="font-semibold">Time</TableHead>
+                      <TableHead className="font-semibold">Action</TableHead>
+                      <TableHead className="font-semibold">Type</TableHead>
+                      <TableHead className="font-semibold">Entity ID</TableHead>
+                      <TableHead className="font-semibold">Details</TableHead>
+                      <TableHead className="font-semibold text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {auditHistory.map((entry) => {
+                      const colors = actionColorMap[entry.action] || { bg: "bg-gray-100", text: "text-gray-700" };
+                      return (
+                        <TableRow
+                          key={entry.id}
+                          className="animate-in fade-in duration-300 border-b border-border/30 hover:bg-muted/40 transition-colors"
+                        >
+                          <TableCell className="text-sm text-muted-foreground py-3">
+                            {formatDate(entry.createdAt)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`${colors.bg} ${colors.text} border-0 flex items-center gap-1.5 w-fit`}>
+                              {actionIcons[entry.action]}
+                              {getActionLabel(entry.action)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">
+                              {entry.entityType}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-sm text-muted-foreground">
+                            {entry.entityId.slice(0, 8)}...
+                          </TableCell>
+                          <TableCell className="text-sm max-w-md">
+                            <div className="bg-muted/50 p-2 rounded text-xs space-y-1">
+                              {entry.details.clientName && (
+                                <div><span className="font-semibold">Client:</span> {String(entry.details.clientName)}</div>
+                              )}
+                              {entry.details.eventType && (
+                                <div><span className="font-semibold">Event:</span> {String(entry.details.eventType)}</div>
+                              )}
+                              {entry.details.eventDate && (
+                                <div><span className="font-semibold">Date:</span> {String(entry.details.eventDate)}</div>
+                              )}
+                              {entry.details.guestCount && (
+                                <div><span className="font-semibold">Guests:</span> {String(entry.details.guestCount)}</div>
+                              )}
+                              {entry.details.name && (
+                                <div><span className="font-semibold">Name:</span> {String(entry.details.name)}</div>
+                              )}
+                              {entry.details.role && (
+                                <div><span className="font-semibold">Role:</span> {String(entry.details.role)}</div>
+                              )}
+                              {entry.details.status && (
+                                <div><span className="font-semibold">Status:</span> {String(entry.details.status)}</div>
+                              )}
+                              {entry.details.newStatus && (
+                                <div><span className="font-semibold">New Status:</span> {String(entry.details.newStatus)}</div>
+                              )}
+                              {entry.details.advancePaymentStatus && (
+                                <div><span className="font-semibold">Advance:</span> {String(entry.details.advancePaymentStatus)}</div>
+                              )}
+                              {entry.details.finalPaymentStatus && (
+                                <div><span className="font-semibold">Final:</span> {String(entry.details.finalPaymentStatus)}</div>
+                              )}
+                              {(() => {
+                                const hasKnownField = entry.details.clientName || entry.details.eventType || 
+                                  entry.details.eventDate || entry.details.guestCount || entry.details.name || 
+                                  entry.details.role || entry.details.status || entry.details.newStatus || 
+                                  entry.details.advancePaymentStatus || entry.details.finalPaymentStatus;
+                                return !hasKnownField ? (
+                                  <div className="font-mono text-muted-foreground">{JSON.stringify(entry.details).slice(0, 150)}</div>
+                                ) : null;
+                              })()}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleDeleteClick(entry.id)}
+                              disabled={deleteMutation.isPending}
+                              data-testid={`button-delete-audit-${entry.id}`}
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               </div>
             </div>
           ) : (
