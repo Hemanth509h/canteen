@@ -59,46 +59,42 @@ const Footer = ({ companyInfo }) => (
     <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
        <Leaf size={300} className="absolute -bottom-20 -left-20 rotate-45" />
     </div>
-    <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16 text-left relative z-10">
-      <div className="col-span-2">
-        <div className="flex items-center gap-3 mb-6">
-          <Sprout className="text-primary" size={32} />
-          <h3 className="text-2xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
+    <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-8 text-center relative z-10">
+      <div className="flex items-center gap-3">
+        <Sprout className="text-primary" size={32} />
+        <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
+      </div>
+      
+      <p className="text-muted-foreground max-w-md leading-relaxed italic">
+        "{companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}"
+      </p>
+
+      <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium">
+        <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors">Home</button>
+        <button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Our Menu</button>
+        <button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Contact Us</button>
+        <a href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={14} /> Admin Portal</a>
+      </div>
+
+      <div className="flex gap-6 py-2">
+        <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
+          <Instagram size={20} />
+        </Button>
+        <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
+          <Facebook size={20} />
+        </Button>
+        <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
+          <Twitter size={20} />
+        </Button>
+      </div>
+
+      <div className="w-full pt-8 border-t border-border/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center">
+          <span className="flex items-center gap-2"><MapPin size={16} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</span>
+          <span className="flex items-center gap-2"><Clock size={16} className="text-primary" /> Mon - Sun: 9AM - 10PM</span>
         </div>
-        <p className="text-muted-foreground max-w-sm mb-8 leading-relaxed italic">
-          "{companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}"
-        </p>
-        <div className="flex gap-4">
-          <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
-            <Instagram size={20} />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
-            <Facebook size={20} />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
-            <Twitter size={20} />
-          </Button>
-        </div>
+        <p>© 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.</p>
       </div>
-      <div>
-        <h4 className="font-bold mb-6 tracking-widest uppercase text-xs">Quick Links</h4>
-        <ul className="space-y-4 text-muted-foreground">
-          <li><button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors flex items-center gap-2"><ChevronRight size={14} /> Home</button></li>
-          <li><button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors flex items-center gap-2"><ChevronRight size={14} /> Our Menu</button></li>
-          <li><button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors flex items-center gap-2"><ChevronRight size={14} /> Contact Us</button></li>
-          <li><a href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={14} /> Admin Portal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 className="font-bold mb-6 tracking-widest uppercase text-xs">Contact</h4>
-        <ul className="space-y-4 text-muted-foreground">
-          <li className="flex items-start gap-3"><MapPin size={18} className="text-primary shrink-0" /> {companyInfo?.address || "123 Culinary St, Food City"}</li>
-          <li className="flex items-center gap-3"><Clock size={18} className="text-primary shrink-0" /> Mon - Sun: 9AM - 10PM</li>
-        </ul>
-      </div>
-    </div>
-    <div className="max-w-7xl mx-auto pt-8 border-t border-border/10 text-center text-sm text-muted-foreground relative z-10">
-      <p>© 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.</p>
     </div>
   </footer>
 );
