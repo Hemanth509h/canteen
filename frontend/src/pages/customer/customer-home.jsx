@@ -20,8 +20,19 @@ const heroImages = [
   "https://images.unsplash.com/photo-1601050690597-df056fb4ce99?q=80&w=2000&auto=format&fit=crop", // Indian Samosa/Snacks
   "https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?q=80&w=2000&auto=format&fit=crop", // Indian Thali/Food Platter
   "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2000&auto=format&fit=crop", // Elegant Dining Hall
-  "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2000&auto=format&fit=crop"  // Fine Dining Table Setup
+  "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2000&auto=format&fit=crop", // Fine Dining Table Setup
+  "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2000&auto=format&fit=crop", // Indian Catering Service
+  "https://images.unsplash.com/photo-1589302168068-964664d93dc0?q=80&w=2000&auto=format&fit=crop"  // Curry/Event Food
 ];
+
+// Preload component
+const ImagePreloader = ({ images }) => (
+  <div className="hidden">
+    {images.map((img, i) => (
+      <img key={i} src={img} alt="" />
+    ))}
+  </div>
+);
 
 const features = [
   { 
@@ -111,6 +122,7 @@ export default function CustomerHome() {
 
   return (
     <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20">
+      <ImagePreloader images={heroImages} />
       {/* Intro Animation Overlay */}
       {showIntro && (
         <div className="intro-overlay bg-background">
