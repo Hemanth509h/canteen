@@ -1,9 +1,13 @@
-export const API_URL = "https://canteen-bt65.vercel.app/api";
+// Use empty string for API URL on Vercel as routes are already prefixed with /api
+export const API_URL = "";
 
 export async function apiRequest(method, url, data) {
-  const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
-  const fullUrl = `${API_URL}${normalizedUrl}`;
-  const res = await fetch(fullUrl, {
+  // Ensure the URL starts with /api
+  const normalizedUrl = url.startsWith("/api") 
+    ? (url.startsWith("/") ? url : `/${url}`)
+    : (url.startsWith("/") ? `/api${url}` : `/api/${url}`);
+    
+  const res = await fetch(normalizedUrl, {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
@@ -24,13 +28,12 @@ export const getQueryFn =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const path = queryKey.join("/");
-    const normalizedPath = path.startsWith("/api")
-      ? path
-      : path.startsWith("/")
-        ? path
-        : `/api/${path}`;
-    const fullUrl = `${API_URL}${normalizedPath}`;
-    const res = await fetch(fullUrl, {
+    // Ensure the path starts with /api
+    const normalizedPath = path.startsWith("api/") || path.startsWith("/api")
+      ? (path.startsWith("/") ? path : `/${path}`)
+      : (path.startsWith("/") ? `/api${path}` : `/api/${path}`);
+      
+    const res = await fetch(normalizedPath, {
       credentials: "include",
     });
 
