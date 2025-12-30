@@ -160,7 +160,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
+    <SidebarProvider style={style}>
       <div className="flex h-screen w-full">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">

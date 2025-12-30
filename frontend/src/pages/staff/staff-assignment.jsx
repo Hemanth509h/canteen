@@ -52,7 +52,7 @@ export default function StaffAssignment() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 p-4 flex items-center justify-center">
         <Card className="w-full max-w-2xl">
-          
+          <CardHeader>
             <Skeleton className="h-8 w-64 mb-2" />
             <Skeleton className="h-4 w-48" />
           </CardHeader>
@@ -70,9 +70,11 @@ export default function StaffAssignment() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 p-4 flex items-center justify-center">
         <Card className="w-full max-w-md border-destructive/20 bg-destructive/5">
-          
+          <CardHeader>
             <CardTitle className="text-destructive">Invalid Link</CardTitle>
-            This assignment link is invalid or has expired.</CardDescription>
+            <CardDescription>
+            This assignment link is invalid or has expired.
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -87,7 +89,7 @@ export default function StaffAssignment() {
       <Card className="w-full max-w-2xl">
         <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
           <CardTitle className="text-2xl">Event Assignment Request</CardTitle>
-          
+          <CardDescription>
             {hasResponded ? "Your response has been recorded." : "Please review the event details below and accept or reject this assignment."}
           </CardDescription>
         </CardHeader>

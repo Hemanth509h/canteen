@@ -44,7 +44,7 @@ export default function PaymentConfirmation() {
       if (file.size > 50 * 1024 * 1024) throw new Error("File is too large (max 50MB)");
 
       const reader = new FileReader();
-      return new Promise<string>((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error("Upload timed out. Please try again."));
         }, 60000);
@@ -52,9 +52,9 @@ export default function PaymentConfirmation() {
         reader.onload = async () => {
           clearTimeout(timeout);
           try {
-            const base64 = reader.result as string;
+            const base64 = reader.result;
             await apiRequest("PATCH", `/api/bookings/${bookingId}`, {
-              [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]ase64,
+              [type === "advance" ? "advancePaymentScreenshot" : "finalPaymentScreenshot"]: base64,
               [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
               [type === "advance" ? "advancePaymentApprovalStatus" : "finalPaymentApprovalStatus"]: "pending",
             });
@@ -71,7 +71,7 @@ export default function PaymentConfirmation() {
       });
     },
     onSuccess: (_, type) => {
-      queryClient.invalidateQueries({ queryKey"/api/bookings", bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
       toast({
         title: "Success",
         description: `${type === "advance" ? "Advance" : "Final"} payment screenshot uploaded successfully!`,
@@ -84,31 +84,31 @@ export default function PaymentConfirmation() {
         setFinalPreview(null);
       }
     },
-    onError: (errorny) => {
+    onError: (error) => {
       toast({
         title: "Error",
-        descriptionrror?.message || "Failed to upload payment screenshot",
+        description: error?.message || "Failed to upload payment screenshot",
         variant: "destructive",
       });
     },
   });
 
-  const handleAdvanceFileChange = (eeact.ChangeEvent) => {
+  const handleAdvanceFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setAdvanceFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => setAdvancePreview(e.target?.result as string);
+      reader.onload = (e) => setAdvancePreview(e.target?.result);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleFinalFileChange = (eeact.ChangeEvent) => {
+  const handleFinalFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setFinalFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => setFinalPreview(e.target?.result as string);
+      reader.onload = (e) => setFinalPreview(e.target?.result);
       reader.readAsDataURL(file);
     }
   };
