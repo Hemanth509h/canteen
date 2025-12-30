@@ -188,11 +188,15 @@ export default function CustomerHome() {
     return () => clearInterval(timer);
   }, [dynamicHeroImages?.length]);
 
-  // Auto-hide intro after animation
+  // Auto-hide intro after loading
+  const isLoaded = !isLoadingFood && !isLoadingReviews && companyInfo;
+
   useMemo(() => {
-    const timer = setTimeout(() => setShowIntro(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (isLoaded) {
+      const timer = setTimeout(() => setShowIntro(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded]);
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
