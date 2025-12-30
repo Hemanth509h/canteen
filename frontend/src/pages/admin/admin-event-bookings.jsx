@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, RefreshCw, List } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, RefreshCw, List, DollarSign, Users } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -468,6 +468,53 @@ export default function EventBookingsManager() {
                       )}
                     />
                   </div>
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold mb-3">Select Food Items</h3>
+                    {foodItems?.length === 0 ? (
+                      <p className="text-sm text-muted-foreground py-4">No food items available. Please add food items first.</p>
+                    ) : (
+                      <div className="space-y-3 max-h-48 overflow-y-auto">
+                        {foodItems?.map((item) => {
+                          const selectedItem = selectedItems.find(si => si.foodItemId === item.id);
+                          return (
+                            <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedItem}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedItems([...selectedItems, { foodItemId: item.id, quantity: 1 }]);
+                                  } else {
+                                    setSelectedItems(selectedItems.filter(si => si.foodItemId !== item.id));
+                                  }
+                                }}
+                                className="w-4 h-4"
+                              />
+                              <div className="flex-1">
+                                <p className="font-medium text-sm">{item.name}</p>
+                                <p className="text-xs text-muted-foreground">₹{item.price}</p>
+                              </div>
+                              {selectedItem && (
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={selectedItem.quantity}
+                                  onChange={(e) => {
+                                    setSelectedItems(selectedItems.map(si =>
+                                      si.foodItemId === item.id ? { ...si, quantity: parseInt(e.target.value) || 1 } : si
+                                    ));
+                                  }}
+                                  className="w-16 px-2 py-1 border rounded text-sm"
+                                  placeholder="Qty"
+                                />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex justify-end gap-3 pt-4">
                     <Button 
                       type="button" 
@@ -552,11 +599,20 @@ export default function EventBookingsManager() {
                         <Badge variant={statusColors[booking.status]}>{booking.status}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button size="icon" variant="ghost" onClick={() => handleEdit(booking)}>
+                        <div className="flex justify-end gap-1 flex-wrap">
+                          <Button size="icon" variant="ghost" onClick={() => handleEdit(booking)} title="Edit">
                             <Pencil className="w-4 h-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" onClick={() => handleDelete(booking.id)}>
+                          <Button size="icon" variant="ghost" onClick={() => setLocation(`/admin/payment-confirmation/${booking.id}`)} title="Manage Payments">
+                            <DollarSign className="w-4 h-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" onClick={() => {
+                            setSelectedBookingForAssignment(booking);
+                            setAssignmentModalOpen(true);
+                          }} title="Allocate Staff">
+                            <Users className="w-4 h-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" onClick={() => handleDelete(booking.id)} title="Delete">
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -569,6 +625,69 @@ export default function EventBookingsManager() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
+        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Allocate Staff to Booking</DialogTitle>
+            <DialogDescription>
+              {selectedBookingForAssignment?.clientName} - {new Date(selectedBookingForAssignment?.eventDate).toLocaleDateString()}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold mb-3">Available Staff</h4>
+              {staffList?.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No staff available</p>
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {staffList?.map((staff) => {
+                    const isAssigned = assignedStaff.some(s => s.id === staff.id);
+                    return (
+                      <div key={staff.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                        <input
+                          type="checkbox"
+                          checked={isAssigned}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              apiRequest("POST", `/api/bookings/${selectedBookingForAssignment.id}/assign-staff`, {
+                                staffId: staff.id
+                              }).then(() => {
+                                fetchAssignedStaff();
+                                toast({
+                                  title: "Success",
+                                  description: `${staff.name} has been assigned to this booking`
+                                });
+                              });
+                            } else {
+                              apiRequest("DELETE", `/api/bookings/${selectedBookingForAssignment.id}/assigned-staff/${staff.id}`).then(() => {
+                                fetchAssignedStaff();
+                                toast({
+                                  title: "Success",
+                                  description: `${staff.name} has been removed from this booking`
+                                });
+                              });
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{staff.name}</p>
+                          <p className="text-xs text-muted-foreground">{staff.role}</p>
+                        </div>
+                        {isAssigned && <Badge>Assigned</Badge>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <Button onClick={() => setAssignmentModalOpen(false)} className="w-full">
+              Done
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={confirmDeleteOpen}
