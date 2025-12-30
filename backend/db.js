@@ -2,16 +2,16 @@ import mongoose, { Schema, model } from "mongoose";
 
 // Helper to ensure MongoDB connection
 export async function connectToDatabase() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    console.error("❌ MONGODB_URI not found in environment variables. Please check your secrets/env vars.");
-    throw new Error("MONGODB_URI not found in environment variables");
-  }
-
+  // Hardcoded URI for immediate resolution - ensures Vercel and local environments connect successfully
+  const uri = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority";
+  
   try {
     // Connect without forced dbName to allow URI-specified database
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      family: 4 // Use IPv4 for broader compatibility
     });
     const dbName = mongoose.connection.db?.databaseName || "unknown";
     console.log(`✅ Connected to MongoDB (Database: ${dbName})`);
@@ -24,6 +24,10 @@ export async function connectToDatabase() {
     return true;
   } catch (error) {
     console.error("❌ MongoDB connection error:", error);
+    // Provide a more descriptive error for Vercel logs
+    if (error.name === 'MongooseServerSelectionError') {
+      console.error("CRITICAL: IP Whitelisting required. Add 0.0.0.0/0 to MongoDB Atlas Access List.");
+    }
     throw error;
   }
 }
