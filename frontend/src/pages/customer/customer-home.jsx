@@ -59,8 +59,8 @@ const Testimonials = ({ reviews }) => (
             <div className="flex items-center justify-center gap-2 mb-4">
               {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
             </div>
-            <h4 className="font-bold text-base">{review.customerName}</h4>
-            <span className="text-sm text-muted-foreground">{review.eventType}</span>
+            <h4 className="font-bold text-base text-primary">{review.customerName}</h4>
+            <span className="text-sm text-muted-foreground font-medium">{review.eventType}</span>
           </Card>
         ))}
       </div>
