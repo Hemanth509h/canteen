@@ -295,7 +295,11 @@ export default function EventBookingsManager() {
       guestCount,
       pricePerPlate,
       totalAmount,
-      advanceAmount
+      advanceAmount,
+      advancePaymentStatus: editingBooking ? (data.advancePaymentStatus || editingBooking.advancePaymentStatus || "pending") : "pending",
+      finalPaymentStatus: editingBooking ? (data.finalPaymentStatus || editingBooking.finalPaymentStatus || "pending") : "pending",
+      advancePaymentApprovalStatus: editingBooking ? (data.advancePaymentApprovalStatus || editingBooking.advancePaymentApprovalStatus || "pending") : "pending",
+      finalPaymentApprovalStatus: editingBooking ? (data.finalPaymentApprovalStatus || editingBooking.finalPaymentApprovalStatus || "pending") : "pending",
     };
 
     if (editingBooking) {
