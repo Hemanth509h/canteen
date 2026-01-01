@@ -9,11 +9,7 @@ export async function apiRequest(method, url, data) {
   }
 
   const finalUrl = `${API_URL}/${cleanPath}`;
-  const logMsg = `[API] Requesting: ${method} ${finalUrl}`;
-  console.log(logMsg);
-  
-  // Also log to the server if possible, but for now we'll stick to console
-  // and have the backend log its side of things.
+  console.log(`[API] Requesting: ${finalUrl}`);
 
   const res = await fetch(finalUrl, {
     method,
