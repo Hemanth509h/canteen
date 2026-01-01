@@ -16,8 +16,9 @@ export default defineConfig({
     cors: true,
     proxy: {
       "/api": {
-        target: "http://0.0.0.0:3000",
+        target: "https://canteen-f0rq.onrender.com",
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
