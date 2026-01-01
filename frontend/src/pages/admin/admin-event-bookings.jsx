@@ -322,7 +322,7 @@ export default function EventBookingsManager() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
             Event Bookings
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">

@@ -7,13 +7,32 @@
 @layer base {
   :root {
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-foreground: 240 10% 3.9%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 240 5.9% 90%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Force light mode sidebar text visibility */
+  [data-sidebar="sidebar"] {
+    color: #000000 !important;
+  }
+  
+  [data-sidebar="menu-button"] {
+    color: #000000 !important;
+  }
+
+  [data-sidebar="menu-button"] svg {
+    color: #000000 !important;
+  }
+
+  .dark [data-sidebar="sidebar"],
+  .dark [data-sidebar="menu-button"],
+  .dark [data-sidebar="menu-button"] svg {
+    color: #ffffff !important;
   }
 
   .dark {
@@ -46,17 +65,42 @@
     --sidebar-ring: 142 76% 40%;
   }
 
+  /* Sidebar Text Visibility */
+  [data-sidebar="sidebar"],
+  [data-sidebar="menu-button"],
+  [data-sidebar="group-label"],
+  .text-sidebar-foreground {
+    color: #1a1a1a !important;
+  }
+
+  [data-sidebar="menu-button"] svg {
+    color: #1a1a1a !important;
+  }
+
+  .dark [data-sidebar="sidebar"],
+  .dark [data-sidebar="menu-button"],
+  .dark [data-sidebar="group-label"],
+  .dark .text-sidebar-foreground,
+  .dark [data-sidebar="menu-button"] svg {
+    color: #ffffff !important;
+  }
+
+  /* Global Button Visibility Fixes */
+  .dark button[variant="outline"],
+  .dark .button-outline,
+  .dark [data-testid*="button-refresh"],
+  .dark [data-testid*="button-export"] {
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    background-color: transparent !important;
+  }
+
+  .dark button[variant="outline"]:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
     color: #ffffff !important;
-  }
-
-  .dark button[variant="outline"], .dark .button-outline {
-    color: #ffffff !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-  }
-
-  .dark button[variant="outline"]:hover, .dark .button-outline:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   .dark .text-muted-foreground {

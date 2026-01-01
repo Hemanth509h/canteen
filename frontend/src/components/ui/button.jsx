@@ -15,9 +15,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground border border-destructive-border",
         outline:
-          // Shows the background color of whatever card / sidebar / accent background it is inside of.
-          // Inherits the current text color.
-          " border [border-color:var(--button-outline)]  shadow-xs active:shadow-none ",
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary: "border bg-secondary text-secondary-foreground border border-secondary-border ",
         // Add a transparent border so that when someone toggles a border on later, it doesn't shift layout/size.
         ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-white/20 dark:hover:text-white",

@@ -82,7 +82,7 @@ export default function ChefPrintout() {
       <div className="print-page max-w-6xl mx-auto p-6 space-y-6">
         <Card className="print-header">
           <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-3xl">Chef Preparation Menu</CardTitle>
+            <CardTitle className="text-3xl text-foreground">Chef Preparation Menu</CardTitle>
             <p className="text-muted-foreground">Preparation Guide for {activeDate}</p>
           </CardHeader>
         </Card>

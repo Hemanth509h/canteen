@@ -234,7 +234,7 @@ export default function FoodItemsManager() {
             <UtensilsCrossed className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-foreground">
               Food Items
             </h2>
             <p className="text-sm text-muted-foreground">
