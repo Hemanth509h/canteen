@@ -13,6 +13,7 @@ export default defineConfig({
     port: 5000,
     host: "0.0.0.0",
     allowedHosts: true,
+    cors: true,
     proxy: {
       "/api": {
         target: "http://0.0.0.0:3000",
