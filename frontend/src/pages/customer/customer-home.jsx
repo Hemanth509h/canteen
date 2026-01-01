@@ -24,6 +24,11 @@ import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
+import HowItWorks from "@/components/features/how-it-works";
+import GalleryPreview from "@/components/features/gallery-preview";
+import BackToTopButton from "@/components/features/back-to-top";
+import FoodItemQuickView from "@/components/features/food-item-quick-view";
+
 const WhatsAppButton = ({ phone }) => (
   <a 
     href={`https://wa.me/${phone?.replace(/\D/g, '') || '1234567890'}`}
@@ -37,127 +42,6 @@ const WhatsAppButton = ({ phone }) => (
     </span>
   </a>
 );
-
-const BackToTopButton = () => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const toggleVisible = () => {
-      const scrolled = document.documentElement.scrollTop;
-      if (scrolled > 300) {
-        setVisible(true);
-      } else if (scrolled <= 300) {
-        setVisible(false);
-      }
-    };
-    window.addEventListener('scroll', toggleVisible);
-    return () => window.removeEventListener('scroll', toggleVisible);
-  }, []);
-
-  return (
-    <Button
-      variant="primary"
-      size="icon"
-      className={cn(
-        "fixed bottom-6 right-6 z-[90] rounded-full shadow-2xl transition-all duration-300",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
-      )}
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-    >
-      <ArrowUp size={24} />
-    </Button>
-  );
-};
-
-const HowItWorks = () => {
-  const steps = [
-    {
-      icon: Calendar,
-      title: "Plan Your Event",
-      description: "Browse our seasonal menus and select your favorites for your special occasion."
-    },
-    {
-      icon: Utensils,
-      title: "Customized Menu",
-      description: "Consult with our chefs to personalize every dish according to your dietary needs."
-    },
-    {
-      icon: CheckCircle,
-      title: "Execution & Delivery",
-      description: "Sit back as our professional team handles everything from setup to impeccable service."
-    }
-  ];
-
-  return (
-    <section className="py-24 px-6 bg-secondary/5 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="text-primary font-bold tracking-[0.2em] uppercase text-sm mb-4 block">Process</span>
-          <h2 className="text-4xl md:text-6xl font-poppins font-bold">How It Works</h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-12">
-          {steps.map((step, idx) => (
-            <div key={idx} className="relative flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-8 group-hover:bg-primary transition-colors duration-500 relative">
-                <step.icon size={32} className="text-primary group-hover:text-white transition-colors duration-500" />
-                <div className="absolute -right-2 -top-2 w-8 h-8 rounded-full bg-background border-2 border-primary flex items-center justify-center font-bold text-primary">
-                  {idx + 1}
-                </div>
-              </div>
-              <h3 className="text-2xl font-poppins font-bold mb-4">{step.title}</h3>
-              <p className="text-muted-foreground leading-relaxed italic">"{step.description}"</p>
-              {idx < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-10 left-[70%] w-full h-[2px] bg-border/30 border-dashed" />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const GalleryPreview = () => {
-  const images = [
-    "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=800&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=800&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1531058021387-32305b0c83d7?q=80&w=800&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1470753012982-7f9894753f17?q=80&w=800&auto=format&fit=crop"
-  ];
-
-  return (
-    <section className="py-24 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div className="max-w-xl">
-            <span className="text-primary font-bold tracking-[0.2em] uppercase text-sm mb-4 block">Memories</span>
-            <h2 className="text-4xl md:text-6xl font-poppins font-bold">Event Gallery</h2>
-            <p className="text-muted-foreground mt-4 italic">A glimpse into the extraordinary experiences we've helped create.</p>
-          </div>
-          <Button variant="outline" className="rounded-full gap-2 group">
-            View All Photos <Camera size={18} className="group-hover:rotate-12 transition-transform" />
-          </Button>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {images.map((src, idx) => (
-            <div key={idx} className="aspect-square rounded-2xl overflow-hidden group relative">
-              <img 
-                src={src} 
-                alt={`Gallery image ${idx + 1}`} 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Instagram size={24} className="text-white" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
 
 const Testimonials = ({ reviews }) => (
   <section className="py-24 px-6 bg-secondary/5">
@@ -663,65 +547,12 @@ export default function CustomerHome() {
       <Footer companyInfo={companyInfo} />
       <BackToTopButton />
 
-      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden rounded-[2rem]">
-          {selectedItem && (
-            <div className="grid md:grid-cols-2">
-              <div className="h-64 md:h-full relative">
-                <img 
-                  src={selectedItem.imageUrl || defaultFoodImage} 
-                  alt={selectedItem.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge className="bg-primary text-white border-none py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
-                    {selectedItem.category}
-                  </Badge>
-                </div>
-              </div>
-              <div className="p-8 flex flex-col justify-center">
-                <DialogHeader className="mb-6">
-                  <DialogTitle className="text-3xl font-poppins font-bold text-primary mb-2">
-                    {selectedItem.name}
-                  </DialogTitle>
-                  <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground">
-                    <span className={cn(
-                      "px-3 py-1 rounded-full text-[10px] uppercase tracking-wider",
-                      selectedItem.type === "Veg" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    )}>
-                      {selectedItem.type}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock size={14} className="text-primary" /> 25-30 min
-                    </span>
-                  </div>
-                </DialogHeader>
-                <DialogDescription className="text-lg leading-relaxed mb-8 italic">
-                  "{selectedItem.description}"
-                </DialogDescription>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl">
-                    <ChefHat className="text-primary" size={24} />
-                    <div>
-                      <h4 className="font-bold text-sm">Crafted by Experts</h4>
-                      <p className="text-xs text-muted-foreground">Using 100% organic ingredients</p>
-                    </div>
-                  </div>
-                  <Button 
-                    className="w-full h-14 rounded-2xl text-lg font-bold"
-                    onClick={() => {
-                      document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'});
-                      setSelectedItem(null);
-                    }}
-                  >
-                    Inquire for Event
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <FoodItemQuickView 
+        item={selectedItem} 
+        open={!!selectedItem} 
+        onOpenChange={() => setSelectedItem(null)}
+        defaultFoodImage={defaultFoodImage}
+      />
     </div>
   );
 }
