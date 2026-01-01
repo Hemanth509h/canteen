@@ -5,11 +5,11 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
-  body::-webkit-scrollbar {
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
 }
