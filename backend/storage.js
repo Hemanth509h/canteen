@@ -57,7 +57,22 @@ export class MemoryStorage {
   }
 
   async getBooking(id) {
-    return this.eventBookings.get(id) || null;
+    const booking = this.eventBookings.get(id);
+    if (!booking) return null;
+    
+    // Ensure all numeric fields are properly parsed and calculated
+    const guestCount = parseInt(booking.guestCount) || 0;
+    const pricePerPlate = parseInt(booking.pricePerPlate) || 0;
+    const totalAmount = booking.totalAmount || (guestCount * pricePerPlate);
+    const advanceAmount = booking.advanceAmount || Math.round(totalAmount * 0.5);
+
+    return {
+      ...booking,
+      guestCount,
+      pricePerPlate,
+      totalAmount,
+      advanceAmount
+    };
   }
 
   async createBooking(booking) {

@@ -24,7 +24,7 @@ export default function PaymentConfirmation() {
   const [advancePreview, setAdvancePreview] = useState(null);
   const [finalPreview, setFinalPreview] = useState(null);
 
-  const { data: booking, isLoading: bookingLoading, isError: bookingError } = useQuery({
+  const { data: response, isLoading: bookingLoading, isError: bookingError } = useQuery({
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
@@ -34,6 +34,8 @@ export default function PaymentConfirmation() {
     },
     enabled: !!bookingId,
   });
+
+  const booking = response?.data || response;
 
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],

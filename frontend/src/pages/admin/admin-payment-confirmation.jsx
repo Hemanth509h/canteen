@@ -25,7 +25,7 @@ export default function AdminPaymentConfirmation() {
   const [approvingAdvance, setApprovingAdvance] = useState(false);
   const [approvingFinal, setApprovingFinal] = useState(false);
 
-  const { data: booking, isLoading: isLoadingBooking } = useQuery({
+  const { data: response, isLoading: isLoadingBooking } = useQuery({
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
@@ -41,6 +41,8 @@ export default function AdminPaymentConfirmation() {
     },
     enabled: !!bookingId,
   });
+
+  const booking = response?.data || response;
 
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
