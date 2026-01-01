@@ -84,10 +84,13 @@ const Footer = ({ companyInfo }) => (
       </p>
 
       <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium">
-        <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors">Home</button>
-        <button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Our Menu</button>
-        <button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Contact Us</button>
-        <Link href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={14} /> Admin Portal</Link>
+        <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors cursor-pointer">Home</button>
+        <button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors cursor-pointer">Our Menu</button>
+        <button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors cursor-pointer">Contact Us</button>
+        <Link href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2 font-semibold">
+          <Lock size={14} className="text-primary" />
+          Admin Portal
+        </Link>
       </div>
 
       <div className="flex gap-6 py-2">
@@ -483,15 +486,16 @@ export default function CustomerHome() {
                           </Badge>
                         </div>
                       </div>
-                      <div className="p-3 sm:p-8">
-                        <h3 className="font-poppins font-bold text-xs sm:text-2xl mb-1 sm:mb-3 text-foreground group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
-                        <p className="text-muted-foreground text-[10px] sm:text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
-                        <div className="mt-2 sm:mt-6 pt-2 sm:pt-6 border-t border-border/30 flex justify-between items-center opacity-70 group-hover:opacity-100 transition-opacity duration-500">
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <Wind size={10} className="text-primary" />
-                            <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-tighter text-foreground">Organic</span>
-                          </div>
-                          <ChefHat size={12} className="text-primary" />
+                      <div className="p-3 sm:p-8 flex flex-col h-[calc(100%-8rem)] sm:h-[calc(100%-16rem)]">
+                        <div className="flex-1">
+                          <h3 className="font-poppins font-bold text-xs sm:text-2xl mb-1 sm:mb-3 text-foreground group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
+                          <p className="text-muted-foreground text-[10px] sm:text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between">
+                          <span className="text-xs sm:text-lg font-bold text-primary">From ₹{item.basePrice || '499'}</span>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-10 sm:w-10 rounded-full p-0">
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </Card>
