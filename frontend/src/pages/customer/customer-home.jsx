@@ -104,6 +104,7 @@ const Footer = ({ companyInfo }) => (
       <div className="w-full pt-8 border-t border-border/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center">
           <span className="flex items-center gap-2"><MapPin size={16} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</span>
+          <span className="flex items-center gap-2 font-medium text-foreground">Email: events@elite-catering.com</span>
           <span className="flex items-center gap-2"><Clock size={16} className="text-primary" /> Mon - Sun: 9AM - 10PM</span>
         </div>
         <p>© 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.</p>
@@ -319,12 +320,12 @@ export default function CustomerHome() {
             <span className="text-sm font-medium tracking-wider uppercase">Nature's Finest Catering</span>
           </div>
           
-          <h2 className="text-3xl sm:text-7xl md:text-8xl font-poppins font-bold mb-4 sm:mb-8 leading-[1.1] tracking-tight slide-up">
-            {companyInfo?.companyName || "Elite Catering"}
-          </h2>
+          <h1 className="text-3xl sm:text-7xl md:text-8xl font-poppins font-bold mb-4 sm:mb-8 leading-[1.1] tracking-tight slide-up text-white">
+            Unforgettable Events
+          </h1>
           
-          <p className="text-base sm:text-xl md:text-2xl max-w-2xl mb-8 sm:mb-12 font-inter font-light opacity-90 slide-up">
-            {companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}
+          <p className="text-base sm:text-xl md:text-2xl max-w-2xl mb-8 sm:mb-12 font-inter font-light opacity-90 slide-up text-white/90">
+            Artisan culinary experiences inspired by the organic beauty of nature.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto slide-up">
