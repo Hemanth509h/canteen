@@ -45,8 +45,8 @@ function AppSidebar({ onLogout }) {
     <Sidebar className="border-r border-border/50 bg-sidebar">
       <SidebarContent className="bg-sidebar">
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-3 px-4 py-6 mb-2 text-sidebar-foreground">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+          <SidebarGroupLabel className="flex items-center gap-3 px-4 py-6 mb-2">
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
               <ChefHat className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 overflow-hidden">
@@ -70,8 +70,8 @@ function AppSidebar({ onLogout }) {
                     className="rounded-lg transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
                   >
                     <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`} className="flex items-center gap-2 text-sidebar-foreground">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      <span className="truncate">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -88,8 +88,8 @@ function AppSidebar({ onLogout }) {
             className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
             data-testid="button-back-to-home"
           >
-            <Home className="w-4 h-4 mr-2" />
-            Back to Home
+            <Home className="w-4 h-4 mr-2 shrink-0" />
+            <span className="truncate">Back to Home</span>
           </Button>
         </Link>
         <Button
@@ -99,8 +99,8 @@ function AppSidebar({ onLogout }) {
           onClick={onLogout}
           data-testid="button-logout"
         >
-          <LogOut className="w-4 h-4 mr-2" />
-          Logout
+          <LogOut className="w-4 h-4 mr-2 shrink-0" />
+          <span className="truncate">Logout</span>
         </Button>
       </SidebarFooter>
     </Sidebar>
@@ -158,19 +158,22 @@ export default function AdminDashboard() {
 
   return (
     <SidebarProvider style={style}>
-      <div className="flex h-screen w-full">
+      <div className="flex h-screen w-full bg-background">
         <AppSidebar onLogout={handleLogout} />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border bg-background z-10 flex-wrap">
-            <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9 text-foreground" />
+        <div className="flex flex-col flex-1 overflow-hidden w-full">
+          <header className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border bg-background z-10">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9 text-foreground" />
+              <h1 className="text-sm font-semibold sm:hidden truncate max-w-[120px]">
+                {menuItems.find(item => item.url === location)?.title || "Admin"}
+              </h1>
+            </div>
             <div className="flex items-center gap-1 sm:gap-2">
-              <div className="hidden sm:block">
-                <GlobalSearch className="text-foreground" />
-              </div>
+              <GlobalSearch className="text-foreground" />
               <ThemeToggle className="text-foreground" />
             </div>
           </header>
-          <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20">
+          <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20 p-4 sm:p-6">
             <ErrorBoundary>
               <Switch>
                 <Route path="/admin" component={DashboardOverview} />
