@@ -528,6 +528,7 @@ export default function CustomerHome() {
       </section>
 
       <WhatsAppButton phone={companyInfo?.phone} />
+      <Footer companyInfo={companyInfo} />
     </div>
   );
 }
