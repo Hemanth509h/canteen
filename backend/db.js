@@ -103,8 +103,6 @@ function toJSON(doc) {
 class MongoStorage {
   async getFoodItems() { 
     const docs = await FoodItemModel.find();
-    console.log(`[STORAGE] Fetched ${docs.length} food items`);
-    if (docs.length > 0) console.log("[STORAGE] First food item keys:", Object.keys(docs[0].toObject()));
     return docs.map(toJSON);
   }
   async getFoodItem(id) { return toJSON(await FoodItemModel.findById(id)); }
