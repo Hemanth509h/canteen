@@ -570,9 +570,9 @@ export async function registerRoutes(app) {
   app.get("/api/staff-requests/:bookingId", async (req, res) => {
     try {
       const requests = await getStorageInstance().getStaffBookingRequests(req.params.bookingId);
-      res.json(requests);
+      sendResponse(res, 200, requests);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch staff requests" });
+      sendResponse(res, 500, null, "Failed to fetch staff requests");
     }
   });
 
@@ -581,13 +581,13 @@ export async function registerRoutes(app) {
       const result = insertStaffBookingRequestSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return sendResponse(res, 400, null, error.message);
       }
 
       const request = await getStorageInstance().createStaffBookingRequest(result.data);
-      res.status(201).json(request);
+      sendResponse(res, 201, request);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create staff request" });
+      sendResponse(res, 500, null, "Failed to create staff request");
     }
   });
 
