@@ -53,7 +53,7 @@ function AppSidebar({ onLogout }) {
               {isLoading ? (
                 <Skeleton className="h-5 w-24 mb-1" />
               ) : (
-                <span className="font-serif font-bold text-lg block truncate text-sidebar-foreground" data-testid="text-sidebar-company-name">
+                <span className="font-serif font-bold text-lg block truncate text-sidebar-foreground !text-white" data-testid="text-sidebar-company-name">
                   {companyInfo?.companyName || "Elite Catering"}
                 </span>
               )}
