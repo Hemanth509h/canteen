@@ -45,6 +45,23 @@
     --sidebar-border: 142 30% 18%;
     --sidebar-ring: 142 76% 40%;
   }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #ffffff !important;
+  }
+
+  .dark button[variant="outline"], .dark .button-outline {
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .dark button[variant="outline"]:hover, .dark .button-outline:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .dark .text-muted-foreground {
+    color: #e5e7eb !important;
+  }
 }
 
 @layer base {
