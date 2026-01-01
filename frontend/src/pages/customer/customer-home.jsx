@@ -325,11 +325,11 @@ export default function CustomerHome() {
           </div>
           
           <h1 className="text-3xl sm:text-7xl md:text-8xl font-poppins font-bold mb-4 sm:mb-8 leading-[1.1] tracking-tight slide-up text-white drop-shadow-lg">
-            Unforgettable Events
+            {companyInfo?.companyName || "Elite Catering"}
           </h1>
           
           <p className="text-base sm:text-xl md:text-2xl max-w-2xl mb-8 sm:mb-12 font-inter font-light slide-up text-white drop-shadow-md">
-            Artisan culinary experiences inspired by the organic beauty of nature.
+            {companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto slide-up">
