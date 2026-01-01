@@ -28,7 +28,7 @@ export default function PaymentConfirmation() {
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
-      const response = await fetch(`${API_URL}/api/bookings/${bookingId}`);
+      const response = await fetch(`/api/bookings/${bookingId}`);
       if (!response.ok) throw new Error("Failed to fetch booking");
       return response.json();
     },

@@ -395,11 +395,76 @@ export async function registerRoutes(app) {
     try {
       const deleted = await getStorageInstance().deleteNotification(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ error: "Notification not found" });
+        return sendResponse(res, 404, null, "Notification not found");
       }
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: "Failed to delete notification" });
+      sendResponse(res, 500, null, "Failed to delete notification");
+    }
+  });
+
+  // Staff Routes
+  app.get("/api/staff", async (_req, res) => {
+    try {
+      const staff = await getStorageInstance().getStaff();
+      sendResponse(res, 200, staff);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch staff");
+    }
+  });
+
+  app.get("/api/staff/:id", async (req, res) => {
+    try {
+      const staff = await getStorageInstance().getStaffMember(req.params.id);
+      if (!staff) {
+        return sendResponse(res, 404, null, "Staff member not found");
+      }
+      sendResponse(res, 200, staff);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch staff member");
+    }
+  });
+
+  app.post("/api/staff", async (req, res) => {
+    try {
+      const result = insertStaffSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return sendResponse(res, 400, null, error.message);
+      }
+      const staff = await getStorageInstance().createStaffMember(result.data);
+      sendResponse(res, 201, staff);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create staff member");
+    }
+  });
+
+  app.patch("/api/staff/:id", async (req, res) => {
+    try {
+      const result = updateStaffSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return sendResponse(res, 400, null, error.message);
+      }
+      const staff = await getStorageInstance().updateStaffMember(req.params.id, result.data);
+      if (!staff) {
+        return sendResponse(res, 404, null, "Staff member not found");
+      }
+      sendResponse(res, 200, staff);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update staff member");
+    }
+  });
+
+  app.delete("/api/staff/:id", async (req, res) => {
+    try {
+      const deleted = await getStorageInstance().deleteStaffMember(req.params.id);
+      if (!deleted) {
+        return sendResponse(res, 404, null, "Staff member not found");
+      }
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete staff member");
     }
   });
 

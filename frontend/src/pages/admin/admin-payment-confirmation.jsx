@@ -29,7 +29,7 @@ export default function AdminPaymentConfirmation() {
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
-      const url = `${API_URL}/api/bookings/${bookingId}`;
+      const url = `/api/bookings/${bookingId}`;
       console.log('Fetching from URL:', url);
       const res = await fetch(url);
       if (!res.ok) {
