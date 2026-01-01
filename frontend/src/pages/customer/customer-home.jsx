@@ -142,7 +142,6 @@ export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [showIntro, setShowIntro] = useState(true);
   const [heroIndex, setHeroIndex] = useState(0);
 
   const { data: foodItems, isLoading: isLoadingFood } = useQuery({
@@ -180,23 +179,13 @@ export default function CustomerHome() {
   }, [companyInfo?.heroImages]);
 
   // Hero Slider Effect
-  useMemo(() => {
+  useEffect(() => {
     if (!dynamicHeroImages || dynamicHeroImages.length === 0) return;
     const timer = setInterval(() => {
       setHeroIndex((prev) => (prev + 1) % dynamicHeroImages.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [dynamicHeroImages?.length]);
-
-  // Auto-hide intro after loading
-  const isLoaded = !isLoadingFood && !isLoadingReviews && companyInfo;
-
-  useMemo(() => {
-    if (isLoaded) {
-      const timer = setTimeout(() => setShowIntro(false), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoaded]);
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
@@ -226,18 +215,7 @@ export default function CustomerHome() {
   return (
     <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20">
       <ImagePreloader images={dynamicHeroImages} />
-      {showIntro && (
-        <div className="intro-overlay bg-background">
-          <div className="intro-logo flex flex-col items-center">
-            <Sprout size={80} className="text-primary mb-6 animate-pulse" />
-            <h1 className="text-4xl font-poppins font-bold tracking-tighter text-foreground">
-              {companyInfo?.companyName || "ELITE"}
-            </h1>
-            <div className="w-12 h-1 bg-primary mt-4 rounded-full" />
-          </div>
-        </div>
-      )}
-
+      
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
         <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-10 dark:opacity-20" />
