@@ -167,9 +167,11 @@ export default function PaymentConfirmation() {
     );
   }
 
-  const baseAmount = booking.guestCount * booking.pricePerPlate;
-  const totalAmount = booking.totalAmount ?? baseAmount;
-  const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
+  const guestCount = parseInt(booking.guestCount) || 0;
+  const pricePerPlate = parseInt(booking.pricePerPlate) || 0;
+  const baseAmount = guestCount * pricePerPlate;
+  const totalAmount = (typeof booking.totalAmount === 'number' ? booking.totalAmount : parseFloat(booking.totalAmount)) || baseAmount;
+  const advanceAmount = (typeof booking.advanceAmount === 'number' ? booking.advanceAmount : parseFloat(booking.advanceAmount)) || Math.ceil(totalAmount * 0.5);
   const finalAmount = totalAmount - advanceAmount;
   
   // Updated business logicse approval status for customer-facing badges and visibility

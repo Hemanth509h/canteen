@@ -222,11 +222,13 @@ export default function AdminPaymentConfirmation() {
     );
   }
 
-  const baseAmount = booking ? booking.guestCount * booking.pricePerPlate : 0;
-  const totalAmount = booking ? (booking.totalAmount ?? baseAmount) : 0;
-  const displayTotal = isEditing && editTotalAmount !== null ? editTotalAmount : totalAmount;
-  const storedAdvanceAmount = booking ? (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5)) : 0;
-  const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
+  const guestCount = parseInt(booking ? booking.guestCount : 0) || 0;
+  const pricePerPlate = parseInt(booking ? booking.pricePerPlate : 0) || 0;
+  const baseAmount = guestCount * pricePerPlate;
+  const totalAmount = (booking ? (typeof booking.totalAmount === 'number' ? booking.totalAmount : parseFloat(booking.totalAmount)) : 0) || baseAmount;
+  const storedAdvanceAmount = (booking ? (typeof booking.advanceAmount === 'number' ? booking.advanceAmount : parseFloat(booking.advanceAmount)) : 0) || Math.ceil(totalAmount * 0.5);
+  const displayTotal = isEditing && editTotalAmount !== null ? (parseFloat(editTotalAmount) || 0) : totalAmount;
+  const advanceAmount = isEditing && editAdvanceAmount !== null ? (parseFloat(editAdvanceAmount) || 0) : storedAdvanceAmount;
   const finalAmount = displayTotal - advanceAmount;
   const advancePaid = booking ? (isEditing ? editAdvanceStatus === "paid" : booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved") : false;
   const finalPaid = booking ? (isEditing ? editFinalStatus === "paid" : booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved") : false;
