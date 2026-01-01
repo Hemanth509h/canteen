@@ -419,17 +419,17 @@ export default function CustomerHome() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
+            <div className="flex flex-wrap gap-2 sm:gap-4 justify-center max-w-5xl mx-auto px-4">
               {categories.map((cat) => (
                 <Button 
                   key={cat} 
                   variant="ghost"
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "rounded-full px-4 sm:px-8 py-2 sm:py-4 h-auto text-xs sm:text-sm font-bold tracking-wide transition-all duration-500",
+                    "rounded-xl px-4 sm:px-6 py-2 h-auto text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 border border-transparent",
                     selectedCategory === cat 
-                      ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20 scale-105" 
-                      : "hover:bg-background/80"
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105 border-primary" 
+                      : "bg-background hover:bg-secondary/50 hover:border-secondary-foreground/10"
                   )}
                 >
                   {cat}
@@ -438,8 +438,8 @@ export default function CustomerHome() {
             </div>
           </div>
 
-          <div className="max-h-[600px] sm:max-h-[800px] overflow-y-auto pr-2 sm:pr-4 custom-scrollbar">
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-10">
+          <div className="max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-8">
               {isLoadingFood ? (
                 Array(6).fill(0).map((_, i) => (
                   <div key={i} className="space-y-4 slide-up">
