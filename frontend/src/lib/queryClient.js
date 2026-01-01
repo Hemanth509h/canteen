@@ -1,5 +1,5 @@
-// Base URL for API calls - uses Vite proxy to local backend
-export const API_URL = "/api";
+// Base URL for API calls
+export const API_URL = "https://canteen-f0rq.onrender.com/api";
 
 export async function apiRequest(method, url, data) {
   // Normalize the URL: remove any leading slash and any leading 'api/'
