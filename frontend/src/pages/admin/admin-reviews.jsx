@@ -40,17 +40,17 @@ export default function ReviewsManager() {
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
-  const { data: reviews, isLoading, isFetching, refetch } = useQuery({
+  const { data: reviews = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["/api/reviews"],
   });
 
-  const filteredReviews = reviews?.filter((review) => {
-    const matchesSearch = review.customerName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      review.eventType.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      review.comment.toLowerCase().includes(debouncedSearch.toLowerCase());
+  const filteredReviews = (reviews || []).filter((review) => {
+    const matchesSearch = (review.customerName || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (review.eventType || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (review.comment || "").toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchesRating = !ratingFilter || review.rating === parseInt(ratingFilter);
     return matchesSearch && matchesRating;
-  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
   const form = useForm({
     resolver: zodResolver(editingReview ? updateCustomerReviewSchema : insertCustomerReviewSchema),
@@ -154,6 +154,8 @@ export default function ReviewsManager() {
   const onSubmit = (data) => {
     if (editingReview) {
       updateMutation.mutate({ id: editingReview.id, data });
+    } else {
+      createMutation.mutate(data);
     }
   };
 

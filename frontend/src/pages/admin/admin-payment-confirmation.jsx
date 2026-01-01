@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Invoice } from "@/components/features/invoice";
 import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon, RefreshCw } from "lucide-react";
-import { apiRequest, queryClient, API_URL } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 
 export default function AdminPaymentConfirmation() {
@@ -162,6 +162,10 @@ export default function AdminPaymentConfirmation() {
       });
       return;
     }
+
+    const storedAdvanceAmount = booking ? (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5)) : 0;
+    const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
+    const finalAmount = totalAmount - advanceAmount;
 
     let message = "";
     if (booking.advancePaymentStatus === "pending") {

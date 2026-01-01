@@ -53,23 +53,23 @@ export default function EventBookingsManager() {
   
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
-  const { data: bookings, isLoading, isFetching, refetch } = useQuery({
+  const { data: bookings = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["/api/bookings"],
   });
 
-  const { data: foodItems } = useQuery({
+  const { data: foodItems = [] } = useQuery({
     queryKey: ["/api/food-items"],
   });
 
-  const { data: staffList } = useQuery({
+  const { data: staffList = [] } = useQuery({
     queryKey: ["/api/staff"],
   });
 
-  const filteredBookings = bookings?.filter((booking) => {
-    const matchesSearch = booking.clientName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      booking.eventType.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      booking.contactEmail.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      booking.status.toLowerCase().includes(debouncedSearch.toLowerCase());
+  const filteredBookings = (bookings || []).filter((booking) => {
+    const matchesSearch = (booking.clientName || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (booking.eventType || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (booking.contactEmail || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (booking.status || "").toLowerCase().includes(debouncedSearch.toLowerCase());
     
     const matchesStatus = !statusFilter || booking.status === statusFilter;
     
@@ -84,11 +84,11 @@ export default function EventBookingsManager() {
     if (sortBy === "date") {
       compareValue = new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime();
     } else if (sortBy === "status") {
-      compareValue = a.status.localeCompare(b.status);
+      compareValue = (a.status || "").localeCompare(b.status || "");
     } else if (sortBy === "amount") {
       compareValue = (a.totalAmount || 0) - (b.totalAmount || 0);
     } else if (sortBy === "client") {
-      compareValue = a.clientName.localeCompare(b.clientName);
+      compareValue = (a.clientName || "").localeCompare(b.clientName || "");
     }
     
     return sortOrder === "asc" ? compareValue : -compareValue;
@@ -97,15 +97,15 @@ export default function EventBookingsManager() {
   const debouncedFoodSearch = useDebouncedValue(foodSearchQuery, 300);
 
   const getCategories = () => {
-    const categories = new Set(foodItems?.map(item => item.category).filter(Boolean));
+    const categories = new Set((foodItems || []).map(item => item.category).filter(Boolean));
     return Array.from(categories).sort();
   };
 
-  const filteredFoodItems = foodItems?.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(debouncedFoodSearch.toLowerCase());
+  const filteredFoodItems = (foodItems || []).filter((item) => {
+    const matchesSearch = (item.name || "").toLowerCase().includes(debouncedFoodSearch.toLowerCase());
     const matchesCategory = !selectedCategory || selectedCategory === "all" || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  }) || [];
+  });
 
   const getDomain = () => {
     if (typeof window !== 'undefined') {
@@ -152,11 +152,14 @@ export default function EventBookingsManager() {
       fetch(`/api/bookings/${editingBooking.id}/items`)
         .then(res => res.json())
         .then((items) => {
-          setSelectedItems(items.map(item => ({
-            foodItemId: item.foodItemId,
-            quantity: item.quantity
-          })));
-        });
+          if (Array.isArray(items)) {
+            setSelectedItems(items.map(item => ({
+              foodItemId: item.foodItemId,
+              quantity: item.quantity
+            })));
+          }
+        })
+        .catch(err => console.error("Failed to fetch booking items:", err));
     } else {
       setSelectedItems([]);
     }

@@ -64,27 +64,27 @@ export default function FoodItemsManager() {
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
-  const { data: foodItems, isLoading, isFetching, refetch } = useQuery({
+  const { data: foodItems = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["/api/food-items"],
   });
 
-  const filteredFoodItems = foodItems?.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      item.description.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      item.category.toLowerCase().includes(debouncedSearch.toLowerCase());
+  const filteredFoodItems = (foodItems || []).filter((item) => {
+    const matchesSearch = (item.name || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (item.description || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (item.category || "").toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchesCategory = !categoryFilter || item.category === categoryFilter;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
     let compareValue = 0;
     if (sortBy === "name") {
-      compareValue = a.name.localeCompare(b.name);
+      compareValue = (a.name || "").localeCompare(b.name || "");
     } else if (sortBy === "category") {
-      compareValue = a.category.localeCompare(b.category);
+      compareValue = (a.category || "").localeCompare(b.category || "");
     }
     return sortOrder === "asc" ? compareValue : -compareValue;
   });
 
-  const allCategories = foodItems 
+  const allCategories = foodItems && foodItems.length > 0
     ? Array.from(new Set([...defaultCategories, ...foodItems.map(item => item.category)])).sort()
     : defaultCategories;
 
