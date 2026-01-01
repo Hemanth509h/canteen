@@ -28,17 +28,21 @@ export default function AdminLogin() {
         body: JSON.stringify({ password }),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+      console.log("Login response:", data);
+
+      if (response.ok && (data.success || data.data?.success)) {
         setAdminSession();
         setLocation("/admin");
       } else {
         toast({
           title: "Login Failed",
-          description: "Invalid password",
+          description: data.error || (data.data && data.data.error) || "Invalid password",
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Error",
         description: "An error occurred during login",
