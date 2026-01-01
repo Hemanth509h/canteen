@@ -103,12 +103,29 @@
     background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark label, .dark .text-foreground {
     color: #ffffff !important;
   }
 
   .dark .text-muted-foreground {
-    color: #e5e7eb !important;
+    color: #cbd5e1 !important;
+  }
+
+  .dark [role="checkbox"], .dark input[type="checkbox"] {
+    border-color: #ffffff !important;
+    background-color: transparent !important;
+  }
+
+  .dark .bg-card {
+    background-color: hsl(142 40% 6%) !important;
+  }
+
+  .dark .border, .dark .border-input {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .dark .placeholder\:text-muted-foreground::placeholder {
+    color: #94a3b8 !important;
   }
 }
 

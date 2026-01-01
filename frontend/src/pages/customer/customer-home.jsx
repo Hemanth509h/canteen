@@ -320,11 +320,11 @@ export default function CustomerHome() {
             <span className="text-sm font-medium tracking-wider uppercase">Nature's Finest Catering</span>
           </div>
           
-          <h1 className="text-3xl sm:text-7xl md:text-8xl font-poppins font-bold mb-4 sm:mb-8 leading-[1.1] tracking-tight slide-up text-white">
+          <h1 className="text-3xl sm:text-7xl md:text-8xl font-poppins font-bold mb-4 sm:mb-8 leading-[1.1] tracking-tight slide-up text-white drop-shadow-lg">
             Unforgettable Events
           </h1>
           
-          <p className="text-base sm:text-xl md:text-2xl max-w-2xl mb-8 sm:mb-12 font-inter font-light opacity-90 slide-up text-white/90">
+          <p className="text-base sm:text-xl md:text-2xl max-w-2xl mb-8 sm:mb-12 font-inter font-light slide-up text-white drop-shadow-md">
             Artisan culinary experiences inspired by the organic beauty of nature.
           </p>
           
@@ -339,8 +339,8 @@ export default function CustomerHome() {
             </Button>
             <Button 
               size="lg" 
-              variant="outline"
-              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl text-white border-white/40 hover:bg-white hover:text-black transition-all duration-500 font-bold backdrop-blur-md"
+              variant="default"
+              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl text-primary bg-white hover:bg-white/90 transition-all duration-500 font-bold"
             >
               Custom Quote
             </Button>
@@ -527,14 +527,14 @@ export default function CustomerHome() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
-              <a href={`tel:${companyInfo?.phone || "+1234567890"}`} className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500 hover:scale-105">
-                  Call: {companyInfo?.phone || "+1234567890"}
+              <a href={`tel:${companyInfo?.phone || "9177319695"}`} className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500 hover:scale-105 shadow-xl">
+                  Call: {companyInfo?.phone || "9177319695"}
                 </Button>
               </a>
-              <a href={`mailto:${companyInfo?.email || "hello@elitecatering.com"}`} className="w-full sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/40 text-white hover:bg-white/10 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500">
-                  Email: {companyInfo?.email || "hello@elitecatering.com"}
+              <a href={`mailto:${companyInfo?.email || "events@elite-catering.com"}`} className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500 hover:scale-105 shadow-xl">
+                  Email Us
                 </Button>
               </a>
             </div>
