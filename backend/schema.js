@@ -45,6 +45,8 @@ export const insertEventBookingSchema = z.object({
   contactEmail: z.string().email("Please enter a valid email address"),
   contactPhone: z.string().min(10, "Phone number must be at least 10 digits").transform(sanitizePhone),
   specialRequests: z.string().max(1000, "Special requests must be less than 1000 characters").nullable().optional(),
+  totalAmount: z.number().int().optional(),
+  advanceAmount: z.number().int().optional(),
 });
 
 export const updateEventBookingSchema = insertEventBookingSchema.partial().extend({

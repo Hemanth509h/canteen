@@ -203,7 +203,14 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, error.message);
       }
 
-      const booking = await getStorageInstance().createBooking(result.data);
+      // Ensure calculated amounts are included if provided in the body (from frontend)
+      const bookingData = {
+        ...result.data,
+        totalAmount: req.body.totalAmount || (result.data.guestCount * result.data.pricePerPlate),
+        advanceAmount: req.body.advanceAmount || Math.round((req.body.totalAmount || (result.data.guestCount * result.data.pricePerPlate)) * 0.5)
+      };
+
+      const booking = await getStorageInstance().createBooking(bookingData);
       sendResponse(res, 201, booking);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create booking");

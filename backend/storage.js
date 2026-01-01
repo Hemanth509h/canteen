@@ -62,9 +62,18 @@ export class MemoryStorage {
 
   async createBooking(booking) {
     const id = this.generateId();
+    const guestCount = parseInt(booking.guestCount) || 0;
+    const pricePerPlate = parseInt(booking.pricePerPlate) || 0;
+    const totalAmount = booking.totalAmount || (guestCount * pricePerPlate);
+    const advanceAmount = booking.advanceAmount || Math.round(totalAmount * 0.5);
+
     const newBooking = {
       id,
       ...booking,
+      guestCount,
+      pricePerPlate,
+      totalAmount,
+      advanceAmount,
       status: "pending",
       advancePaymentStatus: "pending",
       finalPaymentStatus: "pending",
