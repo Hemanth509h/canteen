@@ -32,9 +32,10 @@ app.use(cors({
 
 // Replit-specific headers for cross-port communication
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight
   if (req.method === 'OPTIONS') {

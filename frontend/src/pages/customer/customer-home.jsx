@@ -56,10 +56,10 @@ const Testimonials = ({ reviews }) => (
             <Quote className="text-primary/20 mb-4 md:mb-6" size={32} md:size={40} />
             <p className="text-base md:text-lg italic mb-4 md:mb-6">"{review.comment}"</p>
             <div className="flex items-center justify-center gap-2 mb-4">
-              {[...Array(5)].map((_, i) => <Star key={i} size={14} md:size={16} className="fill-primary text-primary" />)}
+              {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
             </div>
-            <h4 className="font-bold text-sm md:text-base">{review.customerName}</h4>
-            <span className="text-xs md:text-sm text-muted-foreground">{review.eventType}</span>
+            <h4 className="font-bold text-base">{review.customerName}</h4>
+            <span className="text-sm text-muted-foreground">{review.eventType}</span>
           </Card>
         ))}
       </div>
@@ -72,21 +72,21 @@ const Footer = ({ companyInfo }) => (
     <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
        <Leaf size={300} className="absolute -bottom-20 -left-20 rotate-45" />
     </div>
-    <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-6 md:gap-8 text-center relative z-10">
+    <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-8 text-center relative z-10">
       <div className="flex items-center gap-3">
-        <Sprout className="text-primary" size={28} md:size={32} />
-        <h3 className="text-2xl md:text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
+        <Sprout className="text-primary" size={32} />
+        <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
       </div>
       
-      <p className="text-muted-foreground max-w-sm md:max-w-md leading-relaxed italic text-sm md:text-base px-4">
+      <p className="text-muted-foreground max-w-md leading-relaxed italic text-base px-4">
         "{companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}"
       </p>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-8 gap-y-3 md:gap-y-4 text-xs md:text-sm font-medium">
+      <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium">
         <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors">Home</button>
         <button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Our Menu</button>
         <button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Contact Us</button>
-        <a href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={12} md:size={14} /> Admin Portal</a>
+        <Link href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={14} /> Admin Portal</Link>
       </div>
 
       <div className="flex gap-6 py-2">
@@ -102,7 +102,7 @@ const Footer = ({ companyInfo }) => (
       </div>
 
       <div className="w-full pt-8 border-t border-border/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-        <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center">
+        <div className="flex flex-col md:flex-row gap-8 items-center">
           <span className="flex items-center gap-2"><MapPin size={16} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</span>
           <span className="flex items-center gap-2 font-medium text-foreground">Email: events@elite-catering.com</span>
           <span className="flex items-center gap-2"><Clock size={16} className="text-primary" /> Mon - Sun: 9AM - 10PM</span>
