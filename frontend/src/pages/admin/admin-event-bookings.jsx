@@ -168,7 +168,8 @@ export default function EventBookingsManager() {
       const response = await apiRequest("POST", "/api/bookings", { ...data, pricePerPlate: priceInRupees });
       return await response.json();
     },
-    onSuccess: async (booking) => {
+    onSuccess: async (response) => {
+      const booking = response.data;
       if (selectedItems.length > 0) {
         const items = selectedItems.map(item => ({
           bookingId: booking.id,

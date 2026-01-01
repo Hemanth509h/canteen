@@ -210,6 +210,34 @@ export async function registerRoutes(app) {
     }
   });
 
+  // Booking Items Routes
+  app.get("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const items = await getStorageInstance().getBookingItems(req.params.id);
+      sendResponse(res, 200, items);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch booking items");
+    }
+  });
+
+  app.post("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const bookingId = req.params.id;
+      const items = Array.isArray(req.body) ? req.body : [req.body];
+      
+      // Clean existing items first if updating
+      await getStorageInstance().deleteBookingItems(bookingId);
+      
+      const createdItems = await Promise.all(
+        items.map(item => getStorageInstance().createBookingItem({ ...item, bookingId }))
+      );
+      
+      sendResponse(res, 201, createdItems);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create booking items");
+    }
+  });
+
   // Reviews
   app.get("/api/reviews", async (_req, res) => {
     try {
