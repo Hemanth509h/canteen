@@ -407,8 +407,8 @@ export default function CustomerHome() {
                     setSelectedType(val);
                     setSelectedCategory("All");
                   }}>
-                    <SelectTrigger className="rounded-2xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg">
-                      <SelectValue placeholder="Type" />
+                    <SelectTrigger className="rounded-2xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg text-foreground">
+                      <SelectValue placeholder="Type" className="text-foreground" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Veg">Veg</SelectItem>
@@ -423,7 +423,7 @@ export default function CustomerHome() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     list="food-suggestions"
-                    className="pl-12 sm:pl-14 rounded-2xl sm:rounded-3xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg"
+                    className="pl-12 sm:pl-14 rounded-2xl sm:rounded-3xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg text-foreground"
                   />
                   <datalist id="food-suggestions">
                     {foodItems?.map((item, idx) => (
@@ -444,7 +444,7 @@ export default function CustomerHome() {
                     "rounded-xl px-4 sm:px-6 py-2 h-auto text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 border border-transparent",
                     selectedCategory === cat 
                       ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105 border-primary" 
-                      : "bg-background hover:bg-secondary/50 hover:border-secondary-foreground/10"
+                      : "bg-background text-foreground hover:bg-secondary/50 hover:border-secondary-foreground/10"
                   )}
                 >
                   {cat}

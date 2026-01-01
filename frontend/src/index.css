@@ -103,7 +103,24 @@
     background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark label, .dark .text-foreground {
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark label, .dark .text-foreground, .dark [data-sidebar="trigger"] {
+    color: #ffffff !important;
+  }
+
+  /* Dropdown and Input Visibility Fixes */
+  [data-slot="select-trigger"], 
+  [data-slot="select-value"],
+  [data-slot="input"],
+  select,
+  input {
+    color: #000000 !important;
+  }
+
+  .dark [data-slot="select-trigger"], 
+  .dark [data-slot="select-value"],
+  .dark [data-slot="input"],
+  .dark select,
+  .dark input {
     color: #ffffff !important;
   }
 
