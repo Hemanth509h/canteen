@@ -136,6 +136,7 @@ export default function CustomerHome() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [heroIndex, setHeroIndex] = useState(0);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [showWebsite, setShowWebsite] = useState(false);
 
   const { data: foodItems, isLoading: isLoadingFood } = useQuery({
     queryKey: ["/api/food-items"],
@@ -212,6 +213,16 @@ export default function CustomerHome() {
     };
   }, [dynamicHeroImages, isLoadingFood]);
 
+  // Animation delay after images are ready
+  useEffect(() => {
+    if (isPageLoaded) {
+      const timer = setTimeout(() => {
+        setShowWebsite(true);
+      }, 800); // Small buffer for smooth entrance
+      return () => clearTimeout(timer);
+    }
+  }, [isPageLoaded]);
+
   // Hero Slider Effect
   useEffect(() => {
     if (!dynamicHeroImages || dynamicHeroImages.length === 0) return;
@@ -246,7 +257,7 @@ export default function CustomerHome() {
 
   const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop";
 
-  if (!isPageLoaded) {
+  if (!showWebsite) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background">
         <div className="relative">
@@ -266,7 +277,7 @@ export default function CustomerHome() {
   }
 
   return (
-    <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20">
+    <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20 animate-in fade-in zoom-in-95 duration-1000">
       
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
