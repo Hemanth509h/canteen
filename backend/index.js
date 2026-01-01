@@ -14,11 +14,9 @@ function log(message, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-// Debug log for incoming requests on Vercel
+// Debug log for incoming requests
 app.use((req, res, next) => {
-  if (process.env.VERCEL) {
-    log(`Vercel Request: ${req.method} ${req.url}`);
-  }
+  log(`Request: ${req.method} ${req.url}`);
   next();
 });
 
@@ -104,12 +102,10 @@ app.use(async (req, res, next) => {
 });
 
 // Remove old environment-specific middleware and listeners
-// ALWAYS start the local server if not on Vercel
-if (!process.env.VERCEL && !process.env.VERCEL_ENV) {
-  const port = 3000;
-  app.listen(port, "0.0.0.0", () => {
-    log(`API server listening on port ${port}`);
-  });
-}
+// ALWAYS start the local server
+const port = 3000;
+app.listen(port, "0.0.0.0", () => {
+  log(`API server listening on port ${port}`);
+});
 
 export default app;
