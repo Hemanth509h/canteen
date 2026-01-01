@@ -42,10 +42,10 @@ function AppSidebar({ onLogout }) {
   });
 
   return (
-    <Sidebar className="border-r border-border/50">
-      <SidebarContent className="bg-gradient-to-b from-sidebar to-sidebar/95">
+    <Sidebar className="border-r border-border/50 bg-sidebar">
+      <SidebarContent className="bg-sidebar">
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-3 px-4 py-6 mb-2">
+          <SidebarGroupLabel className="flex items-center gap-3 px-4 py-6 mb-2 text-sidebar-foreground">
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <ChefHat className="w-5 h-5 text-primary" />
             </div>
@@ -53,7 +53,7 @@ function AppSidebar({ onLogout }) {
               {isLoading ? (
                 <Skeleton className="h-5 w-24 mb-1" />
               ) : (
-                <span className="font-serif font-bold text-lg block truncate" data-testid="text-sidebar-company-name">
+                <span className="font-serif font-bold text-lg block truncate text-sidebar-foreground" data-testid="text-sidebar-company-name">
                   {companyInfo?.companyName || "Elite Catering"}
                 </span>
               )}
@@ -67,9 +67,9 @@ function AppSidebar({ onLogout }) {
                   <SidebarMenuButton 
                     asChild 
                     isActive={location === item.url}
-                    className="rounded-lg transition-all duration-200"
+                    className="rounded-lg transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
                   >
-                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`}>
+                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`} className="flex items-center gap-2 text-sidebar-foreground">
                       <item.icon className="w-4 h-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -80,12 +80,12 @@ function AppSidebar({ onLogout }) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-border/50 p-3 space-y-2">
+      <SidebarFooter className="border-t border-border/50 p-3 space-y-2 bg-sidebar">
         <Link href="/">
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-muted-foreground"
+            className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
             data-testid="button-back-to-home"
           >
             <Home className="w-4 h-4 mr-2" />
@@ -95,7 +95,7 @@ function AppSidebar({ onLogout }) {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-muted-foreground"
+          className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
           onClick={onLogout}
           data-testid="button-logout"
         >
