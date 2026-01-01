@@ -255,6 +255,35 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.patch("/api/reviews/:id", async (req, res) => {
+    try {
+      const result = updateCustomerReviewSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return sendResponse(res, 400, null, error.message);
+      }
+      const review = await getStorageInstance().updateReview(req.params.id, result.data);
+      if (!review) {
+        return sendResponse(res, 404, null, "Review not found");
+      }
+      sendResponse(res, 200, review);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update review");
+    }
+  });
+
+  app.delete("/api/reviews/:id", async (req, res) => {
+    try {
+      const deleted = await getStorageInstance().deleteReview(req.params.id);
+      if (!deleted) {
+        return sendResponse(res, 404, null, "Review not found");
+      }
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete review");
+    }
+  });
+
   app.post("/api/reviews", async (req, res) => {
     try {
       const result = insertCustomerReviewSchema.safeParse(req.body);
@@ -612,6 +641,18 @@ export async function registerRoutes(app) {
       res.json(history);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch audit history" });
+    }
+  });
+
+  app.delete("/api/audit-history/:id", async (req, res) => {
+    try {
+      const deleted = await getStorageInstance().deleteAuditHistory(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Audit entry not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete audit history" });
     }
   });
 
