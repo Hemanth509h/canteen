@@ -285,13 +285,15 @@ export default function EventBookingsManager() {
   };
 
   const onSubmit = (data) => {
-    const guestCount = data.guestCount ?? (editingBooking?.guestCount || 0);
-    const pricePerPlate = data.pricePerPlate ?? (editingBooking?.pricePerPlate || 0);
+    const guestCount = parseInt(data.guestCount) || 0;
+    const pricePerPlate = parseInt(data.pricePerPlate) || 0;
     const totalAmount = guestCount * pricePerPlate;
     const advanceAmount = Math.round(totalAmount * 0.5);
 
     const submissionData = {
       ...data,
+      guestCount,
+      pricePerPlate,
       totalAmount,
       advanceAmount
     };
