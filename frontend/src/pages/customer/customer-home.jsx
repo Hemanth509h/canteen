@@ -45,21 +45,21 @@ const WhatsAppButton = ({ phone }) => (
 const Testimonials = ({ reviews }) => (
   <section className="py-24 px-6 bg-secondary/5">
     <div className="max-w-7xl mx-auto text-center">
-      <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-16">What Our Clients Say</h2>
-      <div className="grid md:grid-cols-3 gap-8">
+      <h2 className="text-3xl md:text-5xl font-poppins font-bold mb-12 md:mb-16">What Our Clients Say</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {(reviews || [
           { customerName: "Sarah J.", eventType: "Wedding", comment: "The food was absolutely divine! Every guest was impressed by the presentation and flavor." },
           { customerName: "Michael R.", eventType: "Corporate", comment: "Professional service and exceptional quality. They made our event truly special." },
           { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering experience we've ever had. Highly recommend their organic menu!" }
         ]).slice(0, 3).map((review, idx) => (
-          <Card key={idx} className="p-8 bg-card border-none shadow-xl rounded-[2rem] hover:-translate-y-2 transition-transform">
-            <Quote className="text-primary/20 mb-6" size={40} />
-            <p className="text-lg italic mb-6">"{review.comment}"</p>
+          <Card key={idx} className="p-6 md:p-8 bg-card border-none shadow-xl rounded-[1.5rem] md:rounded-[2rem] hover:-translate-y-2 transition-transform">
+            <Quote className="text-primary/20 mb-4 md:mb-6" size={32} md:size={40} />
+            <p className="text-base md:text-lg italic mb-4 md:mb-6">"{review.comment}"</p>
             <div className="flex items-center justify-center gap-2 mb-4">
-              {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
+              {[...Array(5)].map((_, i) => <Star key={i} size={14} md:size={16} className="fill-primary text-primary" />)}
             </div>
-            <h4 className="font-bold">{review.customerName}</h4>
-            <span className="text-sm text-muted-foreground">{review.eventType}</span>
+            <h4 className="font-bold text-sm md:text-base">{review.customerName}</h4>
+            <span className="text-xs md:text-sm text-muted-foreground">{review.eventType}</span>
           </Card>
         ))}
       </div>
@@ -72,21 +72,21 @@ const Footer = ({ companyInfo }) => (
     <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
        <Leaf size={300} className="absolute -bottom-20 -left-20 rotate-45" />
     </div>
-    <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-8 text-center relative z-10">
+    <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-6 md:gap-8 text-center relative z-10">
       <div className="flex items-center gap-3">
-        <Sprout className="text-primary" size={32} />
-        <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
+        <Sprout className="text-primary" size={28} md:size={32} />
+        <h3 className="text-2xl md:text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
       </div>
       
-      <p className="text-muted-foreground max-w-md leading-relaxed italic">
+      <p className="text-muted-foreground max-w-sm md:max-w-md leading-relaxed italic text-sm md:text-base px-4">
         "{companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}"
       </p>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium">
+      <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-8 gap-y-3 md:gap-y-4 text-xs md:text-sm font-medium">
         <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors">Home</button>
         <button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Our Menu</button>
         <button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors">Contact Us</button>
-        <a href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={14} /> Admin Portal</a>
+        <a href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2"><Lock size={12} md:size={14} /> Admin Portal</a>
       </div>
 
       <div className="flex gap-6 py-2">
