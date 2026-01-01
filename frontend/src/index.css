@@ -69,19 +69,23 @@
   [data-sidebar="sidebar"],
   [data-sidebar="menu-button"],
   [data-sidebar="group-label"],
+  [data-sidebar="trigger"],
   .text-sidebar-foreground {
-    color: #1a1a1a !important;
+    color: #000000 !important;
   }
 
-  [data-sidebar="menu-button"] svg {
-    color: #1a1a1a !important;
+  [data-sidebar="menu-button"] svg,
+  [data-sidebar="trigger"] svg {
+    color: #000000 !important;
   }
 
   .dark [data-sidebar="sidebar"],
   .dark [data-sidebar="menu-button"],
   .dark [data-sidebar="group-label"],
+  .dark [data-sidebar="trigger"],
   .dark .text-sidebar-foreground,
-  .dark [data-sidebar="menu-button"] svg {
+  .dark [data-sidebar="menu-button"] svg,
+  .dark [data-sidebar="trigger"] svg {
     color: #ffffff !important;
   }
 

@@ -53,7 +53,7 @@ function AppSidebar({ onLogout }) {
               {isLoading ? (
                 <Skeleton className="h-5 w-24 mb-1" />
               ) : (
-                <span className="font-serif font-bold text-lg block truncate text-sidebar-foreground !text-white" data-testid="text-sidebar-company-name">
+                <span className="font-serif font-bold text-lg block truncate text-sidebar-foreground" data-testid="text-sidebar-company-name">
                   {companyInfo?.companyName || "Elite Catering"}
                 </span>
               )}
@@ -69,8 +69,8 @@ function AppSidebar({ onLogout }) {
                     isActive={location === item.url}
                     className="rounded-lg transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
                   >
-                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`} className="flex items-center gap-2 text-white font-medium">
-                      <item.icon className="w-4 h-4 shrink-0 text-white" />
+                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`} className="flex items-center gap-2 font-medium">
+                      <item.icon className="w-4 h-4 shrink-0" />
                       <span className="truncate">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -85,21 +85,21 @@ function AppSidebar({ onLogout }) {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-white hover:text-white hover:bg-sidebar-accent"
+            className="w-full justify-start"
             data-testid="button-back-to-home"
           >
-            <Home className="w-4 h-4 mr-2 shrink-0 text-white" />
+            <Home className="w-4 h-4 mr-2 shrink-0" />
             <span className="truncate">Back to Home</span>
           </Button>
         </Link>
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-white hover:text-white hover:bg-sidebar-accent"
+          className="w-full justify-start"
           onClick={onLogout}
           data-testid="button-logout"
         >
-          <LogOut className="w-4 h-4 mr-2 shrink-0 text-white" />
+          <LogOut className="w-4 h-4 mr-2 shrink-0" />
           <span className="truncate">Logout</span>
         </Button>
       </SidebarFooter>
