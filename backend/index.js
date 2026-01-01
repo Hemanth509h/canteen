@@ -2,6 +2,13 @@ import express from "express";
 import cors from "cors";
 import { registerRoutes } from "./routes.js";
 import { connectToDatabase } from "./db.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const LOG_FILE = path.join(__dirname, "../api_activity.log");
 
 const app = express();
 
@@ -13,7 +20,14 @@ function log(message, source = "express") {
     hour12: true,
   });
 
-  console.log(`${formattedTime} [${source}] ${message}`);
+  const entry = `${formattedTime} [${source}] ${message}`;
+  console.log(entry);
+  
+  try {
+    fs.appendFileSync(LOG_FILE, `[${new Date().toISOString()}] ${entry}\n`);
+  } catch (err) {
+    console.error("Failed to write to log file:", err);
+  }
 }
 
 // Debug log for incoming requests
