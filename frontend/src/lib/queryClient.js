@@ -49,10 +49,11 @@ export const getQueryFn =
     }
 
     if (!res.ok) {
-      const text = (await res.text()) || res.statusText;
-      throw new Error(`${res.status}: ${text}`);
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || res.statusText || `${res.status}`);
     }
-    return await res.json();
+    const result = await res.json();
+    return result.success ? result.data : result;
   };
 
 import { QueryClient } from "@tanstack/react-query";

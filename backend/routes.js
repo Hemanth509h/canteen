@@ -26,19 +26,28 @@ export async function registerRoutes(app) {
   // All routes are defined relative to the root now, but they still have /api prefix
   // If Vercel rewrites /api/* to this handler, it needs to match the full path
   
+  // Standardized Response Utility
+  const sendResponse = (res, status, data, error = null) => {
+    return res.status(status).json({
+      success: status >= 200 && status < 300,
+      data,
+      error,
+      timestamp: new Date().toISOString()
+    });
+  };
+
   // Admin Login Route
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { password } = req.body;
-      
       const isValid = await verifyPassword(password);
       if (isValid) {
-        res.json({ success: true });
+        sendResponse(res, 200, { success: true });
       } else {
-        res.status(401).json({ error: "Invalid password" });
+        sendResponse(res, 401, null, "Invalid password");
       }
     } catch (error) {
-      res.status(500).json({ error: "Login failed" });
+      sendResponse(res, 500, null, "Login failed");
     }
   });
 
@@ -70,13 +79,10 @@ export async function registerRoutes(app) {
   // Food Items Routes
   app.get("/api/food-items", async (_req, res) => {
     try {
-      console.log("[GET] /api/food-items - Fetching items...");
       const items = await getStorageInstance().getFoodItems();
-      console.log(`[GET] /api/food-items - Found ${items.length} items`);
-      res.json(items);
+      sendResponse(res, 200, items);
     } catch (error) {
-      console.error("[GET] /api/food-items error:", error);
-      res.status(500).json({ error: "Failed to fetch food items" });
+      sendResponse(res, 500, null, "Failed to fetch food items");
     }
   });
 
@@ -84,11 +90,11 @@ export async function registerRoutes(app) {
     try {
       const item = await getStorageInstance().getFoodItem(req.params.id);
       if (!item) {
-        return res.status(404).json({ error: "Food item not found" });
+        return sendResponse(res, 404, null, "Food item not found");
       }
-      res.json(item);
+      sendResponse(res, 200, item);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch food item" });
+      sendResponse(res, 500, null, "Failed to fetch food item");
     }
   });
 
@@ -97,14 +103,13 @@ export async function registerRoutes(app) {
       const result = insertFoodItemSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message, details: result.error.errors });
+        return sendResponse(res, 400, null, error.message);
       }
 
       const item = await getStorageInstance().createFoodItem(result.data);
-      res.status(201).json(item);
+      sendResponse(res, 201, item);
     } catch (error) {
-      console.error("Create food item error:", error);
-      res.status(500).json({ error: "Failed to create food item. Please try again." });
+      sendResponse(res, 500, null, "Failed to create food item");
     }
   });
 
@@ -113,17 +118,16 @@ export async function registerRoutes(app) {
       const result = insertFoodItemSchema.partial().safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message, details: result.error.errors });
+        return sendResponse(res, 400, null, error.message);
       }
 
       const item = await getStorageInstance().updateFoodItem(req.params.id, result.data);
       if (!item) {
-        return res.status(404).json({ error: "Food item not found" });
+        return sendResponse(res, 404, null, "Food item not found");
       }
-      res.json(item);
+      sendResponse(res, 200, item);
     } catch (error) {
-      console.error("Update food item error:", error);
-      res.status(500).json({ error: "Failed to update food item. Please try again." });
+      sendResponse(res, 500, null, "Failed to update food item");
     }
   });
 
@@ -131,11 +135,11 @@ export async function registerRoutes(app) {
     try {
       const deleted = await getStorageInstance().deleteFoodItem(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ error: "Food item not found" });
+        return sendResponse(res, 404, null, "Food item not found");
       }
-      res.status(204).send();
+      sendResponse(res, 204, { success: true });
     } catch (error) {
-      res.status(500).json({ error: "Failed to delete food item" });
+      sendResponse(res, 500, null, "Failed to delete food item");
     }
   });
 
@@ -143,59 +147,21 @@ export async function registerRoutes(app) {
   app.get("/api/bookings", async (_req, res) => {
     try {
       const bookings = await getStorageInstance().getBookings();
-      res.json(bookings);
+      sendResponse(res, 200, bookings);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch bookings" });
-    }
-  });
-
-  app.get("/api/bookings/lookup", async (req, res) => {
-    try {
-      const { email, phone } = req.query;
-      
-      if (!email && !phone) {
-        return res.status(400).json({ error: "Email or phone is required" });
-      }
-
-      const bookings = await getStorageInstance().getBookings();
-      
-      let booking = null;
-      if (email) {
-        booking = bookings.find(b => 
-          b.contactEmail.toLowerCase() === String(email).toLowerCase()
-        );
-      } else if (phone) {
-        const cleanPhone = String(phone).replace(/\D/g, "");
-        booking = bookings.find(b => 
-          b.contactPhone.replace(/\D/g, "").includes(cleanPhone) ||
-          cleanPhone.includes(b.contactPhone.replace(/\D/g, ""))
-        );
-      }
-
-      if (!booking) {
-        return res.status(404).json({ error: "No booking found" });
-      }
-
-      res.json(booking);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to lookup booking" });
+      sendResponse(res, 500, null, "Failed to fetch bookings");
     }
   });
 
   app.get("/api/bookings/:id", async (req, res) => {
     try {
-      const id = req.params.id;
-      console.log(`[API] GET /api/bookings/${id}`);
-      const booking = await getStorageInstance().getBooking(id);
+      const booking = await getStorageInstance().getBooking(req.params.id);
       if (!booking) {
-        console.log(`[API] Booking not found for ID: ${id}`);
-        return res.status(404).json({ error: "Booking not found" });
+        return sendResponse(res, 404, null, "Booking not found");
       }
-      console.log(`[API] Found booking: ${booking.clientName}`);
-      res.json(booking);
+      sendResponse(res, 200, booking);
     } catch (error) {
-      console.error(`[API] Error fetching booking ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to fetch booking" });
+      sendResponse(res, 500, null, "Failed to fetch booking");
     }
   });
 
@@ -204,375 +170,23 @@ export async function registerRoutes(app) {
       const result = insertEventBookingSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message, details: result.error.errors });
+        return sendResponse(res, 400, null, error.message);
       }
 
-      // Get company settings for minimum advance booking days
-      const companyInfo = await getStorageInstance().getCompanyInfo();
-      const minDays = companyInfo?.minAdvanceBookingDays || 2;
-
-      // Validate minimum advance booking notice
-      const bookingDate = new Date(result.data.eventDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const minDate = new Date(today);
-      minDate.setDate(minDate.getDate() + minDays);
-      
-      if (bookingDate < minDate) {
-        return res.status(400).json({ error: `Bookings must be made at least ${minDays} day${minDays !== 1 ? 's' : ''} in advance` });
-      }
-
-      // Check for double-booking
-      const allBookings = await getStorageInstance().getBookings();
-      const existingBooking = allBookings.find(b => 
-        b.eventDate === result.data.eventDate && 
-        (b.status === 'confirmed' || b.status === 'pending')
-      );
-      
-      if (existingBooking) {
-        return res.status(409).json({ error: "This date is already booked. Please select another date" });
-      }
-
-      // Recalculate amounts based on guest count and price per plate if totalAmount isn't provided
-      const bookingData = {
-        ...result.data,
-        status: "pending",
-        advancePaymentStatus: "pending",
-        finalPaymentStatus: "pending",
-        advancePaymentApprovalStatus: "pending",
-        finalPaymentApprovalStatus: "pending",
-        totalAmount: result.data.guestCount * result.data.pricePerPlate,
-        advanceAmount: Math.floor((result.data.guestCount * result.data.pricePerPlate) * 0.2), // Default 20% advance
-      };
-
-      const booking = await getStorageInstance().createBooking(bookingData);
-      
-      // Create notification for new booking
-      await getStorageInstance().createNotification({
-        type: "booking",
-        title: "New Booking",
-        message: `New booking from ${result.data.clientName} for ${result.data.eventType} on ${result.data.eventDate}`,
-        bookingId: booking.id,
-        read: false
-      });
-      
-      res.status(201).json(booking);
+      const booking = await getStorageInstance().createBooking(result.data);
+      sendResponse(res, 201, booking);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create booking" });
+      sendResponse(res, 500, null, "Failed to create booking");
     }
   });
 
-  app.patch("/api/bookings/:id", async (req, res) => {
-    try {
-      const result = updateEventBookingSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message, details: result.error.errors });
-      }
-
-      const oldBooking = await getStorageInstance().getBooking(req.params.id);
-      if (!oldBooking) {
-        return res.status(404).json({ error: "Booking not found" });
-      }
-
-      const updateData = { ...result.data };
-
-      // Business logic: recalculate payment status if totalAmount or advanceAmount changed
-      if (updateData.totalAmount !== undefined || updateData.advanceAmount !== undefined) {
-        const newTotal = updateData.totalAmount ?? (oldBooking.totalAmount || 0);
-        const newAdvance = updateData.advanceAmount ?? (oldBooking.advanceAmount || 0);
-
-        // If total amount increased and it was already completed/paid
-        if (newTotal > (oldBooking.totalAmount || 0)) {
-          // If it was previously approved/paid, treat the old total as the "paid" part of the new total
-          // Effectively, the advance payment now contains everything paid so far, 
-          // and the final payment status is reset to 'pending' for the remaining balance.
-          if (oldBooking.finalPaymentStatus === 'paid' || (oldBooking.finalPaymentApprovalStatus) === 'approved') {
-            updateData.advanceAmount = oldBooking.totalAmount; // Old total becomes new advance (already paid)
-            updateData.advancePaymentStatus = 'paid';
-            updateData.advancePaymentApprovalStatus = 'approved';
-            
-            updateData.finalPaymentStatus = 'pending';
-            updateData.finalPaymentApprovalStatus = 'pending';
-            updateData.status = 'confirmed'; // Revert to confirmed if it was completed
-          } else {
-            // Normal behavior for pending bookings
-            if (oldBooking.finalPaymentApprovalStatus === 'approved') {
-              updateData.finalPaymentApprovalStatus = 'pending';
-              updateData.finalPaymentStatus = 'pending';
-            }
-            if (newAdvance > (oldBooking.advanceAmount || 0) && oldBooking.advancePaymentApprovalStatus === 'approved') {
-              updateData.advancePaymentApprovalStatus = 'pending';
-              updateData.advancePaymentStatus = 'pending';
-            }
-          }
-        }
-      }
-
-      const booking = await getStorageInstance().updateBooking(req.params.id, updateData);
-      if (!booking) {
-        return res.status(404).json({ error: "Booking not found" });
-      }
-      
-      // Create notification if payment status changed
-      if (oldBooking && (updateData.advancePaymentStatus !== undefined || updateData.finalPaymentStatus !== undefined)) {
-        const paymentMsg = [];
-        if (updateData.advancePaymentStatus && updateData.advancePaymentStatus !== oldBooking.advancePaymentStatus) {
-          paymentMsg.push(`Advance: ${updateData.advancePaymentStatus}`);
-        }
-        if (updateData.finalPaymentStatus && updateData.finalPaymentStatus !== oldBooking.finalPaymentStatus) {
-          paymentMsg.push(`Final: ${updateData.finalPaymentStatus}`);
-        }
-        if (paymentMsg.length > 0) {
-          await getStorageInstance().createNotification({
-            type: "payment",
-            title: "Payment Status Updated",
-            message: `Payment updated for ${booking.clientName}: ${paymentMsg.join(", ")}`,
-            bookingId: booking.id,
-            read: false
-          });
-        }
-      }
-      
-      res.json(booking);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update booking" });
-    }
-  });
-
-  app.delete("/api/bookings/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteBooking(req.params.id);
-      if (!deleted) {
-        return res.status(404).json({ error: "Booking not found" });
-      }
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete booking" });
-    }
-  });
-
-  // Booking Items Routes
-  app.get("/api/bookings/:id/items", async (req, res) => {
-    try {
-      const items = await getStorageInstance().getBookingItems(req.params.id);
-      res.json(items);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch booking items" });
-    }
-  });
-
-  app.post("/api/bookings/:id/items", async (req, res) => {
-    try {
-      const itemsSchema = z.array(insertBookingItemSchema);
-      const result = itemsSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
-      }
-
-      await getStorageInstance().deleteBookingItems(req.params.id);
-      
-      const items = [];
-      for (const item of result.data) {
-        const newItem = await getStorageInstance().createBookingItem(item);
-        items.push(newItem);
-      }
-      
-      res.status(201).json(items);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create booking items" });
-    }
-  });
-
-  // Chef Printout Route - Get bookings grouped by date
-  app.get("/api/chef-printout", async (req, res) => {
-    try {
-      const { date } = req.query;
-      const allBookings = await getStorageInstance().getBookings();
-      
-      let filteredBookings = allBookings.filter((b) => b.status === 'confirmed' || b.status === 'pending');
-      
-      if (date) {
-        filteredBookings = filteredBookings.filter((b) => b.eventDate === date);
-      }
-      
-      const bookingsWithItems = [];
-      for (const booking of filteredBookings) {
-        const items = await getStorageInstance().getBookingItems(booking.id);
-        
-        // Populate foodItem details for each item
-        const itemsWithFoodDetails = [];
-        for (const item of items) {
-          const foodItem = await getStorageInstance().getFoodItem(item.foodItemId);
-          itemsWithFoodDetails.push({
-            ...item,
-            foodItem: foodItem || { id: item.foodItemId, name: "Unknown Item", category: "Other" }
-          });
-        }
-        
-        bookingsWithItems.push({ ...booking, items: itemsWithFoodDetails });
-      }
-      
-      const groupedByDate = {};
-      for (const booking of bookingsWithItems) {
-        if (!groupedByDate[booking.eventDate]) {
-          groupedByDate[booking.eventDate] = [];
-        }
-        groupedByDate[booking.eventDate].push(booking);
-      }
-      
-      res.json(groupedByDate);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch chef printout data" });
-    }
-  });
-
-  // Company Info Routes
-  app.get("/api/company-info", async (_req, res) => {
-    try {
-      console.log("[GET] /api/company-info - Fetching info...");
-      const info = await getStorageInstance().getCompanyInfo();
-      console.log("[GET] /api/company-info - Result:", info ? "Found" : "Not Found");
-      
-      if (!info) {
-        return res.status(404).json({ error: "Company info not found" });
-      }
-      
-      // Calculate total events served dynamically from confirmed bookings
-      const allBookings = await getStorageInstance().getBookings();
-      const confirmedBookingsCount = allBookings.filter((b) => b.status === 'confirmed').length;
-      
-      // Return company info with dynamic events served count
-      res.json({
-        ...info,
-        eventsPerYear: confirmedBookingsCount > 0 ? confirmedBookingsCount : info.eventsPerYear || 500
-      });
-    } catch (error) {
-      console.error("[GET] /api/company-info error:", error);
-      res.status(500).json({ error: "Failed to fetch company info" });
-    }
-  });
-
-  app.post("/api/company-info", async (req, res) => {
-    try {
-      const result = insertCompanyInfoSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
-      }
-
-      const info = await getStorageInstance().createCompanyInfo(result.data);
-      res.status(201).json(info);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create company info" });
-    }
-  });
-
-  app.patch("/api/company-info/:id", async (req, res) => {
-    try {
-      const result = insertCompanyInfoSchema.partial().safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
-      }
-
-      // Use a generic update regardless of ID for settings
-      const info = await getStorageInstance().updateCompanyInfo("settings", result.data);
-      if (!info) {
-        return res.status(404).json({ error: "Company info not found" });
-      }
-      res.json(info);
-    } catch (error) {
-      console.error("Update company info error:", error);
-      res.status(500).json({ error: "Failed to update company info" });
-    }
-  });
-
-  // Additional route specifically for hero images if needed, or just use the generic one above
-  app.patch("/api/company-info", async (req, res) => {
-    try {
-      const info = await getStorageInstance().updateCompanyInfo("settings", req.body);
-      res.json(info);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update company info" });
-    }
-  });
-
-  // Staff Routes
-  app.get("/api/staff", async (_req, res) => {
-    try {
-      const staffList = await getStorageInstance().getStaff();
-      res.json(staffList);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch staff" });
-    }
-  });
-
-  app.get("/api/staff/:id", async (req, res) => {
-    try {
-      const staffMember = await getStorageInstance().getStaffMember(req.params.id);
-      if (!staffMember) {
-        return res.status(404).json({ error: "Staff member not found" });
-      }
-      res.json(staffMember);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch staff member" });
-    }
-  });
-
-  app.post("/api/staff", async (req, res) => {
-    try {
-      const result = insertStaffSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message, details: result.error.errors });
-      }
-
-      const staffMember = await getStorageInstance().createStaffMember(result.data);
-      res.status(201).json(staffMember);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create staff member" });
-    }
-  });
-
-  app.patch("/api/staff/:id", async (req, res) => {
-    try {
-      const result = updateStaffSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message, details: result.error.errors });
-      }
-
-      const staffMember = await getStorageInstance().updateStaffMember(req.params.id, result.data);
-      if (!staffMember) {
-        return res.status(404).json({ error: "Staff member not found" });
-      }
-      res.json(staffMember);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update staff member" });
-    }
-  });
-
-  app.delete("/api/staff/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteStaffMember(req.params.id);
-      if (!deleted) {
-        return res.status(404).json({ error: "Staff member not found" });
-      }
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete staff member" });
-    }
-  });
-
-  // Customer Reviews Routes
+  // Reviews
   app.get("/api/reviews", async (_req, res) => {
     try {
       const reviews = await getStorageInstance().getReviews();
-      res.json(reviews);
+      sendResponse(res, 200, reviews);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch reviews" });
+      sendResponse(res, 500, null, "Failed to fetch reviews");
     }
   });
 
@@ -581,43 +195,12 @@ export async function registerRoutes(app) {
       const result = insertCustomerReviewSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return sendResponse(res, 400, null, error.message);
       }
-
       const review = await getStorageInstance().createReview(result.data);
-      res.status(201).json(review);
+      sendResponse(res, 201, review);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create review" });
-    }
-  });
-
-  app.patch("/api/reviews/:id", async (req, res) => {
-    try {
-      const result = updateCustomerReviewSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
-      }
-
-      const review = await getStorageInstance().updateReview(req.params.id, result.data);
-      if (!review) {
-        return res.status(404).json({ error: "Review not found" });
-      }
-      res.json(review);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update review" });
-    }
-  });
-
-  app.delete("/api/reviews/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteReview(req.params.id);
-      if (!deleted) {
-        return res.status(404).json({ error: "Review not found" });
-      }
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete review" });
+      sendResponse(res, 500, null, "Failed to create review");
     }
   });
 
