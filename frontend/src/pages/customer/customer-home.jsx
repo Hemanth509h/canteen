@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@/components/features/loading-spinner";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -99,15 +100,6 @@ const Footer = ({ companyInfo }) => (
   </footer>
 );
 
-// Preload component
-const ImagePreloader = ({ images }) => (
-  <div className="hidden">
-    {images.map((img, i) => (
-      <img key={i} src={img} alt="" />
-    ))}
-  </div>
-);
-
 const features = [
   { 
     icon: ChefHat, 
@@ -143,6 +135,7 @@ export default function CustomerHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   const { data: foodItems, isLoading: isLoadingFood } = useQuery({
     queryKey: ["/api/food-items"],
@@ -178,6 +171,47 @@ export default function CustomerHome() {
     return [];
   }, [companyInfo?.heroImages]);
 
+  // Combined Loading Effect for Images and Data
+  useEffect(() => {
+    if (!dynamicHeroImages.length && !isLoadingFood) {
+      setIsPageLoaded(true);
+      return;
+    }
+
+    let loadedCount = 0;
+    const totalToLoad = dynamicHeroImages.length;
+
+    if (totalToLoad === 0) {
+      if (!isLoadingFood) setIsPageLoaded(true);
+      return;
+    }
+
+    const images = dynamicHeroImages.map(src => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalToLoad) {
+          setIsPageLoaded(true);
+        }
+      };
+      img.onerror = () => {
+        loadedCount++; // Still increment even on error to avoid hanging
+        if (loadedCount === totalToLoad) {
+          setIsPageLoaded(true);
+        }
+      };
+      return img;
+    });
+
+    return () => {
+      images.forEach(img => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, [dynamicHeroImages, isLoadingFood]);
+
   // Hero Slider Effect
   useEffect(() => {
     if (!dynamicHeroImages || dynamicHeroImages.length === 0) return;
@@ -212,9 +246,27 @@ export default function CustomerHome() {
 
   const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop";
 
+  if (!isPageLoaded) {
+    return (
+      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background">
+        <div className="relative">
+          <LoadingSpinner size="lg" className="text-primary" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Sprout className="text-primary animate-pulse" size={24} />
+          </div>
+        </div>
+        <p className="mt-6 text-xl font-poppins font-bold animate-pulse text-primary tracking-widest uppercase">
+          {companyInfo?.companyName || "Elite Catering"}
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground font-light italic">
+          Preparing your culinary experience...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20">
-      <ImagePreloader images={dynamicHeroImages} />
       
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
