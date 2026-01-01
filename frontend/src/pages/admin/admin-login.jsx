@@ -22,37 +22,48 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      // Use absolute URL to avoid HTML response from Vite proxy
-      const domain = window.location.hostname;
-      const protocol = window.location.protocol;
-      const apiBaseUrl = domain.includes('replit.dev') 
-        ? `${protocol}//${domain.replace('5000', '3000')}`
-        : 'http://localhost:3000';
-
-      const response = await fetch(`${apiBaseUrl}/api/admin/login`, {
+      // Direct call to local backend on port 3000
+      const response = await fetch(`http://${window.location.hostname}:3000/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
 
-      const data = await response.json();
-      console.log("Login response:", data);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Login failed:", response.status, errorText);
+        let errorMessage = "Invalid password";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {}
+        
+        toast({
+          title: "Login Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
 
-      if (response.ok && (data.success || data.data?.success)) {
+      const data = await response.json();
+      console.log("Login success:", data);
+
+      if (data.success || data.data?.success) {
         setAdminSession();
         setLocation("/admin");
       } else {
         toast({
           title: "Login Failed",
-          description: data.error || (data.data && data.data.error) || "Invalid password",
+          description: data.error || "Invalid password",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Login error:", error);
       toast({
-        title: "Error",
-        description: "An error occurred during login",
+        title: "Connection Error",
+        description: "Could not reach the authentication server. Please ensure the backend is running.",
         variant: "destructive",
       });
     } finally {
