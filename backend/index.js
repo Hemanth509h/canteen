@@ -1,5 +1,6 @@
 import express from "express";
 import { registerRoutes } from "./routes.js";
+import { connectToDatabase } from "./db.js";
 
 const app = express();
 
@@ -71,41 +72,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Database connection management for serverless
-let isConnected = false;
-const connectDB = async () => {
-  if (isConnected) return;
-  const { connectToDatabase } = await import("./db.js");
-  await connectToDatabase();
-  isConnected = true;
-};
-
-// Handle routes registration once
-let isRoutesRegistered = false;
-const initApp = async () => {
-  if (isRoutesRegistered) return;
-  const { registerRoutes } = await import("./routes.js");
-  await registerRoutes(app);
-  isRoutesRegistered = true;
-};
-
-// Global Middleware to ensure DB and Routes are ready
-app.use(async (req, res, next) => {
+// Initialize database and start server
+const startServer = async () => {
   try {
-    await connectDB();
-    await initApp();
-    next();
+    await connectToDatabase();
+    await registerRoutes(app);
+    
+    const port = 3000;
+    app.listen(port, "0.0.0.0", () => {
+      log(`API server listening on port ${port}`);
+    });
   } catch (error) {
-    console.error("Initialization error:", error);
-    res.status(500).json({ error: "Failed to initialize API" });
+    console.error("Failed to start server:", error);
+    process.exit(1);
   }
-});
+};
 
-// Remove old environment-specific middleware and listeners
-// ALWAYS start the local server
-const port = 3000;
-app.listen(port, "0.0.0.0", () => {
-  log(`API server listening on port ${port}`);
-});
+startServer();
 
 export default app;

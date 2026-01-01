@@ -204,6 +204,33 @@ export async function registerRoutes(app) {
     }
   });
 
+  // Company Info Routes
+  app.get("/api/company-info", async (_req, res) => {
+    try {
+      const info = await getStorageInstance().getCompanyInfo();
+      if (!info) {
+        return sendResponse(res, 200, {}); // Return empty object instead of 404
+      }
+      sendResponse(res, 200, info);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch company info");
+    }
+  });
+
+  app.patch("/api/company-info", async (req, res) => {
+    try {
+      const result = insertCompanyInfoSchema.partial().safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return sendResponse(res, 400, null, error.message);
+      }
+      const info = await getStorageInstance().updateCompanyInfo(null, result.data);
+      sendResponse(res, 200, info);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update company info");
+    }
+  });
+
   // Staff Booking Requests Routes
   app.get("/api/bookings/:id/assigned-staff", async (req, res) => {
     try {
