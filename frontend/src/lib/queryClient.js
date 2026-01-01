@@ -22,8 +22,8 @@ export async function apiRequest(method, url, data) {
   });
 
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || res.statusText || `${res.status}`);
   }
   return res;
 }

@@ -61,22 +61,22 @@ export async function registerRoutes(app) {
       const { currentPassword, newPassword } = req.body;
 
       if (!currentPassword || !newPassword) {
-        return res.status(400).json({ error: "Current password and new password are required" });
+        return sendResponse(res, 400, null, "Current password and new password are required");
       }
 
       const isCurrentPasswordValid = await verifyPassword(currentPassword);
       if (!isCurrentPasswordValid) {
-        return res.status(401).json({ error: "Current password is incorrect" });
+        return sendResponse(res, 401, null, "Current password is incorrect");
       }
 
       if (newPassword.length < 6) {
-        return res.status(400).json({ error: "New password must be at least 6 characters" });
+        return sendResponse(res, 400, null, "New password must be at least 6 characters");
       }
 
       await updatePassword(newPassword);
-      res.json({ success: true, message: "Password changed successfully" });
+      sendResponse(res, 200, { success: true, message: "Password changed successfully" });
     } catch (error) {
-      res.status(500).json({ error: "Failed to change password" });
+      sendResponse(res, 500, null, "Failed to change password");
     }
   });
 
@@ -391,14 +391,14 @@ export async function registerRoutes(app) {
       const result = insertStaffBookingRequestSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return sendResponse(res, 400, null, error.message);
       }
 
       // Check if already assigned
       const existing = await getStorageInstance().getStaffBookingRequests(result.data.bookingId);
       const alreadyAssigned = existing.find(r => r.staffId === result.data.staffId);
       if (alreadyAssigned) {
-        return res.json(alreadyAssigned);
+        return sendResponse(res, 200, alreadyAssigned);
       }
 
       const request = await getStorageInstance().createStaffBookingRequest({
@@ -406,9 +406,9 @@ export async function registerRoutes(app) {
         status: "pending",
         token: randomUUID()
       });
-      res.status(201).json(request);
+      sendResponse(res, 201, request);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create staff booking request" });
+      sendResponse(res, 500, null, "Failed to create staff booking request");
     }
   });
 
@@ -417,16 +417,16 @@ export async function registerRoutes(app) {
       const result = updateStaffBookingRequestSchema.safeParse(req.body);
       if (!result.success) {
         const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
+        return sendResponse(res, 400, null, error.message);
       }
 
       const request = await getStorageInstance().updateStaffBookingRequest(req.params.id, result.data);
       if (!request) {
-        return res.status(404).json({ error: "Staff request not found" });
+        return sendResponse(res, 404, null, "Staff request not found");
       }
-      res.json(request);
+      sendResponse(res, 200, request);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update staff request" });
+      sendResponse(res, 500, null, "Failed to update staff request");
     }
   });
 
@@ -434,20 +434,20 @@ export async function registerRoutes(app) {
     try {
       const deleted = await getStorageInstance().deleteStaffBookingRequest(req.params.bookingId, req.params.staffId);
       if (!deleted) {
-        return res.status(404).json({ error: "Staff assignment not found" });
+        return sendResponse(res, 404, null, "Staff assignment not found");
       }
-      res.status(204).send();
+      sendResponse(res, 204, { success: true });
     } catch (error) {
-      res.status(500).json({ error: "Failed to delete staff assignment" });
+      sendResponse(res, 500, null, "Failed to delete staff assignment");
     }
   });
 
   app.get("/api/bookings/:id/accepted-staff", async (req, res) => {
     try {
       const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
-      res.json(staff);
+      sendResponse(res, 200, staff);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch accepted staff" });
+      sendResponse(res, 500, null, "Failed to fetch accepted staff");
     }
   });
 
@@ -455,9 +455,9 @@ export async function registerRoutes(app) {
   app.get("/api/notifications", async (_req, res) => {
     try {
       const notifications = await getStorageInstance().getNotifications();
-      res.json(notifications);
+      sendResponse(res, 200, notifications);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch notifications" });
+      sendResponse(res, 500, null, "Failed to fetch notifications");
     }
   });
 
@@ -471,9 +471,9 @@ export async function registerRoutes(app) {
         bookingId,
         read: false 
       });
-      res.status(201).json(notification);
+      sendResponse(res, 201, notification);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create notification" });
+      sendResponse(res, 500, null, "Failed to create notification");
     }
   });
 
@@ -481,11 +481,11 @@ export async function registerRoutes(app) {
     try {
       const success = await getStorageInstance().markNotificationAsRead(req.params.id);
       if (!success) {
-        return res.status(404).json({ error: "Notification not found" });
+        return sendResponse(res, 404, null, "Notification not found");
       }
-      res.json({ success: true });
+      sendResponse(res, 200, { success: true });
     } catch (error) {
-      res.status(500).json({ error: "Failed to mark notification as read" });
+      sendResponse(res, 500, null, "Failed to mark notification as read");
     }
   });
 
@@ -642,9 +642,9 @@ export async function registerRoutes(app) {
         entityType,
         entityId
       );
-      res.json(history);
+      sendResponse(res, 200, history);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch audit history" });
+      sendResponse(res, 500, null, "Failed to fetch audit history");
     }
   });
 
@@ -652,11 +652,11 @@ export async function registerRoutes(app) {
     try {
       const deleted = await getStorageInstance().deleteAuditHistory(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ error: "Audit entry not found" });
+        return sendResponse(res, 404, null, "Audit entry not found");
       }
-      res.status(204).send();
+      sendResponse(res, 204, { success: true });
     } catch (error) {
-      res.status(500).json({ error: "Failed to delete audit history" });
+      sendResponse(res, 500, null, "Failed to delete audit history");
     }
   });
 
@@ -669,9 +669,9 @@ export async function registerRoutes(app) {
         entityId,
         details: details || {}
       });
-      res.status(201).json(log);
+      sendResponse(res, 201, log);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create audit history" });
+      sendResponse(res, 500, null, "Failed to create audit history");
     }
   });
 
