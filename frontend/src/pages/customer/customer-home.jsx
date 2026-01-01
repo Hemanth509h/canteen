@@ -25,7 +25,7 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 import HowItWorks from "@/components/features/how-it-works";
-import BackToTopButton from "@/components/features/back-to-top";
+import NavigationButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 
 const WhatsAppButton = ({ phone }) => (
