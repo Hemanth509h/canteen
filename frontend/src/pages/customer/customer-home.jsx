@@ -1,3 +1,4 @@
+import { Switch, Route, Link, useLocation } from "wouter";
 import { LoadingSpinner } from "@/components/features/loading-spinner";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
