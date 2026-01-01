@@ -22,7 +22,14 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/admin/login`, {
+      // Use absolute URL to avoid HTML response from Vite proxy
+      const domain = window.location.hostname;
+      const protocol = window.location.protocol;
+      const apiBaseUrl = domain.includes('replit.dev') 
+        ? `${protocol}//${domain.replace('5000', '3000')}`
+        : 'http://localhost:3000';
+
+      const response = await fetch(`${apiBaseUrl}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
