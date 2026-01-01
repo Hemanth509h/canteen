@@ -218,17 +218,17 @@ export default function AdminPaymentConfirmation() {
     );
   }
 
-  const baseAmount = booking.guestCount * booking.pricePerPlate;
-  const totalAmount = booking.totalAmount ?? baseAmount;
+  const baseAmount = booking ? booking.guestCount * booking.pricePerPlate : 0;
+  const totalAmount = booking ? (booking.totalAmount ?? baseAmount) : 0;
   const displayTotal = isEditing && editTotalAmount !== null ? editTotalAmount : totalAmount;
-  const storedAdvanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
+  const storedAdvanceAmount = booking ? (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5)) : 0;
   const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
   const finalAmount = displayTotal - advanceAmount;
-  const advancePaid = isEditing ? editAdvanceStatus === "paid" : booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
-  const finalPaid = isEditing ? editFinalStatus === "paid" : booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
+  const advancePaid = booking ? (isEditing ? editAdvanceStatus === "paid" : booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved") : false;
+  const finalPaid = booking ? (isEditing ? editFinalStatus === "paid" : booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved") : false;
   const allPaid = advancePaid && finalPaid;
-  const advanceUploaded = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "pending";
-  const finalUploaded = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "pending";
+  const advanceUploaded = booking ? (booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "pending") : false;
+  const finalUploaded = booking ? (booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "pending") : false;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">

@@ -165,6 +165,36 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.patch("/api/bookings/:id", async (req, res) => {
+    try {
+      const result = updateEventBookingSchema.safeParse(req.body);
+      if (!result.success) {
+        const error = fromZodError(result.error);
+        return sendResponse(res, 400, null, error.message);
+      }
+
+      const booking = await getStorageInstance().updateBooking(req.params.id, result.data);
+      if (!booking) {
+        return sendResponse(res, 404, null, "Booking not found");
+      }
+      sendResponse(res, 200, booking);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update booking");
+    }
+  });
+
+  app.delete("/api/bookings/:id", async (req, res) => {
+    try {
+      const deleted = await getStorageInstance().deleteBooking(req.params.id);
+      if (!deleted) {
+        return sendResponse(res, 404, null, "Booking not found");
+      }
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete booking");
+    }
+  });
+
   app.post("/api/bookings", async (req, res) => {
     try {
       const result = insertEventBookingSchema.safeParse(req.body);
