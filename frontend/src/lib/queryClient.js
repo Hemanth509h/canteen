@@ -1,5 +1,5 @@
 // Base URL for API calls
-export const API_URL = "/api";
+export const API_URL = "https://canteen-bt65.vercel.app/api";
 
 export async function apiRequest(method, url, data) {
   // Normalize the URL: remove any leading slash and any leading 'api/'
