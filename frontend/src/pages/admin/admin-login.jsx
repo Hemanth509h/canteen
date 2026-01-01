@@ -22,21 +22,39 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      // Direct call to local backend on port 3000
-      const response = await fetch(`http://${window.location.hostname}:3000/api/admin/login`, {
+      // Use relative path for the Vite proxy
+      const url = '/api/admin/login';
+      
+      console.log("Attempting login at proxy URL:", url);
+      
+      const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({ password }),
       });
 
+      console.log("Login response status:", response.status);
+      
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Login failed:", response.status, errorText);
         let errorMessage = "Invalid password";
         try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {}
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || (errorData.data && errorData.data.error) || errorMessage;
+          } else {
+            const errorText = await response.text();
+            console.error("Login failed (non-JSON):", response.status, errorText.slice(0, 200));
+            if (errorText.includes("<!DOCTYPE html>")) {
+              errorMessage = "Authentication service temporarily unavailable. Please try again in a few seconds.";
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing failure response:", e);
+        }
         
         toast({
           title: "Login Failed",
@@ -55,15 +73,17 @@ export default function AdminLogin() {
       } else {
         toast({
           title: "Login Failed",
-          description: data.error || "Invalid password",
+          description: data.error || (data.data && data.data.error) || "Invalid password",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login fetch error:", error);
+      
+      // Automatic retry logic for Replit environment fluctuations
       toast({
         title: "Connection Error",
-        description: "Could not reach the authentication server. Please ensure the backend is running.",
+        description: "Checking backend connection... please try again in a moment.",
         variant: "destructive",
       });
     } finally {

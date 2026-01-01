@@ -40,13 +40,17 @@ export async function registerRoutes(app) {
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { password } = req.body;
+      console.log("Login request received");
       const isValid = await verifyPassword(password);
       if (isValid) {
+        console.log("Login success");
         sendResponse(res, 200, { success: true });
       } else {
+        console.log("Login failed: invalid password");
         sendResponse(res, 401, null, "Invalid password");
       }
     } catch (error) {
+      console.error("Login route error:", error);
       sendResponse(res, 500, null, "Login failed");
     }
   });
