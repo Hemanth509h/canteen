@@ -379,8 +379,8 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      <section id="menu" className="py-16 sm:py-24 px-4 sm:px-6 bg-secondary/5 rounded-[2rem] sm:rounded-[4rem] mx-2 sm:mx-8">
-        <div className="max-w-7xl mx-auto">
+      <section id="menu" className="py-16 sm:py-24 px-4 sm:px-6 bg-secondary/5 rounded-[2rem] sm:rounded-[4rem] mx-2 sm:mx-4 lg:mx-8">
+        <div className="max-w-[95%] sm:max-w-[90%] md:max-w-[95%] lg:max-w-[98%] 2xl:max-w-[1920px] mx-auto">
           <div className="text-center mb-12 sm:mb-20 slide-up">
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-4 sm:mb-6">Seasonal Selections</h2>
             <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-6 sm:mb-8 rounded-full" />
