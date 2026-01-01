@@ -25,7 +25,6 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 import HowItWorks from "@/components/features/how-it-works";
-import GalleryPreview from "@/components/features/gallery-preview";
 import BackToTopButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 
@@ -502,7 +501,6 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      <GalleryPreview />
       <Testimonials reviews={reviews} />
       
       <section className="py-24 px-6 bg-secondary/5">

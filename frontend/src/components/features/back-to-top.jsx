@@ -25,7 +25,7 @@ const BackToTopButton = () => {
       size="icon"
       className={cn(
         "fixed bottom-6 right-6 z-[90] rounded-full shadow-2xl transition-all duration-300",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
+        "opacity-100 translate-y-0"
       )}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
     >
