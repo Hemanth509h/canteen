@@ -22,10 +22,10 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      // Use relative path for the Vite proxy
-      const url = '/api/admin/login';
+      // Use the global API_URL configuration
+      const url = `${API_URL}/admin/login`;
       
-      console.log("Attempting login at proxy URL:", url);
+      console.log("Attempting login at URL:", url);
       
       const response = await fetch(url, {
         method: "POST",
