@@ -543,7 +543,7 @@ export default function CustomerHome() {
 
       <WhatsAppButton phone={companyInfo?.phone} />
       <Footer companyInfo={companyInfo} />
-      <BackToTopButton />
+      <NavigationButton />
 
       <FoodItemQuickView 
         item={selectedItem} 
