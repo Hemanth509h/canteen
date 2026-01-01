@@ -335,9 +335,9 @@ export async function registerRoutes(app) {
       const requests = await getStorageInstance().getStaffBookingRequests(req.params.id);
       const staffIds = requests.map(r => r.staffId);
       const staff = await Promise.all(staffIds.map(id => getStorageInstance().getStaffMember(id)));
-      res.json(staff.filter(Boolean));
+      sendResponse(res, 200, staff.filter(Boolean));
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch staff booking requests" });
+      sendResponse(res, 500, null, "Failed to fetch staff booking requests");
     }
   });
 
@@ -349,7 +349,7 @@ export async function registerRoutes(app) {
       console.log(`[API] POST /api/bookings/${bookingId}/assign-staff`, { staffId });
 
       if (!staffId) {
-        return res.status(400).json({ error: "Staff ID is required" });
+        return sendResponse(res, 400, null, "Staff ID is required");
       }
 
       // Check if already assigned
@@ -357,7 +357,7 @@ export async function registerRoutes(app) {
       const alreadyAssigned = existing.find(r => r.staffId === staffId);
       if (alreadyAssigned) {
         console.log(`[API] Staff ${staffId} already assigned to booking ${bookingId}`);
-        return res.json(alreadyAssigned);
+        return sendResponse(res, 200, alreadyAssigned);
       }
 
       const request = await getStorageInstance().createStaffBookingRequest({
@@ -367,10 +367,10 @@ export async function registerRoutes(app) {
         token: randomUUID()
       });
       console.log(`[API] Created staff assignment:`, request);
-      res.status(201).json(request);
+      sendResponse(res, 201, request);
     } catch (error) {
       console.error("Assign staff error:", error);
-      res.status(500).json({ error: "Failed to assign staff" });
+      sendResponse(res, 500, null, "Failed to assign staff");
     }
   });
 
@@ -378,11 +378,11 @@ export async function registerRoutes(app) {
     try {
       const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
       if (!request) {
-        return res.status(404).json({ error: "Staff request not found" });
+        return sendResponse(res, 404, null, "Staff request not found");
       }
-      res.json(request);
+      sendResponse(res, 200, request);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch staff request" });
+      sendResponse(res, 500, null, "Failed to fetch staff request");
     }
   });
 
@@ -613,24 +613,24 @@ export async function registerRoutes(app) {
     try {
       const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
       if (!request) {
-        return res.status(404).json({ error: "Invalid token" });
+        return sendResponse(res, 404, null, "Invalid token");
       }
       
       const booking = await getStorageInstance().getBooking(request.bookingId);
       const staff = await getStorageInstance().getStaffMember(request.staffId);
       
-      res.json({ request, booking, staff });
+      sendResponse(res, 200, { request, booking, staff });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch request by token" });
+      sendResponse(res, 500, null, "Failed to fetch request by token");
     }
   });
 
   app.get("/api/bookings/:id/accepted-staff", async (req, res) => {
     try {
       const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
-      res.json(staff);
+      sendResponse(res, 200, staff);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch accepted staff" });
+      sendResponse(res, 500, null, "Failed to fetch accepted staff");
     }
   });
 
