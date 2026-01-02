@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
 import type { UppyFile, UploadResult } from "@uppy/core";
 import DashboardModal from "@uppy/react/dashboard-modal";
-import "@uppy/core/css/style.min.css";
-import "@uppy/dashboard/css/style.min.css";
 import AwsS3 from "@uppy/aws-s3";
 import { Button } from "@/components/ui/button";
+import "@uppy/core/css/style.min.css";
+import "@uppy/dashboard/css/style.min.css";
 
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;

@@ -19,6 +19,8 @@ import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } f
 import { insertFoodItemSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import { useUpload } from "@/hooks/use-upload";
 
 const defaultCategories = [
   "Welcome Drinks",
@@ -50,6 +52,7 @@ const defaultCategories = [
 ];
 
 export default function FoodItemsManager() {
+  const { getUploadParameters } = useUpload();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -362,44 +365,40 @@ export default function FoodItemsManager() {
                     </FormItem>
                   )}
                 />
-import { ObjectUploader } from "@/components/ObjectUploader";
-
-export default function FoodItemsManager() {
-  const { getUploadParameters } = useUpload();
-  // ... existing code ...
-  <FormField
-    control={form.control}
-    name="imageUrl"
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel>Image</FormLabel>
-        <div className="flex gap-2">
-          <FormControl>
-            <Input 
-              placeholder="Image URL" 
-              {...field}
-              value={field.value || ""}
-              className="flex-1"
-            />
-          </FormControl>
-          <ObjectUploader
-            onGetUploadParameters={getUploadParameters}
-            onComplete={(result) => {
-              if (result.successful?.[0]) {
-                const url = result.successful[0].uploadURL.split('?')[0];
-                form.setValue("imageUrl", url);
-                toast({ title: "Image Uploaded", description: "Image has been uploaded successfully." });
-              }
-            }}
-          >
-            <ImagePlus className="w-4 h-4 mr-2" />
-            Upload
-          </ObjectUploader>
-        </div>
-        <FormMessage />
-      </FormItem>
-    )}
-  />
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image</FormLabel>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Input 
+                            placeholder="Image URL" 
+                            {...field}
+                            value={field.value || ""}
+                            className="flex-1"
+                            data-testid="input-food-image"
+                          />
+                        </FormControl>
+                        <ObjectUploader
+                          onGetUploadParameters={getUploadParameters}
+                          onComplete={(result) => {
+                            if (result.successful?.[0]) {
+                              const url = result.successful[0].uploadURL.split('?')[0];
+                              form.setValue("imageUrl", url);
+                              toast({ title: "Image Uploaded", description: "Image has been uploaded successfully." });
+                            }
+                          }}
+                        >
+                          <ImagePlus className="w-4 h-4 mr-2" />
+                          Upload
+                        </ObjectUploader>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
