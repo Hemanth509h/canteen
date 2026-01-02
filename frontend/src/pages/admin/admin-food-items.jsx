@@ -382,6 +382,7 @@ export default function FoodItemsManager() {
                           />
                         </FormControl>
                         <ObjectUploader
+                          maxFileSize={5 * 1024 * 1024}
                           onGetUploadParameters={getUploadParameters}
                           onComplete={(result) => {
                             if (result.successful?.[0]) {
