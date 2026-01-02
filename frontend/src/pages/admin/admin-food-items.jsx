@@ -22,34 +22,7 @@ import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { useUpload } from "@/hooks/use-upload";
 
-const defaultCategories = [
-  "Welcome Drinks",
-  "Veg Soup",
-  "Hots",
-  "Veg Starters",
-  "Rotis",
-  "Indian Curries",
-  "Special Gravy Curries",
-  "Special Rice Items",
-  "Roti Chutneys",
-  "Curds",
-  "Papads",
-  "Avakayalu",
-  "Podilu",
-  "Salads",
-  "Chat Items",
-  "Chinese",
-  "Mocktails",
-  "Italian Snacks",
-  "South Indian Tiffins",
-  "Ice Creams",
-  "Veg Biryanis",
-  "Veg Fry Items",
-  "Dal Items",
-  "Liquid Items",
-  "Mutton Snacks",
-  "Seasonal Selections"
-];
+const defaultCategories = [];
 
 export default function FoodItemsManager() {
   const { getUploadParameters } = useUpload();
