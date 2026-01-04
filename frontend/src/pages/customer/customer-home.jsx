@@ -324,16 +324,15 @@ export default function CustomerHome() {
               className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary hover:scale-105"
               onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
             >
-              Menu
+              Explore Menu
               <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 
               size="lg" 
               variant="default"
               className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl text-primary bg-white hover:bg-white/90 transition-all duration-500 font-bold"
-              onClick={() => document.getElementById("contact-section")?.scrollIntoView({ behavior: "smooth" })}
             >
-              Contact
+              Custom Quote
             </Button>
           </div>
         </div>
