@@ -75,8 +75,8 @@ const Footer = ({ companyInfo }) => (
     </div>
     <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-8 text-center relative z-10">
       <div className="flex items-center gap-3">
-        <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
-        <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Annamya"}</h3>
+        <Sprout className="text-primary" size={32} />
+        <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
       </div>
       
       <p className="text-muted-foreground max-w-md leading-relaxed italic text-base px-4">
@@ -285,8 +285,9 @@ export default function CustomerHome() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background">
         <div className="relative">
-          <div className="w-24 h-24 mb-4 flex items-center justify-center">
-            <img src="/logo.png" alt="Annamya Logo" className="w-full h-full object-contain animate-pulse" />
+          <LoadingSpinner size="lg" className="text-primary" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Sprout className="text-primary animate-pulse" size={24} />
           </div>
         </div>
         <p className="mt-6 text-xl font-poppins font-bold animate-pulse text-primary tracking-widest uppercase">
@@ -326,7 +327,7 @@ export default function CustomerHome() {
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8 slide-up">
-            <img src="/logo.png" alt="Logo" className="w-5 h-5 object-contain" />
+            <Sprout size={16} className="text-primary" />
             <span className="text-sm font-medium tracking-wider uppercase">Nature's Finest Catering</span>
           </div>
           
