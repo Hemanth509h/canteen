@@ -5,25 +5,25 @@
 @tailwind utilities;
 
 @layer base {
-:root {
-    --background: 142 40% 4%;
-    --foreground: 0 0% 100%;
-    --card: 142 40% 6%;
-    --card-foreground: 0 0% 100%;
-    --popover: 142 40% 6%;
-    --popover-foreground: 0 0% 100%;
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 142 40% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 142 40% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 142 40% 4%;
     --primary: 142 76% 40%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 142 30% 12%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 142 30% 12%;
-    --muted-foreground: 0 0% 90%;
-    --accent: 142 30% 12%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
+    --secondary: 142 20% 96%;
+    --secondary-foreground: 142 40% 4%;
+    --muted: 142 20% 96%;
+    --muted-foreground: 142 10% 40%;
+    --accent: 142 20% 96%;
+    --accent-foreground: 142 40% 4%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 142 30% 18%;
-    --input: 142 30% 18%;
+    --border: 142 20% 90%;
+    --input: 142 20% 90%;
     --ring: 142 76% 40%;
     --radius: 0.5rem;
   }
@@ -49,6 +49,7 @@
     --input: 142 30% 18%;
     --ring: 142 76% 40%;
   }
+}
 
   /* Sidebar Text Visibility */
   [data-sidebar="sidebar"],

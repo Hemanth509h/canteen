@@ -321,7 +321,7 @@ export default function CustomerHome() {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto slide-up">
             <Button 
               size="lg" 
-              className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary hover:scale-105"
+              className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary text-primary-foreground hover:scale-105"
               onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
             >
               Explore Menu
@@ -329,8 +329,8 @@ export default function CustomerHome() {
             </Button>
             <Button 
               size="lg" 
-              variant="default"
-              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl text-primary bg-white hover:bg-white/90 transition-all duration-500 font-bold"
+              variant="outline"
+              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-bold bg-white text-black hover:bg-white/90 transition-all duration-500"
             >
               Custom Quote
             </Button>
