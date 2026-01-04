@@ -37,6 +37,8 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cross-Origin-Embedder-Policy', 'credentialless');
+  res.header('Cross-Origin-Opener-Policy', 'same-origin');
   
   // Handle preflight
   if (req.method === 'OPTIONS') {

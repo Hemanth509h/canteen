@@ -86,6 +86,8 @@ export default function CompanySettingsManager() {
     updateMutation.mutate(data);
   };
 
+  const logoUrlValue = form.watch("logoUrl") || "/leaf_logo.svg";
+  
   return (
     <div className="p-6 sm:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -401,11 +403,11 @@ export default function CompanySettingsManager() {
                           </FormItem>
                         )}
                       />
-                      {form.watch("logoUrl") && (
+                      {logoUrlValue && (
                         <div className="p-4 border rounded-lg bg-muted/50 flex items-center justify-center min-h-[100px]">
                           <img 
-                            key={form.watch("logoUrl")}
-                            src={form.watch("logoUrl")} 
+                            key={logoUrlValue}
+                            src={logoUrlValue} 
                             alt="Logo Preview" 
                             className="max-h-20 w-auto object-contain"
                             crossOrigin="anonymous"

@@ -259,7 +259,7 @@ export default function CustomerHome() {
     }) || [];
   }, [foodItems, selectedType, selectedCategory, searchQuery]);
 
-  const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
+  const logoSrc = "/leaf_logo.svg";
 
   if (!showWebsite) {
     return (
