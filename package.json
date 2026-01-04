@@ -6,7 +6,7 @@
   "scripts": {
     "dev:backend": "cd backend && npx tsx watch index.js",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:all": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
   },
   "keywords": [],
   "author": "",
