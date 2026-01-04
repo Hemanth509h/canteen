@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Building2, RefreshCw } from "lucide-react";
+import { Building2, RefreshCw, Upload } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function CompanySettingsManager() {
@@ -61,6 +61,26 @@ export default function CompanySettingsManager() {
       toast({ title: "Error", description: "Failed to update company information", variant: "destructive" });
     },
   });
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.includes('svg') && !file.type.includes('image')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an SVG or image file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      form.setValue("logoUrl", reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const onSubmit = (data) => {
     updateMutation.mutate(data);
@@ -356,6 +376,25 @@ export default function CompanySettingsManager() {
                                 >
                                   Use Generated
                                 </Button>
+                                <div className="relative">
+                                  <input
+                                    type="file"
+                                    accept="image/svg+xml,image/*"
+                                    className="hidden"
+                                    id="logo-upload"
+                                    onChange={handleLogoUpload}
+                                  />
+                                  <Button 
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                  >
+                                    <label htmlFor="logo-upload" className="cursor-pointer flex items-center gap-2">
+                                      <Upload className="w-4 h-4" />
+                                      Upload
+                                    </label>
+                                  </Button>
+                                </div>
                               </div>
                             </FormControl>
                             <FormMessage />
