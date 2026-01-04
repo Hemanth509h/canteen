@@ -30,7 +30,13 @@ export default function FoodItemsManager() {
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetName, setDeleteTargetName] = useState("");
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
+  const { toast } = useToast();
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
