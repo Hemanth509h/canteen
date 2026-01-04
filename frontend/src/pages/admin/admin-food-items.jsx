@@ -317,7 +317,7 @@ export default function FoodItemsManager() {
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="max-h-60">
+                          <SelectContent className="max-h-60" data-testid="select-food-category-content">
                             {filteredCategories.map((category) => (
                               <SelectItem key={category} value={category}>
                                 {category}
