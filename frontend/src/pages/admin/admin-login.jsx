@@ -136,8 +136,8 @@ export default function AdminLogin() {
             <div 
               className="flex justify-center animate-scale-in"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20 animate-gentle-pulse">
-                <img src={logoSrc} alt="Logo" className="w-10 h-10 text-primary" />
+              <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20 animate-gentle-pulse">
+                <img src={logoSrc} alt="Logo" className="w-16 h-16 text-primary" />
               </div>
             </div>
             <div
