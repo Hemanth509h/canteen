@@ -86,7 +86,7 @@ export default function CompanySettingsManager() {
     updateMutation.mutate(data);
   };
 
-  const logoUrlValue = form.watch("logoUrl") || "/leaf_logo.svg";
+  const logoUrlValue = form.watch("logoUrl") || "/leaf_logo.png";
   
   return (
     <div className="p-6 sm:p-8 space-y-6">

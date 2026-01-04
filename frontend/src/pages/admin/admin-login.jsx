@@ -24,7 +24,7 @@ export default function AdminLogin() {
     gcTime: 0,
   });
 
-  const logoSrc = "/leaf_logo.svg";
+  const logoSrc = "/leaf_logo.png";
 
   const handleLogin = async (e) => {
     e.preventDefault();
