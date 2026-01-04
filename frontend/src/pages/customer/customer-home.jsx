@@ -75,7 +75,7 @@ const Footer = ({ companyInfo }) => (
     </div>
     <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-8 text-center relative z-10">
       <div className="flex items-center gap-3">
-        <img src="/logo.svg" alt="Logo" className="w-8 h-8 text-primary" />
+        <img src={logoSrc} alt="Logo" className="w-8 h-8 text-primary" />
         <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
       </div>
       
@@ -166,6 +166,13 @@ export default function CustomerHome() {
     staleTime: 0,
     gcTime: 0,
   });
+
+  useEffect(() => {
+    if (companyInfo?.primaryColor) {
+      document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
+      // Also update related HSL colors if possible, but hex directly works for many tailwind setups
+    }
+  }, [companyInfo?.primaryColor]);
 
   const { data: reviews, isLoading: isLoadingReviews } = useQuery({
     queryKey: ["/api/reviews"],
@@ -281,13 +288,15 @@ export default function CustomerHome() {
 
   const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop";
 
+  const logoSrc = companyInfo?.logoUrl || "/logo.svg";
+
   if (!showWebsite) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background">
         <div className="relative">
           <LoadingSpinner size="lg" className="text-primary" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <img src="/logo.svg" alt="Logo" className="w-6 h-6 text-primary animate-pulse" />
+            <img src={logoSrc} alt="Logo" className="w-6 h-6 text-primary animate-pulse" />
           </div>
         </div>
         <p className="mt-6 text-xl font-poppins font-bold animate-pulse text-primary tracking-widest uppercase">
@@ -327,7 +336,7 @@ export default function CustomerHome() {
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8 slide-up">
-            <img src="/logo.svg" alt="Logo" className="w-4 h-4 text-primary" />
+            <img src={logoSrc} alt="Logo" className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium tracking-wider uppercase">Nature's Finest Catering</span>
           </div>
           

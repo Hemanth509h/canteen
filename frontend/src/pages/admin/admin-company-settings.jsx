@@ -30,6 +30,8 @@ export default function CompanySettingsManager() {
       websiteUrl: companyInfo.websiteUrl || "",
       upiId: companyInfo.upiId || "",
       minAdvanceBookingDays: companyInfo.minAdvanceBookingDays || 2,
+      primaryColor: companyInfo.primaryColor || "#ea580c",
+      logoUrl: companyInfo.logoUrl || "",
     } : {
       companyName: "",
       tagline: "",
@@ -42,6 +44,8 @@ export default function CompanySettingsManager() {
       websiteUrl: "",
       upiId: "",
       minAdvanceBookingDays: 2,
+      primaryColor: "#ea580c",
+      logoUrl: "",
     },
   });
 
@@ -297,6 +301,55 @@ export default function CompanySettingsManager() {
                     </FormItem>
                   )}
                 />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="primaryColor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brand Color</FormLabel>
+                        <FormControl>
+                          <div className="flex gap-3">
+                            <Input 
+                              type="color" 
+                              {...field}
+                              className="w-12 h-10 p-1 rounded-md"
+                              data-testid="input-primary-color-picker"
+                            />
+                            <Input 
+                              type="text" 
+                              {...field}
+                              placeholder="#ea580c"
+                              data-testid="input-primary-color-hex"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="logoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Logo URL</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="https://example.com/logo.png" 
+                            {...field}
+                            value={field.value || ""}
+                            data-testid="input-logo-url"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <div className="flex justify-end pt-4">
                   <Button 
                     type="submit" 

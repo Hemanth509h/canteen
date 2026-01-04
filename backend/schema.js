@@ -83,6 +83,8 @@ export const insertCompanyInfoSchema = z.object({
   websiteUrl: z.string().url("Please enter a valid website URL").optional(),
   upiId: z.string().regex(/^[\w\-@.]+$/, "Invalid UPI ID format").optional(),
   minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
+  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format").optional(),
+  logoUrl: z.string().url("Invalid logo URL").or(z.string().length(0)).optional().nullable(),
 });
 
 // ==================== STAFF ====================
