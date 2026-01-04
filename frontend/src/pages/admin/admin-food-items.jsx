@@ -82,7 +82,10 @@ export default function FoodItemsManager() {
     
     // 1. Get all unique categories for the SELECTED TYPE ONLY from the database
     const categoriesForType = foodItems
-      .filter(item => item.type === selectedType)
+      .filter(item => {
+        if (selectedType === "All") return true;
+        return item.type === selectedType;
+      })
       .map(item => item.category);
     
     const uniqueCategories = Array.from(new Set(categoriesForType)).sort();
@@ -296,6 +299,7 @@ export default function FoodItemsManager() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="All">All</SelectItem>
                           <SelectItem value="Veg">Veg</SelectItem>
                           <SelectItem value="Non-Veg">Non-Veg</SelectItem>
                         </SelectContent>

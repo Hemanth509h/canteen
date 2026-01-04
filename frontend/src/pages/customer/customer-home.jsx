@@ -422,6 +422,7 @@ export default function CustomerHome() {
                       <SelectValue placeholder="Type" className="text-foreground" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="All">All</SelectItem>
                       <SelectItem value="Veg">Veg</SelectItem>
                       <SelectItem value="Non-Veg">Non-Veg</SelectItem>
                     </SelectContent>
