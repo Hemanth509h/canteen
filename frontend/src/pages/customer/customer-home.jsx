@@ -251,7 +251,17 @@ export default function CustomerHome() {
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
-    const uniqueCategories = Array.from(new Set(foodItems.map(item => item.category))).sort();
+    
+    // Filter categories that strictly belong to the selected type
+    const categoriesForType = foodItems
+      .filter(item => {
+        // Only include items matching the selected type
+        if (selectedType === "All") return true;
+        return item.type === selectedType;
+      })
+      .map(item => item.category);
+    
+    const uniqueCategories = Array.from(new Set(categoriesForType)).sort();
     return ["All", ...uniqueCategories];
   }, [foodItems, selectedType]);
 
