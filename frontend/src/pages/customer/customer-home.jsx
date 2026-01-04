@@ -29,7 +29,7 @@ import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 
-import logoIcon from "@assets/image_1767507209798.png";
+import logoIcon from "@assets/generated_images/minimalist_green_leaf_icon_design..png";
 
 const WhatsAppButton = ({ phone }) => (
   <a 
