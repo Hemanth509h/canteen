@@ -19,6 +19,7 @@ import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } f
 import { insertFoodItemSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
+import imageCompression from 'browser-image-compression';
 
 const defaultCategories = [];
 
