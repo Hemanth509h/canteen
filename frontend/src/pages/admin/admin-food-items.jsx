@@ -396,7 +396,7 @@ export default function FoodItemsManager() {
                             className="hidden"
                             onChange={handleImageUpload}
                           />
-                          <div className="flex-1">
+                          <div className="flex-1 hidden">
                             <FormControl>
                               <Input 
                                 placeholder="Image URL or Base64 data" 
