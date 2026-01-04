@@ -79,10 +79,13 @@ export default function FoodItemsManager() {
 
   const filteredCategories = useMemo(() => {
     return allCategories.filter(cat => {
-      // Find at least one item in the database that has this category and the selected type
+      // Find items in the database that have this category
       const categoryItems = foodItems.filter(item => item.category === cat);
-      if (categoryItems.length === 0) return true; // Keep default categories or empty categories
       
+      // If there are no items in this category yet, we show it only if it's being newly added
+      if (categoryItems.length === 0) return false;
+      
+      // Show category only if it has items of the selected type
       return categoryItems.some(item => item.type === selectedType);
     });
   }, [selectedType, allCategories, foodItems]);
