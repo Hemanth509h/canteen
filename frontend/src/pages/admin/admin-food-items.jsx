@@ -79,19 +79,13 @@ export default function FoodItemsManager() {
 
   const filteredCategories = useMemo(() => {
     return allCategories.filter(cat => {
-      const isSeasonal = cat === "Seasonal Selections";
-      if (selectedType === "Veg") {
-        return cat.toLowerCase().includes("veg") || 
-               ["Welcome Drinks", "Hots", "Rotis", "Curds", "Papads", "Salads", "Chat Items", "Ice Creams", "Seasonal Selections"].includes(cat);
-      } else {
-        return cat.toLowerCase().includes("mutton") || 
-               cat.toLowerCase().includes("chicken") || 
-               cat.toLowerCase().includes("fish") ||
-               cat.toLowerCase().includes("non-veg") ||
-               ["Welcome Drinks", "Hots", "Rotis", "Seasonal Selections"].includes(cat);
-      }
+      // Find at least one item in the database that has this category and the selected type
+      const categoryItems = foodItems.filter(item => item.category === cat);
+      if (categoryItems.length === 0) return true; // Keep default categories or empty categories
+      
+      return categoryItems.some(item => item.type === selectedType);
     });
-  }, [selectedType, allCategories]);
+  }, [selectedType, allCategories, foodItems]);
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
