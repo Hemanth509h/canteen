@@ -78,33 +78,16 @@ export default function FoodItemsManager() {
   const selectedType = form.watch("type");
 
   const filteredCategories = useMemo(() => {
-    return allCategories.filter(cat => {
-      // Find items in the database that have this category
-      const categoryItems = foodItems.filter(item => item.category === cat);
-      
-      // If there are no items in this category yet, we hide it from the predefined list
-      // but allow it if it's currently selected (editing case)
-      if (categoryItems.length === 0) return cat === form.getValues("category");
-      
-      // Filter strictly by the selected food type
-      const hasCorrectType = categoryItems.some(item => item.type === selectedType);
-      
-      // Additional safety check: Ensure the category name doesn't imply the other type
-      // e.g., don't show "Chicken Snacks" in Veg even if one item was mislabeled
-      const lowerCat = cat.toLowerCase();
-      if (selectedType === "Veg") {
-        if (lowerCat.includes("chicken") || lowerCat.includes("mutton") || lowerCat.includes("fish") || lowerCat.includes("non-veg") || lowerCat.includes("prawn") || lowerCat.includes("egg")) {
-          return false;
-        }
-      } else {
-        // For Non-Veg, we usually allow mixed categories or specific Non-Veg ones
-        // but if it's purely a Veg category like "Sweets" or "Juices", we might want to hide it
-        // unless it actually contains non-veg items (unlikely but possible)
-      }
-      
-      return hasCorrectType;
-    });
-  }, [selectedType, allCategories, foodItems, form]);
+    if (!foodItems || foodItems.length === 0) return [];
+    
+    // 1. Get all unique categories for the SELECTED TYPE ONLY from the database
+    const categoriesForType = foodItems
+      .filter(item => item.type === selectedType)
+      .map(item => item.category);
+    
+    // 2. Return unique, sorted categories that strictly belong to the selected type
+    return Array.from(new Set(categoriesForType)).sort();
+  }, [selectedType, foodItems]);
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
