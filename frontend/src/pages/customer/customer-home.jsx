@@ -484,9 +484,13 @@ export default function CustomerHome() {
                     <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20 h-full">
                       <div className="h-32 sm:h-64 relative overflow-hidden">
                         <img 
-                          src={item.imageUrl || defaultFoodImage} 
+                          src={item.imageUrl || "https://placehold.co/400x400?text=Food+Item"} 
                           alt={item.name}
                           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://placehold.co/400x400?text=Food+Item';
+                          }}
                         />
                         <div className="absolute top-2 left-2 sm:top-4 left-4">
                           <Badge className="bg-white/90 dark:bg-black/80 backdrop-blur-md text-primary border-none py-0.5 px-2 sm:py-1.5 sm:px-4 rounded-full text-[8px] sm:text-xs font-bold uppercase tracking-widest shadow-lg">

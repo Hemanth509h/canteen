@@ -19,9 +19,13 @@ const FoodItemQuickView = ({ item, open, onOpenChange, defaultFoodImage }) => {
         <div className="grid md:grid-cols-2">
           <div className="h-64 md:h-full relative">
             <img 
-              src={item.imageUrl || defaultFoodImage} 
+              src={item.imageUrl || "https://placehold.co/400x400?text=Food+Item"} 
               alt={item.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://placehold.co/400x400?text=Food+Item';
+              }}
             />
             <div className="absolute top-4 left-4">
               <Badge className="bg-primary text-white border-none py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
