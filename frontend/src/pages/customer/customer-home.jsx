@@ -530,6 +530,10 @@ export default function CustomerHome() {
 
       <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
         <DialogContent className="p-0 max-w-4xl rounded-[2rem] overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{selectedItem?.name || 'Food Item'}</DialogTitle>
+            <DialogDescription>{selectedItem?.description || 'Item details'}</DialogDescription>
+          </DialogHeader>
           {selectedItem && (
             <FoodItemQuickView 
               item={selectedItem} 
