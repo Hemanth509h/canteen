@@ -128,7 +128,7 @@ export default function AdminLogin() {
               className="flex justify-center animate-scale-in"
             >
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20 animate-gentle-pulse">
-                <ChefHat className="w-10 h-10 text-primary animate-spin-slow" />
+                <img src="/logo.svg" alt="Logo" className="w-10 h-10 text-primary" />
               </div>
             </div>
             <div
