@@ -85,8 +85,12 @@ export default function FoodItemsManager() {
       .filter(item => item.type === selectedType)
       .map(item => item.category);
     
-    // 2. Return unique, sorted categories that strictly belong to the selected type
-    return Array.from(new Set(categoriesForType)).sort();
+    const uniqueCategories = Array.from(new Set(categoriesForType)).sort();
+    
+    console.log("Selected Type:", selectedType);
+    console.log("Filtered Categories:", uniqueCategories);
+    
+    return uniqueCategories;
   }, [selectedType, foodItems]);
 
   const createMutation = useMutation({
