@@ -29,6 +29,8 @@ import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 
+import logoIcon from "@assets/image_1767507209798.png";
+
 const WhatsAppButton = ({ phone }) => (
   <a 
     href={`https://wa.me/${phone?.replace(/\D/g, '') || '1234567890'}`}
@@ -75,7 +77,7 @@ const Footer = ({ companyInfo }) => (
     </div>
     <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-8 text-center relative z-10">
       <div className="flex items-center gap-3">
-        <Sprout className="text-primary" size={32} />
+        <img src={logoIcon} alt="Elite Catering Logo" className="w-12 h-12 object-contain" />
         <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
       </div>
       
@@ -287,7 +289,7 @@ export default function CustomerHome() {
         <div className="relative">
           <LoadingSpinner size="lg" className="text-primary" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <Sprout className="text-primary animate-pulse" size={24} />
+            <img src={logoIcon} alt="Loading..." className="w-8 h-8 object-contain animate-pulse" />
           </div>
         </div>
         <p className="mt-6 text-xl font-poppins font-bold animate-pulse text-primary tracking-widest uppercase">
@@ -327,7 +329,7 @@ export default function CustomerHome() {
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8 slide-up">
-            <Sprout size={16} className="text-primary" />
+            <img src={logoIcon} alt="Icon" className="w-6 h-6 object-contain" />
             <span className="text-sm font-medium tracking-wider uppercase">Nature's Finest Catering</span>
           </div>
           
