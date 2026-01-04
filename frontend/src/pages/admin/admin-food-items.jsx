@@ -609,13 +609,15 @@ export default function FoodItemsManager() {
                     data-testid={`card-food-mobile-${item.id}`}
                   >
                     <div className="w-14 h-14 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <ImagePlus className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                      )}
+                      <img 
+                        src={item.imageUrl || "https://placehold.co/400x400?text=Food+Item"} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://placehold.co/400x400?text=Food+Item';
+                        }}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm truncate">{item.name}</p>
@@ -660,13 +662,15 @@ export default function FoodItemsManager() {
                       <TableRow key={item.id} data-testid={`row-food-${item.id}`}>
                         <TableCell>
                           <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
-                            {item.imageUrl ? (
-                              <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <ImagePlus className="w-6 h-6 text-muted-foreground" />
-                              </div>
-                            )}
+                            <img 
+                              src={item.imageUrl || "https://placehold.co/400x400?text=Food+Item"} 
+                              alt={item.name} 
+                              className="w-full h-full object-cover" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/400x400?text=Food+Item';
+                              }}
+                            />
                           </div>
                         </TableCell>
                         <TableCell>
