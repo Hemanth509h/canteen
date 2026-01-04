@@ -19,12 +19,12 @@ const FoodItemQuickView = ({ item, open, onOpenChange, defaultFoodImage }) => {
         <div className="grid md:grid-cols-2">
           <div className="h-64 md:h-full relative">
             <img 
-              src={item.imageUrl || "https://placehold.co/400x400?text=Food+Item"} 
+              src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop"} 
               alt={item.name}
               className="w-full h-full object-cover"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = 'https://placehold.co/400x400?text=Food+Item';
+                e.target.src = 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop';
               }}
             />
             <div className="absolute top-4 left-4">

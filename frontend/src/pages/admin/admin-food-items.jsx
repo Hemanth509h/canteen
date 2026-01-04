@@ -610,12 +610,12 @@ export default function FoodItemsManager() {
                   >
                     <div className="w-14 h-14 rounded-md overflow-hidden bg-muted flex-shrink-0">
                       <img 
-                        src={item.imageUrl || "https://placehold.co/400x400?text=Food+Item"} 
+                        src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=400&auto=format&fit=crop"} 
                         alt={item.name} 
                         className="w-full h-full object-cover" 
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = 'https://placehold.co/400x400?text=Food+Item';
+                          e.target.src = 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=400&auto=format&fit=crop';
                         }}
                       />
                     </div>
@@ -663,12 +663,12 @@ export default function FoodItemsManager() {
                         <TableCell>
                           <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
                             <img 
-                              src={item.imageUrl || "https://placehold.co/400x400?text=Food+Item"} 
+                              src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=400&auto=format&fit=crop"} 
                               alt={item.name} 
                               className="w-full h-full object-cover" 
                               onError={(e) => {
                                 e.target.onerror = null;
-                                e.target.src = 'https://placehold.co/400x400?text=Food+Item';
+                                e.target.src = 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=400&auto=format&fit=crop';
                               }}
                             />
                           </div>
