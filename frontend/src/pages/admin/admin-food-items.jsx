@@ -19,13 +19,10 @@ import { Plus, Pencil, Trash2, ImagePlus, Search, UtensilsCrossed, RefreshCw } f
 import { insertFoodItemSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { useUpload } from "@/hooks/use-upload";
 
 const defaultCategories = [];
 
 export default function FoodItemsManager() {
-  const { getUploadParameters } = useUpload();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -358,40 +355,6 @@ export default function FoodItemsManager() {
                             data-testid="input-food-image"
                           />
                         </FormControl>
-                        <ObjectUploader
-                          maxFileSize={5 * 1024 * 1024}
-                          onGetUploadParameters={getUploadParameters}
-                          onComplete={(result) => {
-                            if (result.successful?.length > 0) {
-                              const body = result.successful[0].response.body;
-                              const objectPath = body.objectPath || (body.data && body.data.objectPath);
-                              if (objectPath) {
-                                const url = `/objects/${objectPath}`;
-                                form.setValue("imageUrl", url);
-                                toast({ title: "Image Uploaded", description: "Image has been uploaded successfully." });
-                              } else {
-                                console.error("Upload response body missing objectPath:", body);
-                                toast({ title: "Upload Error", description: "Failed to get image path from server.", variant: "destructive" });
-                              }
-                            }
-                          }}
-                        >
-                          <ImagePlus className="w-4 h-4 mr-2" />
-                          Upload
-                        </ObjectUploader>
-                        {form.watch("imageUrl") && (
-                          <Button 
-                            type="button" 
-                            variant="destructive" 
-                            size="icon"
-                            onClick={() => {
-                              form.setValue("imageUrl", "");
-                              toast({ title: "Image Removed", description: "Image reference has been cleared." });
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
                       </div>
                       <FormMessage />
                     </FormItem>
