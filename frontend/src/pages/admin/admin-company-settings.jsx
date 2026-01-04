@@ -330,24 +330,49 @@ export default function CompanySettingsManager() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="logoUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Logo URL</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="https://example.com/logo.png" 
-                            {...field}
-                            value={field.value || ""}
-                            data-testid="input-logo-url"
+                  <div className="space-y-2">
+                    <FormLabel>Logo Management</FormLabel>
+                    <div className="flex flex-col gap-4">
+                      <FormField
+                        control={form.control}
+                        name="logoUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="flex gap-2">
+                                <Input 
+                                  placeholder="https://example.com/logo.png" 
+                                  {...field}
+                                  value={field.value || ""}
+                                  data-testid="input-logo-url"
+                                />
+                                <Button 
+                                  type="button" 
+                                  variant="outline"
+                                  onClick={() => field.onChange("/assets/logo-original.png")}
+                                >
+                                  Use Generated
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {form.watch("logoUrl") && (
+                        <div className="p-4 border rounded-lg bg-muted/50 flex items-center justify-center">
+                          <img 
+                            src={form.watch("logoUrl")} 
+                            alt="Logo Preview" 
+                            className="max-h-20 object-contain"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-end pt-4">
