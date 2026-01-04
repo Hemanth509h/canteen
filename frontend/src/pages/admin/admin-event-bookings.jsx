@@ -571,7 +571,6 @@ export default function EventBookingsManager() {
                                   />
                                   <div className="flex-1">
                                     <p className="font-medium text-sm">{item.name}</p>
-                                    <p className="text-xs text-muted-foreground">₹{item.price}</p>
                                   </div>
                                   {selectedItem && (
                                     <input

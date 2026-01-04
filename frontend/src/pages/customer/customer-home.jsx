@@ -500,7 +500,6 @@ export default function CustomerHome() {
                           <p className="text-muted-foreground text-[10px] sm:text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
                         </div>
                         <div className="mt-4 flex items-center justify-between">
-                          <span className="text-xs sm:text-lg font-bold text-primary">From ₹{item.basePrice || '499'}</span>
                           <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-10 sm:w-10 rounded-full p-0">
                             <ChevronRight className="h-4 w-4" />
                           </Button>
