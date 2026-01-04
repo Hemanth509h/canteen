@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { ChefHat, Lock, ArrowLeft, UtensilsCrossed } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { setAdminSession } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
 
 import { API_URL } from "@/lib/queryClient";
 
@@ -16,6 +17,14 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const { data: companyInfo } = useQuery({
+    queryKey: ["/api/company-info"],
+    staleTime: 0,
+    gcTime: 0,
+  });
+
+  const logoSrc = companyInfo?.logoUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -128,7 +137,7 @@ export default function AdminLogin() {
               className="flex justify-center animate-scale-in"
             >
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20 animate-gentle-pulse">
-                <img src="/logo.svg" alt="Logo" className="w-10 h-10 text-primary" />
+                <img src={logoSrc} alt="Logo" className="w-10 h-10 text-primary" />
               </div>
             </div>
             <div
