@@ -259,34 +259,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  // Chef Printout Route
-  app.get("/api/chef-printout", async (_req, res) => {
-    try {
-      const bookings = await getStorageInstance().getBookings();
-      const grouped = {};
-      
-      for (const booking of bookings) {
-        const date = new Date(booking.eventDate).toLocaleDateString('en-GB'); // Standardize format
-        if (!grouped[date]) {
-          grouped[date] = [];
-        }
-        
-        const items = await getStorageInstance().getBookingItems(booking.id);
-        const itemsWithDetails = await Promise.all(items.map(async (item) => {
-          const foodItem = await getStorageInstance().getFoodItem(item.foodItemId);
-          return { ...item, foodItem };
-        }));
-        
-        grouped[date].push({ ...booking, items: itemsWithDetails });
-      }
-      
-      sendResponse(res, 200, grouped);
-    } catch (error) {
-      console.error("Chef printout error:", error);
-      sendResponse(res, 500, null, "Failed to fetch chef printout data");
-    }
-  });
-
   app.patch("/api/reviews/:id", async (req, res) => {
     try {
       const result = updateCustomerReviewSchema.safeParse(req.body);
