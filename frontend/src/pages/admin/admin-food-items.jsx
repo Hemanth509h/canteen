@@ -378,24 +378,16 @@ export default function FoodItemsManager() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Image</FormLabel>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex gap-2">
-                          <FormControl>
-                            <Input 
-                              placeholder="Image URL or Base64 data" 
-                              {...field}
-                              value={field.value || ""}
-                              className="flex-1"
-                              data-testid="input-food-image"
-                            />
-                          </FormControl>
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Button
                             type="button"
-                            variant="outline"
+                            variant="secondary"
+                            className="w-full sm:w-auto font-medium"
                             onClick={() => document.getElementById('image-upload').click()}
                           >
                             <ImagePlus className="w-4 h-4 mr-2" />
-                            Upload
+                            Upload Image
                           </Button>
                           <input
                             id="image-upload"
@@ -404,18 +396,38 @@ export default function FoodItemsManager() {
                             className="hidden"
                             onChange={handleImageUpload}
                           />
+                          <div className="flex-1">
+                            <FormControl>
+                              <Input 
+                                placeholder="Image URL or Base64 data" 
+                                {...field}
+                                value={field.value || ""}
+                                className="w-full bg-background border-input"
+                                data-testid="input-food-image"
+                              />
+                            </FormControl>
+                          </div>
                         </div>
-                        {field.value && field.value.startsWith('data:image') && (
-                          <div className="relative w-20 h-20 rounded-md overflow-hidden border">
-                            <img src={field.value} alt="Preview" className="w-full h-full object-cover" />
+                        {field.value && (
+                          <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-border bg-muted shadow-sm group">
+                            <img 
+                              src={field.value} 
+                              alt="Preview" 
+                              className="w-full h-full object-cover transition-transform group-hover:scale-110" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/400x400?text=Invalid+Image';
+                              }}
+                            />
                             <Button
                               type="button"
                               variant="destructive"
                               size="icon"
-                              className="absolute top-0 right-0 w-6 h-6 rounded-none"
+                              className="absolute top-1 right-1 w-7 h-7 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={() => field.onChange("")}
+                              title="Remove image"
                             >
-                              <Trash2 className="w-3 h-3" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         )}
