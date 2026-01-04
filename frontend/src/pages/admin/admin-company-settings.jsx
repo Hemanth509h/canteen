@@ -372,7 +372,7 @@ export default function CompanySettingsManager() {
                                 <Button 
                                   type="button" 
                                   variant="outline"
-                                  onClick={() => field.onChange("/logo.svg")}
+                                  onClick={() => field.onChange("/leaf_logo.svg")}
                                 >
                                   Use Generated
                                 </Button>

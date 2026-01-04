@@ -259,7 +259,7 @@ export default function CustomerHome() {
     }) || [];
   }, [foodItems, selectedType, selectedCategory, searchQuery]);
 
-  const logoSrc = companyInfo?.logoUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop";
+  const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
 
   if (!showWebsite) {
     return (
@@ -319,6 +319,14 @@ export default function CustomerHome() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto slide-up">
+            <Button 
+              size="lg" 
+              className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary hover:scale-105"
+              onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              Add One
+              <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
             <Button 
               size="lg" 
               className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary hover:scale-105"

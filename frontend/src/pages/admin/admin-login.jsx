@@ -24,7 +24,7 @@ export default function AdminLogin() {
     gcTime: 0,
   });
 
-  const logoSrc = companyInfo?.logoUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop";
+  const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
 
   const handleLogin = async (e) => {
     e.preventDefault();
