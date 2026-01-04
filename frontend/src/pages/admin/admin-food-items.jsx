@@ -29,14 +29,38 @@ export default function FoodItemsManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
-  const [deleteTargetName, setDeleteTargetName] = useState("");
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const debouncedSearch = useDebouncedValue(searchQuery, 300);
-  const { toast } = useToast();
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const options = {
+      maxSizeMB: 0.1, // Compress to ~100KB
+      maxWidthOrHeight: 800,
+      useWebWorker: true
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      const reader = new FileReader();
+      reader.readAsDataURL(compressedFile);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        form.setValue("imageUrl", base64data);
+        toast({
+          title: "Image compressed",
+          description: "The image has been processed and is ready to save."
+        });
+      };
+    } catch (error) {
+      console.error("Image compression error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to compress image",
+        variant: "destructive"
+      });
+    }
+  };
 
   const { data: foodItems = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["/api/food-items"],
@@ -346,16 +370,47 @@ export default function FoodItemsManager() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Image</FormLabel>
-                      <div className="flex gap-2">
-                        <FormControl>
-                          <Input 
-                            placeholder="Image URL" 
-                            {...field}
-                            value={field.value || ""}
-                            className="flex-1"
-                            data-testid="input-food-image"
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          <FormControl>
+                            <Input 
+                              placeholder="Image URL or Base64 data" 
+                              {...field}
+                              value={field.value || ""}
+                              className="flex-1"
+                              data-testid="input-food-image"
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('image-upload').click()}
+                          >
+                            <ImagePlus className="w-4 h-4 mr-2" />
+                            Upload
+                          </Button>
+                          <input
+                            id="image-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
                           />
-                        </FormControl>
+                        </div>
+                        {field.value && field.value.startsWith('data:image') && (
+                          <div className="relative w-20 h-20 rounded-md overflow-hidden border">
+                            <img src={field.value} alt="Preview" className="w-full h-full object-cover" />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-0 right-0 w-6 h-6 rounded-none"
+                              onClick={() => field.onChange("")}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       <FormMessage />
                     </FormItem>
