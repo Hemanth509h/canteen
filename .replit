@@ -56,3 +56,5 @@ integrations = ["javascript_object_storage:2.0.0"]
 [userenv]
 
 [userenv.shared]
+PUBLIC_OBJECT_SEARCH_PATHS = "/objects/public"
+PRIVATE_OBJECT_DIR = "/objects/private"
