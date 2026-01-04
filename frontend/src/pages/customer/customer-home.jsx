@@ -68,7 +68,7 @@ const Testimonials = ({ reviews }) => (
   </section>
 );
 
-const Footer = ({ companyInfo }) => (
+const Footer = ({ companyInfo, logoSrc }) => (
   <footer className="bg-card pt-24 pb-12 px-6 border-t border-border/30 relative overflow-hidden">
     <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
        <Leaf size={300} className="absolute -bottom-20 -left-20 rotate-45" />
@@ -170,7 +170,6 @@ export default function CustomerHome() {
   useEffect(() => {
     if (companyInfo?.primaryColor) {
       document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
-      // Also update related HSL colors if possible, but hex directly works for many tailwind setups
     }
   }, [companyInfo?.primaryColor]);
 
@@ -182,53 +181,40 @@ export default function CustomerHome() {
 
   const dynamicHeroImages = useMemo(() => {
     if (companyInfo?.heroImages && Array.isArray(companyInfo.heroImages)) {
-      // Filter out invalid URLs, empty strings, and null/undefined values
       const validImages = companyInfo.heroImages.filter(img => 
         typeof img === 'string' && 
         img.trim() !== "" && 
         (img.startsWith('http') || img.startsWith('/'))
       );
-      
       if (validImages.length > 0) return validImages;
     }
-    
-    // Fallback to empty if no valid custom images are found
     return [];
   }, [companyInfo?.heroImages]);
 
-  // Combined Loading Effect for Images and Data
   useEffect(() => {
     if (!dynamicHeroImages.length && !isLoadingFood) {
       setIsPageLoaded(true);
       return;
     }
-
     let loadedCount = 0;
     const totalToLoad = dynamicHeroImages.length;
-
     if (totalToLoad === 0) {
       if (!isLoadingFood) setIsPageLoaded(true);
       return;
     }
-
     const images = dynamicHeroImages.map(src => {
       const img = new Image();
       img.src = src;
       img.onload = () => {
         loadedCount++;
-        if (loadedCount === totalToLoad) {
-          setIsPageLoaded(true);
-        }
+        if (loadedCount === totalToLoad) setIsPageLoaded(true);
       };
       img.onerror = () => {
-        loadedCount++; // Still increment even on error to avoid hanging
-        if (loadedCount === totalToLoad) {
-          setIsPageLoaded(true);
-        }
+        loadedCount++;
+        if (loadedCount === totalToLoad) setIsPageLoaded(true);
       };
       return img;
     });
-
     return () => {
       images.forEach(img => {
         img.onload = null;
@@ -237,17 +223,13 @@ export default function CustomerHome() {
     };
   }, [dynamicHeroImages, isLoadingFood]);
 
-  // Animation delay after images are ready
   useEffect(() => {
     if (isPageLoaded) {
-      const timer = setTimeout(() => {
-        setShowWebsite(true);
-      }, 800); // Small buffer for smooth entrance
+      const timer = setTimeout(() => setShowWebsite(true), 800);
       return () => clearTimeout(timer);
     }
   }, [isPageLoaded]);
 
-  // Hero Slider Effect
   useEffect(() => {
     if (!dynamicHeroImages || dynamicHeroImages.length === 0) return;
     const timer = setInterval(() => {
@@ -258,26 +240,17 @@ export default function CustomerHome() {
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
-    
-    // Filter categories that strictly belong to the selected type
     const categoriesForType = foodItems
-      .filter(item => {
-        // Only include items matching the selected type
-        if (selectedType === "All") return true;
-        return item.type === selectedType;
-      })
+      .filter(item => selectedType === "All" || item.type === selectedType)
       .map(item => item.category);
-    
     const uniqueCategories = Array.from(new Set(categoriesForType)).sort();
     return ["All", ...uniqueCategories];
   }, [foodItems, selectedType]);
 
   const filteredItems = useMemo(() => {
     return foodItems?.filter((item) => {
-      // If we're searching, search across both types
       const isSearching = searchQuery !== "";
       const matchesType = isSearching ? true : (!selectedType || item.type === selectedType);
-      
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
       const matchesSearch = searchQuery === "" || 
                            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -285,8 +258,6 @@ export default function CustomerHome() {
       return matchesType && matchesCategory && matchesSearch;
     }) || [];
   }, [foodItems, selectedType, selectedCategory, searchQuery]);
-
-  const defaultFoodImage = "https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=1000&auto=format&fit=crop";
 
   const logoSrc = companyInfo?.logoUrl || "/logo.svg";
 
@@ -311,7 +282,6 @@ export default function CustomerHome() {
 
   return (
     <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20 animate-in fade-in zoom-in-95 duration-1000">
-      
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
         <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-10 dark:opacity-20" />
@@ -502,19 +472,21 @@ export default function CustomerHome() {
                           }}
                         />
                         <div className="absolute top-2 left-2 sm:top-4 left-4">
-                          <Badge className="bg-white/90 dark:bg-black/80 backdrop-blur-md text-primary border-none py-0.5 px-2 sm:py-1.5 sm:px-4 rounded-full text-[8px] sm:text-xs font-bold uppercase tracking-widest shadow-lg">
-                            {item.category}
+                          <Badge className={cn(
+                            "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                            item.type === "Veg" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                          )}>
+                            {item.type}
                           </Badge>
                         </div>
                       </div>
-                      <div className="p-3 sm:p-8 flex flex-col h-[calc(100%-8rem)] sm:h-[calc(100%-16rem)]">
-                        <div className="flex-1">
-                          <h3 className="font-poppins font-bold text-xs sm:text-2xl mb-1 sm:mb-3 text-foreground group-hover:text-primary transition-colors duration-500 line-clamp-1">{item.name}</h3>
-                          <p className="text-muted-foreground text-[10px] sm:text-sm line-clamp-2 leading-relaxed font-light">{item.description}</p>
-                        </div>
-                        <div className="mt-4 flex items-center justify-between">
-                          <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-10 sm:w-10 rounded-full p-0">
-                            <ChevronRight className="h-4 w-4" />
+                      <div className="p-4 sm:p-6">
+                        <h3 className="text-sm sm:text-xl font-poppins font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 font-inter leading-relaxed">{item.description}</p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs sm:text-lg font-bold text-primary">₹{item.price || "---"}/plate</span>
+                          <Button variant="ghost" size="sm" className="rounded-full hover:bg-primary hover:text-white transition-all duration-500 group-hover:translate-x-1">
+                            Details <ChevronRight size={14} className="ml-1" />
                           </Button>
                         </div>
                       </div>
@@ -527,56 +499,44 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      <Testimonials reviews={reviews} />
-      
-      <section className="py-24 px-6 bg-secondary/5">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-poppins font-bold mb-12 text-center">Share Your Experience</h2>
-          <Card className="p-8 bg-card border-none shadow-xl rounded-[2rem]">
-            <ReviewForm />
-          </Card>
-        </div>
-      </section>
-
-      <section id="contact-section" className="py-20 sm:py-32 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto relative slide-up">
-          <div className="bg-primary rounded-[2.5rem] sm:rounded-[4rem] p-8 sm:p-24 text-center text-primary-foreground shadow-[0_40px_100px_-20px_rgba(var(--primary),0.4)] overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-               <Wind size={200} className="absolute -top-20 -left-20 animate-pulse" />
-               <Leaf size={200} className="absolute -bottom-20 -right-20 animate-pulse" />
+      <section className="py-24 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="max-w-xl slide-up">
+              <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6">Our Client Reviews</h2>
+              <p className="text-lg text-muted-foreground mb-8">Hear from the people who have experienced our culinary magic firsthand.</p>
+              <Dialog>
+                <Button size="lg" className="rounded-2xl px-8 font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all">
+                  Share Your Story
+                </Button>
+                <DialogContent className="max-w-2xl rounded-[2rem] p-0 overflow-hidden">
+                   <ReviewForm onComplete={() => queryClient.invalidateQueries({ queryKey: ["/api/reviews"] })} />
+                </DialogContent>
+              </Dialog>
             </div>
-            
-            <h2 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-6 sm:mb-10 leading-tight">Start Your Organic Journey</h2>
-            <p className="text-base sm:text-xl opacity-90 mb-8 sm:mb-16 max-w-2xl mx-auto font-light leading-relaxed">
-              Let us curate a breathtaking culinary experience that honors your most precious moments.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
-              <a href={`tel:${companyInfo?.phone || "9177319695"}`} className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500 hover:scale-105 shadow-xl">
-                  Call: {companyInfo?.phone || "9177319695"}
-                </Button>
-              </a>
-              <a href={`mailto:${companyInfo?.email || "events@elite-catering.com"}`} className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 rounded-xl sm:rounded-2xl px-8 sm:px-14 py-6 sm:py-9 text-lg sm:text-xl font-bold transition-all duration-500 hover:scale-105 shadow-xl">
-                  Email Us
-                </Button>
-              </a>
+            <div className="w-full md:w-1/2 slide-up">
+               <ReviewsCarousel reviews={reviews} />
             </div>
           </div>
         </div>
       </section>
 
+      <Footer companyInfo={companyInfo} logoSrc={logoSrc} />
+
       <WhatsAppButton phone={companyInfo?.phone} />
-      <Footer companyInfo={companyInfo} />
+      
       <NavigationButton />
 
-      <FoodItemQuickView 
-        item={selectedItem} 
-        open={!!selectedItem} 
-        onOpenChange={() => setSelectedItem(null)}
-        defaultFoodImage={defaultFoodImage}
-      />
+      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+        <DialogContent className="p-0 max-w-4xl rounded-[2rem] overflow-hidden border-none shadow-2xl">
+          {selectedItem && (
+            <FoodItemQuickView 
+              item={selectedItem} 
+              onClose={() => setSelectedItem(null)} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

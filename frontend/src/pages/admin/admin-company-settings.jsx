@@ -345,11 +345,14 @@ export default function CompanySettingsManager() {
                                   {...field}
                                   value={field.value || ""}
                                   data-testid="input-logo-url"
+                                  onChange={(e) => {
+                                    field.onChange(e.target.value);
+                                  }}
                                 />
                                 <Button 
                                   type="button" 
                                   variant="outline"
-                                  onClick={() => field.onChange("/assets/logo-original.png")}
+                                  onClick={() => field.onChange("/logo.svg")}
                                 >
                                   Use Generated
                                 </Button>
@@ -360,12 +363,19 @@ export default function CompanySettingsManager() {
                         )}
                       />
                       {form.watch("logoUrl") && (
-                        <div className="p-4 border rounded-lg bg-muted/50 flex items-center justify-center">
+                        <div className="p-4 border rounded-lg bg-muted/50 flex items-center justify-center min-h-[100px]">
                           <img 
+                            key={form.watch("logoUrl")}
                             src={form.watch("logoUrl")} 
                             alt="Logo Preview" 
-                            className="max-h-20 object-contain"
+                            className="max-h-20 w-auto object-contain"
+                            crossOrigin="anonymous"
+                            onLoad={(e) => {
+                              console.log("Logo preview loaded successfully");
+                              e.target.style.display = 'block';
+                            }}
                             onError={(e) => {
+                              console.error("Logo preview failed to load:", e.target.src);
                               e.target.style.display = 'none';
                             }}
                           />
