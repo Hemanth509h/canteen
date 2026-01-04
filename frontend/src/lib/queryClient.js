@@ -1,5 +1,5 @@
 // Base URL for API calls
-export const API_URL = import.meta.env.VITE_API_URL || "https://canteen-f0rq.onrender.com/api";
+export const API_URL = "/api";
 
 export async function apiRequest(method, url, data) {
   // Normalize the URL: remove any leading slash and any leading 'api/'
