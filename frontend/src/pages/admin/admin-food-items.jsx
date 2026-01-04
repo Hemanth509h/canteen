@@ -362,7 +362,7 @@ export default function FoodItemsManager() {
                           maxFileSize={5 * 1024 * 1024}
                           onGetUploadParameters={getUploadParameters}
                           onComplete={(result) => {
-                            if (result.successful?.[0]) {
+                            if (result.successful?.length > 0) {
                               const body = result.successful[0].response.body;
                               const objectPath = body.objectPath || (body.data && body.data.objectPath);
                               if (objectPath) {
