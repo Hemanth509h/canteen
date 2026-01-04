@@ -363,9 +363,16 @@ export default function FoodItemsManager() {
                           onGetUploadParameters={getUploadParameters}
                           onComplete={(result) => {
                             if (result.successful?.[0]) {
-                              const url = result.successful[0].uploadURL.split('?')[0];
-                              form.setValue("imageUrl", url);
-                              toast({ title: "Image Uploaded", description: "Image has been uploaded successfully." });
+                              const body = result.successful[0].response.body;
+                              const objectPath = body.objectPath || (body.data && body.data.objectPath);
+                              if (objectPath) {
+                                const url = `/objects/${objectPath}`;
+                                form.setValue("imageUrl", url);
+                                toast({ title: "Image Uploaded", description: "Image has been uploaded successfully." });
+                              } else {
+                                console.error("Upload response body missing objectPath:", body);
+                                toast({ title: "Upload Error", description: "Failed to get image path from server.", variant: "destructive" });
+                              }
                             }
                           }}
                         >
