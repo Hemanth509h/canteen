@@ -379,6 +379,19 @@ export default function FoodItemsManager() {
                           <ImagePlus className="w-4 h-4 mr-2" />
                           Upload
                         </ObjectUploader>
+                        {form.watch("imageUrl") && (
+                          <Button 
+                            type="button" 
+                            variant="destructive" 
+                            size="icon"
+                            onClick={() => {
+                              form.setValue("imageUrl", "");
+                              toast({ title: "Image Removed", description: "Image reference has been cleared." });
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                       <FormMessage />
                     </FormItem>
