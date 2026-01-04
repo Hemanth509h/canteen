@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage/index.js";
+
 import { 
   insertFoodItemSchema, 
   insertEventBookingSchema, 
@@ -22,7 +24,12 @@ import { z } from "zod";
 // Get storage instance (initialized after connectToDatabase is called)
 const getStorageInstance = () => getStorage();
 
-// Standardized Response Utility
+// All routes are defined relative to the root now, but they still have /api prefix
+export async function registerRoutes(app) {
+  // Register object storage routes
+  registerObjectStorageRoutes(app);
+
+  // Standardized Response Utility
   const sendResponse = (res, status, data, error = null) => {
     return res.status(status).json({
       success: status >= 200 && status < 300,
