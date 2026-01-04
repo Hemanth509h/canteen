@@ -29,6 +29,8 @@ export default function FoodItemsManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
