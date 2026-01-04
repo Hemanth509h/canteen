@@ -259,7 +259,7 @@ export default function CustomerHome() {
     }) || [];
   }, [foodItems, selectedType, selectedCategory, searchQuery]);
 
-  const logoSrc = companyInfo?.logoUrl || "/logo.svg";
+  const logoSrc = companyInfo?.logoUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop";
 
   if (!showWebsite) {
     return (
