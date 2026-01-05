@@ -48,8 +48,13 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (newTheme) => {
-      localStorage.setItem(storageKey, newTheme);
-      setTheme(newTheme);
+      if (newTheme === "system") {
+        localStorage.removeItem(storageKey);
+        setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      } else {
+        localStorage.setItem(storageKey, newTheme);
+        setTheme(newTheme);
+      }
     },
     toggleTheme: () => {
       const newTheme = theme === "light" ? "dark" : "light";
