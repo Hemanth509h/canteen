@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "vercel-build": "vite build",
-    "start": "vite"
+    "start": "npx vite"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
