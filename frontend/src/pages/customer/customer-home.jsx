@@ -484,7 +484,7 @@ export default function CustomerHome() {
                         <h3 className="text-sm sm:text-xl font-poppins font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
                         <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 font-inter leading-relaxed">{item.description}</p>
                         <div className="flex items-center justify-between mt-auto">
-                          <span className="text-xs sm:text-lg font-bold text-primary">₹{item.price || "---"}/plate</span>
+                          <span className="text-xs sm:text-lg font-bold text-primary">{item.price || "---"}</span>
                           <Button variant="ghost" size="sm" className="rounded-full hover:bg-primary hover:text-white transition-all duration-500 group-hover:translate-x-1">
                             Details <ChevronRight size={14} className="ml-1" />
                           </Button>
