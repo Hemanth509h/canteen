@@ -123,4 +123,3 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.4);
   }
-}
