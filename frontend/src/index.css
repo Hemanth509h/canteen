@@ -49,7 +49,6 @@
     --input: 142 30% 18%;
     --ring: 142 76% 40%;
   }
-}
 
   /* Sidebar Text Visibility */
   [data-sidebar="sidebar"],
@@ -235,57 +234,4 @@
     transform: translate(100px, 110vh) rotate(360deg);
     opacity: 0;
   }
-}
-
-:root {
-  --background: 120 25% 98%;
-  --foreground: 120 40% 10%;
-  --card: 120 25% 100%;
-  --card-foreground: 120 40% 10%;
-  --popover: 120 25% 100%;
-  --popover-foreground: 120 40% 10%;
-  --primary: 142 76% 36%;
-  --primary-foreground: 142 76% 96%;
-  --secondary: 45 90% 92%;
-  --secondary-foreground: 45 90% 20%;
-  --muted: 120 20% 94%;
-  --muted-foreground: 120 15% 45%;
-  --accent: 35 90% 90%;
-  --accent-foreground: 35 90% 15%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 120 20% 88%;
-  --input: 120 20% 88%;
-  --ring: 142 76% 36%;
-  --radius: 0.5rem;
-}
-
-.dark {
-  --background: 142 40% 4%;
-  --foreground: 0 0% 100%;
-  --card: 142 40% 6%;
-  --card-foreground: 0 0% 100%;
-  --popover: 142 40% 6%;
-  --popover-foreground: 0 0% 100%;
-  --primary: 142 76% 40%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 45 50% 15%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 120 30% 12%;
-  --muted-foreground: 0 0% 90%;
-  --accent: 35 50% 15%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 142 30% 18%;
-  --input: 142 30% 18%;
-  --ring: 142 76% 40%;
-  --sidebar: 142 40% 6%;
-  --sidebar-foreground: 0 0% 100%;
-  --sidebar-primary: 142 76% 40%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 142 30% 12%;
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 142 30% 18%;
-  --sidebar-ring: 142 76% 40%;
 }
