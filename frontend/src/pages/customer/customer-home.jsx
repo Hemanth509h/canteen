@@ -485,7 +485,15 @@ export default function CustomerHome() {
                         <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 font-inter leading-relaxed">{item.description}</p>
                         <div className="flex items-center justify-between mt-auto">
                           <span className="text-xs sm:text-lg font-bold text-primary">{item.price || "---"}</span>
-                          <Button variant="ghost" size="sm" className="rounded-full hover:bg-primary hover:text-white transition-all duration-500 group-hover:translate-x-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="rounded-full hover:bg-primary hover:text-white transition-all duration-500 group-hover:translate-x-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItem(item);
+                            }}
+                          >
                             Details <ChevronRight size={14} className="ml-1" />
                           </Button>
                         </div>
