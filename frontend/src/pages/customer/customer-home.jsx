@@ -536,7 +536,7 @@ export default function CustomerHome() {
       <NavigationButton />
 
       <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="p-0 max-w-4xl rounded-[2rem] overflow-hidden border-none shadow-2xl">
+        <DialogContent className="p-0 max-w-4xl rounded-[2rem] overflow-hidden border-none shadow-2xl bg-card text-card-foreground">
           <DialogHeader className="sr-only">
             <DialogTitle>{selectedItem?.name || 'Food Item'}</DialogTitle>
             <DialogDescription>{selectedItem?.description || 'Item details'}</DialogDescription>
