@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,16 @@ import { BookingCalendar } from "@/components/features/booking-calendar";
 import { PageLoader } from "@/components/features/loading-spinner";
 
 export default function DashboardOverview() {
+  const { data: companyInfo } = useQuery({
+    queryKey: ["/api/company-info"],
+  });
+
+  useEffect(() => {
+    if (companyInfo?.primaryColor) {
+      document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
+    }
+  }, [companyInfo?.primaryColor]);
+
   const { data: foodItems, isLoading: isLoadingFood, isFetching: isFetchingFood, refetch: refetchFood } = useQuery({
     queryKey: ["/api/food-items"],
   });

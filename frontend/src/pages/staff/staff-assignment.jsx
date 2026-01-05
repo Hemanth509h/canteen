@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,16 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 export default function StaffAssignment() {
   const { token } = useParams();
   const { toast } = useToast();
+
+  const { data: companyInfo } = useQuery({
+    queryKey: ["/api/company-info"],
+  });
+
+  useEffect(() => {
+    if (companyInfo?.primaryColor) {
+      document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
+    }
+  }, [companyInfo?.primaryColor]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["/api/staff-requests", token],

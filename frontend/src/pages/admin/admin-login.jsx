@@ -24,6 +24,12 @@ export default function AdminLogin() {
     gcTime: 0,
   });
 
+  useEffect(() => {
+    if (companyInfo?.primaryColor) {
+      document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
+    }
+  }, [companyInfo?.primaryColor]);
+
   const logoSrc = "/leaf_logo.png";
 
   const handleLogin = async (e) => {
@@ -101,10 +107,10 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center p-4 relative overflow-hidden animate-fade-in" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1585937421612-70a008356f46?q=80&w=2000&auto=format&fit=crop")' }}>
-      <div className="absolute inset-0 bg-primary/20 backdrop-blur-[2px]" />
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden animate-fade-in">
+      <div className="absolute inset-0 bg-primary/10 backdrop-blur-[2px]" />
       {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-20 animate-float">
           <UtensilsCrossed className="w-16 h-16 text-white" />
         </div>

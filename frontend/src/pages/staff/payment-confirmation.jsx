@@ -11,7 +11,7 @@ import { UPIPayment } from "@/components/features/upi-payment";
 import { Invoice } from "@/components/features/invoice";
 import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Calendar, Utensils, RefreshCw } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { API_URL } from "@/lib/queryClient";
 
@@ -23,6 +23,16 @@ export default function PaymentConfirmation() {
   const [finalFile, setFinalFile] = useState(null);
   const [advancePreview, setAdvancePreview] = useState(null);
   const [finalPreview, setFinalPreview] = useState(null);
+
+  const { data: companyInfo } = useQuery({
+    queryKey: ["/api/company-info"],
+  });
+
+  useEffect(() => {
+    if (companyInfo?.primaryColor) {
+      document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
+    }
+  }, [companyInfo?.primaryColor]);
 
   const { data: response, isLoading: bookingLoading, isError: bookingError } = useQuery({
     queryKey: ["/api/bookings", bookingId],
@@ -37,9 +47,6 @@ export default function PaymentConfirmation() {
 
   const booking = response?.data || response;
 
-  const { data: companyInfo } = useQuery({
-    queryKey: ["/api/company-info"],
-  });
 
   const uploadScreenshotMutation = useMutation({
     mutationFn: async (type) => {

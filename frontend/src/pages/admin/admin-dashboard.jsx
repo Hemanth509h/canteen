@@ -108,9 +108,13 @@ function AppSidebar({ onLogout }) {
 }
 
 export default function AdminDashboard() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  
+  const { data: companyInfo } = useQuery({
+    queryKey: ["/api/company-info"],
+  });
 
   useEffect(() => {
     setIsAuthenticated(isAdminAuthenticated());
@@ -131,6 +135,12 @@ export default function AdminDashboard() {
     clearAdminSession();
     setLocation("/admin/login");
   };
+
+  useEffect(() => {
+    if (companyInfo?.primaryColor) {
+      document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
+    }
+  }, [companyInfo?.primaryColor]);
 
   if (isChecking) {
     return (
