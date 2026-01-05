@@ -29,11 +29,33 @@
   }
 
   body {
-    background-color: hsl(142 40% 4%) !important;
-    color: #ffffff !important;
+    background-color: hsl(142 40% 4%);
+    color: #ffffff;
     @apply font-inter;
   }
-}
+
+  .dark {
+    --background: 142 40% 4%;
+    --foreground: 0 0% 100%;
+    --card: 142 40% 6%;
+    --card-foreground: 0 0% 100%;
+    --popover: 142 40% 6%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 142 76% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 142 30% 12%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 142 30% 12%;
+    --muted-foreground: 0 0% 90%;
+    --accent: 142 30% 12%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 142 30% 18%;
+    --input: 142 30% 18%;
+    --ring: 142 76% 40%;
+  }
+  }
 
 @layer utilities {
   .animate-in {
@@ -84,5 +106,21 @@
   100% {
     transform: translate(100px, 110vh) rotate(360deg);
     opacity: 0;
+  }
+}
+ .leaf-float-3 { animation: leafFloat 18s linear infinite 4s; }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.2);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.4);
   }
 }
