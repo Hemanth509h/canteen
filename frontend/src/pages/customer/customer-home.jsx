@@ -281,7 +281,7 @@ export default function CustomerHome() {
   }
 
   return (
-    <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20 animate-in fade-in zoom-in-95 duration-1000">
+    <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20 animate-in fade-in zoom-in-95 duration-1000 dark">
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
         <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-10 dark:opacity-20" />
@@ -321,7 +321,7 @@ export default function CustomerHome() {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto slide-up">
             <Button 
               size="lg" 
-              className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-primary text-primary-foreground hover:scale-105"
+              className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-[#22c55e] text-white hover:bg-[#16a34a] hover:scale-105 border-none"
               onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
             >
               Explore Menu
@@ -330,7 +330,7 @@ export default function CustomerHome() {
             <Button 
               size="lg" 
               variant="outline"
-              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-bold bg-white text-black hover:bg-white/90 transition-all duration-500"
+              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-bold bg-white text-black hover:bg-white/90 transition-all duration-500 border-none"
             >
               Custom Quote
             </Button>

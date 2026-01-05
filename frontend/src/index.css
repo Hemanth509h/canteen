@@ -6,26 +6,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 142 40% 4%;
-    --card: 0 0% 100%;
-    --card-foreground: 142 40% 4%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 142 40% 4%;
+    --background: 142 40% 4%;
+    --foreground: 0 0% 100%;
+    --card: 142 40% 6%;
+    --card-foreground: 0 0% 100%;
+    --popover: 142 40% 6%;
+    --popover-foreground: 0 0% 100%;
     --primary: 142 76% 40%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 142 20% 96%;
-    --secondary-foreground: 142 40% 4%;
-    --muted: 142 20% 96%;
-    --muted-foreground: 142 10% 40%;
-    --accent: 142 20% 96%;
-    --accent-foreground: 142 40% 4%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 142 30% 12%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 142 30% 12%;
+    --muted-foreground: 0 0% 90%;
+    --accent: 142 30% 12%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 142 20% 90%;
-    --input: 142 20% 90%;
+    --border: 142 30% 18%;
+    --input: 142 30% 18%;
     --ring: 142 76% 40%;
     --radius: 0.5rem;
+  }
+
+  /* Force the same dark green theme everywhere */
+  body {
+    background-color: hsl(142 40% 4%);
+    color: #ffffff;
+    @apply font-inter;
   }
 
   .dark {
@@ -49,96 +56,6 @@
     --input: 142 30% 18%;
     --ring: 142 76% 40%;
   }
-
-  /* Sidebar Text Visibility */
-  [data-sidebar="sidebar"],
-  [data-sidebar="menu-button"],
-  [data-sidebar="group-label"],
-  [data-sidebar="trigger"],
-  .text-sidebar-foreground {
-    color: #000000 !important;
-  }
-
-  [data-sidebar="menu-button"] svg,
-  [data-sidebar="trigger"] svg {
-    color: #000000 !important;
-  }
-
-  .dark [data-sidebar="sidebar"],
-  .dark [data-sidebar="menu-button"],
-  .dark [data-sidebar="group-label"],
-  .dark [data-sidebar="trigger"],
-  .dark .text-sidebar-foreground,
-  .dark [data-sidebar="menu-button"] svg,
-  .dark [data-sidebar="trigger"] svg {
-    color: #ffffff !important;
-  }
-
-  /* Global Button Visibility Fixes */
-  .dark button[variant="outline"],
-  .dark .button-outline,
-  .dark [data-testid*="button-refresh"],
-  .dark [data-testid*="button-export"] {
-    color: #ffffff !important;
-    border-color: rgba(255, 255, 255, 0.4) !important;
-    background-color: transparent !important;
-  }
-
-  .dark button[variant="outline"]:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark label, .dark .text-foreground, .dark [data-sidebar="trigger"] {
-    color: #ffffff !important;
-  }
-
-  /* Dropdown and Input Visibility Fixes */
-  [data-slot="select-trigger"], 
-  [data-slot="select-value"],
-  [data-slot="input"],
-  select,
-  input {
-    color: #000000 !important;
-  }
-
-  .dark [data-slot="select-trigger"], 
-  .dark [data-slot="select-value"],
-  .dark [data-slot="input"],
-  .dark select,
-  .dark input {
-    color: #ffffff !important;
-  }
-
-  .dark .text-muted-foreground {
-    color: #cbd5e1 !important;
-  }
-
-  .dark [role="checkbox"], .dark input[type="checkbox"] {
-    border-color: #ffffff !important;
-    background-color: transparent !important;
-  }
-
-  .dark .bg-card {
-    background-color: hsl(142 40% 6%) !important;
-  }
-
-  .dark .border, .dark .border-input {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-  }
-
-  .dark .placeholder\:text-muted-foreground::placeholder {
-    color: #94a3b8 !important;
-  }
-}
-
-@layer base {
-  html, body {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-  html::-webkit-scrollbar, body::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
-  }
 }
 
 @layer utilities {
@@ -158,10 +75,6 @@
     transform: translateY(20px);
     animation: slideUp 0.6s ease-out forwards;
   }
-  
-  .float {
-    animation: float 6s ease-in-out infinite;
-  }
 
   .leaf-float-1 { animation: leafFloat 12s linear infinite; }
   .leaf-float-2 { animation: leafFloat 15s linear infinite 2s; }
@@ -180,26 +93,6 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.4);
   }
-
-  footer p {
-    color: hsl(var(--muted-foreground));
-  }
-  
-  .dark footer p {
-    color: #9ca3af !important; /* gray-400 */
-  }
-
-  /* Theme Toggle Visibility */
-  .theme-toggle-container {
-    background: hsl(var(--background) / 0.5);
-    backdrop-filter: blur(8px);
-    border: 1px solid hsl(var(--border));
-    border-radius: 9999px;
-    padding: 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
-  /* Intro Animation REMOVED */
 }
 
 @keyframes fadeIn {
@@ -216,11 +109,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
 }
 
 @keyframes leafFloat {
