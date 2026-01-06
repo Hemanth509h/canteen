@@ -28,27 +28,27 @@
     --radius: 0.5rem;
   }
 
-  /* Force dark mode variables even if selector specificity is low */
-  html.dark, body.dark, [data-theme="dark"] {
-    --background: 142 40% 4%;
-    --foreground: 0 0% 100%;
-    --card: 142 40% 6%;
-    --card-foreground: 0 0% 100%;
-    --popover: 142 40% 6%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 142 76% 40%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 142 30% 12%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 142 30% 12%;
-    --muted-foreground: 0 0% 90%;
-    --accent: 142 30% 12%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 142 30% 18%;
-    --input: 142 30% 18%;
-    --ring: 142 76% 40%;
+  /* Extreme specificity to ensure dark mode variables are applied */
+  html.dark, body.dark, :root.dark {
+    --background: 142 40% 4% !important;
+    --foreground: 0 0% 100% !important;
+    --card: 142 40% 6% !important;
+    --card-foreground: 0 0% 100% !important;
+    --popover: 142 40% 6% !important;
+    --popover-foreground: 0 0% 100% !important;
+    --primary: 142 76% 40% !important;
+    --primary-foreground: 0 0% 100% !important;
+    --secondary: 142 30% 12% !important;
+    --secondary-foreground: 0 0% 100% !important;
+    --muted: 142 30% 12% !important;
+    --muted-foreground: 0 0% 90% !important;
+    --accent: 142 30% 12% !important;
+    --accent-foreground: 0 0% 100% !important;
+    --destructive: 0 62.8% 30.6% !important;
+    --destructive-foreground: 0 0% 100% !important;
+    --border: 142 30% 18% !important;
+    --input: 142 30% 18% !important;
+    --ring: 142 76% 40% !important;
   }
 
   * {
@@ -56,8 +56,8 @@
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
     @apply font-inter;
     transition: background-color 0.3s ease, color 0.3s ease;
   }

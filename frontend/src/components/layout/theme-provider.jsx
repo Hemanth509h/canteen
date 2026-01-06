@@ -18,33 +18,30 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    const applyTheme = () => {
+    const applyTheme = (currentTheme) => {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const actualTheme = theme === "system"
+      const actualTheme = currentTheme === "system"
         ? (mediaQuery.matches ? "dark" : "light")
-        : theme;
+        : currentTheme;
 
-      // CRITICAL: Use both methods to ensure reactivity
+      // Force a synchronous update to the DOM
       root.classList.remove("light", "dark");
       root.classList.add(actualTheme);
+      
+      // Also apply to body for extra coverage
+      document.body.classList.remove("light", "dark");
+      document.body.classList.add(actualTheme);
+      
       root.style.colorScheme = actualTheme;
-      
-      // Force direct attribute update
-      root.setAttribute("data-theme", actualTheme);
-      
-      console.log("ThemeProvider: Applied theme", actualTheme);
+      console.log("Applied theme:", actualTheme);
     };
 
-    applyTheme();
+    applyTheme(theme);
 
     if (theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const listener = (e) => {
-        const newTheme = e.matches ? "dark" : "light";
-        root.classList.remove("light", "dark");
-        root.classList.add(newTheme);
-        root.style.colorScheme = newTheme;
-        root.setAttribute("data-theme", newTheme);
+        applyTheme("system");
       };
       mediaQuery.addEventListener("change", listener);
       return () => mediaQuery.removeEventListener("change", listener);
