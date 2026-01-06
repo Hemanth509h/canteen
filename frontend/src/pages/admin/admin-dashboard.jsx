@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star, ImagePlus } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star, ImagePlus, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import DashboardOverview from "./admin-dashboard-overview";
 import HeroImagesManager from "./admin-hero-images";
 import FoodItemsManager from "./admin-food-items";
 import EventBookingsManager from "./admin-event-bookings";
+import AdminBookingCodes from "./admin-booking-codes";
 import AdminPaymentConfirmation from "./admin-payment-confirmation";
 import CompanySettingsManager from "./admin-company-settings";
 import StaffManager from "./admin-staff";
@@ -25,6 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+  { title: "Booking Codes", url: "/admin/booking-codes", icon: Ticket },
   { title: "Hero Images", url: "/admin/hero-images", icon: ImagePlus },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
@@ -187,6 +189,7 @@ export default function AdminDashboard() {
             <ErrorBoundary>
               <Switch>
                 <Route path="/admin" component={DashboardOverview} />
+                <Route path="/admin/booking-codes" component={AdminBookingCodes} />
                 <Route path="/admin/hero-images" component={HeroImagesManager} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/bookings" component={EventBookingsManager} />

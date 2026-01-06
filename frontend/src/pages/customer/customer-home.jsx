@@ -28,6 +28,7 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
+import BookingCodeRequestDialog from "@/components/features/booking-code-request";
 
 const WhatsAppButton = ({ phone }) => (
   <a 
@@ -154,6 +155,7 @@ export default function CustomerHome() {
   const [heroIndex, setHeroIndex] = useState(0);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [showWebsite, setShowWebsite] = useState(false);
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
 
   const { data: foodItems, isLoading: isLoadingFood } = useQuery({
     queryKey: ["/api/food-items"],
@@ -331,12 +333,18 @@ export default function CustomerHome() {
               size="lg" 
               variant="outline"
               className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-bold bg-white text-black hover:bg-white/90 transition-all duration-500 border-none"
+              onClick={() => setIsRequestDialogOpen(true)}
             >
-              Custom Quote
+              Request Access Code
             </Button>
           </div>
         </div>
       </div>
+
+      <BookingCodeRequestDialog 
+        open={isRequestDialogOpen} 
+        onOpenChange={setIsRequestDialogOpen} 
+      />
 
       <section className="py-16 sm:py-24 px-4 sm:px-6 relative">
         <div className="max-w-7xl mx-auto">
