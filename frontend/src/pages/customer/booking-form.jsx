@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { insertEventBookingSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ChevronLeft, Search, Check, Plus, Minus, Ticket, Send } from "lucide-react";
+import { ChevronLeft, Search, Check, Plus, Minus, Ticket, Send, Key, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -166,59 +166,131 @@ export default function BookingForm() {
 
   if (!isCodeVerified) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="w-full max-w-md space-y-4">
+      <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center p-6">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
+
+        <div className="w-full max-w-md space-y-4 relative z-10">
           {!showRequestForm ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Enter Access Code</CardTitle>
-                <CardDescription>Enter the code provided by the admin to book your event.</CardDescription>
+            <Card className="border-primary/20 shadow-2xl shadow-primary/10 backdrop-blur-sm bg-background/95">
+              <CardHeader className="text-center pb-2">
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 rotate-3 hover:rotate-0 transition-transform duration-300">
+                  <Key className="w-8 h-8 text-primary" />
+                </div>
+                <CardTitle className="text-3xl font-serif font-bold">Client Access</CardTitle>
+                <CardDescription className="text-base">Enter your exclusive booking code to continue.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Input 
-                  placeholder="Enter your code" 
-                  value={userCode} 
-                  onChange={(e) => setUserCode(e.target.value)}
-                />
-                <Button className="w-full" onClick={() => verifyCodeMutation.mutate(userCode)} disabled={verifyCodeMutation.isPending}>
-                  {verifyCodeMutation.isPending ? "Verifying..." : "Verify Code"}
-                </Button>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or</span></div>
+              <CardContent className="space-y-6 pt-4">
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="e.g. ELITE-2024" 
+                      className="pl-10 h-12 text-lg font-mono tracking-widest border-primary/20 focus:border-primary transition-colors uppercase"
+                      value={userCode} 
+                      onChange={(e) => setUserCode(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <Button variant="outline" className="w-full gap-2" onClick={() => setShowRequestForm(true)}>
-                  <Ticket className="w-4 h-4" /> Request Access Code
+                <Button 
+                  className="w-full h-12 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5" 
+                  onClick={() => verifyCodeMutation.mutate(userCode)} 
+                  disabled={verifyCodeMutation.isPending}
+                >
+                  {verifyCodeMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="w-5 h-5 animate-spin" /> Verifying...
+                    </div>
+                  ) : "Access Booking Form"}
                 </Button>
-                <div className="text-center text-sm text-muted-foreground mt-2">
-                  Need a code? Request one above.
+                
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-primary/10" /></div>
+                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-4 text-muted-foreground font-medium">New Client?</span></div>
                 </div>
-                <Button variant="ghost" className="w-full" onClick={() => setLocation("/")}>Back to Home</Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full h-12 gap-2 border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all" 
+                  onClick={() => setShowRequestForm(true)}
+                >
+                  <Ticket className="w-5 h-5 text-primary" /> Request Access Code
+                </Button>
+                
+                <div className="flex flex-col gap-2 pt-2">
+                  <Button variant="ghost" className="w-full hover:bg-secondary/80" onClick={() => setLocation("/")}>
+                    <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Ticket className="w-6 h-6 text-primary" />
+            <Card className="border-primary/20 shadow-2xl shadow-primary/10 backdrop-blur-sm bg-background/95">
+              <CardHeader className="text-center pb-2">
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 -rotate-3 hover:rotate-0 transition-transform duration-300">
+                  <Ticket className="w-8 h-8 text-primary" />
                 </div>
-                <CardTitle>Request User Code</CardTitle>
-                <CardDescription>Enter your details below to request a code.</CardDescription>
+                <CardTitle className="text-3xl font-serif font-bold">Request Access</CardTitle>
+                <CardDescription className="text-base">Share your event details and we'll send a code.</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-4">
                 <form onSubmit={(e) => { e.preventDefault(); requestMutation.mutate(requestData); }} className="space-y-4">
                   <div className="space-y-2">
-                    <Input placeholder="Full Name" required value={requestData.customerName} onChange={(e) => setRequestData({...requestData, customerName: e.target.value})} />
+                    <Input 
+                      placeholder="Full Name" 
+                      required 
+                      className="h-11 border-primary/10 focus:border-primary"
+                      value={requestData.customerName} 
+                      onChange={(e) => setRequestData({...requestData, customerName: e.target.value})} 
+                    />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="Email" type="email" required value={requestData.customerEmail} onChange={(e) => setRequestData({...requestData, customerEmail: e.target.value})} />
-                    <Input placeholder="Phone" type="tel" required value={requestData.customerPhone} onChange={(e) => setRequestData({...requestData, customerPhone: e.target.value})} />
+                  <div className="grid grid-cols-1 gap-4">
+                    <Input 
+                      placeholder="Email Address" 
+                      type="email" 
+                      required 
+                      className="h-11 border-primary/10 focus:border-primary"
+                      value={requestData.customerEmail} 
+                      onChange={(e) => setRequestData({...requestData, customerEmail: e.target.value})} 
+                    />
+                    <Input 
+                      placeholder="Phone Number" 
+                      type="tel" 
+                      required 
+                      className="h-11 border-primary/10 focus:border-primary"
+                      value={requestData.customerPhone} 
+                      onChange={(e) => setRequestData({...requestData, customerPhone: e.target.value})} 
+                    />
                   </div>
-                  <Textarea placeholder="Event Details..." className="min-h-[100px]" value={requestData.eventDetails} onChange={(e) => setRequestData({...requestData, eventDetails: e.target.value})} />
-                  <Button type="submit" className="w-full gap-2" disabled={requestMutation.isPending}>
-                    <Send className="w-4 h-4" /> {requestMutation.isPending ? "Submitting..." : "Submit Request"}
+                  <Textarea 
+                    placeholder="Tell us about your event (Date, Location, Guests)..." 
+                    className="min-h-[120px] border-primary/10 focus:border-primary resize-none" 
+                    value={requestData.eventDetails} 
+                    onChange={(e) => setRequestData({...requestData, eventDetails: e.target.value})} 
+                  />
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-lg font-bold gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all" 
+                    disabled={requestMutation.isPending}
+                  >
+                    {requestMutation.isPending ? (
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )}
+                    {requestMutation.isPending ? "Submitting..." : "Send Request"}
                   </Button>
-                  <Button variant="ghost" className="w-full" onClick={() => setShowRequestForm(false)}>Back to Verification</Button>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full h-11" 
+                    onClick={() => setShowRequestForm(false)}
+                    type="button"
+                  >
+                    Back to Verification
+                  </Button>
                 </form>
               </CardContent>
             </Card>
