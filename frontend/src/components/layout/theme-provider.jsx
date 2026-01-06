@@ -18,24 +18,24 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    const applyTheme = (currentTheme) => {
+    const applyTheme = () => {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const actualTheme = currentTheme === "system"
+      const actualTheme = theme === "system"
         ? (mediaQuery.matches ? "dark" : "light")
-        : currentTheme;
+        : theme;
 
       root.classList.remove("light", "dark");
       root.classList.add(actualTheme);
       root.style.colorScheme = actualTheme;
     };
 
-    applyTheme(theme);
+    applyTheme();
 
     if (theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const listener = () => applyTheme("system");
-      mediaQuery.addEventListener("change", listener);
-      return () => mediaQuery.removeEventListener("change", listener);
+      const handleChange = () => applyTheme();
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
     }
   }, [theme]);
 
