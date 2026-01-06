@@ -9,8 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Ticket, Key, CheckCircle, XCircle, Trash2, Clock, UserCheck } from "lucide-react";
+import { Plus, Ticket, Key, CheckCircle, XCircle, Trash2, Clock, UserCheck, RefreshCw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 export default function UserCodeManager() {
   const queryClient = useQueryClient();
@@ -77,68 +78,82 @@ export default function UserCodeManager() {
           <h2 className="text-3xl font-serif font-bold tracking-tight">User Codes</h2>
           <p className="text-muted-foreground">Manage exclusive user access and customer requests.</p>
         </div>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" /> Create New Code
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create User Code</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="code">Code</Label>
-                  <Button 
-                    variant="link" 
-                    size="sm" 
-                    className="h-auto p-0 text-xs"
-                    onClick={() => {
-                      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-                      let result = '';
-                      for (let i = 0; i < 5; i++) {
-                        result += chars.charAt(Math.floor(Math.random() * chars.length));
-                      }
-                      setNewCode({...newCode, code: result});
-                    }}
-                  >
-                    Generate Random
-                  </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["/api/user-codes"] });
+              queryClient.invalidateQueries({ queryKey: ["/api/code-requests"] });
+              toast({ title: "Refreshing", description: "Updating data..." });
+            }}
+            disabled={codesLoading || requestsLoading}
+          >
+            <RefreshCw className={cn("w-4 h-4", (codesLoading || requestsLoading) && "animate-spin")} />
+          </Button>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" /> Create New Code
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create User Code</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="code">Code</Label>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="h-auto p-0 text-xs"
+                      onClick={() => {
+                        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                        let result = '';
+                        for (let i = 0; i < 5; i++) {
+                          result += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                        setNewCode({...newCode, code: result});
+                      }}
+                    >
+                      Generate Random
+                    </Button>
+                  </div>
+                  <Input 
+                    id="code" 
+                    placeholder="e.g. VIP2024" 
+                    value={newCode.code}
+                    onChange={(e) => setNewCode({...newCode, code: e.target.value})}
+                  />
                 </div>
-                <Input 
-                  id="code" 
-                  placeholder="e.g. VIP2024" 
-                  value={newCode.code}
-                  onChange={(e) => setNewCode({...newCode, code: e.target.value})}
-                />
+                <div className="grid gap-2">
+                  <Label htmlFor="expiresAt">Expiration Date (Optional)</Label>
+                  <Input 
+                    id="expiresAt" 
+                    type="date" 
+                    value={newCode.expiresAt}
+                    onChange={(e) => setNewCode({...newCode, expiresAt: e.target.value})}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea 
+                    id="notes" 
+                    placeholder="Internal notes..." 
+                    value={newCode.notes}
+                    onChange={(e) => setNewCode({...newCode, notes: e.target.value})}
+                  />
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="expiresAt">Expiration Date (Optional)</Label>
-                <Input 
-                  id="expiresAt" 
-                  type="date" 
-                  value={newCode.expiresAt}
-                  onChange={(e) => setNewCode({...newCode, expiresAt: e.target.value})}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea 
-                  id="notes" 
-                  placeholder="Internal notes..." 
-                  value={newCode.notes}
-                  onChange={(e) => setNewCode({...newCode, notes: e.target.value})}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-              <Button onClick={() => createMutation.mutate(newCode)}>Create Code</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
+                <Button onClick={() => createMutation.mutate(newCode)}>Create Code</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Tabs defaultValue="active" className="w-full">
