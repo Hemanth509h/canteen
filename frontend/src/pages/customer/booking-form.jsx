@@ -111,9 +111,10 @@ export default function BookingForm() {
         totalAmount,
         advanceAmount,
         status: "pending",
+        clientName: data.clientName, // Ensure clientName is correctly mapped
       };
 
-      const response = await apiRequest("POST", "/api/bookings", submissionData);
+      const response = await apiRequest("POST", "/api/bookings", { ...submissionData, userCode });
       const bookingResponse = await response.json();
       const booking = bookingResponse.data;
 
@@ -259,7 +260,19 @@ export default function BookingForm() {
                     <FormItem><FormLabel>Guest Count</FormLabel><FormControl><Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="pricePerPlate" render={({ field }) => (
-                    <FormItem><FormLabel>Price per Plate (₹)</FormLabel><FormControl><Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Price per Plate (₹)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          {...field} 
+                          readOnly 
+                          className="bg-muted cursor-not-allowed"
+                        />
+                      </FormControl>
+                      <p className="text-[10px] text-muted-foreground mt-1">Managed by Admin</p>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                 </div>
 
