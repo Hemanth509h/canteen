@@ -709,7 +709,7 @@ export async function registerRoutes(app) {
   app.get("/api/user-codes", async (_req, res) => {
     try {
       const codes = await getStorageInstance().getUserCodes();
-      sendResponse(res, 200, codes);
+      sendResponse(res, 200, { data: codes });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to fetch user codes");
     }
@@ -770,7 +770,7 @@ export async function registerRoutes(app) {
   app.get("/api/code-requests", async (_req, res) => {
     try {
       const requests = await getStorageInstance().getCodeRequests();
-      sendResponse(res, 200, requests);
+      sendResponse(res, 200, { data: requests });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to fetch code requests");
     }
