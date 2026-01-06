@@ -670,7 +670,12 @@ export default function EventBookingsManager() {
                 <TableBody>
                   {filteredBookings?.map((booking) => (
                     <TableRow key={booking.id}>
-                      <TableCell className="font-medium">{booking.clientName}</TableCell>
+                      <TableCell>
+                        <div className="font-medium text-foreground">{booking.clientName}</div>
+                        <div className="text-[10px] text-muted-foreground font-mono mt-1 px-1.5 py-0.5 bg-muted rounded w-fit">
+                          {booking.userCode || "No Code"}
+                        </div>
+                      </TableCell>
                       <TableCell>{new Date(booking.eventDate).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.eventType}</TableCell>
                       <TableCell>{booking.guestCount}</TableCell>
