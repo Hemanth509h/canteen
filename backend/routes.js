@@ -14,7 +14,9 @@ import {
   insertCustomerReviewSchema, 
   updateCustomerReviewSchema, 
   insertStaffBookingRequestSchema, 
-  updateStaffBookingRequestSchema 
+  updateStaffBookingRequestSchema,
+  insertBookingCodeSchema,
+  insertCodeRequestSchema
 } from "./schema.js";
 
 import { fromZodError } from "zod-validation-error";
@@ -672,6 +674,106 @@ export async function registerRoutes(app) {
       sendResponse(res, 201, log);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create audit history");
+    }
+  });
+
+  // Booking Code Routes
+  app.get("/api/booking-codes", async (_req, res) => {
+    try {
+      const codes = await getStorageInstance().getBookingCodes();
+      sendResponse(res, 200, codes);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch booking codes");
+    }
+  });
+
+  app.post("/api/booking-codes", async (req, res) => {
+    try {
+      const result = insertBookingCodeSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+      const code = await getStorageInstance().createBookingCode(result.data);
+      sendResponse(res, 201, code);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create booking code");
+    }
+  });
+
+  app.patch("/api/booking-codes/:id", async (req, res) => {
+    try {
+      const result = insertBookingCodeSchema.partial().safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+      const code = await getStorageInstance().updateBookingCode(req.params.id, result.data);
+      sendResponse(res, 200, code);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update booking code");
+    }
+  });
+
+  app.delete("/api/booking-codes/:id", async (req, res) => {
+    try {
+      await getStorageInstance().deleteBookingCode(req.params.id);
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete booking code");
+    }
+  });
+
+  app.post("/api/booking-codes/validate", async (req, res) => {
+    try {
+      const { code } = req.body;
+      const validCode = await getStorageInstance().getBookingCodeByValue(code);
+      if (validCode) {
+        sendResponse(res, 200, { valid: true });
+      } else {
+        sendResponse(res, 400, { valid: false }, "Invalid or already used booking code");
+      }
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to validate code");
+    }
+  });
+
+  // Code Request Routes
+  app.get("/api/code-requests", async (_req, res) => {
+    try {
+      const requests = await getStorageInstance().getCodeRequests();
+      sendResponse(res, 200, requests);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch code requests");
+    }
+  });
+
+  app.post("/api/code-requests", async (req, res) => {
+    try {
+      const result = insertCodeRequestSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+      const request = await getStorageInstance().createCodeRequest(result.data);
+      
+      // Notify Admin
+      await getStorageInstance().createNotification({
+        type: "booking",
+        title: "New Booking Code Request",
+        message: `Customer ${request.customerName} has requested a booking code.`,
+        read: false
+      });
+
+      sendResponse(res, 201, request);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create code request");
+    }
+  });
+
+  app.patch("/api/code-requests/:id", async (req, res) => {
+    try {
+      const request = await getStorageInstance().updateCodeRequest(req.params.id, req.body);
+      sendResponse(res, 200, request);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update code request");
     }
   });
 

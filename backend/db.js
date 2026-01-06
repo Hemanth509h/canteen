@@ -58,6 +58,8 @@ const CustomerReviewModel = model("customerreviews", genericSchema);
 const AdminNotificationModel = model("adminnotifications", genericSchema);
 const StaffBookingRequestModel = model("staffbookingrequests", genericSchema);
 const AuditHistoryModel = model("audithistories", genericSchema);
+const BookingCodeModel = model("bookingcodes", genericSchema);
+const CodeRequestModel = model("coderequests", genericSchema);
 
 function toJSON(doc) {
   if (!doc) return null;
@@ -189,6 +191,18 @@ class MongoStorage {
   }
   async createAuditHistory(log) { return toJSON(await AuditHistoryModel.create(log)); }
   async deleteAuditHistory(id) { return (await AuditHistoryModel.findByIdAndDelete(id)) !== null; }
+
+  // Booking Code Methods
+  async getBookingCodes() { return (await BookingCodeModel.find()).map(toJSON); }
+  async getBookingCodeByValue(code) { return toJSON(await BookingCodeModel.findOne({ code, isUsed: false })); }
+  async createBookingCode(codeData) { return toJSON(await BookingCodeModel.create(codeData)); }
+  async updateBookingCode(id, codeData) { return toJSON(await BookingCodeModel.findByIdAndUpdate(id, codeData, { new: true })); }
+  async deleteBookingCode(id) { return (await BookingCodeModel.findByIdAndDelete(id)) !== null; }
+
+  // Code Request Methods
+  async getCodeRequests() { return (await CodeRequestModel.find().sort({ createdAt: -1 })).map(toJSON); }
+  async createCodeRequest(requestData) { return toJSON(await CodeRequestModel.create(requestData)); }
+  async updateCodeRequest(id, requestData) { return toJSON(await CodeRequestModel.findByIdAndUpdate(id, requestData, { new: true })); }
 }
 
 let storageInstance = null;

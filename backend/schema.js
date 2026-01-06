@@ -143,3 +143,23 @@ export const insertAuditHistorySchema = z.object({
   entityId: z.string().min(1, "Entity ID is required"),
   details: z.record(z.unknown()).default({}),
 });
+
+// ==================== BOOKING CODES ====================
+
+export const insertBookingCodeSchema = z.object({
+  code: z.string().min(4, "Code must be at least 4 characters").max(20),
+  isUsed: z.boolean().default(false),
+  expiresAt: z.string().optional().refine(
+    (date) => !date || !isNaN(Date.parse(date)),
+    "Invalid expiration date"
+  ),
+  notes: z.string().max(200).optional(),
+});
+
+export const insertCodeRequestSchema = z.object({
+  customerName: z.string().min(1, "Name is required").max(100).transform(sanitizeName),
+  customerEmail: z.string().email("Valid email is required"),
+  customerPhone: z.string().min(10, "Phone number required").transform(sanitizePhone),
+  eventDetails: z.string().max(1000).optional(),
+  status: z.enum(["pending", "granted", "rejected"]).default("pending"),
+});
