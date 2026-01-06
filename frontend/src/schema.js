@@ -119,3 +119,11 @@ export const insertAuditHistorySchema = z.object({
   entityId: z.string().min(1, "Entity ID is required"),
   details: z.record(z.unknown()).default({}),
 });
+
+export const insertCodeRequestSchema = z.object({
+  customerName: z.string().min(1, "Name is required").max(100).transform(val => val.trim().slice(0, 100)),
+  customerEmail: z.string().email("Valid email is required"),
+  customerPhone: z.string().min(10, "Phone number required").transform(val => val.replace(/\D/g, "").slice(0, 15)),
+  eventDetails: z.string().max(1000).optional(),
+  status: z.enum(["pending", "granted", "rejected"]).default("pending"),
+});
