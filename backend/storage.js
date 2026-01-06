@@ -350,7 +350,9 @@ export class MemoryStorage {
 
   // Code Requests
   async getCodeRequests() {
-    return Array.from(this.codeRequests.values());
+    return Array.from(this.codeRequests.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 
   async createCodeRequest(request) {

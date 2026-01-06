@@ -89,7 +89,24 @@ export default function UserCodeManager() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="code">Code</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="code">Code</Label>
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="h-auto p-0 text-xs"
+                    onClick={() => {
+                      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                      let result = '';
+                      for (let i = 0; i < 5; i++) {
+                        result += chars.charAt(Math.floor(Math.random() * chars.length));
+                      }
+                      setNewCode({...newCode, code: result});
+                    }}
+                  >
+                    Generate Random
+                  </Button>
+                </div>
                 <Input 
                   id="code" 
                   placeholder="e.g. VIP2024" 
