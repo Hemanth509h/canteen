@@ -25,7 +25,7 @@ export default function BookingForm() {
   const [foodSearchQuery, setFoodSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showRequestForm, setShowRequestForm] = useState(false);
-  const [activeTab, setActiveTab] = useState("form");
+  const [activeTab, setActiveTab] = useState("selection");
   const [requestData, setRequestData] = useState({
     customerName: "",
     customerEmail: "",
@@ -311,25 +311,70 @@ export default function BookingForm() {
             </div>
           </div>
           
-          <div className="flex bg-secondary/50 p-1 rounded-xl w-fit border border-primary/10">
-            <Button 
-              variant={activeTab === "form" ? "primary" : "ghost"} 
-              className={cn("gap-2 px-6", activeTab === "form" && "bg-primary text-white shadow-lg hover:text-white")}
-              onClick={() => setActiveTab("form")}
-            >
-              <Calendar className="w-4 h-4" /> New Booking
-            </Button>
-            <Button 
-              variant={activeTab === "list" ? "primary" : "ghost"} 
-              className={cn("gap-2 px-6", activeTab === "list" && "bg-primary text-white shadow-lg hover:text-white")}
-              onClick={() => setActiveTab("list")}
-            >
-              <Clock className="w-4 h-4" /> My Bookings
-            </Button>
-          </div>
+        <div className="flex bg-secondary/50 p-1 rounded-xl w-fit border border-primary/10">
+          <Button 
+            variant={activeTab === "selection" ? "primary" : "ghost"} 
+            className={cn("gap-2 px-6", activeTab === "selection" && "bg-primary text-white shadow-lg hover:text-white")}
+            onClick={() => setActiveTab("selection")}
+          >
+            <Info className="w-4 h-4" /> Home
+          </Button>
+          <Button 
+            variant={activeTab === "form" ? "primary" : "ghost"} 
+            className={cn("gap-2 px-6", activeTab === "form" && "bg-primary text-white shadow-lg hover:text-white")}
+            onClick={() => setActiveTab("form")}
+          >
+            <Calendar className="w-4 h-4" /> New Booking
+          </Button>
+          <Button 
+            variant={activeTab === "list" ? "primary" : "ghost"} 
+            className={cn("gap-2 px-6", activeTab === "list" && "bg-primary text-white shadow-lg hover:text-white")}
+            onClick={() => setActiveTab("list")}
+          >
+            <Clock className="w-4 h-4" /> My Bookings
+          </Button>
         </div>
+      </div>
 
-        {activeTab === "form" ? (
+      {activeTab === "selection" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto pt-12 fade-in">
+          <Card className="group hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-primary/10 shadow-xl" onClick={() => setActiveTab("form")}>
+            <div className="h-2 bg-primary group-hover:h-3 transition-all" />
+            <CardHeader className="text-center space-y-4 pt-8">
+              <div className="mx-auto w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center rotate-3 group-hover:rotate-0 transition-transform">
+                <Calendar className="w-10 h-10 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-serif font-bold">New Booking</CardTitle>
+                <CardDescription className="text-base mt-2">Ready for a new event? Choose your menu and lock in your date.</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-8 text-center">
+              <Button className="w-full h-12 text-lg font-bold gap-2">
+                Start Booking <Plus className="w-5 h-5" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="group hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-primary/10 shadow-xl" onClick={() => setActiveTab("list")}>
+            <div className="h-2 bg-secondary group-hover:h-3 transition-all" />
+            <CardHeader className="text-center space-y-4 pt-8">
+              <div className="mx-auto w-20 h-20 bg-secondary/20 rounded-3xl flex items-center justify-center -rotate-3 group-hover:rotate-0 transition-transform">
+                <Clock className="w-10 h-10 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-serif font-bold">My Bookings</CardTitle>
+                <CardDescription className="text-base mt-2">View your scheduled events and track their current status.</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-8 text-center">
+              <Button variant="outline" className="w-full h-12 text-lg font-bold gap-2 border-primary/20">
+                View History <ChevronLeft className="w-5 h-5 rotate-180" />
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      ) : activeTab === "form" ? (
           <div className="fade-in">
             <Card className="border-primary/10 shadow-xl overflow-hidden">
               <div className="h-2 bg-primary" />
