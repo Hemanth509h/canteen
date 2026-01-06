@@ -28,12 +28,6 @@
     --radius: 0.5rem;
   }
 
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    @apply font-inter;
-  }
-
   .dark {
     --background: 142 40% 4%;
     --foreground: 0 0% 100%;
@@ -54,6 +48,16 @@
     --border: 142 30% 18%;
     --input: 142 30% 18%;
     --ring: 142 76% 40%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    @apply font-inter transition-colors duration-300;
   }
 }
 
