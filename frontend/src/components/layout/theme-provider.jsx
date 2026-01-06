@@ -24,18 +24,30 @@ export function ThemeProvider({
         ? (mediaQuery.matches ? "dark" : "light")
         : theme;
 
+      // CRITICAL: Use both methods to ensure reactivity
       root.classList.remove("light", "dark");
       root.classList.add(actualTheme);
       root.style.colorScheme = actualTheme;
+      
+      // Force direct attribute update
+      root.setAttribute("data-theme", actualTheme);
+      
+      console.log("ThemeProvider: Applied theme", actualTheme);
     };
 
     applyTheme();
 
     if (theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const handleChange = () => applyTheme();
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
+      const listener = (e) => {
+        const newTheme = e.matches ? "dark" : "light";
+        root.classList.remove("light", "dark");
+        root.classList.add(newTheme);
+        root.style.colorScheme = newTheme;
+        root.setAttribute("data-theme", newTheme);
+      };
+      mediaQuery.addEventListener("change", listener);
+      return () => mediaQuery.removeEventListener("change", listener);
     }
   }, [theme]);
 
