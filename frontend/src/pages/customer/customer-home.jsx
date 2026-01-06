@@ -148,6 +148,7 @@ const BackgroundLeaf = ({ className }) => (
 );
 
 export default function CustomerHome() {
+  const [, setLocation] = useLocation();
   const [selectedType, setSelectedType] = useState("Veg");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -328,6 +329,13 @@ export default function CustomerHome() {
             >
               Explore Menu
               <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <Button 
+              size="lg" 
+              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-500 border-none"
+              onClick={() => setLocation("/book")}
+            >
+              Book Now
             </Button>
             <Button 
               size="lg" 
