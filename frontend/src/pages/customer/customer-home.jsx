@@ -337,14 +337,6 @@ export default function CustomerHome() {
             >
               Book Now
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-bold bg-white text-black hover:bg-white/90 transition-all duration-500 border-none"
-              onClick={() => setIsRequestDialogOpen(true)}
-            >
-              Request Access Code
-            </Button>
           </div>
         </div>
       </div>

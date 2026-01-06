@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { insertEventBookingSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ChevronLeft, Search, Check, Plus, Minus } from "lucide-react";
+import { ChevronLeft, Search, Check, Plus, Minus, Ticket, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,13 @@ export default function BookingForm() {
   const [isCodeVerified, setIsCodeVerified] = useState(false);
   const [foodSearchQuery, setFoodSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestData, setRequestData] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    eventDetails: ""
+  });
 
   const { data: foodItems = [] } = useQuery({
     queryKey: ["/api/food-items"],
@@ -59,6 +66,31 @@ export default function BookingForm() {
     },
   });
 
+  const requestMutation = useMutation({
+    mutationFn: async (data) => {
+      const res = await fetch("/api/code-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to submit request");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Request Submitted",
+        description: "We'll review your request and contact you shortly.",
+      });
+      setShowRequestForm(false);
+    },
+    onError: (error) => {
+      toast({ variant: "destructive", title: "Error", description: error.message });
+    }
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const guestCount = parseInt(data.guestCount) || 0;
@@ -88,24 +120,15 @@ export default function BookingForm() {
         await apiRequest("POST", `/api/bookings/${booking.id}/items`, items);
       }
 
-      // Mark code as used
       await apiRequest("POST", "/api/codes/use", { code: userCode });
-
       return booking;
     },
     onSuccess: () => {
-      toast({
-        title: "Booking Successful",
-        description: "Your booking has been created. We will contact you soon.",
-      });
+      toast({ title: "Booking Successful", description: "Your booking has been created." });
       setLocation("/");
     },
     onError: (error) => {
-      toast({
-        title: "Booking Failed",
-        description: error.message || "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Booking Failed", description: error.message, variant: "destructive" });
     },
   });
 
@@ -137,23 +160,60 @@ export default function BookingForm() {
   if (!isCodeVerified) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Enter Access Code</CardTitle>
-            <CardDescription>You need a valid user code provided by the admin to book.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input 
-              placeholder="Enter your 4-20 digit code" 
-              value={userCode} 
-              onChange={(e) => setUserCode(e.target.value)}
-            />
-            <Button className="w-full" onClick={() => verifyCodeMutation.mutate(userCode)} disabled={verifyCodeMutation.isPending}>
-              {verifyCodeMutation.isPending ? "Verifying..." : "Verify Code"}
-            </Button>
-            <Button variant="ghost" className="w-full" onClick={() => setLocation("/")}>Back to Home</Button>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md space-y-4">
+          {!showRequestForm ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Enter Access Code</CardTitle>
+                <CardDescription>Enter the code provided by the admin to book your event.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Input 
+                  placeholder="Enter your code" 
+                  value={userCode} 
+                  onChange={(e) => setUserCode(e.target.value)}
+                />
+                <Button className="w-full" onClick={() => verifyCodeMutation.mutate(userCode)} disabled={verifyCodeMutation.isPending}>
+                  {verifyCodeMutation.isPending ? "Verifying..." : "Verify Code"}
+                </Button>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or</span></div>
+                </div>
+                <Button variant="outline" className="w-full gap-2" onClick={() => setShowRequestForm(true)}>
+                  <Ticket className="w-4 h-4" /> Request Access Code
+                </Button>
+                <Button variant="ghost" className="w-full" onClick={() => setLocation("/")}>Back to Home</Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <Ticket className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle>Request User Code</CardTitle>
+                <CardDescription>Enter your details below to request a code.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={(e) => { e.preventDefault(); requestMutation.mutate(requestData); }} className="space-y-4">
+                  <div className="space-y-2">
+                    <Input placeholder="Full Name" required value={requestData.customerName} onChange={(e) => setRequestData({...requestData, customerName: e.target.value})} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input placeholder="Email" type="email" required value={requestData.customerEmail} onChange={(e) => setRequestData({...requestData, customerEmail: e.target.value})} />
+                    <Input placeholder="Phone" type="tel" required value={requestData.customerPhone} onChange={(e) => setRequestData({...requestData, customerPhone: e.target.value})} />
+                  </div>
+                  <Textarea placeholder="Event Details..." className="min-h-[100px]" value={requestData.eventDetails} onChange={(e) => setRequestData({...requestData, eventDetails: e.target.value})} />
+                  <Button type="submit" className="w-full gap-2" disabled={requestMutation.isPending}>
+                    <Send className="w-4 h-4" /> {requestMutation.isPending ? "Submitting..." : "Submit Request"}
+                  </Button>
+                  <Button variant="ghost" className="w-full" onClick={() => setShowRequestForm(false)}>Back to Verification</Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     );
   }
