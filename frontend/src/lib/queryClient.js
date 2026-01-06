@@ -22,7 +22,12 @@ export async function apiRequest(method, url, data) {
   });
 
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
+    let errorData = {};
+    try {
+      errorData = await res.json();
+    } catch (e) {
+      // Not JSON
+    }
     throw new Error(errorData.error || res.statusText || `${res.status}`);
   }
   return res;
@@ -49,11 +54,23 @@ export const getQueryFn =
     }
 
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
+      let errorData = {};
+      try {
+        errorData = await res.json();
+      } catch (e) {
+        // Not JSON
+      }
       throw new Error(errorData.error || res.statusText || `${res.status}`);
     }
-    const result = await res.json();
-    return result.success ? result.data : result;
+    
+    const text = await res.text();
+    try {
+      const result = JSON.parse(text);
+      return result.success ? result.data : result;
+    } catch (e) {
+      console.error("Malformed JSON response:", text);
+      throw new Error("Invalid server response (malformed JSON)");
+    }
   };
 
 import { QueryClient } from "@tanstack/react-query";

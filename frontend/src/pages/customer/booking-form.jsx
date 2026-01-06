@@ -183,6 +183,9 @@ export default function BookingForm() {
                 <Button variant="outline" className="w-full gap-2" onClick={() => setShowRequestForm(true)}>
                   <Ticket className="w-4 h-4" /> Request Access Code
                 </Button>
+                <div className="text-center text-sm text-muted-foreground mt-2">
+                  Need a code? Request one above.
+                </div>
                 <Button variant="ghost" className="w-full" onClick={() => setLocation("/")}>Back to Home</Button>
               </CardContent>
             </Card>
