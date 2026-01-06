@@ -11,6 +11,8 @@ export class MemoryStorage {
     this.notifications = new Map();
     this.staffRequests = new Map();
     this.auditHistory = new Map();
+    this.userCodes = new Map();
+    this.codeRequests = new Map();
   }
 
   generateId() {
@@ -307,6 +309,63 @@ export class MemoryStorage {
 
   async deleteAuditHistory(id) {
     return this.auditHistory.delete(id);
+  }
+
+  // User Codes
+  async getUserCodes() {
+    return Array.from(this.userCodes.values());
+  }
+
+  async createUserCode(code) {
+    const id = this.generateId();
+    const newCode = { id, ...code, isUsed: false, createdAt: new Date().toISOString() };
+    this.userCodes.set(id, newCode);
+    return newCode;
+  }
+
+  async getUserCodeByValue(codeValue) {
+    return Array.from(this.userCodes.values()).find(c => c.code === codeValue && !c.isUsed) || null;
+  }
+
+  async updateUserCode(id, code) {
+    const existing = this.userCodes.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, ...code };
+    this.userCodes.set(id, updated);
+    return updated;
+  }
+
+  async markCodeAsUsed(codeValue) {
+    const code = Array.from(this.userCodes.values()).find(c => c.code === codeValue);
+    if (code) {
+      this.userCodes.set(code.id, { ...code, isUsed: true });
+      return true;
+    }
+    return false;
+  }
+
+  async deleteUserCode(id) {
+    return this.userCodes.delete(id);
+  }
+
+  // Code Requests
+  async getCodeRequests() {
+    return Array.from(this.codeRequests.values());
+  }
+
+  async createCodeRequest(request) {
+    const id = this.generateId();
+    const newRequest = { id, ...request, status: "pending", createdAt: new Date().toISOString() };
+    this.codeRequests.set(id, newRequest);
+    return newRequest;
+  }
+
+  async updateCodeRequest(id, request) {
+    const existing = this.codeRequests.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, ...request };
+    this.codeRequests.set(id, updated);
+    return updated;
   }
 }
 

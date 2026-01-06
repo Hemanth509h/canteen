@@ -677,6 +677,34 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/codes/verify", async (req, res) => {
+    try {
+      const { code } = req.query;
+      const validCode = await getStorageInstance().getUserCodeByValue(code);
+      if (validCode) {
+        sendResponse(res, 200, { valid: true });
+      } else {
+        sendResponse(res, 400, { valid: false }, "Invalid or already used user code");
+      }
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to verify code");
+    }
+  });
+
+  app.post("/api/codes/use", async (req, res) => {
+    try {
+      const { code } = req.body;
+      const success = await getStorageInstance().markCodeAsUsed(code);
+      if (success) {
+        sendResponse(res, 200, { success: true });
+      } else {
+        sendResponse(res, 400, null, "Failed to mark code as used");
+      }
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to use code");
+    }
+  });
+
   // User Code Routes
   app.get("/api/user-codes", async (_req, res) => {
     try {
