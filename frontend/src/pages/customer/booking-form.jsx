@@ -252,27 +252,12 @@ export default function BookingForm() {
                   )} />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField control={form.control} name="eventType" render={({ field }) => (
                     <FormItem><FormLabel>Event Type</FormLabel><FormControl><Input placeholder="Wedding, Corporate, etc." {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="guestCount" render={({ field }) => (
                     <FormItem><FormLabel>Guest Count</FormLabel><FormControl><Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="pricePerPlate" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price per Plate (₹)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          {...field} 
-                          readOnly 
-                          className="bg-muted cursor-not-allowed"
-                        />
-                      </FormControl>
-                      <p className="text-[10px] text-muted-foreground mt-1">Managed by Admin</p>
-                      <FormMessage />
-                    </FormItem>
                   )} />
                 </div>
 
@@ -332,11 +317,7 @@ export default function BookingForm() {
                   <FormItem><FormLabel>Special Requests</FormLabel><FormControl><Textarea placeholder="Any specific requirements..." className="min-h-[100px]" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
 
-                <div className="bg-secondary/20 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Estimated Total</p>
-                    <p className="text-3xl font-poppins font-bold text-primary">₹{ (form.watch("guestCount") || 0) * (form.watch("pricePerPlate") || 0) }</p>
-                  </div>
+                <div className="bg-secondary/20 p-6 rounded-2xl flex flex-col md:flex-row justify-end items-center gap-4">
                   <Button type="submit" size="lg" className="px-12 h-14 text-lg font-bold" disabled={createMutation.isPending}>
                     {createMutation.isPending ? "Processing..." : "Confirm Booking"}
                   </Button>
