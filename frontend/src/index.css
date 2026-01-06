@@ -58,7 +58,7 @@
   body {
     background-color: hsl(var(--background)) !important;
     color: hsl(var(--foreground)) !important;
-    @apply font-inter;
+    font-family: 'Inter', sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
