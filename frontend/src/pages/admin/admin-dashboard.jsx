@@ -26,7 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Booking Codes", url: "/admin/booking-codes", icon: Ticket },
+  { title: "User Codes", url: "/admin/booking-codes", icon: Ticket },
   { title: "Hero Images", url: "/admin/hero-images", icon: ImagePlus },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
   { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },

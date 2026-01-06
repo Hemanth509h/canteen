@@ -144,9 +144,9 @@ export const insertAuditHistorySchema = z.object({
   details: z.record(z.unknown()).default({}),
 });
 
-// ==================== BOOKING CODES ====================
+// ==================== USER CODES ====================
 
-export const insertBookingCodeSchema = z.object({
+export const insertUserCodeSchema = z.object({
   code: z.string().min(4, "Code must be at least 4 characters").max(20),
   isUsed: z.boolean().default(false),
   expiresAt: z.string().optional().refine(

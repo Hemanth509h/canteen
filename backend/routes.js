@@ -15,7 +15,7 @@ import {
   updateCustomerReviewSchema, 
   insertStaffBookingRequestSchema, 
   updateStaffBookingRequestSchema,
-  insertBookingCodeSchema,
+  insertUserCodeSchema,
   insertCodeRequestSchema
 } from "./schema.js";
 
@@ -677,59 +677,61 @@ export async function registerRoutes(app) {
     }
   });
 
-  // Booking Code Routes
-  app.get("/api/booking-codes", async (_req, res) => {
+  // User Code Routes
+  app.get("/api/user-codes", async (_req, res) => {
     try {
-      const codes = await getStorageInstance().getBookingCodes();
+      const codes = await getStorageInstance().getUserCodes();
       sendResponse(res, 200, codes);
     } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch booking codes");
+      sendResponse(res, 500, null, "Failed to fetch user codes");
     }
   });
 
-  app.post("/api/booking-codes", async (req, res) => {
+  app.post("/api/user-codes", async (req, res) => {
     try {
-      const result = insertBookingCodeSchema.safeParse(req.body);
+      const result = insertUserCodeSchema.safeParse(req.body);
       if (!result.success) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
-      const code = await getStorageInstance().createBookingCode(result.data);
+      const code = await getStorageInstance().createUserCode(result.data);
       sendResponse(res, 201, code);
     } catch (error) {
-      sendResponse(res, 500, null, "Failed to create booking code");
+      sendResponse(res, 500, null, "Failed to create user code");
     }
   });
 
-  app.patch("/api/booking-codes/:id", async (req, res) => {
+  app.patch("/api/user-codes/:id", async (req, res) => {
     try {
-      const result = insertBookingCodeSchema.partial().safeParse(req.body);
+      const result = insertUserCodeSchema.partial().safeParse(req.body);
       if (!result.success) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
-      const code = await getStorageInstance().updateBookingCode(req.params.id, result.data);
+      const code = await getStorageInstance().updateUserCode(req.params.id, result.data);
       sendResponse(res, 200, code);
     } catch (error) {
-      sendResponse(res, 500, null, "Failed to update booking code");
+      sendResponse(res, 500, null, "Failed to update user code");
     }
   });
 
-  app.delete("/api/booking-codes/:id", async (req, res) => {
+  app.delete("/api/user-codes/:id", async (req, res) => {
     try {
-      await getStorageInstance().deleteBookingCode(req.params.id);
+      await getStorageInstance().deleteUserCode(req.params.id);
       sendResponse(res, 204, { success: true });
     } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete booking code");
+      sendResponse(res, 500, null, "Failed to delete user code");
     }
   });
 
-  app.post("/api/booking-codes/validate", async (req, res) => {
+  app.post("/api/user-codes/validate", async (req, res) => {
     try {
       const { code } = req.body;
-      const validCode = await getStorageInstance().getBookingCodeByValue(code);
+      const validCode = await getStorageInstance().getUserCodeByValue(code);
       if (validCode) {
+        // If the code exists and hasn't been used yet, it's valid.
+        // We don't mark it as used here, only during actual booking if required.
         sendResponse(res, 200, { valid: true });
       } else {
-        sendResponse(res, 400, { valid: false }, "Invalid or already used booking code");
+        sendResponse(res, 400, { valid: false }, "Invalid or already used user code");
       }
     } catch (error) {
       sendResponse(res, 500, null, "Failed to validate code");

@@ -9,16 +9,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Ticket, Key, CheckCircle, XCircle, Trash2, Clock } from "lucide-react";
+import { Plus, Ticket, Key, CheckCircle, XCircle, Trash2, Clock, UserCheck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function BookingCodeManager() {
+export default function UserCodeManager() {
   const queryClient = useQueryClient();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newCode, setNewCode] = useState({ code: "", notes: "", expiresAt: "" });
 
   const { data: codesResponse, isLoading: codesLoading } = useQuery({
-    queryKey: ["/api/booking-codes"],
+    queryKey: ["/api/user-codes"],
   });
 
   const { data: requestsResponse, isLoading: requestsLoading } = useQuery({
@@ -30,7 +30,7 @@ export default function BookingCodeManager() {
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const res = await fetch("/api/booking-codes", {
+      const res = await fetch("/api/user-codes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -38,20 +38,20 @@ export default function BookingCodeManager() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/booking-codes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-codes"] });
       setIsCreateOpen(false);
       setNewCode({ code: "", notes: "", expiresAt: "" });
-      toast({ title: "Success", description: "Booking code created" });
+      toast({ title: "Success", description: "User code created" });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
-      await fetch(`/api/booking-codes/${id}`, { method: "DELETE" });
+      await fetch(`/api/user-codes/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/booking-codes"] });
-      toast({ title: "Deleted", description: "Booking code removed" });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-codes"] });
+      toast({ title: "Deleted", description: "User code removed" });
     },
   });
 
@@ -74,8 +74,8 @@ export default function BookingCodeManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-serif font-bold tracking-tight">Booking Codes</h2>
-          <p className="text-muted-foreground">Manage exclusive booking access and customer requests.</p>
+          <h2 className="text-3xl font-serif font-bold tracking-tight">User Codes</h2>
+          <p className="text-muted-foreground">Manage exclusive user access and customer requests.</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
@@ -85,7 +85,7 @@ export default function BookingCodeManager() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create Booking Code</DialogTitle>
+              <DialogTitle>Create User Code</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -143,14 +143,13 @@ export default function BookingCodeManager() {
           <Card>
             <CardHeader>
               <CardTitle>Generated Codes</CardTitle>
-              <CardDescription>All active and used booking codes.</CardDescription>
+              <CardDescription>All active user codes. These can be used multiple times.</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Code</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Expires</TableHead>
                     <TableHead>Notes</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -160,11 +159,6 @@ export default function BookingCodeManager() {
                   {codes.map((code) => (
                     <TableRow key={code.id}>
                       <TableCell className="font-mono font-bold">{code.code}</TableCell>
-                      <TableCell>
-                        <Badge variant={code.isUsed ? "secondary" : "default"}>
-                          {code.isUsed ? "Used" : "Active"}
-                        </Badge>
-                      </TableCell>
                       <TableCell>
                         {code.expiresAt ? new Date(code.expiresAt).toLocaleDateString() : "Never"}
                       </TableCell>
@@ -183,8 +177,8 @@ export default function BookingCodeManager() {
                   ))}
                   {codes.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                        No booking codes found. Create one to get started.
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        No user codes found. Create one to get started.
                       </TableCell>
                     </TableRow>
                   )}

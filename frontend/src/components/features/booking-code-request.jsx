@@ -58,9 +58,9 @@ export default function BookingCodeRequestDialog({ open, onOpenChange }) {
           <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Ticket className="w-6 h-6 text-primary" />
           </div>
-          <DialogTitle className="text-2xl font-serif">Request Booking Code</DialogTitle>
+          <DialogTitle className="text-2xl font-serif">Request User Code</DialogTitle>
           <DialogDescription>
-            Enter your details below to request an exclusive booking code for your event.
+            Enter your details below to request an exclusive user code for your event.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">

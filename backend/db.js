@@ -58,7 +58,7 @@ const CustomerReviewModel = model("customerreviews", genericSchema);
 const AdminNotificationModel = model("adminnotifications", genericSchema);
 const StaffBookingRequestModel = model("staffbookingrequests", genericSchema);
 const AuditHistoryModel = model("audithistories", genericSchema);
-const BookingCodeModel = model("bookingcodes", genericSchema);
+const UserCodeModel = model("usercodes", genericSchema);
 const CodeRequestModel = model("coderequests", genericSchema);
 
 function toJSON(doc) {
@@ -192,12 +192,15 @@ class MongoStorage {
   async createAuditHistory(log) { return toJSON(await AuditHistoryModel.create(log)); }
   async deleteAuditHistory(id) { return (await AuditHistoryModel.findByIdAndDelete(id)) !== null; }
 
-  // Booking Code Methods
-  async getBookingCodes() { return (await BookingCodeModel.find()).map(toJSON); }
-  async getBookingCodeByValue(code) { return toJSON(await BookingCodeModel.findOne({ code, isUsed: false })); }
-  async createBookingCode(codeData) { return toJSON(await BookingCodeModel.create(codeData)); }
-  async updateBookingCode(id, codeData) { return toJSON(await BookingCodeModel.findByIdAndUpdate(id, codeData, { new: true })); }
-  async deleteBookingCode(id) { return (await BookingCodeModel.findByIdAndDelete(id)) !== null; }
+  // User Code Methods
+  async getUserCodes() { return (await UserCodeModel.find()).map(toJSON); }
+  async getUserCodeByValue(code) { 
+    // Allow code to be used multiple times by searching without isUsed check
+    return toJSON(await UserCodeModel.findOne({ code })); 
+  }
+  async createUserCode(codeData) { return toJSON(await UserCodeModel.create(codeData)); }
+  async updateUserCode(id, codeData) { return toJSON(await UserCodeModel.findByIdAndUpdate(id, codeData, { new: true })); }
+  async deleteUserCode(id) { return (await UserCodeModel.findByIdAndDelete(id)) !== null; }
 
   // Code Request Methods
   async getCodeRequests() { return (await CodeRequestModel.find().sort({ createdAt: -1 })).map(toJSON); }
