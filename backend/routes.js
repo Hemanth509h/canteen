@@ -23,12 +23,9 @@ import { fromZodError } from "zod-validation-error";
 import { verifyPassword, updatePassword } from "./password-manager.js";
 import { z } from "zod";
 
-// Get storage instance (initialized after connectToDatabase is called)
 const getStorageInstance = () => getStorage();
 
-// All routes are defined relative to the root now, but they still have /api prefix
 export async function registerRoutes(app) {
-  // Standardized Response Utility
   const sendResponse = (res, status, data, error = null) => {
     return res.status(status).json({
       success: status >= 200 && status < 300,
@@ -38,43 +35,33 @@ export async function registerRoutes(app) {
     });
   };
 
-  // Admin Login Route
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { password } = req.body;
-      console.log("Login request received");
       const isValid = await verifyPassword(password);
       if (isValid) {
-        console.log("Login success");
         sendResponse(res, 200, { success: true });
       } else {
-        console.log("Login failed: invalid password");
         sendResponse(res, 401, null, "Invalid password");
       }
     } catch (error) {
-      console.error("Login route error:", error);
       sendResponse(res, 500, null, "Login failed");
     }
   });
 
-  // Admin Password Change Route
   app.post("/api/admin/change-password", async (req, res) => {
     try {
       const { currentPassword, newPassword } = req.body;
-
       if (!currentPassword || !newPassword) {
         return sendResponse(res, 400, null, "Current password and new password are required");
       }
-
       const isCurrentPasswordValid = await verifyPassword(currentPassword);
       if (!isCurrentPasswordValid) {
         return sendResponse(res, 401, null, "Current password is incorrect");
       }
-
       if (newPassword.length < 6) {
         return sendResponse(res, 400, null, "New password must be at least 6 characters");
       }
-
       await updatePassword(newPassword);
       sendResponse(res, 200, { success: true, message: "Password changed successfully" });
     } catch (error) {
@@ -82,7 +69,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  // Food Items Routes
   app.get("/api/food-items", async (_req, res) => {
     try {
       const items = await getStorageInstance().getFoodItems();
@@ -92,26 +78,12 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.get("/api/food-items/:id", async (req, res) => {
-    try {
-      const item = await getStorageInstance().getFoodItem(req.params.id);
-      if (!item) {
-        return sendResponse(res, 404, null, "Food item not found");
-      }
-      sendResponse(res, 200, item);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch food item");
-    }
-  });
-
   app.post("/api/food-items", async (req, res) => {
     try {
       const result = insertFoodItemSchema.safeParse(req.body);
       if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
-
       const item = await getStorageInstance().createFoodItem(result.data);
       sendResponse(res, 201, item);
     } catch (error) {
@@ -119,37 +91,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.patch("/api/food-items/:id", async (req, res) => {
-    try {
-      const result = insertFoodItemSchema.partial().safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
-      }
-
-      const item = await getStorageInstance().updateFoodItem(req.params.id, result.data);
-      if (!item) {
-        return sendResponse(res, 404, null, "Food item not found");
-      }
-      sendResponse(res, 200, item);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to update food item");
-    }
-  });
-
-  app.delete("/api/food-items/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteFoodItem(req.params.id);
-      if (!deleted) {
-        return sendResponse(res, 404, null, "Food item not found");
-      }
-      sendResponse(res, 204, { success: true });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete food item");
-    }
-  });
-
-  // Event Bookings Routes
   app.get("/api/bookings", async (_req, res) => {
     try {
       const bookings = await getStorageInstance().getBookings();
@@ -159,99 +100,19 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.get("/api/bookings/:id", async (req, res) => {
-    try {
-      const booking = await getStorageInstance().getBooking(req.params.id);
-      if (!booking) {
-        return sendResponse(res, 404, null, "Booking not found");
-      }
-      sendResponse(res, 200, booking);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch booking");
-    }
-  });
-
-  app.patch("/api/bookings/:id", async (req, res) => {
-    try {
-      const result = updateEventBookingSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
-      }
-
-      const booking = await getStorageInstance().updateBooking(req.params.id, result.data);
-      if (!booking) {
-        return sendResponse(res, 404, null, "Booking not found");
-      }
-      sendResponse(res, 200, booking);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to update booking");
-    }
-  });
-
-  app.delete("/api/bookings/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteBooking(req.params.id);
-      if (!deleted) {
-        return sendResponse(res, 404, null, "Booking not found");
-      }
-      sendResponse(res, 204, { success: true });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete booking");
-    }
-  });
-
   app.post("/api/bookings", async (req, res) => {
     try {
       const result = insertEventBookingSchema.safeParse(req.body);
       if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
-
-      // Ensure calculated amounts are included if provided in the body (from frontend)
-      const bookingData = {
-        ...result.data,
-        totalAmount: req.body.totalAmount || (result.data.guestCount * result.data.pricePerPlate),
-        advanceAmount: req.body.advanceAmount || Math.round((req.body.totalAmount || (result.data.guestCount * result.data.pricePerPlate)) * 0.5)
-      };
-
-      const booking = await getStorageInstance().createBooking(bookingData);
+      const booking = await getStorageInstance().createBooking(result.data);
       sendResponse(res, 201, booking);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create booking");
     }
   });
 
-  // Booking Items Routes
-  app.get("/api/bookings/:id/items", async (req, res) => {
-    try {
-      const items = await getStorageInstance().getBookingItems(req.params.id);
-      sendResponse(res, 200, items);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch booking items");
-    }
-  });
-
-  app.post("/api/bookings/:id/items", async (req, res) => {
-    try {
-      const bookingId = req.params.id;
-      const items = Array.isArray(req.body) ? req.body : [req.body];
-      
-      // Clean existing items first if updating
-      await getStorageInstance().deleteBookingItems(bookingId);
-      
-      const createdItems = await Promise.all(
-        items.map(item => getStorageInstance().createBookingItem({ ...item, bookingId }))
-      );
-      
-      sendResponse(res, 201, createdItems);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to create booking items");
-    }
-  });
-
-  // Reviews
   app.get("/api/reviews", async (_req, res) => {
     try {
       const reviews = await getStorageInstance().getReviews();
@@ -261,41 +122,11 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.patch("/api/reviews/:id", async (req, res) => {
-    try {
-      const result = updateCustomerReviewSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
-      }
-      const review = await getStorageInstance().updateReview(req.params.id, result.data);
-      if (!review) {
-        return sendResponse(res, 404, null, "Review not found");
-      }
-      sendResponse(res, 200, review);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to update review");
-    }
-  });
-
-  app.delete("/api/reviews/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteReview(req.params.id);
-      if (!deleted) {
-        return sendResponse(res, 404, null, "Review not found");
-      }
-      sendResponse(res, 204, { success: true });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete review");
-    }
-  });
-
   app.post("/api/reviews", async (req, res) => {
     try {
       const result = insertCustomerReviewSchema.safeParse(req.body);
       if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       const review = await getStorageInstance().createReview(result.data);
       sendResponse(res, 201, review);
@@ -304,14 +135,10 @@ export async function registerRoutes(app) {
     }
   });
 
-  // Company Info Routes
   app.get("/api/company-info", async (_req, res) => {
     try {
       const info = await getStorageInstance().getCompanyInfo();
-      if (!info) {
-        return sendResponse(res, 200, {}); // Return empty object instead of 404
-      }
-      sendResponse(res, 200, info);
+      sendResponse(res, 200, info || {});
     } catch (error) {
       sendResponse(res, 500, null, "Failed to fetch company info");
     }
@@ -321,8 +148,7 @@ export async function registerRoutes(app) {
     try {
       const result = insertCompanyInfoSchema.partial().safeParse(req.body);
       if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       const info = await getStorageInstance().updateCompanyInfo(null, result.data);
       sendResponse(res, 200, info);
@@ -331,179 +157,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  // Staff Booking Requests Routes
-  app.get("/api/bookings/:id/assigned-staff", async (req, res) => {
-    try {
-      const requests = await getStorageInstance().getStaffBookingRequests(req.params.id);
-      const staffIds = requests.map(r => r.staffId);
-      const staff = await Promise.all(staffIds.map(id => getStorageInstance().getStaffMember(id)));
-      sendResponse(res, 200, staff.filter(Boolean));
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch staff booking requests");
-    }
-  });
-
-  app.post("/api/bookings/:id/assign-staff", async (req, res) => {
-    try {
-      const { staffId } = req.body;
-      const bookingId = req.params.id;
-
-      console.log(`[API] POST /api/bookings/${bookingId}/assign-staff`, { staffId });
-
-      if (!staffId) {
-        return sendResponse(res, 400, null, "Staff ID is required");
-      }
-
-      // Check if already assigned
-      const existing = await getStorageInstance().getStaffBookingRequests(bookingId);
-      const alreadyAssigned = existing.find(r => r.staffId === staffId);
-      if (alreadyAssigned) {
-        console.log(`[API] Staff ${staffId} already assigned to booking ${bookingId}`);
-        return sendResponse(res, 200, alreadyAssigned);
-      }
-
-      const request = await getStorageInstance().createStaffBookingRequest({
-        bookingId,
-        staffId,
-        status: "accepted", // Auto-accept when assigned by admin
-        token: randomUUID()
-      });
-      console.log(`[API] Created staff assignment:`, request);
-      sendResponse(res, 201, request);
-    } catch (error) {
-      console.error("Assign staff error:", error);
-      sendResponse(res, 500, null, "Failed to assign staff");
-    }
-  });
-
-  app.get("/api/staff-requests/token/:token", async (req, res) => {
-    try {
-      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
-      if (!request) {
-        return sendResponse(res, 404, null, "Staff request not found");
-      }
-      sendResponse(res, 200, request);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch staff request");
-    }
-  });
-
-  app.post("/api/staff-requests", async (req, res) => {
-    try {
-      const result = insertStaffBookingRequestSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
-      }
-
-      // Check if already assigned
-      const existing = await getStorageInstance().getStaffBookingRequests(result.data.bookingId);
-      const alreadyAssigned = existing.find(r => r.staffId === result.data.staffId);
-      if (alreadyAssigned) {
-        return sendResponse(res, 200, alreadyAssigned);
-      }
-
-      const request = await getStorageInstance().createStaffBookingRequest({
-        ...result.data,
-        status: "pending",
-        token: randomUUID()
-      });
-      sendResponse(res, 201, request);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to create staff booking request");
-    }
-  });
-
-  app.patch("/api/staff-requests/:id", async (req, res) => {
-    try {
-      const result = updateStaffBookingRequestSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
-      }
-
-      const request = await getStorageInstance().updateStaffBookingRequest(req.params.id, result.data);
-      if (!request) {
-        return sendResponse(res, 404, null, "Staff request not found");
-      }
-      sendResponse(res, 200, request);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to update staff request");
-    }
-  });
-
-  app.delete("/api/staff-requests/booking/:bookingId/staff/:staffId", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteStaffBookingRequest(req.params.bookingId, req.params.staffId);
-      if (!deleted) {
-        return sendResponse(res, 404, null, "Staff assignment not found");
-      }
-      sendResponse(res, 204, { success: true });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete staff assignment");
-    }
-  });
-
-  app.get("/api/bookings/:id/accepted-staff", async (req, res) => {
-    try {
-      const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
-      sendResponse(res, 200, staff);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch accepted staff");
-    }
-  });
-
-  // Admin Notifications Routes
-  app.get("/api/notifications", async (_req, res) => {
-    try {
-      const notifications = await getStorageInstance().getNotifications();
-      sendResponse(res, 200, notifications);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch notifications");
-    }
-  });
-
-  app.post("/api/notifications", async (req, res) => {
-    try {
-      const { type, title, message, bookingId } = req.body;
-      const notification = await getStorageInstance().createNotification({ 
-        type, 
-        title, 
-        message, 
-        bookingId,
-        read: false 
-      });
-      sendResponse(res, 201, notification);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to create notification");
-    }
-  });
-
-  app.patch("/api/notifications/:id/read", async (req, res) => {
-    try {
-      const success = await getStorageInstance().markNotificationAsRead(req.params.id);
-      if (!success) {
-        return sendResponse(res, 404, null, "Notification not found");
-      }
-      sendResponse(res, 200, { success: true });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to mark notification as read");
-    }
-  });
-
-  app.delete("/api/notifications/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteNotification(req.params.id);
-      if (!deleted) {
-        return sendResponse(res, 404, null, "Notification not found");
-      }
-      res.status(204).send();
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete notification");
-    }
-  });
-
-  // Staff Routes
   app.get("/api/staff", async (_req, res) => {
     try {
       const staff = await getStorageInstance().getStaff();
@@ -513,24 +166,11 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.get("/api/staff/:id", async (req, res) => {
-    try {
-      const staff = await getStorageInstance().getStaffMember(req.params.id);
-      if (!staff) {
-        return sendResponse(res, 404, null, "Staff member not found");
-      }
-      sendResponse(res, 200, staff);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch staff member");
-    }
-  });
-
   app.post("/api/staff", async (req, res) => {
     try {
       const result = insertStaffSchema.safeParse(req.body);
       if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       const staff = await getStorageInstance().createStaffMember(result.data);
       sendResponse(res, 201, staff);
@@ -539,173 +179,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.patch("/api/staff/:id", async (req, res) => {
-    try {
-      const result = updateStaffSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
-      }
-      const staff = await getStorageInstance().updateStaffMember(req.params.id, result.data);
-      if (!staff) {
-        return sendResponse(res, 404, null, "Staff member not found");
-      }
-      sendResponse(res, 200, staff);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to update staff member");
-    }
-  });
-
-  app.delete("/api/staff/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteStaffMember(req.params.id);
-      if (!deleted) {
-        return sendResponse(res, 404, null, "Staff member not found");
-      }
-      sendResponse(res, 204, { success: true });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete staff member");
-    }
-  });
-
-  // Staff Booking Requests Routes
-  app.get("/api/staff-requests/:bookingId", async (req, res) => {
-    try {
-      const requests = await getStorageInstance().getStaffBookingRequests(req.params.bookingId);
-      sendResponse(res, 200, requests);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch staff requests");
-    }
-  });
-
-  app.post("/api/staff-requests", async (req, res) => {
-    try {
-      const result = insertStaffBookingRequestSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return sendResponse(res, 400, null, error.message);
-      }
-
-      const request = await getStorageInstance().createStaffBookingRequest(result.data);
-      sendResponse(res, 201, request);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to create staff request");
-    }
-  });
-
-  app.patch("/api/staff-requests/:id", async (req, res) => {
-    try {
-      const result = updateStaffBookingRequestSchema.safeParse(req.body);
-      if (!result.success) {
-        const error = fromZodError(result.error);
-        return res.status(400).json({ error: error.message });
-      }
-
-      const request = await getStorageInstance().updateStaffBookingRequest(req.params.id, result.data);
-      if (!request) {
-        return res.status(404).json({ error: "Staff request not found" });
-      }
-      res.json(request);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update staff request" });
-    }
-  });
-
-  app.get("/api/staff-requests/token/:token", async (req, res) => {
-    try {
-      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
-      if (!request) {
-        return sendResponse(res, 404, null, "Invalid token");
-      }
-      
-      const booking = await getStorageInstance().getBooking(request.bookingId);
-      const staff = await getStorageInstance().getStaffMember(request.staffId);
-      
-      sendResponse(res, 200, { request, booking, staff });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch request by token");
-    }
-  });
-
-  app.get("/api/bookings/:id/accepted-staff", async (req, res) => {
-    try {
-      const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
-      sendResponse(res, 200, staff);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch accepted staff");
-    }
-  });
-
-  // Audit History Routes
-  app.get("/api/audit-history", async (req, res) => {
-    try {
-      const { entityType, entityId } = req.query;
-      const history = await getStorageInstance().getAuditHistory(
-        entityType,
-        entityId
-      );
-      sendResponse(res, 200, history);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch audit history");
-    }
-  });
-
-  app.delete("/api/audit-history/:id", async (req, res) => {
-    try {
-      const deleted = await getStorageInstance().deleteAuditHistory(req.params.id);
-      if (!deleted) {
-        return sendResponse(res, 404, null, "Audit entry not found");
-      }
-      sendResponse(res, 204, { success: true });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to delete audit history");
-    }
-  });
-
-  app.post("/api/audit-history", async (req, res) => {
-    try {
-      const { action, entityType, entityId, details } = req.body;
-      const log = await getStorageInstance().createAuditHistory({
-        action,
-        entityType,
-        entityId,
-        details: details || {}
-      });
-      sendResponse(res, 201, log);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to create audit history");
-    }
-  });
-
-  app.get("/api/codes/verify", async (req, res) => {
-    try {
-      const { code } = req.query;
-      const validCode = await getStorageInstance().getUserCodeByValue(code);
-      if (validCode) {
-        sendResponse(res, 200, { valid: true });
-      } else {
-        sendResponse(res, 400, { valid: false }, "Invalid or already used user code");
-      }
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to verify code");
-    }
-  });
-
-  app.post("/api/codes/use", async (req, res) => {
-    try {
-      const { code } = req.body;
-      const success = await getStorageInstance().markCodeAsUsed(code);
-      if (success) {
-        sendResponse(res, 200, { success: true });
-      } else {
-        sendResponse(res, 400, null, "Failed to mark code as used");
-      }
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to use code");
-    }
-  });
-
-  // User Code Routes
   app.get("/api/user-codes", async (_req, res) => {
     try {
       const codes = await getStorageInstance().getUserCodes();
@@ -728,19 +201,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.patch("/api/user-codes/:id", async (req, res) => {
-    try {
-      const result = insertUserCodeSchema.partial().safeParse(req.body);
-      if (!result.success) {
-        return sendResponse(res, 400, null, fromZodError(result.error).message);
-      }
-      const code = await getStorageInstance().updateUserCode(req.params.id, result.data);
-      sendResponse(res, 200, code);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to update user code");
-    }
-  });
-
   app.delete("/api/user-codes/:id", async (req, res) => {
     try {
       await getStorageInstance().deleteUserCode(req.params.id);
@@ -750,23 +210,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.post("/api/user-codes/validate", async (req, res) => {
-    try {
-      const { code } = req.body;
-      const validCode = await getStorageInstance().getUserCodeByValue(code);
-      if (validCode) {
-        // If the code exists and hasn't been used yet, it's valid.
-        // We don't mark it as used here, only during actual booking if required.
-        sendResponse(res, 200, { valid: true });
-      } else {
-        sendResponse(res, 400, { valid: false }, "Invalid or already used user code");
-      }
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to validate code");
-    }
-  });
-
-  // Code Request Routes
   app.get("/api/code-requests", async (_req, res) => {
     try {
       const requests = await getStorageInstance().getCodeRequests();
@@ -783,15 +226,12 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       const request = await getStorageInstance().createCodeRequest(result.data);
-      
-      // Notify Admin
       await getStorageInstance().createNotification({
         type: "booking",
         title: "New Booking Code Request",
         message: `Customer ${request.customerName} has requested a booking code.`,
         read: false
       });
-
       sendResponse(res, 201, request);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create code request");
@@ -801,9 +241,34 @@ export async function registerRoutes(app) {
   app.patch("/api/code-requests/:id", async (req, res) => {
     try {
       const request = await getStorageInstance().updateCodeRequest(req.params.id, req.body);
+      if (!request) return sendResponse(res, 404, null, "Request not found");
       sendResponse(res, 200, request);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update code request");
+    }
+  });
+
+  app.get("/api/codes/verify", async (req, res) => {
+    try {
+      const { code } = req.query;
+      if (!code) return sendResponse(res, 400, null, "Code is required");
+      const validCode = await getStorageInstance().getUserCodeByValue(code);
+      if (!validCode) return sendResponse(res, 404, null, "Invalid or used code");
+      sendResponse(res, 200, validCode);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to verify code");
+    }
+  });
+
+  app.post("/api/codes/use", async (req, res) => {
+    try {
+      const { code } = req.body;
+      if (!code) return sendResponse(res, 400, null, "Code is required");
+      const success = await getStorageInstance().markCodeAsUsed(code);
+      if (!success) return sendResponse(res, 404, null, "Code not found or already used");
+      sendResponse(res, 200, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to use code");
     }
   });
 

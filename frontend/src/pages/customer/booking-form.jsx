@@ -57,7 +57,7 @@ export default function BookingForm() {
       if (!response.ok) throw new Error("Invalid or used code");
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setIsCodeVerified(true);
       toast({ title: "Code Verified", description: "You can now proceed with your booking." });
     },
