@@ -91,6 +91,30 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.patch("/api/food-items/:id", async (req, res) => {
+    try {
+      const result = insertFoodItemSchema.partial().safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+      const item = await getStorageInstance().updateFoodItem(req.params.id, result.data);
+      if (!item) return sendResponse(res, 404, null, "Food item not found");
+      sendResponse(res, 200, item);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update food item");
+    }
+  });
+
+  app.delete("/api/food-items/:id", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteFoodItem(req.params.id);
+      if (!success) return sendResponse(res, 404, null, "Food item not found");
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete food item");
+    }
+  });
+
   app.get("/api/bookings", async (_req, res) => {
     try {
       const bookings = await getStorageInstance().getBookings();
@@ -113,6 +137,20 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.patch("/api/bookings/:id", async (req, res) => {
+    try {
+      const result = updateEventBookingSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+      const booking = await getStorageInstance().updateBooking(req.params.id, result.data);
+      if (!booking) return sendResponse(res, 404, null, "Booking not found");
+      sendResponse(res, 200, booking);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update booking");
+    }
+  });
+
   app.get("/api/reviews", async (_req, res) => {
     try {
       const reviews = await getStorageInstance().getReviews();
@@ -132,6 +170,30 @@ export async function registerRoutes(app) {
       sendResponse(res, 201, review);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create review");
+    }
+  });
+
+  app.patch("/api/reviews/:id", async (req, res) => {
+    try {
+      const result = updateCustomerReviewSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+      const review = await getStorageInstance().updateReview(req.params.id, result.data);
+      if (!review) return sendResponse(res, 404, null, "Review not found");
+      sendResponse(res, 200, review);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update review");
+    }
+  });
+
+  app.delete("/api/reviews/:id", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteReview(req.params.id);
+      if (!success) return sendResponse(res, 404, null, "Review not found");
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete review");
     }
   });
 
@@ -176,6 +238,30 @@ export async function registerRoutes(app) {
       sendResponse(res, 201, staff);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create staff member");
+    }
+  });
+
+  app.patch("/api/staff/:id", async (req, res) => {
+    try {
+      const result = updateStaffSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+      const staff = await getStorageInstance().updateStaffMember(req.params.id, result.data);
+      if (!staff) return sendResponse(res, 404, null, "Staff member not found");
+      sendResponse(res, 200, staff);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update staff member");
+    }
+  });
+
+  app.delete("/api/staff/:id", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteStaffMember(req.params.id);
+      if (!success) return sendResponse(res, 404, null, "Staff member not found");
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete staff member");
     }
   });
 
