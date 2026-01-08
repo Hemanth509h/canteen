@@ -18,7 +18,7 @@ def format_log(message, source="fastapi"):
 
 app = FastAPI()
 
-# Enable CORS
+# Enable CORS with specific origin for the frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,6 +37,12 @@ async def log_requests(request: Request, call_next):
     logger.info(format_log(f"Request: {request.method} {path}"))
     
     response = await call_next(request)
+    
+    # Add CORS headers manually if needed to be absolutely sure
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
     
     process_time = (time.time() - start_time) * 1000
     if path.startswith("/api"):
