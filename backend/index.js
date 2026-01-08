@@ -99,7 +99,7 @@ const startServer = async () => {
     
     const port = 3000;
     app.listen(port, "0.0.0.0", () => {
-      log(`API server listening on port ${port}`);
+      log(`API server listening on http://0.0.0.0:${port}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);
