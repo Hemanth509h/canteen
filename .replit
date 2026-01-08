@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "libiconv", "libxcrypt", "rustc"]
+packages = ["cargo", "libiconv", "libxcrypt", "rustc", "concurrently"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -36,15 +36,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend Only Dev"
+args = "Python FullStack Dev"
 
 [[workflows.workflow]]
-name = "Frontend Only Dev"
+name = "Python FullStack Dev"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev:frontend"
+args = "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
 waitForPort = 5000
 
 [workflows.workflow.metadata]

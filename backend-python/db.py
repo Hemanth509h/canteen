@@ -23,7 +23,9 @@ class MongoStorage:
                 serverSelectionTimeoutMS=20000,
                 connectTimeoutMS=20000,
             )
-            self.db = self.client.get_default_database() or self.client.canteen
+            self.db = self.client.get_default_database()
+            if self.db is None:
+                self.db = self.client.canteen
             logger.info(f"✅ Connected to MongoDB Atlas (Database: {self.db.name})")
         except Exception as e:
             logger.error(f"❌ MongoDB connection error: {e}")

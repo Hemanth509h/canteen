@@ -4,7 +4,7 @@
   "description": "This project consists of two independent applications: a backend API server and a frontend React application.",
   "main": "index.js",
   "scripts": {
-    "dev:backend": "cd backend && npx tsx watch index.js",
+    "dev:backend": "cd backend-python && python -u main.py",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
   },
