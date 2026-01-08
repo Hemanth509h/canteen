@@ -36,13 +36,16 @@ async def log_requests(request: Request, call_next):
     # Debug log for incoming request
     logger.info(format_log(f"Request: {request.method} {path}"))
     
-    response = await call_next(request)
+    if request.method == "OPTIONS":
+        response = JSONResponse(content="OK")
+    else:
+        response = await call_next(request)
     
-    # Add CORS headers manually if needed to be absolutely sure
+    # Add CORS headers manually to ensure they are present
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Methods"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PATCH, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
     
     process_time = (time.time() - start_time) * 1000
     if path.startswith("/api"):

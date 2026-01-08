@@ -13,7 +13,7 @@ from password_manager import verify_password, update_password
 
 router = APIRouter(prefix="/api")
 
-def send_response(data: Any = None, status_code: int = 200, error: str = None):
+def send_response(data: Any = None, status_code: int = 200, error: str = ""):
     return {
         "success": 200 <= status_code < 300,
         "data": data,
@@ -23,7 +23,7 @@ def send_response(data: Any = None, status_code: int = 200, error: str = None):
 
 @router.post("/admin/login")
 async def admin_login(payload: dict = Body(...)):
-    password = payload.get("password")
+    password = payload.get("password", "")
     if await verify_password(password):
         return send_response({"success": True})
     raise HTTPException(status_code=401, detail="Invalid password")
