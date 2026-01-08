@@ -55,6 +55,20 @@ async def create_food_item(item: InsertFoodItem):
     new_item = await storage.create_food_item(item.dict())
     return send_response(new_item, status_code=201)
 
+@router.patch("/food-items/{item_id}")
+async def update_food_item(item_id: str, payload: dict = Body(...)):
+    item = await storage.update_food_item(item_id, payload)
+    if not item:
+        raise HTTPException(status_code=404, detail="Food item not found")
+    return send_response(item)
+
+@router.delete("/food-items/{item_id}")
+async def delete_food_item(item_id: str):
+    success = await storage.delete_food_item(item_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Food item not found")
+    return send_response({"success": True}, status_code=204)
+
 @router.get("/bookings")
 async def get_bookings():
     bookings = await storage.get_bookings()
@@ -65,6 +79,20 @@ async def create_booking(booking: InsertEventBooking):
     new_booking = await storage.create_booking(booking.dict())
     return send_response(new_booking, status_code=201)
 
+@router.patch("/bookings/{booking_id}")
+async def update_booking(booking_id: str, payload: dict = Body(...)):
+    booking = await storage.update_booking(booking_id, payload)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return send_response(booking)
+
+@router.delete("/bookings/{booking_id}")
+async def delete_booking(booking_id: str):
+    success = await storage.delete_booking(booking_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return send_response({"success": True}, status_code=204)
+
 @router.get("/reviews")
 async def get_reviews():
     reviews = await storage.get_reviews()
@@ -74,6 +102,20 @@ async def get_reviews():
 async def create_review(review: InsertCustomerReview):
     new_review = await storage.create_review(review.dict())
     return send_response(new_review, status_code=201)
+
+@router.patch("/reviews/{review_id}")
+async def update_review(review_id: str, payload: dict = Body(...)):
+    review = await storage.update_review(review_id, payload)
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+    return send_response(review)
+
+@router.delete("/reviews/{review_id}")
+async def delete_review(review_id: str):
+    success = await storage.delete_review(review_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Review not found")
+    return send_response({"success": True}, status_code=204)
 
 @router.get("/company-info")
 async def get_company_info():
@@ -95,6 +137,20 @@ async def get_staff():
 async def create_staff(staff_data: InsertStaff):
     new_staff = await storage.create_staff_member(staff_data.dict())
     return send_response(new_staff, status_code=201)
+
+@router.patch("/staff/{staff_id}")
+async def update_staff(staff_id: str, payload: dict = Body(...)):
+    staff = await storage.update_staff_member(staff_id, payload)
+    if not staff:
+        raise HTTPException(status_code=404, detail="Staff member not found")
+    return send_response(staff)
+
+@router.delete("/staff/{staff_id}")
+async def delete_staff(staff_id: str):
+    success = await storage.delete_staff_member(staff_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Staff member not found")
+    return send_response({"success": True}, status_code=204)
 
 @router.get("/user-codes")
 async def get_user_codes():

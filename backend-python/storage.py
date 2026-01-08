@@ -10,17 +10,35 @@ class MongoStorageWrapper:
     async def create_food_item(self, item):
         return await self.storage.create_food_item(item)
 
+    async def update_food_item(self, id, item):
+        return await self.storage.update_food_item(id, item)
+
+    async def delete_food_item(self, id):
+        return await self.storage.delete_food_item(id)
+
     async def get_bookings(self):
         return await self.storage.get_bookings()
 
     async def create_booking(self, booking):
         return await self.storage.create_booking(booking)
 
+    async def update_booking(self, id, booking):
+        return await self.storage.update_booking(id, booking)
+
+    async def delete_booking(self, id):
+        return await self.storage.delete_booking(id)
+
     async def get_reviews(self):
         return await self.storage.get_reviews()
 
     async def create_review(self, review):
         return await self.storage.create_review(review)
+
+    async def update_review(self, id, review):
+        return await self.storage.update_review(id, review)
+
+    async def delete_review(self, id):
+        return await self.storage.delete_review(id)
 
     async def get_company_info(self):
         return await self.storage.get_company_info()
@@ -33,6 +51,12 @@ class MongoStorageWrapper:
 
     async def create_staff_member(self, staff_data):
         return await self.storage.create_staff_member(staff_data)
+
+    async def update_staff_member(self, id, staff_data):
+        return await self.storage.update_staff_member(id, staff_data)
+
+    async def delete_staff_member(self, id):
+        return await self.storage.delete_staff_member(id)
 
     async def get_user_codes(self):
         return await self.storage.get_user_codes()
