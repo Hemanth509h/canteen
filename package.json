@@ -4,7 +4,8 @@
   "description": "This project consists of two independent applications: a backend API server and a frontend React application.",
   "main": "index.js",
   "scripts": {
-    "dev:backend": "cd backend-python && python -u main.py",
+    "dev:backendpython": "cd backend-python && python -u main.py",
+    "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
   },
@@ -23,7 +24,7 @@
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "browser-image-compression": "^2.0.2",
-    "cloudinary": "^1.41.3",
+    "cloudinary": "^2.8.0",
     "concurrently": "^9.2.1",
     "cors": "^2.8.5",
     "cross-env": "^10.1.0",
@@ -31,7 +32,7 @@
     "google-auth-library": "^10.5.0",
     "mongoose": "^9.1.0",
     "multer": "^2.0.2",
-    "multer-storage-cloudinary": "^4.0.0",
+    "multer-storage-cloudinary": "^2.2.1",
     "tsx": "^4.21.0"
   }
 }
