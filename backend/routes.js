@@ -151,6 +151,16 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.delete("/api/bookings/:id", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteBooking(req.params.id);
+      if (!success) return sendResponse(res, 404, null, "Booking not found");
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete booking");
+    }
+  });
+
   app.get("/api/reviews", async (_req, res) => {
     try {
       const reviews = await getStorageInstance().getReviews();
