@@ -1,10 +1,10 @@
-modules = ["nodejs-20", "web", "python-3.11"]
+modules = ["nodejs-20", "python-3.11", "web"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "libiconv", "libxcrypt", "rustc", "concurrently"]
+packages = ["cargo", "concurrently", "libiconv", "libxcrypt", "rustc"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -38,6 +38,10 @@ author = "agent"
 task = "workflow.run"
 args = "Python FullStack Dev"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend Only"
+
 [[workflows.workflow]]
 name = "Python FullStack Dev"
 author = "agent"
@@ -45,6 +49,18 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "Frontend Only"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm run dev"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
