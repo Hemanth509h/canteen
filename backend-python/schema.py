@@ -110,7 +110,7 @@ class InsertCompanyInfo(BaseModel):
         return sanitize_phone(v)
 
 class InsertStaff(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100)
+    name: str = Field(..., min_length=1, max_length=100)
     role: str = Field(..., min_length=1, max_length=50)
     phone: str = Field(..., min_length=10)
 

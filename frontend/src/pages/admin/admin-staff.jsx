@@ -345,6 +345,8 @@ export default function StaffManager() {
                         <SelectItem value="manager">Manager</SelectItem>
                         <SelectItem value="server">Server</SelectItem>
                         <SelectItem value="cleaner">Cleaner</SelectItem>
+                        <SelectItem value="worker">Worker</SelectItem>
+                        <SelectItem value="serving_boy">Serving Boy</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

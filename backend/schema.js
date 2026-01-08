@@ -92,7 +92,6 @@ export const insertCompanyInfoSchema = z.object({
 export const insertStaffSchema = z.object({
   name: z.string()
     .min(1, "Staff name is required")
-    .min(2, "Name must be at least 2 characters")
     .max(100)
     .transform(sanitizeName),
   role: z.string().min(1, "Role is required").max(50),
