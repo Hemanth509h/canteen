@@ -15,6 +15,8 @@ export function CartDrawer() {
   const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "" });
 
   const handleContact = () => {
+    if (!customerDetails.name || !customerDetails.phone) return;
+    
     const itemsList = cartItems.map(item => `- ${item.name} (${item.quantity} guests)`).join('\n');
     const message = `*Elite Catering Booking Request*\n\n` +
       `*Customer Details:*\n` +
@@ -25,7 +27,8 @@ export function CartDrawer() {
       `- Total Guests: ${globalGuests}\n\n` +
       `*Menu Items:*\n${itemsList}`;
     
-    const whatsappUrl = `https://wa.me/911234567890?text=${encodeURIComponent(message)}`;
+    const adminPhone = "911234567890"; // In production this would come from company info
+    const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowContactDialog(false);
     clearCart();
@@ -151,7 +154,7 @@ export function CartDrawer() {
               <Send className="w-6 h-6" />
               Complete Your Booking
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            <DialogDescription className="text-muted-foreground text-sm">
               Please provide your details so we can assist you with your booking.
             </DialogDescription>
           </DialogHeader>
