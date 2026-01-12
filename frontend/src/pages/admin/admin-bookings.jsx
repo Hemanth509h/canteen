@@ -312,7 +312,18 @@ export default function EventBookingsManager() {
   const handleDialogClose = () => {
     setIsDialogOpen(false);
     setEditingBooking(null);
-    form.reset();
+    form.reset({
+      clientName: "",
+      eventDate: "",
+      eventType: "",
+      guestCount: 0,
+      pricePerPlate: 0,
+      servingBoysNeeded: 2,
+      contactEmail: "",
+      contactPhone: "",
+      specialRequests: "",
+      status: "pending",
+    });
     setSelectedItems([]);
   };
 
@@ -339,9 +350,23 @@ export default function EventBookingsManager() {
           >
             <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (!open) handleDialogClose();
+            setIsDialogOpen(open);
+          }}>
             <DialogTrigger asChild>
-              <Button onClick={() => { setEditingBooking(null); form.reset(); }} data-testid="button-add-booking">
+              <Button onClick={() => { setEditingBooking(null); form.reset({
+                clientName: "",
+                eventDate: "",
+                eventType: "",
+                guestCount: 0,
+                pricePerPlate: 0,
+                servingBoysNeeded: 2,
+                contactEmail: "",
+                contactPhone: "",
+                specialRequests: "",
+                status: "pending",
+              }); }} data-testid="button-add-booking">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Booking
               </Button>
