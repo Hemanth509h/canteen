@@ -4,6 +4,7 @@ import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
+import { CartProvider } from "@/lib/cart-context";
 import CustomerHome from "@/pages/customer/customer-home";
 import AdminLogin from "@/pages/admin/admin-login";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
@@ -25,16 +26,18 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="elite-catering-theme">
-        <TooltipProvider>
-          <div className="min-h-screen bg-background flex flex-col">
-            <main className="flex-1">
-              <Router />
-            </main>
-          </div>
-          <Toaster />
-        </TooltipProvider>
-      </ThemeProvider>
+      <CartProvider>
+        <ThemeProvider defaultTheme="light" storageKey="elite-catering-theme">
+          <TooltipProvider>
+            <div className="min-h-screen bg-background flex flex-col">
+              <main className="flex-1">
+                <Router />
+              </main>
+            </div>
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </CartProvider>
     </QueryClientProvider>
   );
 }

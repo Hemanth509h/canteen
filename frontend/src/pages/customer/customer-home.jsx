@@ -24,6 +24,9 @@ import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
 import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { useCart } from "@/lib/cart-context";
+import { CartDrawer } from "@/components/features/cart-drawer";
+import { ShoppingCart, Plus } from "lucide-react";
 
 import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
@@ -148,6 +151,7 @@ const BackgroundLeaf = ({ className }) => (
 
 export default function CustomerHome() {
   const [, setLocation] = useLocation();
+  const { addToCart } = useCart();
   const [selectedType, setSelectedType] = useState("Veg");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -290,7 +294,8 @@ export default function CustomerHome() {
       </div>
 
       <div className="relative h-screen min-h-[600px] overflow-hidden">
-        <div className="absolute top-6 right-6 z-50 fade-in theme-toggle-container">
+        <div className="absolute top-6 right-6 z-50 flex items-center gap-4 fade-in theme-toggle-container">
+          <CartDrawer />
           <ThemeToggle />
         </div>
         
@@ -471,12 +476,24 @@ export default function CustomerHome() {
                           </Badge>
                         </div>
                       </div>
-                      <div className="p-4 sm:p-6 text-center">
+                      <div className="p-4 sm:p-6 text-center flex flex-col h-full">
                         <h3 className="text-sm sm:text-xl font-poppins font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
                         <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 font-light italic mb-4">"{item.description}"</p>
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-2 mb-6">
                            <Utensils size={14} className="text-primary/40" />
                            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary/60">{item.category}</span>
+                        </div>
+                        <div className="mt-auto">
+                          <Button 
+                            className="w-full rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all duration-300 font-bold gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(item);
+                            }}
+                          >
+                            <Plus size={16} />
+                            Add to Cart
+                          </Button>
                         </div>
                       </div>
                     </Card>
