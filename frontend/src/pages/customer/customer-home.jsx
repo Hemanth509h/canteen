@@ -28,7 +28,6 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
-import BookingCodeRequestDialog from "@/components/features/booking-code-request";
 
 const WhatsAppButton = ({ phone }) => (
   <a 
@@ -156,7 +155,6 @@ export default function CustomerHome() {
   const [heroIndex, setHeroIndex] = useState(0);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [showWebsite, setShowWebsite] = useState(false);
-  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
 
   const { data: foodItems, isLoading: isLoadingFood } = useQuery({
     queryKey: ["/api/food-items"],
@@ -330,21 +328,9 @@ export default function CustomerHome() {
               Explore Menu
               <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button 
-              size="lg" 
-              className="rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-500 border-none"
-              onClick={() => setLocation("/book")}
-            >
-              Book Now
-            </Button>
           </div>
         </div>
       </div>
-
-      <BookingCodeRequestDialog 
-        open={isRequestDialogOpen} 
-        onOpenChange={setIsRequestDialogOpen} 
-      />
 
       <section className="py-16 sm:py-24 px-4 sm:px-6 relative">
         <div className="max-w-7xl mx-auto">
@@ -480,30 +466,17 @@ export default function CustomerHome() {
                           }}
                         />
                         <div className="absolute top-2 left-2 sm:top-4 left-4">
-                          <Badge className={cn(
-                            "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                            item.type === "Veg" ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                          )}>
+                          <Badge variant="outline" className={cn("text-[10px] sm:text-xs uppercase font-bold tracking-widest backdrop-blur-md px-2 sm:px-3 py-1", item.type === 'Veg' ? 'text-green-400 border-green-500/50 bg-green-500/10' : 'text-red-400 border-red-500/50 bg-red-500/10')}>
                             {item.type}
                           </Badge>
                         </div>
                       </div>
-                      <div className="p-4 sm:p-6">
+                      <div className="p-4 sm:p-6 text-center">
                         <h3 className="text-sm sm:text-xl font-poppins font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
-                        <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 font-inter leading-relaxed">{item.description}</p>
-                        <div className="flex items-center justify-between mt-auto">
-                          <span className="text-xs sm:text-lg font-bold text-primary">{item.price || "---"}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="rounded-full hover:bg-primary hover:text-white transition-all duration-500 group-hover:translate-x-1"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedItem(item);
-                            }}
-                          >
-                            Details <ChevronRight size={14} className="ml-1" />
-                          </Button>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 font-light italic mb-4">"{item.description}"</p>
+                        <div className="flex items-center justify-center gap-2">
+                           <Utensils size={14} className="text-primary/40" />
+                           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary/60">{item.category}</span>
                         </div>
                       </div>
                     </Card>
@@ -515,48 +488,18 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      <section className="py-24 px-6 relative">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-            <div className="max-w-xl slide-up">
-              <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6">Our Client Reviews</h2>
-              <p className="text-lg text-muted-foreground mb-8">Hear from the people who have experienced our culinary magic firsthand.</p>
-              <Dialog>
-                <Button size="lg" className="rounded-2xl px-8 font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all">
-                  Share Your Story
-                </Button>
-                <DialogContent className="max-w-2xl rounded-[2rem] p-0 overflow-hidden">
-                   <ReviewForm onComplete={() => queryClient.invalidateQueries({ queryKey: ["/api/reviews"] })} />
-                </DialogContent>
-              </Dialog>
-            </div>
-            <div className="w-full md:w-1/2 slide-up">
-               <ReviewsCarousel reviews={reviews} />
-            </div>
-          </div>
-        </div>
-      </section>
+      <Testimonials reviews={reviews} />
 
       <Footer companyInfo={companyInfo} logoSrc={logoSrc} />
 
-      <WhatsAppButton phone={companyInfo?.phone} />
-      
+      <WhatsAppButton phone={companyInfo?.whatsappNumber} />
       <NavigationButton />
-
-      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="p-0 max-w-4xl rounded-[2rem] overflow-hidden border-none shadow-2xl bg-card text-card-foreground">
-          <DialogHeader className="sr-only">
-            <DialogTitle>{selectedItem?.name || 'Food Item'}</DialogTitle>
-            <DialogDescription>{selectedItem?.description || 'Item details'}</DialogDescription>
-          </DialogHeader>
-          {selectedItem && (
-            <FoodItemQuickView 
-              item={selectedItem} 
-              onClose={() => setSelectedItem(null)} 
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      
+      <FoodItemQuickView 
+        item={selectedItem} 
+        open={!!selectedItem} 
+        onOpenChange={() => setSelectedItem(null)} 
+      />
     </div>
   );
 }

@@ -10,15 +10,10 @@ import { ErrorBoundary } from "@/components/layout/error-boundary";
 import DashboardOverview from "./admin-dashboard-overview";
 import HeroImagesManager from "./admin-hero-images";
 import FoodItemsManager from "./admin-food-items";
-import EventBookingsManager from "./admin-event-bookings";
-import AdminBookingCodes from "./admin-booking-codes";
-import AdminPaymentConfirmation from "./admin-payment-confirmation";
-import CompanySettingsManager from "./admin-company-settings";
-import StaffManager from "./admin-staff";
 import AdminAccount from "./admin-account";
-import ChefPrintout from "./admin-chef-printout";
 import AuditHistory from "./admin-audit-history";
 import ReviewsManager from "./admin-reviews";
+import CompanySettingsManager from "./admin-company-settings";
 import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
@@ -26,12 +21,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "User Codes", url: "/admin/booking-codes", icon: Ticket },
   { title: "Hero Images", url: "/admin/hero-images", icon: ImagePlus },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
-  { title: "Event Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Reviews", url: "/admin/reviews", icon: Star },
-  { title: "Staff", url: "/admin/staff", icon: Users },
   { title: "Audit History", url: "/admin/audit-history", icon: History },
   { title: "Company Settings", url: "/admin/settings", icon: Settings },
   { title: "Account Settings", url: "/admin/account", icon: UserCog },
@@ -189,14 +181,9 @@ export default function AdminDashboard() {
             <ErrorBoundary>
               <Switch>
                 <Route path="/admin" component={DashboardOverview} />
-                <Route path="/admin/booking-codes" component={AdminBookingCodes} />
                 <Route path="/admin/hero-images" component={HeroImagesManager} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
-                <Route path="/admin/bookings" component={EventBookingsManager} />
-                <Route path="/admin/payment/:bookingId" component={AdminPaymentConfirmation} />
-                <Route path="/admin/chef-printout" component={ChefPrintout} />
                 <Route path="/admin/reviews" component={ReviewsManager} />
-                <Route path="/admin/staff" component={StaffManager} />
                 <Route path="/admin/audit-history" component={AuditHistory} />
                 <Route path="/admin/settings" component={CompanySettingsManager} />
                 <Route path="/admin/account" component={AdminAccount} />
