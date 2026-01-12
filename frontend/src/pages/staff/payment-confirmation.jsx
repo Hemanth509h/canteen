@@ -281,103 +281,290 @@ export default function PaymentConfirmation() {
                       <p className="text-sm text-muted-foreground">50% of total amount</p>
                     </div>
                   </div>
-                  <Badge variant={advancePaid ? "default" : "outline"} className={advancePaid ? "bg-green-600" : ""}>
-                    {advancePaid ? "Paid" : advanceUploaded ? "Reviewing" : "Pending"}
-                  </Badge>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-primary" data-testid="text-advance-amount">₹{advanceAmount.toLocaleString('en-IN')}</p>
+                    <Badge variant={advancePaid ? "default" : "secondary"} data-testid="badge-advance-status">
+                      {advancePaid ? "Paid" : "Pending"}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-4 space-y-4">
-                <div className="flex justify-between items-center bg-muted/30 p-4 rounded-xl border">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Required Advance</p>
-                    <p className="text-2xl font-bold text-primary">₹{advanceAmount.toLocaleString('en-IN')}</p>
-                  </div>
-                  {!advancePaid && !advanceUploaded && (
-                    <div className="flex gap-2">
-                      <Button onClick={() => document.getElementById('advance-upload').click()} variant="outline" size="sm" className="gap-2">
-                        <Camera className="w-4 h-4" />
-                        Upload
-                      </Button>
-                      <input id="advance-upload" type="file" className="hidden" accept="image/*" onChange={handleAdvanceFileChange} />
-                    </div>
-                  )}
-                </div>
+              <CardContent className="space-y-6">
+                {booking.advancePaymentStatus !== "paid" ? (
+                  <>
+                    <UPIPayment
+                      upiId={companyInfo?.upiId || ""}
+                      totalAmount={advanceAmount}
+                      bookingId={bookingId}
+                      clientName={booking.clientName}
+                      paymentType="advance"
+                    />
 
-                {advancePreview && !advancePaid && (
-                  <div className="relative mt-4">
-                    <img src={advancePreview} alt="Advance preview" className="w-full h-48 object-cover rounded-lg border" />
-                    <Button 
-                      className="absolute bottom-2 right-2" 
-                      onClick={() => uploadScreenshotMutation.mutate("advance")}
-                      disabled={uploadScreenshotMutation.isPending}
-                    >
-                      {uploadScreenshotMutation.isPending ? "Uploading..." : "Confirm & Send"}
-                    </Button>
+                    <div className="border-t pt-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Camera className="w-5 h-5 text-muted-foreground" />
+                        <Label className="text-base font-semibold">Upload Payment Screenshot</Label>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4">After completing payment, upload a screenshot as proof.</p>
+                      
+                      <div className="space-y-4">
+                        {advancePreview && (
+                          <div className="animate-in fade-in duration-300 relative w-full max-w-xs mx-auto"
+                          >
+                            <img src={advancePreview} alt="Payment preview" className="w-full border-2 rounded-lg shadow-md" data-testid="img-advance-preview" />
+                            <Button 
+                              size="sm" 
+                              variant="secondary" 
+                              className="absolute top-2 right-2"
+                              onClick={() => { setAdvanceFile(null); setAdvancePreview(null); }}
+                            >
+                              Change
+                            </Button>
+                          </div>
+                        )}
+                        
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <div className="flex-1">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleAdvanceFileChange}
+                              data-testid="input-advance-screenshot"
+                              disabled={uploadScreenshotMutation.isPending}
+                              className="cursor-pointer"
+                            />
+                          </div>
+                          <Button
+                            onClick={() => uploadScreenshotMutation.mutate("advance")}
+                            disabled={!advanceFile || uploadScreenshotMutation.isPending}
+                            data-testid="button-upload-advance"
+                            className="gap-2"
+                          >
+                            <Upload className="w-4 h-4" />
+                            {uploadScreenshotMutation.isPending ? "Uploading..." : "Submit Payment"}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : advanceUploaded ? (
+                  <div className="animate-in fade-in duration-300 space-y-4"
+                  >
+                    <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
+                      <Clock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-blue-700 dark:text-blue-200">Waiting for Admin Approval</p>
+                        <p className="text-sm text-blue-600 dark:text-blue-300">Your payment screenshot has been received. The admin will review and approve it shortly. You'll be notified once approved.</p>
+                      </div>
+                    </div>
+                    {booking.advancePaymentScreenshot && (
+                      <div>
+                        <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="animate-in fade-in duration-300 space-y-4"
+                  >
+                    <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
+                      <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
+                        <p className="text-sm text-green-600 dark:text-green-300">Thank you! Your advance payment has been confirmed by our team.</p>
+                      </div>
+                    </div>
+                    {booking.advancePaymentScreenshot && (
+                      <div>
+                        <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            <Card className={finalPaid ? "border-green-300 dark:border-green-800" : "border-blue-300 dark:border-blue-800"}>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${finalPaid ? 'bg-green-600' : 'bg-blue-500'}`}>
-                      {finalPaid ? <CheckCircle className="w-5 h-5" /> : '2'}
+            {booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved" && (
+              <div className="animate-in fade-in duration-300">
+                <Card className={finalPaid ? "border-green-300 dark:border-green-800" : "border-blue-300 dark:border-blue-800"}>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${finalPaid ? 'bg-green-600' : 'bg-blue-600'}`}>
+                          {finalPaid ? <CheckCircle className="w-5 h-5" /> : '2'}
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">Final Payment</CardTitle>
+                          <p className="text-sm text-muted-foreground">Remaining 50% amount</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-primary" data-testid="text-final-amount">₹{finalAmount.toLocaleString('en-IN')}</p>
+                        <Badge variant={finalPaid ? "default" : "secondary"} data-testid="badge-final-status">
+                          {finalPaid ? "Paid" : "Pending"}
+                        </Badge>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">Final Payment</CardTitle>
-                      <p className="text-sm text-muted-foreground">Remaining balance</p>
-                    </div>
-                  </div>
-                  <Badge variant={finalPaid ? "default" : "outline"} className={finalPaid ? "bg-green-600" : ""}>
-                    {finalPaid ? "Paid" : finalUploaded ? "Reviewing" : "Pending"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-4">
-                <div className="flex justify-between items-center bg-muted/30 p-4 rounded-xl border">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Remaining Balance</p>
-                    <p className="text-2xl font-bold text-primary">₹{finalAmount.toLocaleString('en-IN')}</p>
-                  </div>
-                  {!finalPaid && !finalUploaded && advancePaid && (
-                    <div className="flex gap-2">
-                      <Button onClick={() => document.getElementById('final-upload').click()} variant="outline" size="sm" className="gap-2">
-                        <Camera className="w-4 h-4" />
-                        Upload
-                      </Button>
-                      <input id="final-upload" type="file" className="hidden" accept="image/*" onChange={handleFinalFileChange} />
-                    </div>
-                  )}
-                </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {booking.finalPaymentStatus !== "paid" ? (
+                      <>
+                        <UPIPayment
+                          upiId={companyInfo?.upiId || ""}
+                          totalAmount={finalAmount}
+                          bookingId={bookingId}
+                          clientName={booking.clientName}
+                          paymentType="final"
+                        />
 
-                {finalPreview && !finalPaid && (
-                  <div className="relative mt-4">
-                    <img src={finalPreview} alt="Final preview" className="w-full h-48 object-cover rounded-lg border" />
-                    <Button 
-                      className="absolute bottom-2 right-2" 
-                      onClick={() => uploadScreenshotMutation.mutate("final")}
-                      disabled={uploadScreenshotMutation.isPending}
-                    >
-                      {uploadScreenshotMutation.isPending ? "Uploading..." : "Confirm & Send"}
-                    </Button>
-                  </div>
-                )}
-                
-                {!advancePaid && !finalPaid && (
-                  <p className="text-sm text-amber-600 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4" />
-                    Complete advance payment first to unlock final payment.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                        <div className="border-t pt-6">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Camera className="w-5 h-5 text-muted-foreground" />
+                            <Label className="text-base font-semibold">Upload Payment Screenshot</Label>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-4">After completing payment, upload a screenshot as proof.</p>
+                          
+                          <div className="space-y-4">
+                            {finalPreview && (
+                              <div className="animate-in fade-in duration-300 relative w-full max-w-xs mx-auto"
+                              >
+                                <img src={finalPreview} alt="Payment preview" className="w-full border-2 rounded-lg shadow-md" data-testid="img-final-preview" />
+                                <Button 
+                                  size="sm" 
+                                  variant="secondary" 
+                                  className="absolute top-2 right-2"
+                                  onClick={() => { setFinalFile(null); setFinalPreview(null); }}
+                                >
+                                  Change
+                                </Button>
+                              </div>
+                            )}
+                            
+                            <div className="flex flex-col sm:flex-row gap-3">
+                              <div className="flex-1">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleFinalFileChange}
+                                  data-testid="input-final-screenshot"
+                                  disabled={uploadScreenshotMutation.isPending}
+                                  className="cursor-pointer"
+                                />
+                              </div>
+                              <Button
+                                onClick={() => uploadScreenshotMutation.mutate("final")}
+                                disabled={!finalFile || uploadScreenshotMutation.isPending}
+                                data-testid="button-upload-final"
+                                className="gap-2"
+                              >
+                                <Upload className="w-4 h-4" />
+                                {uploadScreenshotMutation.isPending ? "Uploading..." : "Submit Payment"}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : finalUploaded ? (
+                      <div className="animate-in fade-in duration-300 space-y-4"
+                      >
+                        <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
+                          <Clock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-blue-700 dark:text-blue-200">Waiting for Admin Approval</p>
+                            <p className="text-sm text-blue-600 dark:text-blue-300">Your final payment screenshot has been received. The admin will review and approve it shortly.</p>
+                          </div>
+                        </div>
+                        {booking.finalPaymentScreenshot && (
+                          <div>
+                            <p className="text-sm font-semibold mb-2 text-muted-foreground">Final Payment Proof</p>
+                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="animate-in fade-in duration-300 space-y-4"
+                      >
+                        <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 flex items-start gap-3">
+                          <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-green-700 dark:text-green-200">Final Payment Confirmed</p>
+                            <p className="text-sm text-green-600 dark:text-green-300">Your booking is now fully paid. Thank you!</p>
+                          </div>
+                        </div>
+                        {booking.finalPaymentScreenshot && (
+                          <div>
+                            <p className="text-sm font-semibold mb-2 text-muted-foreground">Final Payment Proof</p>
+                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-6">
-            <UPIPayment amount={!advancePaid ? advanceAmount : finalAmount} />
-            <Invoice booking={booking} />
+          <div className="animate-in fade-in duration-300 delay-150 space-y-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Event Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-start text-sm">
+                    <span className="text-muted-foreground">Base Amount</span>
+                    <span className="font-medium">₹{baseAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between items-start text-sm">
+                    <span className="text-muted-foreground">Total Amount</span>
+                    <span className="font-bold text-lg">₹{totalAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between items-start text-sm border-t pt-2">
+                    <span className="text-muted-foreground">Advance (50%)</span>
+                    <span className={`font-medium ${advancePaid ? 'text-green-600' : 'text-amber-600'}`}>
+                      ₹{advanceAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-start text-sm">
+                    <span className="text-muted-foreground">Final Balance</span>
+                    <span className={`font-medium ${finalPaid ? 'text-green-600' : 'text-foreground'}`}>
+                      ₹{finalAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-muted/30 p-4 rounded-lg space-y-3 border border-dashed mt-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className={`w-4 h-4 ${advancePaid ? 'text-green-600' : 'text-muted-foreground'}`} />
+                    <span className={`text-xs ${advancePaid ? 'text-green-700' : 'text-muted-foreground'}`}>Advance Payment</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className={`w-4 h-4 ${finalPaid ? 'text-green-600' : 'text-muted-foreground'}`} />
+                    <span className={`text-xs ${finalPaid ? 'text-green-700' : 'text-muted-foreground'}`}>Final Payment</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold px-1 text-muted-foreground">Actions</h3>
+              <Invoice booking={booking} companyInfo={companyInfo} />
+              <Button variant="outline" className="w-full gap-2" onClick={() => window.print()} data-testid="button-print-payment">
+                Print Payment Details
+              </Button>
+            </div>
+
+            <div className="bg-primary/5 rounded-xl p-5 border border-primary/10">
+              <h3 className="font-semibold text-primary mb-2">Need Assistance?</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                If you have any questions regarding your payment or booking details, feel free to contact us.
+              </p>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">{companyInfo?.contactPhone}</p>
+                <p className="text-sm font-medium">{companyInfo?.contactEmail}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
