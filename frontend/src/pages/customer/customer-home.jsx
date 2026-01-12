@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
   Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle,
-  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart, Minus
+  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart
 } from "lucide-react";
 import { 
   Dialog, 
@@ -131,7 +131,7 @@ const BackgroundLeaf = ({ className }) => (
 
 export default function CustomerHome() {
   const [, setLocation] = useLocation();
-  const { addToCart, cartItems, updateQuantity } = useCart();
+  const { addToCart, cartItems } = useCart();
   const [selectedType, setSelectedType] = useState("Veg");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -467,38 +467,28 @@ export default function CustomerHome() {
                           <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 sm:mb-6 font-light italic flex-grow">"{item.description}"</p>
                           
                           <div className="flex items-center justify-between gap-2 mt-auto">
-                            {isSelected ? (
-                              <div className="flex items-center w-full gap-2 bg-secondary/30 rounded-xl sm:rounded-2xl p-1" onClick={(e) => e.stopPropagation()}>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl hover:bg-background"
-                                  onClick={() => updateQuantity(item.id, -1)}
-                                >
-                                  <Minus size={14} />
-                                </Button>
-                                <span className="flex-1 text-center font-bold text-xs sm:text-lg">{quantity}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl hover:bg-background"
-                                  onClick={() => updateQuantity(item.id, 1)}
-                                >
-                                  <Plus size={14} />
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button 
-                                className="w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-green-500/20 transition-all hover:scale-105 border-none"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  addToCart(item);
-                                }}
-                              >
-                                <Plus className="w-3 h-3 sm:w-5 h-5 mr-1" />
-                                Add to Cart
-                              </Button>
-                            )}
+                            <Button 
+                              className={cn(
+                                "w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base shadow-lg transition-all hover:scale-105 border-none",
+                                isSelected ? "bg-primary text-white" : "bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-green-500/20"
+                              )}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCart(item);
+                              }}
+                            >
+                              {isSelected ? (
+                                <span className="flex items-center gap-2">
+                                  <CheckCircle className="w-3 h-3 sm:w-5 h-5" />
+                                  Added ({quantity})
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-2">
+                                  <Plus className="w-3 h-3 sm:w-5 h-5" />
+                                  Add to Cart
+                                </span>
+                              )}
+                            </Button>
                           </div>
                         </div>
                       </Card>
