@@ -8,12 +8,14 @@ import { CartProvider } from "@/lib/cart-context";
 import CustomerHome from "@/pages/customer/customer-home";
 import AdminLogin from "@/pages/admin/admin-login";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
+import PaymentConfirmation from "@/pages/staff/payment-confirmation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
+      <Route path="/payment/:bookingId" component={PaymentConfirmation} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/:rest*" component={AdminDashboard} />
