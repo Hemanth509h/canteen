@@ -11,14 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
   Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle,
-  ArrowUp, Camera, Calendar, CheckCircle
+  ArrowUp, Camera, Calendar, CheckCircle, Plus
 } from "lucide-react";
 import { 
   Dialog, 
   DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
@@ -26,7 +23,6 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useCart } from "@/lib/cart-context";
 import { CartDrawer } from "@/components/features/cart-drawer";
-import { ShoppingCart, Plus } from "lucide-react";
 
 import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
@@ -57,7 +53,7 @@ const Testimonials = ({ reviews }) => (
           { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering experience we've ever had. Highly recommend their organic menu!" }
         ]).slice(0, 3).map((review, idx) => (
           <Card key={idx} className="p-6 md:p-8 bg-card border-none shadow-xl rounded-[1.5rem] md:rounded-[2rem] hover:-translate-y-2 transition-transform">
-            <Quote className="text-primary/20 mb-4 md:mb-6" size={32} md:size={40} />
+            <Quote className="text-primary/20 mb-4 md:mb-6" size={32} />
             <p className="text-base md:text-lg italic mb-4 md:mb-6">"{review.comment}"</p>
             <div className="flex items-center justify-center gap-2 mb-4">
               {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
@@ -121,26 +117,10 @@ const Footer = ({ companyInfo, logoSrc }) => (
 );
 
 const features = [
-  { 
-    icon: ChefHat, 
-    title: "Expert Chefs", 
-    description: "Our culinary masters craft each dish with passion and precision" 
-  },
-  { 
-    icon: Award, 
-    title: "Premium Quality", 
-    description: "Only the finest ingredients for unforgettable flavors" 
-  },
-  { 
-    icon: Users, 
-    title: "Any Occasion", 
-    description: "From intimate gatherings to grand celebrations" 
-  },
-  { 
-    icon: Clock, 
-    title: "On-Time Service", 
-    description: "Punctual delivery and setup for stress-free events" 
-  },
+  { icon: ChefHat, title: "Expert Chefs", description: "Our culinary masters craft each dish with passion and precision" },
+  { icon: Award, title: "Premium Quality", description: "Only the finest ingredients for unforgettable flavors" },
+  { icon: Users, title: "Any Occasion", description: "From intimate gatherings to grand celebrations" },
+  { icon: Clock, title: "On-Time Service", description: "Punctual delivery and setup for stress-free events" },
 ];
 
 const BackgroundLeaf = ({ className }) => (
@@ -178,7 +158,7 @@ export default function CustomerHome() {
     }
   }, [companyInfo?.primaryColor]);
 
-  const { data: reviews, isLoading: isLoadingReviews } = useQuery({
+  const { data: reviews } = useQuery({
     queryKey: ["/api/reviews"],
     staleTime: 0,
     gcTime: 0,
@@ -187,9 +167,7 @@ export default function CustomerHome() {
   const dynamicHeroImages = useMemo(() => {
     if (companyInfo?.heroImages && Array.isArray(companyInfo.heroImages)) {
       const validImages = companyInfo.heroImages.filter(img => 
-        typeof img === 'string' && 
-        img.trim() !== "" && 
-        (img.startsWith('http') || img.startsWith('/'))
+        (typeof img === 'string' && img.trim() !== "" && (img.startsWith('http') || img.startsWith('/')))
       );
       if (validImages.length > 0) return validImages;
     }
@@ -365,10 +343,7 @@ export default function CustomerHome() {
 
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
               {features.map((feature, idx) => (
-                <div 
-                  key={idx}
-                  className="p-4 sm:p-8 bg-card rounded-[1.5rem] sm:rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 group slide-up"
-                >
+                <div key={idx} className="p-4 sm:p-8 bg-card rounded-[1.5rem] sm:rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 group slide-up">
                   <div className="w-10 h-10 sm:w-14 h-14 rounded-xl sm:rounded-2xl bg-primary/5 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary transition-colors duration-500">
                     <feature.icon className="w-5 h-5 sm:w-7 h-7 text-primary group-hover:text-white transition-colors duration-500" />
                   </div>
@@ -392,10 +367,7 @@ export default function CustomerHome() {
             <div className="flex justify-center mb-8 sm:mb-12">
               <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
                 <div className="w-full sm:w-1/3">
-                  <Select value={selectedType} onValueChange={(val) => {
-                    setSelectedType(val);
-                    setSelectedCategory("All");
-                  }}>
+                  <Select value={selectedType} onValueChange={(val) => { setSelectedType(val); setSelectedCategory("All"); }}>
                     <SelectTrigger className="rounded-2xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg text-foreground">
                       <SelectValue placeholder="Type" className="text-foreground" />
                     </SelectTrigger>
@@ -502,6 +474,13 @@ export default function CustomerHome() {
         </div>
       </section>
 
+      <Testimonials reviews={reviews} />
+
+      <Footer companyInfo={companyInfo} logoSrc={logoSrc} />
+
+      <WhatsAppButton phone={companyInfo?.whatsappNumber} />
+      <NavigationButton />
+
       <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-[2rem] sm:rounded-[3rem] bg-card">
           <FoodItemQuickView 
@@ -511,46 +490,6 @@ export default function CustomerHome() {
           />
         </DialogContent>
       </Dialog>
-                        <h3 className="text-sm sm:text-xl font-poppins font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
-                        <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 font-light italic mb-4">"{item.description}"</p>
-                        <div className="flex items-center justify-center gap-2 mb-6">
-                           <Utensils size={14} className="text-primary/40" />
-                           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary/60">{item.category}</span>
-                        </div>
-                        <div className="mt-auto">
-                          <Button 
-                            className="w-full rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all duration-300 font-bold gap-2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addToCart(item);
-                            }}
-                          >
-                            <Plus size={16} />
-                            Add to Cart
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Testimonials reviews={reviews} />
-
-      <Footer companyInfo={companyInfo} logoSrc={logoSrc} />
-
-      <WhatsAppButton phone={companyInfo?.whatsappNumber} />
-      <NavigationButton />
-      
-      <FoodItemQuickView 
-        item={selectedItem} 
-        open={!!selectedItem} 
-        onOpenChange={() => setSelectedItem(null)} 
-      />
     </div>
   );
 }

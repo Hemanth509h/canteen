@@ -19,12 +19,12 @@ const FoodItemQuickView = ({ item, onClose, defaultFoodImage }) => {
     <div className="grid md:grid-cols-2 bg-card">
       <div className="h-64 md:h-full relative">
         <img 
-          src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop"} 
+          src={item.imageUrl || defaultFoodImage || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop"} 
           alt={item.name}
           className="w-full h-full object-cover"
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop';
+            e.target.src = defaultFoodImage || 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop';
           }}
         />
         <div className="absolute top-4 left-4">
@@ -76,7 +76,13 @@ const FoodItemQuickView = ({ item, onClose, defaultFoodImage }) => {
               variant="outline"
               className="w-full h-12 rounded-2xl font-bold border-primary/20 text-primary hover:bg-primary/5"
               onClick={() => {
-                document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'});
+                const contactSection = document.getElementById('contact-section');
+                if (contactSection) {
+                  contactSection.scrollIntoView({behavior: 'smooth'});
+                } else {
+                  // Fallback or smooth scroll to bottom if contact section not found
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }
                 onClose();
               }}
             >
