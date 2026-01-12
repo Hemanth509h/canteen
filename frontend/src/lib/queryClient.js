@@ -18,8 +18,6 @@ export async function apiRequest(method, url, data) {
       Accept: "application/json",
     },
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "omit",
-    mode: 'cors'
   });
 
   if (!res.ok) {
@@ -46,10 +44,7 @@ export const getQueryFn =
     const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
     console.log(`[QUERY] Fetching: ${finalUrl}`);
 
-    const res = await fetch(finalUrl, {
-      credentials: "omit",
-      mode: 'cors'
-    });
+    const res = await fetch(finalUrl);
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;

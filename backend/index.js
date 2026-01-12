@@ -36,15 +36,14 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Expose-Headers', '*');
   
-  // Replit-specific fix for NotSameOrigin/CORS issues in iframes
+  // CRITICAL: Clear all potential blocking headers for Replit iframe
+  // These headers often cause NotSameOrigin errors in the Replit webview
   res.removeHeader('Cross-Origin-Resource-Policy');
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
   
-  // Explicitly set COEP/COOP to allow cross-origin
-  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  res.header('Cross-Origin-Opener-Policy', 'unsafe-none');
+  // Set permissive policies
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
