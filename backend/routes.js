@@ -368,6 +368,30 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/chef-printout", async (req, res) => {
+    try {
+      const bookings = await getStorageInstance().getBookings();
+      const grouped = {};
+      
+      for (const booking of bookings) {
+        if (booking.status !== 'confirmed') continue;
+        const date = new Date(booking.eventDate).toISOString().split('T')[0];
+        if (!grouped[date]) grouped[date] = [];
+        
+        const items = await getStorageInstance().getBookingItems(booking.id);
+        const itemsWithDetails = await Promise.all(items.map(async (item) => ({
+          ...item,
+          foodItem: await getStorageInstance().getFoodItem(item.foodItemId)
+        })));
+        
+        grouped[date].push({ ...booking, items: itemsWithDetails });
+      }
+      res.json(grouped);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch chef printout data");
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
