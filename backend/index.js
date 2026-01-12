@@ -43,6 +43,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Expose-Headers', '*');
   
   // Replit-specific fix for NotSameOrigin/CORS issues in iframes
+  // Using 'cross-origin' to allow resources to be loaded in the Replit webview
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
