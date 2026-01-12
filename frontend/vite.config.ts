@@ -15,7 +15,7 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       "/api": {
-        target: "https://canteen-f0rq.onrender.com/",
+        target: "http://0.0.0.0:3000",
         changeOrigin: true,
         secure: false,
       },
