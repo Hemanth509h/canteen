@@ -41,8 +41,10 @@ app.use((req, res, next) => {
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
   
-  // Also explicitly set the policy to allow cross-origin
+  // Explicitly set COEP/COOP to allow cross-origin
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  res.header('Cross-Origin-Opener-Policy', 'unsafe-none');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
