@@ -29,9 +29,8 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Access-Control-Allow-Private-Network');
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Expose-Headers', '*');
   
-  // Replit-specific fix for NotSameOrigin/CORS issues in iframes
+  // Replit-specific fix for NotSameOrigin errors in webview
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   res.header('Cross-Origin-Opener-Policy', 'unsafe-none');
   res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
@@ -41,10 +40,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-// Remove the redundant manual header block below
-// and just keep this one.
-
 
 // Middleware to log all incoming requests for debugging
 app.use((req, res, next) => {

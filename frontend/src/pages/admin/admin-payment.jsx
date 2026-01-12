@@ -43,6 +43,7 @@ export default function AdminPaymentConfirmation() {
   });
 
   const booking = response?.data || response;
+  const bookingActualId = booking?._id || booking?.id;
 
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
@@ -58,6 +59,7 @@ export default function AdminPaymentConfirmation() {
   const updatePaymentMutation = useMutation({
     mutationFn: async () => {
       if (!booking) return;
+      const id = booking?._id || booking?.id || bookingId;
       
       // Validate payment states - final cannot be paid if advance isn't paid
       if (editFinalStatus === "paid" && editAdvanceStatus !== "paid") {
@@ -72,7 +74,7 @@ export default function AdminPaymentConfirmation() {
         updateData.finalPaymentStatus = editFinalStatus;
       }
       if (editTotalAmount !== null) {
-        const baseAmount = booking.guestCount * booking.pricePerPlate;
+        const baseAmount = (booking.guestCount || 0) * (booking.pricePerPlate || 0);
         const currentTotal = booking.totalAmount ?? baseAmount;
         if (editTotalAmount !== currentTotal) {
           updateData.totalAmount = editTotalAmount;
@@ -84,7 +86,7 @@ export default function AdminPaymentConfirmation() {
       if (editAdvanceAmount !== null) {
         updateData.advanceAmount = editAdvanceAmount;
       }
-      return apiRequest("PATCH", `/api/bookings/${bookingId}`, updateData);
+      return apiRequest("PATCH", `/api/bookings/${id}`, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
@@ -127,7 +129,8 @@ export default function AdminPaymentConfirmation() {
 
   const approvePaymentMutation = useMutation({
     mutationFn: async (type) => {
-      return apiRequest("PATCH", `/api/bookings/${bookingId}`, {
+      const id = booking?._id || booking?.id || bookingId;
+      return apiRequest("PATCH", `/api/bookings/${id}`, {
         [type === "advance" ? "advancePaymentStatus" : "finalPaymentStatus"]: "paid",
         [type === "advance" ? "advancePaymentApprovalStatus" : "finalPaymentApprovalStatus"]: "approved",
       });

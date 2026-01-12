@@ -495,7 +495,7 @@ export default function EventBookingsManager() {
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(booking)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(booking.id)}>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(booking._id || booking.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
