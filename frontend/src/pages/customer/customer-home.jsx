@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
   Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle,
-  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart
+  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart, Minus
 } from "lucide-react";
 import { 
   Dialog, 
@@ -131,7 +131,7 @@ const BackgroundLeaf = ({ className }) => (
 
 export default function CustomerHome() {
   const [, setLocation] = useLocation();
-  const { addToCart, totalItems } = useCart();
+  const { addToCart, cartItems, updateQuantity } = useCart();
   const [selectedType, setSelectedType] = useState("Veg");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -424,49 +424,87 @@ export default function CustomerHome() {
                   </div>
                 ))
               ) : (
-                filteredItems.map((item) => (
-                  <div 
-                    key={item.id}
-                    className="group relative slide-up"
-                    onClick={() => setSelectedItem(item)}
-                  >
-                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20 h-full flex flex-col">
-                      <div className="h-32 sm:h-64 relative overflow-hidden">
-                        <img 
-                          src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"} 
-                          alt={item.name}
-                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop';
-                          }}
-                        />
-                        <div className="absolute top-2 left-2 sm:top-4 left-4">
-                          <Badge variant="outline" className={cn("text-[10px] sm:text-xs uppercase font-bold tracking-widest backdrop-blur-md px-2 sm:px-3 py-1", item.type === 'Veg' ? 'text-green-400 border-green-500/50 bg-green-500/10' : 'text-red-400 border-red-500/50 bg-red-500/10')}>
-                            {item.type}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="p-4 sm:p-6 text-center flex flex-col flex-grow">
-                        <h3 className="text-sm sm:text-xl font-poppins font-bold mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
-                        <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 sm:mb-6 font-light italic flex-grow">"{item.description}"</p>
-                        
-                        <div className="flex items-center justify-between gap-2 mt-auto">
-                          <Button 
-                            className="w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-green-500/20 transition-all hover:scale-105 border-none"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addToCart(item);
+                filteredItems.map((item) => {
+                  const cartItem = cartItems.find(i => i.id === item.id);
+                  const isSelected = !!cartItem;
+                  const quantity = cartItem?.quantity || 0;
+
+                  return (
+                    <div 
+                      key={item.id}
+                      className="group relative slide-up"
+                      onClick={() => setSelectedItem(item)}
+                    >
+                      <Card className={cn(
+                        "overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 h-full flex flex-col",
+                        isSelected && "ring-2 ring-primary"
+                      )}>
+                        <div className="h-32 sm:h-64 relative overflow-hidden">
+                          <img 
+                            src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"} 
+                            alt={item.name}
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop';
                             }}
-                          >
-                            <Plus className="w-3 h-3 sm:w-5 h-5 mr-1" />
-                            Add to Cart
-                          </Button>
+                          />
+                          <div className="absolute top-2 left-2 sm:top-4 left-4 flex flex-col gap-2">
+                            <Badge variant="outline" className={cn("text-[10px] sm:text-xs uppercase font-bold tracking-widest backdrop-blur-md px-2 sm:px-3 py-1", item.type === 'Veg' ? 'text-green-400 border-green-500/50 bg-green-500/10' : 'text-red-400 border-red-500/50 bg-red-500/10')}>
+                              {item.type}
+                            </Badge>
+                          </div>
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 sm:top-4 right-4">
+                              <Badge className="bg-primary text-white border-none h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center p-0 rounded-full shadow-lg">
+                                {quantity}
+                              </Badge>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </Card>
-                  </div>
-                ))
+                        <div className="p-4 sm:p-6 text-center flex flex-col flex-grow">
+                          <h3 className="text-sm sm:text-xl font-poppins font-bold mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
+                          <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 sm:mb-6 font-light italic flex-grow">"{item.description}"</p>
+                          
+                          <div className="flex items-center justify-between gap-2 mt-auto">
+                            {isSelected ? (
+                              <div className="flex items-center w-full gap-2 bg-secondary/30 rounded-xl sm:rounded-2xl p-1" onClick={(e) => e.stopPropagation()}>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl hover:bg-background"
+                                  onClick={() => updateQuantity(item.id, -1)}
+                                >
+                                  <Minus size={14} />
+                                </Button>
+                                <span className="flex-1 text-center font-bold text-xs sm:text-lg">{quantity}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl hover:bg-background"
+                                  onClick={() => updateQuantity(item.id, 1)}
+                                >
+                                  <Plus size={14} />
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button 
+                                className="w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-green-500/20 transition-all hover:scale-105 border-none"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addToCart(item);
+                                }}
+                              >
+                                <Plus className="w-3 h-3 sm:w-5 h-5 mr-1" />
+                                Add to Cart
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
