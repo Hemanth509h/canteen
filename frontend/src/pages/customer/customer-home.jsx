@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
   Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle,
-  ArrowUp, Camera, Calendar, CheckCircle, Plus
+  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart
 } from "lucide-react";
 import { 
   Dialog, 
@@ -131,7 +131,7 @@ const BackgroundLeaf = ({ className }) => (
 
 export default function CustomerHome() {
   const [, setLocation] = useLocation();
-  const { addToCart } = useCart();
+  const { addToCart, totalItems } = useCart();
   const [selectedType, setSelectedType] = useState("Veg");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -273,7 +273,6 @@ export default function CustomerHome() {
 
       <div className="relative h-screen min-h-[600px] overflow-hidden">
         <div className="absolute top-6 right-6 z-50 flex items-center gap-4 fade-in theme-toggle-container">
-          <CartDrawer />
           <ThemeToggle />
         </div>
         
@@ -479,6 +478,12 @@ export default function CustomerHome() {
       <Footer companyInfo={companyInfo} logoSrc={logoSrc} />
 
       <WhatsAppButton phone={companyInfo?.whatsappNumber} />
+      
+      {/* Floating Cart Button */}
+      <div className="fixed bottom-6 right-6 z-[90]">
+        <CartDrawer />
+      </div>
+
       <NavigationButton />
 
       <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
