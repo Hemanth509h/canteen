@@ -431,7 +431,7 @@ export default function CustomerHome() {
                     className="group relative slide-up"
                     onClick={() => setSelectedItem(item)}
                   >
-                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20 h-full">
+                    <Card className="overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 hover:ring-2 hover:ring-primary/20 h-full flex flex-col">
                       <div className="h-32 sm:h-64 relative overflow-hidden">
                         <img 
                           src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"} 
@@ -448,20 +448,20 @@ export default function CustomerHome() {
                           </Badge>
                         </div>
                       </div>
-                      <div className="p-4 sm:p-6 text-center flex flex-col h-full">
+                      <div className="p-4 sm:p-6 text-center flex flex-col flex-grow">
                         <h3 className="text-sm sm:text-xl font-poppins font-bold mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
                         <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 sm:mb-6 font-light italic flex-grow">"{item.description}"</p>
                         
                         <div className="flex items-center justify-between gap-2 mt-auto">
                           <Button 
-                            className="flex-1 rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-green-500/20 transition-all hover:scale-105 border-none"
+                            className="w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-green-500/20 transition-all hover:scale-105 border-none"
                             onClick={(e) => {
                               e.stopPropagation();
                               addToCart(item);
                             }}
                           >
                             <Plus className="w-3 h-3 sm:w-5 h-5 mr-1" />
-                            Add
+                            Add to Cart
                           </Button>
                         </div>
                       </div>
