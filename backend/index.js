@@ -30,20 +30,28 @@ app.use(cors({
 
 // Set headers manually for Replit environment
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  // If credentials are true, origin cannot be '*'
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Access-Control-Allow-Private-Network');
-  res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Expose-Headers', '*');
   
-  // CRITICAL: Clear all potential blocking headers for Replit iframe
-  // These headers often cause NotSameOrigin errors in the Replit webview
-  res.removeHeader('Cross-Origin-Resource-Policy');
-  res.removeHeader('Cross-Origin-Embedder-Policy');
-  res.removeHeader('Cross-Origin-Opener-Policy');
-  
-  // Set permissive policies
+  // CRITICAL Replit CORP Fix
+  // Use 'cross-origin' to allow the browser to load the resource from different origins
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+  
+  // Ensure the frame-options don't block
+  res.removeHeader('X-Frame-Options');
+  res.removeHeader('Content-Security-Policy');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);

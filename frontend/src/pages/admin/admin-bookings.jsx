@@ -260,15 +260,15 @@ export default function EventBookingsManager() {
   const handleEdit = (booking) => {
     setEditingBooking(booking);
     form.reset({
-      clientName: booking.clientName,
+      clientName: booking.clientName || "",
       eventDate: booking.eventDate ? new Date(booking.eventDate).toISOString().split('T')[0] : "",
-      eventType: booking.eventType,
-      guestCount: booking.guestCount,
-      pricePerPlate: booking.pricePerPlate,
+      eventType: booking.eventType || "",
+      guestCount: booking.guestCount || 0,
+      pricePerPlate: booking.pricePerPlate || 0,
       contactEmail: booking.contactEmail || "",
-      contactPhone: booking.contactPhone,
+      contactPhone: booking.contactPhone || "",
       specialRequests: booking.specialRequests || "",
-      status: booking.status,
+      status: booking.status || "pending",
     });
     setIsDialogOpen(true);
   };
@@ -327,6 +327,24 @@ export default function EventBookingsManager() {
     setSelectedItems([]);
   };
 
+  const handleAddNew = () => {
+    setEditingBooking(null);
+    form.reset({
+      clientName: "",
+      eventDate: "",
+      eventType: "",
+      guestCount: 0,
+      pricePerPlate: 0,
+      servingBoysNeeded: 2,
+      contactEmail: "",
+      contactPhone: "",
+      specialRequests: "",
+      status: "pending",
+    });
+    setSelectedItems([]);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="p-6 sm:p-8 space-y-6">
       <div
@@ -355,18 +373,7 @@ export default function EventBookingsManager() {
             setIsDialogOpen(open);
           }}>
             <DialogTrigger asChild>
-              <Button onClick={() => { setEditingBooking(null); form.reset({
-                clientName: "",
-                eventDate: "",
-                eventType: "",
-                guestCount: 0,
-                pricePerPlate: 0,
-                servingBoysNeeded: 2,
-                contactEmail: "",
-                contactPhone: "",
-                specialRequests: "",
-                status: "pending",
-              }); }} data-testid="button-add-booking">
+              <Button onClick={handleAddNew} data-testid="button-add-booking">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Booking
               </Button>
