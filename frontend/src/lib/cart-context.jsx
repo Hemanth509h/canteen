@@ -28,11 +28,11 @@ export function CartProvider({ children }) {
     setCartItems((prev) => prev.filter((i) => i.id !== itemId));
   };
 
-  const updateQuantity = (itemId, delta) => {
+  const updateQuantity = (itemId, newQuantity) => {
     setCartItems((prev) =>
       prev.map((i) =>
         i.id === itemId
-          ? { ...i, quantity: Math.max(0, i.quantity + delta) }
+          ? { ...i, quantity: Math.max(0, parseInt(newQuantity) || 0) }
           : i
       ).filter((i) => i.quantity > 0)
     );

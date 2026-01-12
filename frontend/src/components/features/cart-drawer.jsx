@@ -1,10 +1,11 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, Plus, Minus, X } from "lucide-react";
+import { ShoppingCart, Trash2, X } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 
 export function CartDrawer() {
   const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart } = useCart();
@@ -64,24 +65,15 @@ export function CartDrawer() {
                       </div>
                       <p className="text-xs text-muted-foreground mb-3">{item.category}</p>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 bg-secondary/50 rounded-lg p-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-7 w-7 rounded-md hover:bg-background"
-                            onClick={() => updateQuantity(item.id, -1)}
-                          >
-                            <Minus size={12} />
-                          </Button>
-                          <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-7 w-7 rounded-md hover:bg-background"
-                            onClick={() => updateQuantity(item.id, 1)}
-                          >
-                            <Plus size={12} />
-                          </Button>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">Guests:</span>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => updateQuantity(item.id, e.target.value)}
+                            className="h-8 w-16 text-center text-sm font-bold bg-secondary/50 border-none"
+                          />
                         </div>
                       </div>
                     </div>
