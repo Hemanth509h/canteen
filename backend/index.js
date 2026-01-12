@@ -41,6 +41,7 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
   res.setHeader('Access-Control-Allow-Private-Network', 'true');
   res.setHeader('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors *;");
+  res.setHeader('X-Frame-Options', 'ALLOWALL');
   
   // Handle preflight
   if (req.method === 'OPTIONS') {
