@@ -109,6 +109,11 @@ const Footer = ({ companyInfo, logoSrc }) => (
           <span className="flex items-center gap-2"><MapPin size={16} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</span>
           <span className="flex items-center gap-2 font-medium text-foreground">Email: events@elite-catering.com</span>
           <span className="flex items-center gap-2"><Clock size={16} className="text-primary" /> Mon - Sun: 9AM - 10PM</span>
+          {companyInfo?.phoneNumber && (
+            <span className="flex items-center gap-2 font-bold text-primary">
+              <MessageCircle size={16} /> {companyInfo.phoneNumber}
+            </span>
+          )}
         </div>
         <p>© 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.</p>
       </div>
