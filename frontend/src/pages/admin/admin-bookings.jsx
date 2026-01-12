@@ -489,7 +489,7 @@ export default function EventBookingsManager() {
                       <Badge variant={statusColors[booking.status] || "secondary"}>{booking.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/payment/${booking.id}`)}>
+                      <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}>
                         <CreditCard className="h-4 w-4 mr-1" /> View Payment
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(booking)}>

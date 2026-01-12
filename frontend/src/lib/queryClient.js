@@ -63,7 +63,8 @@ export const getQueryFn =
     const text = await res.text();
     try {
       const result = JSON.parse(text);
-      return result.success ? result.data : result;
+      // Ensure we return the data property if it exists (wrapped by express handler)
+      return result.success && result.data !== undefined ? result.data : result;
     } catch (e) {
       console.error("Malformed JSON response:", text);
       throw new Error("Invalid server response (malformed JSON)");
