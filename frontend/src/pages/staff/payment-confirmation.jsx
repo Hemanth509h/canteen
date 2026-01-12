@@ -360,7 +360,7 @@ export default function PaymentConfirmation() {
                     {booking.advancePaymentScreenshot && (
                       <div>
                         <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
-                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
                       </div>
                     )}
                   </div>
@@ -377,7 +377,7 @@ export default function PaymentConfirmation() {
                     {booking.advancePaymentScreenshot && (
                       <div>
                         <p className="text-sm font-semibold mb-2 text-muted-foreground">Payment Proof</p>
-                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
+                        <img src={booking.advancePaymentScreenshot} alt="Advance payment screenshot" className="w-full max-xs border rounded-lg shadow-sm" data-testid="img-advance-screenshot-customer" />
                       </div>
                     )}
                   </div>
@@ -478,7 +478,7 @@ export default function PaymentConfirmation() {
                         {booking.finalPaymentScreenshot && (
                           <div>
                             <p className="text-sm font-semibold mb-2 text-muted-foreground">Final Payment Proof</p>
-                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
+                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
                           </div>
                         )}
                       </div>
@@ -495,7 +495,7 @@ export default function PaymentConfirmation() {
                         {booking.finalPaymentScreenshot && (
                           <div>
                             <p className="text-sm font-semibold mb-2 text-muted-foreground">Final Payment Proof</p>
-                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-w-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
+                            <img src={booking.finalPaymentScreenshot} alt="Final payment screenshot" className="w-full max-xs border rounded-lg shadow-sm" data-testid="img-final-screenshot-customer" />
                           </div>
                         )}
                       </div>

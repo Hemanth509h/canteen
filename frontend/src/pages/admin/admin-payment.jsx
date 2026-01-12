@@ -419,7 +419,7 @@ export default function AdminPaymentConfirmation() {
                           <p className="text-sm font-semibold text-amber-700 dark:text-amber-200 mb-2">Payment Pending Your Approval</p>
                         </div>
                       ) : advancePaid ? (
-                        <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                        <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-amber-800">
                           <p className="text-sm font-semibold text-green-700 dark:text-green-200">Payment Approved</p>
                         </div>
                       ) : null}
