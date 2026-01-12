@@ -49,6 +49,8 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+  res.setHeader('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors *;");
+  res.setHeader('Access-Control-Allow-Private-Network', 'true');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
