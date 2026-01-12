@@ -24,23 +24,20 @@ app.use((req, res, next) => {
 
 // Enable CORS for frontend communication
 app.use(cors({
-  origin: ["http://localhost:5000", "http://0.0.0.0:5000", "https://*.replit.app"],
+  origin: true,
   credentials: true
 }));
 
 // Set headers manually to ensure cross-origin access and prevent blocking in Replit
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin) {
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    res.header('Access-Control-Allow-Origin', '*');
-  }
+  res.header('Access-Control-Allow-Origin', origin || '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
   
   // CORS policies for Replit webview
+  // IMPORTANT: DO NOT SET COOP/COEP HEADERS AS THEY BREAK CROSS-ORIGIN ASSETS IN REPLIT
   res.removeHeader('Cross-Origin-Resource-Policy');
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
