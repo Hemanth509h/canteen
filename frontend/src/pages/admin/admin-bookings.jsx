@@ -335,7 +335,6 @@ export default function EventBookingsManager() {
       eventType: "",
       guestCount: 0,
       pricePerPlate: 0,
-      servingBoysNeeded: 2,
       contactEmail: "",
       contactPhone: "",
       specialRequests: "",
