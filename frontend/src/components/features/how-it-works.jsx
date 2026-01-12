@@ -4,18 +4,18 @@ const HowItWorks = () => {
   const steps = [
     {
       icon: Calendar,
-      title: "Plan Your Event",
-      description: "Browse our seasonal menus and select your favorites for your special occasion."
+      title: "Explore & Select",
+      description: "Browse our diverse menu of authentic dishes and choose your favorites for your special event."
     },
     {
       icon: Utensils,
-      title: "Customized Menu",
-      description: "Consult with our chefs to personalize every dish according to your dietary needs."
+      title: "Request a Quote",
+      description: "Add items to your cart and send us a booking request with your guest count and preferences."
     },
     {
       icon: CheckCircle,
-      title: "Execution & Delivery",
-      description: "Sit back as our professional team handles everything from setup to impeccable service."
+      title: "Confirm & Enjoy",
+      description: "Our team will contact you to finalize the details, manage staffing, and deliver an unforgettable catering experience."
     }
   ];
 
