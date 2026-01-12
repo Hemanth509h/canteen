@@ -477,6 +477,40 @@ export default function CustomerHome() {
                         </div>
                       </div>
                       <div className="p-4 sm:p-6 text-center flex flex-col h-full">
+                        <h3 className="text-sm sm:text-xl font-poppins font-bold mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 sm:mb-6 font-light italic flex-grow">"{item.description}"</p>
+                        
+                        <div className="flex items-center justify-between gap-2 mt-auto">
+                          <Button 
+                            className="flex-1 rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-green-500/20 transition-all hover:scale-105 border-none"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(item);
+                            }}
+                          >
+                            <Plus className="w-3 h-3 sm:w-5 h-5 mr-1" />
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-[2rem] sm:rounded-[3rem] bg-card">
+          <FoodItemQuickView 
+            item={selectedItem} 
+            onClose={() => setSelectedItem(null)} 
+            defaultFoodImage="https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"
+          />
+        </DialogContent>
+      </Dialog>
                         <h3 className="text-sm sm:text-xl font-poppins font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
                         <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 font-light italic mb-4">"{item.description}"</p>
                         <div className="flex items-center justify-center gap-2 mb-6">
