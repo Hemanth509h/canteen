@@ -35,8 +35,9 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
-  // Cross-Origin Isolation settings that can block cross-origin resources
-  res.removeHeader('Cross-Origin-Resource-Policy');
+  // Replit Specific: ensure resources can be loaded across origins
+  // Use 'cross-origin' to allow cross-origin requests
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
   res.removeHeader('X-Frame-Options');
