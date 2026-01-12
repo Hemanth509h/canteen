@@ -24,25 +24,23 @@ app.use((req, res, next) => {
 
 // Enable CORS for frontend communication
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  credentials: true,
 }));
 
-// Set headers manually to ensure cross-origin access and prevent blocking in Replit
+// Set headers manually for Replit environment
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  res.header('Access-Control-Allow-Origin', origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
-  // CORS policies for Replit webview
-  // IMPORTANT: DO NOT SET COOP/COEP HEADERS AS THEY BREAK CROSS-ORIGIN ASSETS IN REPLIT
+  // Cross-Origin Isolation settings that can block cross-origin resources
   res.removeHeader('Cross-Origin-Resource-Policy');
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
+  res.removeHeader('X-Frame-Options');
   
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }

@@ -433,9 +433,10 @@ export default function CustomerHome() {
                     <div 
                       key={item.id}
                       className="group relative slide-up"
-                      onClick={() => setSelectedItem(item)}
                     >
-                      <Card className={cn(
+                      <Card 
+                        onClick={() => !isSelected && setSelectedItem(item)}
+                        className={cn(
                         "overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 h-full flex flex-col",
                         isSelected && "ring-2 ring-primary"
                       )}>
@@ -455,10 +456,11 @@ export default function CustomerHome() {
                             </Badge>
                           </div>
                           {isSelected && (
-                            <div className="absolute top-2 right-2 sm:top-4 right-4">
-                              <Badge className="bg-primary text-white border-none h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center p-0 rounded-full shadow-lg">
-                                {quantity}
-                              </Badge>
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4">
+                              <div className="bg-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 animate-in zoom-in duration-300">
+                                <CheckCircle size={20} />
+                                Added to Cart
+                              </div>
                             </div>
                           )}
                         </div>
@@ -467,28 +469,20 @@ export default function CustomerHome() {
                           <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 sm:mb-6 font-light italic flex-grow">"{item.description}"</p>
                           
                           <div className="flex items-center justify-between gap-2 mt-auto">
-                            <Button 
-                              className={cn(
-                                "w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base shadow-lg transition-all hover:scale-105 border-none",
-                                isSelected ? "bg-primary text-white" : "bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-green-500/20"
-                              )}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                addToCart(item);
-                              }}
-                            >
-                              {isSelected ? (
-                                <span className="flex items-center gap-2">
-                                  <CheckCircle className="w-3 h-3 sm:w-5 h-5" />
-                                  Added ({quantity})
-                                </span>
-                              ) : (
+                            {!isSelected && (
+                              <Button 
+                                className="w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base shadow-lg transition-all hover:scale-105 border-none bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-green-500/20"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addToCart(item);
+                                }}
+                              >
                                 <span className="flex items-center gap-2">
                                   <Plus className="w-3 h-3 sm:w-5 h-5" />
                                   Add to Cart
                                 </span>
-                              )}
-                            </Button>
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </Card>

@@ -7,13 +7,14 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, ChefHat, ShoppingCart, Plus } from "lucide-react";
+import { Clock, ChefHat, ShoppingCart, Plus, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";
 
 const FoodItemQuickView = ({ item, onClose, defaultFoodImage }) => {
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   if (!item) return null;
+  const isSelected = cartItems.some(i => i.id === item.id);
 
   return (
     <div className="grid md:grid-cols-2 bg-card">
@@ -62,16 +63,23 @@ const FoodItemQuickView = ({ item, onClose, defaultFoodImage }) => {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3">
-            <Button 
-              className="w-full h-14 rounded-2xl text-lg font-bold gap-2 bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-xl shadow-green-500/20 transition-all hover:scale-[1.02]"
-              onClick={() => {
-                addToCart(item);
-                onClose();
-              }}
-            >
-              <Plus size={20} />
-              Add to Cart
-            </Button>
+            {isSelected ? (
+              <div className="w-full h-14 rounded-2xl text-lg font-bold flex items-center justify-center gap-2 bg-primary text-white shadow-xl">
+                <CheckCircle size={20} />
+                Already in Cart
+              </div>
+            ) : (
+              <Button 
+                className="w-full h-14 rounded-2xl text-lg font-bold gap-2 bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-xl shadow-green-500/20 transition-all hover:scale-[1.02]"
+                onClick={() => {
+                  addToCart(item);
+                  onClose();
+                }}
+              >
+                <Plus size={20} />
+                Add to Cart
+              </Button>
+            )}
             <Button 
               variant="outline"
               className="w-full h-12 rounded-2xl font-bold border-primary/20 text-primary hover:bg-primary/5"

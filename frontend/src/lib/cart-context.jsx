@@ -12,16 +12,31 @@ export function CartProvider({ children }) {
     localStorage.setItem('elite-catering-cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
+  const [globalGuests, setGlobalGuests] = useState(1);
+
+  useEffect(() => {
+    const savedGlobalGuests = localStorage.getItem('elite-catering-global-guests');
+    if (savedGlobalGuests) setGlobalGuests(parseInt(savedGlobalGuests));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('elite-catering-global-guests', globalGuests.toString());
+  }, [globalGuests]);
+
   const addToCart = (item) => {
     setCartItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
-        return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-        );
+        return prev;
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, quantity: globalGuests }];
     });
+  };
+
+  const updateGlobalGuests = (count) => {
+    const val = parseInt(count) || 1;
+    setGlobalGuests(val);
+    setCartItems(prev => prev.map(item => ({ ...item, quantity: val })));
   };
 
   const removeFromCart = (itemId) => {
@@ -32,18 +47,30 @@ export function CartProvider({ children }) {
     setCartItems((prev) =>
       prev.map((i) =>
         i.id === itemId
-          ? { ...i, quantity: Math.max(0, parseInt(newQuantity) || 0) }
+          ? { ...i, quantity: Math.max(1, parseInt(newQuantity) || 1) }
           : i
-      ).filter((i) => i.quantity > 0)
+      )
     );
   };
 
   const clearCart = () => setCartItems([]);
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItemsCount = cartItems.length;
+
+  const totalGuests = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart, totalItems }}>
+    <CartContext.Provider value={{ 
+      cartItems, 
+      addToCart, 
+      removeFromCart, 
+      updateQuantity, 
+      clearCart, 
+      totalItems: totalItemsCount,
+      totalGuests,
+      globalGuests,
+      updateGlobalGuests
+    }}>
       {children}
     </CartContext.Provider>
   );
