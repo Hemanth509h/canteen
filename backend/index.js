@@ -30,18 +30,19 @@ app.use(cors({
 
 // Set headers manually for Replit environment
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  res.header('Access-Control-Allow-Origin', origin || '*');
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Access-Control-Allow-Private-Network');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Expose-Headers', '*');
   
-  // CRITICAL Replit CORS Fix
-  // We MUST remove these headers to avoid ERR_BLOCKED_BY_RESPONSE.NotSameOrigin
+  // Replit-specific fix for NotSameOrigin/CORS issues in iframes
   res.removeHeader('Cross-Origin-Resource-Policy');
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
+  
+  // Also explicitly set the policy to allow cross-origin
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);

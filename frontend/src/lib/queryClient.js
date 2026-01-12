@@ -1,4 +1,4 @@
-// Base URL for API calls
+// Use a relative path for the API URL in development
 export const API_URL = "/api";
 
 export async function apiRequest(method, url, data) {
@@ -8,7 +8,7 @@ export async function apiRequest(method, url, data) {
     cleanPath = cleanPath.slice(4);
   }
 
-  const finalUrl = cleanPath.startsWith('http') ? cleanPath : `${API_URL}/${cleanPath}`;
+  const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
   console.log(`[API] Requesting: ${finalUrl}`);
 
   const res = await fetch(finalUrl, {
@@ -18,7 +18,6 @@ export async function apiRequest(method, url, data) {
       Accept: "application/json",
     },
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
   });
 
   if (!res.ok) {
@@ -42,12 +41,10 @@ export const getQueryFn =
       cleanPath = cleanPath.slice(4);
     }
 
-    const finalUrl = cleanPath.startsWith('http') ? cleanPath : `${API_URL}/${cleanPath}`;
+    const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
     console.log(`[QUERY] Fetching: ${finalUrl}`);
 
-    const res = await fetch(finalUrl, {
-      credentials: "include",
-    });
+    const res = await fetch(finalUrl);
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
