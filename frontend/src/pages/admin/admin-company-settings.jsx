@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Building2, RefreshCw, Upload } from "lucide-react";
+import { Building2, RefreshCw, Upload, Phone } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function CompanySettingsManager() {
@@ -351,6 +351,17 @@ export default function CompanySettingsManager() {
                       </FormItem>
                     )}
                   />
+
+                  <div className="space-y-2">
+                    <FormLabel>Contact Strategy</FormLabel>
+                    <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                      <Phone className="w-5 h-5 text-primary" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Contact Method: Phone Call</p>
+                        <p className="text-xs text-muted-foreground">Customers will be prompted to call you directly for inquiries.</p>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="space-y-2">
                     <FormLabel>Logo Management</FormLabel>

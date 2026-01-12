@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
   Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle,
+  Phone,
   ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart
 } from "lucide-react";
 import { 
@@ -28,16 +29,14 @@ import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 
-const WhatsAppButton = ({ phone }) => (
+const PhoneCallButton = ({ phone }) => (
   <a 
-    href={`https://wa.me/${phone?.replace(/\D/g, '') || '1234567890'}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="fixed bottom-6 left-6 z-[90] bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center group"
+    href={`tel:${phone?.replace(/\D/g, '') || '1234567890'}`}
+    className="fixed bottom-6 left-6 z-[90] bg-primary text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center group"
   >
-    <MessageCircle size={32} />
+    <Phone size={32} />
     <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-3 transition-all duration-500 whitespace-nowrap font-bold">
-      Chat with us
+      Call us
     </span>
   </a>
 );
@@ -111,7 +110,7 @@ const Footer = ({ companyInfo, logoSrc }) => (
           <span className="flex items-center gap-2"><Clock size={16} className="text-primary" /> Mon - Sun: 9AM - 10PM</span>
           {companyInfo?.phoneNumber && (
             <span className="flex items-center gap-2 font-bold text-primary">
-              <MessageCircle size={16} /> {companyInfo.phoneNumber}
+              <Phone size={16} /> {companyInfo.phoneNumber}
             </span>
           )}
         </div>
@@ -504,7 +503,7 @@ export default function CustomerHome() {
 
       <Footer companyInfo={companyInfo} logoSrc={logoSrc} />
 
-      <WhatsAppButton phone={companyInfo?.whatsappNumber} />
+      <PhoneCallButton phone={companyInfo?.phone} />
       
       {/* Floating Cart Button */}
       <div className="fixed bottom-24 right-6 z-[90]">

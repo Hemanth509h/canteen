@@ -14,6 +14,10 @@ export default defineConfig({
     host: "0.0.0.0",
     allowedHosts: true,
     cors: true,
+    headers: {
+      "Cross-Origin-Opener-Policy": "unsafe-none",
+      "Cross-Origin-Embedder-Policy": "unsafe-none",
+    },
     proxy: {
       "/api": {
         target: "http://0.0.0.0:3000",
