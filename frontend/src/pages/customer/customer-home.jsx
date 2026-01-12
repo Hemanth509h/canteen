@@ -518,7 +518,7 @@ export default function CustomerHome() {
       <WhatsAppButton phone={companyInfo?.whatsappNumber} />
       
       {/* Floating Cart Button */}
-      <div className="fixed bottom-6 right-6 z-[90]">
+      <div className="fixed bottom-24 right-6 z-[90]">
         <CartDrawer />
       </div>
 
