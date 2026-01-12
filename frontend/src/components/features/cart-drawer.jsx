@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, X, User, Phone, Send } from "lucide-react";
+import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -8,30 +8,55 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
 
 export function CartDrawer() {
+  const { toast } = useToast();
   const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests } = useCart();
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "" });
 
+  const bookingMutation = useMutation({
+    mutationFn: async (bookingData) => {
+      return apiRequest("POST", "/api/bookings", bookingData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Booking Request Sent",
+        description: "Your details have been shared with our admin. We will contact you soon!",
+      });
+      setShowContactDialog(false);
+      clearCart();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send booking request. Please try calling us.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleContact = () => {
     if (!customerDetails.name || !customerDetails.phone) return;
     
-    const itemsList = cartItems.map(item => `- ${item.name} (${item.quantity} guests)`).join('\n');
-    const message = `*Elite Catering Booking Request*\n\n` +
-      `*Customer Details:*\n` +
-      `- Name: ${customerDetails.name}\n` +
-      `- Phone: ${customerDetails.phone}\n\n` +
-      `*Booking Details:*\n` +
-      `- Total Items: ${totalItems}\n` +
-      `- Total Guests: ${globalGuests}\n\n` +
-      `*Menu Items:*\n${itemsList}`;
-    
-    const adminPhone = "911234567890"; // In production this would come from company info
-    const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    setShowContactDialog(false);
-    clearCart();
+    // Create the booking record in the database
+    const bookingData = {
+      clientName: customerDetails.name,
+      contactPhone: customerDetails.phone,
+      contactEmail: "customer@example.com", // Placeholder since we don't ask for it
+      eventType: "Inquiry from Website",
+      eventDate: new Date().toISOString(),
+      guestCount: globalGuests || 1,
+      pricePerPlate: 0,
+      servingBoysNeeded: 0,
+      specialRequests: cartItems.map(item => `${item.name} (${item.quantity} guests)`).join(', '),
+      status: "pending"
+    };
+
+    bookingMutation.mutate(bookingData);
   };
 
   return (
@@ -206,11 +231,18 @@ export function CartDrawer() {
               Cancel
             </Button>
             <Button
-              disabled={!customerDetails.name || !customerDetails.phone}
+              disabled={!customerDetails.name || !customerDetails.phone || bookingMutation.isPending}
               onClick={handleContact}
               className="w-full h-12 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold"
             >
-              Contact Admin & Send Booking
+              {bookingMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Confirm Booking Request"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
