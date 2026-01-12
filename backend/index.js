@@ -37,7 +37,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   
   // Replit-specific fixes for ERR_BLOCKED_BY_RESPONSE.NotSameOrigin
-  // We remove these headers entirely to ensure the browser doesn't block the response in Replit's webview.
+  // Remove COOP, COEP, and CORP headers to ensure the browser doesn't block the response in Replit's webview.
   res.removeHeader('Cross-Origin-Resource-Policy');
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
