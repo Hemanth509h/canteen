@@ -28,6 +28,7 @@ export function CartDrawer() {
     const whatsappUrl = `https://wa.me/911234567890?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowContactDialog(false);
+    clearCart();
   };
 
   return (
