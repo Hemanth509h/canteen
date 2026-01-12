@@ -33,24 +33,15 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   res.header('Access-Control-Allow-Origin', origin || '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Access-Control-Allow-Private-Network');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Expose-Headers', '*');
   
-  // CRITICAL Replit CORS and loading Fix
-  // We MUST remove these headers as they cause ERR_BLOCKED_BY_RESPONSE.NotSameOrigin in the Replit iframe/webview
+  // CRITICAL Replit CORS Fix
+  // We MUST remove these headers to avoid ERR_BLOCKED_BY_RESPONSE.NotSameOrigin
   res.removeHeader('Cross-Origin-Resource-Policy');
   res.removeHeader('Cross-Origin-Embedder-Policy');
   res.removeHeader('Cross-Origin-Opener-Policy');
-  res.removeHeader('X-Frame-Options');
-  res.removeHeader('X-Powered-By');
-
-  // Set permissive cross-origin headers
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
-  res.setHeader('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors *;");
-  res.setHeader('Access-Control-Allow-Private-Network', 'true');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);

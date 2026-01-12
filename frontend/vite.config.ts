@@ -13,11 +13,6 @@ export default defineConfig({
     port: 5000,
     host: "0.0.0.0",
     allowedHosts: true,
-    headers: {
-      "Cross-Origin-Opener-Policy": "unsafe-none",
-      "Cross-Origin-Embedder-Policy": "unsafe-none",
-      "Cross-Origin-Resource-Policy": "cross-origin",
-    },
     proxy: {
       "/api": {
         target: "http://localhost:3000",
