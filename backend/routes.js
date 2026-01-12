@@ -392,6 +392,28 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const items = await getStorageInstance().getBookingItems(req.params.id);
+      sendResponse(res, 200, items);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch booking items");
+    }
+  });
+
+  app.post("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const items = req.body;
+      const results = [];
+      for (const item of items) {
+        results.push(await getStorageInstance().createBookingItem(item));
+      }
+      sendResponse(res, 201, results);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create booking items");
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

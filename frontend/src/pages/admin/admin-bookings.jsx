@@ -415,15 +415,16 @@ export default function EventBookingsManager() {
               <TableRow>
                 <TableHead>Client</TableHead>
                 <TableHead>Event Info</TableHead>
+                <TableHead>Payment</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-10">Loading bookings...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-10">Loading bookings...</TableCell></TableRow>
               ) : filteredBookings.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-10 text-muted-foreground">No bookings found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-10 text-muted-foreground">No bookings found</TableCell></TableRow>
               ) : (
                 filteredBookings.map((booking) => (
                   <TableRow key={booking.id}>
@@ -438,11 +439,27 @@ export default function EventBookingsManager() {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase text-muted-foreground w-12">Advance:</span>
+                          <Badge variant={booking.advancePaymentStatus === "paid" ? "default" : "secondary"} className="text-[10px] px-1 py-0">
+                            {booking.advancePaymentStatus === "paid" ? "Paid" : "Pending"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase text-muted-foreground w-12">Final:</span>
+                          <Badge variant={booking.finalPaymentStatus === "paid" ? "default" : "secondary"} className="text-[10px] px-1 py-0">
+                            {booking.finalPaymentStatus === "paid" ? "Paid" : "Pending"}
+                          </Badge>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={statusColors[booking.status] || "secondary"}>{booking.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/payment/${booking.id}`)}>
-                        <CreditCard className="h-4 w-4 mr-1" /> Payment
+                        <CreditCard className="h-4 w-4 mr-1" /> View Payment
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(booking)}>
                         <Pencil className="h-4 w-4" />
