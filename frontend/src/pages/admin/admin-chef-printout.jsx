@@ -28,17 +28,21 @@ export default function ChefPrintout() {
 
   bookingsForDate.forEach(booking => {
     totalMembers += booking.guestCount;
+    const uniqueFoodItemIds = new Set(); // Prevent duplicate items from same booking
     booking.items.forEach(item => {
+      if (uniqueFoodItemIds.has(item.foodItemId)) return;
+      uniqueFoodItemIds.add(item.foodItemId);
+
       const foodItem = item.foodItem;
       if (!foodItem) return;
       if (combinedItems[item.foodItemId]) {
-        combinedItems[item.foodItemId].totalQuantity += item.quantity;
+        combinedItems[item.foodItemId].totalQuantity += booking.guestCount;
         combinedItems[item.foodItemId].totalGuests += booking.guestCount;
       } else {
         combinedItems[item.foodItemId] = {
           name: foodItem.name,
           category: foodItem.category,
-          totalQuantity: item.quantity,
+          totalQuantity: booking.guestCount,
           totalGuests: booking.guestCount
         };
       }
