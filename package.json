@@ -5,9 +5,9 @@
   "main": "index.js",
   
   "scripts": {
-    "build": "cd frontend && ./node_modules/.bin/vite build",
+    "build": "cd frontend && npx vite build",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "cd frontend && ./node_modules/.bin/vite",
+    "dev:frontend": "cd frontend && npx vite --host 0.0.0.0",
     "dev:backend": "cd backend && node index.js",
     "dev:all": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
   },
