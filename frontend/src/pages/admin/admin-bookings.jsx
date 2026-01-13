@@ -263,6 +263,12 @@ export default function EventBookingsManager() {
 
   const handleEdit = (booking) => {
     setEditingBooking(booking);
+    // Clean up special requests if they contain the "Selected Menu:" string
+    let cleanedSpecialRequests = booking.specialRequests || "";
+    if (cleanedSpecialRequests.includes("Selected Menu:")) {
+      cleanedSpecialRequests = cleanedSpecialRequests.split("Selected Menu:")[0].trim();
+    }
+    
     form.reset({
       clientName: booking.clientName || "",
       eventDate: booking.eventDate ? new Date(booking.eventDate).toISOString().split('T')[0] : "",
@@ -271,7 +277,7 @@ export default function EventBookingsManager() {
       pricePerPlate: booking.pricePerPlate || 0,
       contactEmail: booking.contactEmail || "",
       contactPhone: booking.contactPhone || "",
-      specialRequests: booking.specialRequests || "",
+      specialRequests: cleanedSpecialRequests,
       status: booking.status || "pending",
     });
     setIsDialogOpen(true);
