@@ -19,10 +19,29 @@ export default function CustomerHome() {
       const res = await fetch(`/api/bookings/search?phone=${encodeURIComponent(searchPhone)}`);
       if (!res.ok) throw new Error("Search failed");
       const json = await res.json();
+      
+      // Save "login" state in localStorage
+      if (json.data && json.data.length > 0) {
+        localStorage.setItem("customer_phone", searchPhone);
+      }
       return json.data || [];
     },
     enabled: !!searchPhone,
   });
+
+  useEffect(() => {
+    const savedPhone = localStorage.getItem("customer_phone");
+    if (savedPhone) {
+      setPhone(savedPhone);
+      setSearchPhone(savedPhone);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("customer_phone");
+    setPhone("");
+    setSearchPhone("");
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -34,9 +53,14 @@ export default function CustomerHome() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-poppins font-bold text-primary">My Bookings</h1>
-          <Link href="/">
-            <Button variant="ghost">Back to Home</Button>
-          </Link>
+          <div className="flex gap-2">
+            {searchPhone && (
+              <Button variant="outline" onClick={handleLogout}>Logout</Button>
+            )}
+            <Link href="/">
+              <Button variant="ghost">Back to Home</Button>
+            </Link>
+          </div>
         </div>
 
         <Card className="p-6 mb-8 border-primary/20 bg-card/50 backdrop-blur-md">
