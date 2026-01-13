@@ -192,9 +192,7 @@ export default function AdminDashboard() {
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/reviews" component={ReviewsManager} />
                 <Route path="/admin/bookings" component={BookingsManager} />
-                <Route path="/admin/bookings/payment/:bookingId">
-                  {(params) => <AdminPaymentConfirmation bookingId={params.bookingId} />}
-                </Route>
+                {/* Remove the internal payment route as it's now handled by the main App router */}
                 <Route path="/admin/staff" component={StaffManager} />
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
                 <Route path="/admin/audit-history" component={AuditHistory} />

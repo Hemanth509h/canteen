@@ -8,6 +8,7 @@ import { CartProvider } from "@/lib/cart-context";
 import CustomerHome from "@/pages/customer/customer-home";
 import AdminLogin from "@/pages/admin/admin-login";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
+import AdminPaymentConfirmation from "@/pages/admin/admin-payment";
 import PaymentConfirmation from "@/pages/staff/payment-confirmation";
 import NotFound from "@/pages/not-found";
 
@@ -19,6 +20,10 @@ function Router() {
         {(params) => <PaymentConfirmation bookingId={params.bookingId} />}
       </Route>
       <Route path="/admin/login" component={AdminLogin} />
+      {/* Specific admin routes must come BEFORE the generic /admin/:rest* catch-all */}
+      <Route path="/admin/bookings/payment/:bookingId">
+        {(params) => <AdminPaymentConfirmation bookingId={params.bookingId} />}
+      </Route>
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/:rest*">
         {(params) => <AdminDashboard rest={params.rest} />}
