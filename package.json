@@ -4,10 +4,11 @@
   "description": "This project consists of two independent applications: a backend API server and a frontend React application.",
   "main": "index.js",
   "scripts": {
-    "dev:backendpython": "cd backend-python && python -u main.py",
+    "build": "vite build",
+    "dev": "concurrently \"vite\" \"python3 main.py\"",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+    "dev:frontend": "cd frontend && npm run dev"
   },
   "keywords": [],
   "author": "",
