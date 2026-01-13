@@ -32,7 +32,7 @@ const menuItems = [
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
   { title: "Reviews", url: "/admin/reviews", icon: Star },
   { title: "History", url: "/admin/history", icon: History },
-  { title: "Booking Settings", url: "/admin/settings", icon: CalendarDays },
+  { title: "Company Settings", url: "/admin/settings", icon: CalendarDays },
   { title: "Account Settings", url: "/admin/account", icon: UserCog },
 ];
 
