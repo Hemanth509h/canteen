@@ -74,8 +74,20 @@ export default function EventBookingsManager() {
       (booking.contactEmail || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
       (booking.status || "").toLowerCase().includes(debouncedSearch.toLowerCase());
     
+    // If there is a search query, show the booking regardless of status
+    if (debouncedSearch) {
+      const matchesStatus = !statusFilter || booking.status === statusFilter;
+      const bookingDate = new Date(booking.eventDate);
+      const matchesDateFrom = !dateFrom || bookingDate >= new Date(dateFrom);
+      const matchesDateTo = !dateTo || bookingDate <= new Date(dateTo);
+      return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
+    }
+
+    // Default view: remove 'confirmed' and 'cancelled' from the list
+    const isExcludedStatus = booking.status === "confirmed" || booking.status === "cancelled" || booking.status === "completed";
+    if (isExcludedStatus) return false;
+
     const matchesStatus = !statusFilter || booking.status === statusFilter;
-    
     const bookingDate = new Date(booking.eventDate);
     const matchesDateFrom = !dateFrom || bookingDate >= new Date(dateFrom);
     const matchesDateTo = !dateTo || bookingDate <= new Date(dateTo);
