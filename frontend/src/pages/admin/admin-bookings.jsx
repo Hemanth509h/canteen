@@ -374,12 +374,15 @@ export default function EventBookingsManager() {
 
   const handleSaveMenu = () => {
     if (menuEditingBooking) {
+      // Find the latest version of this booking from the bookings list to get updated guest count
+      const latestBooking = bookings.find(b => b.id === menuEditingBooking.id) || menuEditingBooking;
+      
       const items = selectedItems.map(item => ({
-        bookingId: menuEditingBooking.id,
+        bookingId: latestBooking.id,
         foodItemId: item.foodItemId,
-        quantity: menuEditingBooking.guestCount || 1
+        quantity: latestBooking.guestCount || 1
       }));
-      saveMenuMutation.mutate({ id: menuEditingBooking.id, items });
+      saveMenuMutation.mutate({ id: latestBooking.id, items });
     }
   };
 
