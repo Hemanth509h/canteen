@@ -11,6 +11,7 @@ import DashboardOverview from "./admin-dashboard-overview";
 import HeroImagesManager from "./admin-hero-images";
 import FoodItemsManager from "./admin-food-items";
 import AdminAccount from "./admin-account";
+import AdminHistory from "./admin-history";
 import ReviewsManager from "./admin-reviews";
 import CompanySettingsManager from "./admin-company-settings";
 import BookingsManager from "./admin-bookings";
@@ -30,6 +31,7 @@ const menuItems = [
   { title: "Hero Images", url: "/admin/hero-images", icon: ImagePlus },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
   { title: "Reviews", url: "/admin/reviews", icon: Star },
+  { title: "History", url: "/admin/history", icon: History },
   { title: "Booking Settings", url: "/admin/settings", icon: CalendarDays },
   { title: "Account Settings", url: "/admin/account", icon: UserCog },
 ];
@@ -193,6 +195,7 @@ export default function AdminDashboard() {
                 {/* Remove the internal payment route as it's now handled by the main App router */}
                 <Route path="/admin/staff" component={StaffManager} />
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
+                <Route path="/admin/history" component={AdminHistory} />
                 <Route path="/admin/settings" component={CompanySettingsManager} />
                 <Route path="/admin/account" component={AdminAccount} />
               </Switch>
