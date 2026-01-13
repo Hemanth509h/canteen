@@ -149,9 +149,10 @@ export default function EventBookingsManager() {
 
   useEffect(() => {
     if (editingBooking) {
-      fetch(`/api/bookings/${editingBooking.id}/items`)
+      apiRequest("GET", `/api/bookings/${editingBooking.id}/items`)
         .then(res => res.json())
-        .then((items) => {
+        .then((response) => {
+          const items = response.data || response;
           if (Array.isArray(items)) {
             setSelectedItems(items.map(item => ({
               foodItemId: item.foodItemId,
@@ -217,7 +218,9 @@ export default function EventBookingsManager() {
           foodItemId: item.foodItemId,
           quantity: item.quantity
         }));
+        // Use a standard fetch or apiRequest that handle the JSON properly
         await apiRequest("POST", `/api/bookings/${variables.id}/items`, items);
+        await queryClient.invalidateQueries({ queryKey: ["/api/bookings", variables.id, "items"] });
       }
       toast({ 
         title: "Updated", 

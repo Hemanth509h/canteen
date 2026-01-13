@@ -111,7 +111,16 @@ export class MemoryStorage {
   }
 
   async deleteBooking(id) {
-    return this.eventBookings.delete(id);
+    const success = this.eventBookings.delete(id);
+    if (success) {
+      // Also delete associated items and staff requests
+      await this.deleteBookingItems(id);
+      const requests = Array.from(this.staffRequests.values()).filter(r => r.bookingId === id);
+      for (const r of requests) {
+        this.staffRequests.delete(r.id);
+      }
+    }
+    return success;
   }
 
   async getBookingItems(bookingId) {
