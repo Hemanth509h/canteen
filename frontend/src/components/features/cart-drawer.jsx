@@ -24,7 +24,20 @@ export function CartDrawer() {
 
   const bookingMutation = useMutation({
     mutationFn: async (bookingData) => {
-      return apiRequest("POST", "/api/bookings", bookingData);
+      const response = await apiRequest("POST", "/api/bookings", bookingData);
+      const json = await response.json();
+      const booking = json.data || json;
+      const bookingId = booking.id || booking._id;
+
+      if (cartItems.length > 0 && bookingId) {
+        const items = cartItems.map(item => ({
+          bookingId: bookingId,
+          foodItemId: item.id,
+          quantity: item.quantity
+        }));
+        await apiRequest("POST", `/api/bookings/${bookingId}/items`, items);
+      }
+      return json;
     },
     onSuccess: () => {
       toast({
@@ -60,7 +73,7 @@ export function CartDrawer() {
       guestCount: globalGuests || 1,
       pricePerPlate: 0,
       servingBoysNeeded: 0,
-      specialRequests: `${customerDetails.specialRequests || ""}\n\nSelected Menu: ${cartItems.map(item => `${item.name} (${item.quantity} guests)`).join(', ')}`.trim(),
+      specialRequests: customerDetails.specialRequests || "",
       status: "pending"
     };
 

@@ -25,7 +25,7 @@ export default function AdminPaymentConfirmation() {
   const [approvingAdvance, setApprovingAdvance] = useState(false);
   const [approvingFinal, setApprovingFinal] = useState(false);
 
-  const { data: response, isLoading: isLoadingBooking } = useQuery({
+  const { data: response, isLoading: isLoadingBooking, refetch: refetchBooking } = useQuery({
     queryKey: ["/api/bookings", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
@@ -260,7 +260,7 @@ export default function AdminPaymentConfirmation() {
               variant="outline"
               size="sm"
               onClick={() => {
-                queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
+                refetchBooking();
                 toast({
                   title: "Refreshed",
                   description: "Payment data has been updated",
