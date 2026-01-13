@@ -99,11 +99,11 @@ export default function CustomerHome() {
           </div>
         )}
 
-        {!isLoading && searchPhone && bookings?.length === 0 && (
+        {!isLoading && searchIdentifier && bookings?.length === 0 && (
           <Card className="p-12 text-center border-dashed border-2">
             <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
             <h3 className="text-xl font-bold mb-2">No Bookings Found</h3>
-            <p className="text-muted-foreground">We couldn't find any bookings for {searchPhone}.</p>
+            <p className="text-muted-foreground">We couldn't find any bookings for {searchIdentifier}.</p>
           </Card>
         )}
 
