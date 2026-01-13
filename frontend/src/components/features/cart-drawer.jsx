@@ -172,9 +172,31 @@ export function CartDrawer() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground whitespace-nowrap">Guests:</span>
-                            <span className="h-8 px-3 flex items-center justify-center text-sm font-bold bg-secondary/30 rounded-lg min-w-[3rem]">
-                              {item.quantity}
-                            </span>
+                            <div className="flex items-center gap-1">
+                              <Button 
+                                variant="outline" 
+                                size="icon" 
+                                className="h-6 w-6 rounded-md border-primary/20"
+                                onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                              >
+                                <span className="text-sm font-bold">-</span>
+                              </Button>
+                              <Input
+                                type="number"
+                                min="1"
+                                value={item.quantity}
+                                onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                                className="h-7 w-12 text-center text-xs font-bold bg-secondary/30 border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                              <Button 
+                                variant="outline" 
+                                size="icon" 
+                                className="h-6 w-6 rounded-md border-primary/20"
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              >
+                                <span className="text-sm font-bold">+</span>
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
