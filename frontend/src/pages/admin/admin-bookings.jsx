@@ -607,13 +607,13 @@ export default function EventBookingsManager() {
                   {selectedItems.map(si => {
                     const item = foodItems.find(f => f.id === si.foodItemId);
                     return (
-                      <Badge key={si.foodItemId} variant="secondary" className="pl-1 pr-2 py-1 flex items-center gap-1">
-                        <div className="h-4 w-4 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
+                      <Badge key={si.foodItemId} variant="secondary" className="pl-2 pr-3 py-2 flex items-center gap-3">
+                        <div className="h-6 w-6 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
                           <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
-                          <span className="text-[9px] text-muted-foreground">Guests: {si.quantity}</span>
+                          <span className="text-xs font-bold max-w-[150px] truncate">{item?.name}</span>
+                          <span className="text-[10px] text-muted-foreground font-medium">Guests: {si.quantity}</span>
                         </div>
                       </Badge>
                     );
@@ -713,23 +713,23 @@ export default function EventBookingsManager() {
                   {selectedItems.map(si => {
                     const item = foodItems.find(f => f.id === si.foodItemId);
                     return (
-                      <Badge key={si.foodItemId} variant="secondary" className="pl-1 pr-2 py-1 flex items-center gap-1">
-                        <div className="h-4 w-4 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
+                      <Badge key={si.foodItemId} variant="secondary" className="pl-2 pr-3 py-2 flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
                           <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
                         </div>
-                        <div className="flex flex-col">
-                          <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <span className="text-[9px] text-muted-foreground">Guests:</span>
-                            <div className="flex items-center gap-0.5">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-bold max-w-[150px] truncate">{item?.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground font-medium">Guests:</span>
+                            <div className="flex items-center gap-1">
                               <Button 
                                 type="button"
                                 variant="outline" 
                                 size="icon" 
-                                className="h-3 w-3 rounded-sm border-primary/20 p-0"
+                                className="h-6 w-6 rounded-md border-primary/20 p-0"
                                 onClick={() => setSelectedItems(prev => prev.map(p => p.foodItemId === si.foodItemId ? { ...p, quantity: Math.max(1, p.quantity - 1) } : p))}
                               >
-                                <span className="text-[8px] font-bold">-</span>
+                                <span className="text-sm font-bold">-</span>
                               </Button>
                               <Input
                                 type="number"
@@ -739,16 +739,16 @@ export default function EventBookingsManager() {
                                   const val = parseInt(e.target.value) || 1;
                                   setSelectedItems(prev => prev.map(p => p.foodItemId === si.foodItemId ? { ...p, quantity: val } : p));
                                 }}
-                                className="h-3.5 w-8 text-center text-[9px] font-bold bg-background border-primary/10 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="h-7 w-12 text-center text-xs font-bold bg-background border-primary/20 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                               <Button 
                                 type="button"
                                 variant="outline" 
                                 size="icon" 
-                                className="h-3 w-3 rounded-sm border-primary/20 p-0"
+                                className="h-6 w-6 rounded-md border-primary/20 p-0"
                                 onClick={() => setSelectedItems(prev => prev.map(p => p.foodItemId === si.foodItemId ? { ...p, quantity: p.quantity + 1 } : p))}
                               >
-                                <span className="text-[8px] font-bold">+</span>
+                                <span className="text-sm font-bold">+</span>
                               </Button>
                             </div>
                           </div>
@@ -757,10 +757,10 @@ export default function EventBookingsManager() {
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-3 w-3 p-0 hover:bg-transparent ml-1"
+                          className="h-5 w-5 p-0 hover:bg-transparent ml-2 text-destructive"
                           onClick={() => setSelectedItems(prev => prev.filter(p => p.foodItemId !== si.foodItemId))}
                         >
-                          <X className="h-2 w-2" />
+                          <X className="h-4 w-4" />
                         </Button>
                       </Badge>
                     );
