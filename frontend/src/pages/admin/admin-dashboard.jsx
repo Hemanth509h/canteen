@@ -192,7 +192,9 @@ export default function AdminDashboard() {
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/reviews" component={ReviewsManager} />
                 <Route path="/admin/bookings" component={BookingsManager} />
-                <Route path="/admin/bookings/payment/:bookingId" component={AdminPaymentConfirmation} />
+                <Route path="/admin/bookings/payment/:bookingId">
+                  {(params) => <AdminPaymentConfirmation bookingId={params.bookingId} />}
+                </Route>
                 <Route path="/admin/staff" component={StaffManager} />
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
                 <Route path="/admin/audit-history" component={AuditHistory} />

@@ -137,6 +137,16 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/bookings/:id", async (req, res) => {
+    try {
+      const booking = await getStorageInstance().getBooking(req.params.id);
+      if (!booking) return sendResponse(res, 404, null, "Booking not found");
+      sendResponse(res, 200, booking);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch booking");
+    }
+  });
+
   app.patch("/api/bookings/:id", async (req, res) => {
     try {
       const result = updateEventBookingSchema.safeParse(req.body);
