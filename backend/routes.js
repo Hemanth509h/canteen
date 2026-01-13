@@ -464,6 +464,15 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/bookings/:id/items", async (req, res) => {
+    try {
+      const items = await getStorageInstance().getBookingItems(req.params.id);
+      sendResponse(res, 200, items);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch booking items");
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
