@@ -48,6 +48,8 @@ export default function EventBookingsManager() {
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [foodSearchQuery, setFoodSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [isMenuDialogOpen, setIsMenuDialogOpen] = useState(false);
+  const [menuEditingBooking, setMenuEditingBooking] = useState(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -283,6 +285,51 @@ export default function EventBookingsManager() {
     setIsDialogOpen(true);
   };
 
+  const handleEditMenu = (booking) => {
+    setMenuEditingBooking(booking);
+    // Fetch current items for this booking
+    apiRequest("GET", `/api/bookings/${booking.id}/items`)
+      .then(res => res.json())
+      .then((response) => {
+        const items = response.data || response;
+        if (Array.isArray(items)) {
+          setSelectedItems(items.map(item => ({
+            foodItemId: item.foodItemId,
+            quantity: item.quantity
+          })));
+        }
+      })
+      .catch(err => console.error("Failed to fetch booking items:", err));
+    setIsMenuDialogOpen(true);
+  };
+
+  const saveMenuMutation = useMutation({
+    mutationFn: async ({ id, items }) => {
+      return apiRequest("POST", `/api/bookings/${id}/items`, items);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      toast({ title: "Menu Updated", description: "Menu items have been updated successfully" });
+      setIsMenuDialogOpen(false);
+      setMenuEditingBooking(null);
+      setSelectedItems([]);
+    },
+    onError: (error) => {
+      toast({ title: "Update Failed", description: error?.message || "Unable to update menu", variant: "destructive" });
+    }
+  });
+
+  const handleSaveMenu = () => {
+    if (menuEditingBooking) {
+      const items = selectedItems.map(item => ({
+        bookingId: menuEditingBooking.id,
+        foodItemId: item.foodItemId,
+        quantity: menuEditingBooking.guestCount || 1
+      }));
+      saveMenuMutation.mutate({ id: menuEditingBooking.id, items });
+    }
+  };
+
   const handleDelete = (id) => {
     setDeleteTargetId(id);
     setConfirmDeleteOpen(true);
@@ -500,6 +547,9 @@ export default function EventBookingsManager() {
                       <Badge variant={statusColors[booking.status] || "secondary"}>{booking.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditMenu(booking)}>
+                        <List className="h-4 w-4 mr-1" /> Edit Menu
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}>
                         <CreditCard className="h-4 w-4 mr-1" /> View Payment
                       </Button>
@@ -517,6 +567,117 @@ export default function EventBookingsManager() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={isMenuDialogOpen} onOpenChange={setIsMenuDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Menu - {menuEditingBooking?.clientName}</DialogTitle>
+            <DialogDescription>
+              Select items for this event's menu.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <FormLabel className="text-base font-bold">Menu Items</FormLabel>
+              <div className="flex gap-2">
+                <Select onValueChange={(val) => setSelectedCategory(val)} value={selectedCategory}>
+                  <SelectTrigger className="w-[150px] h-8">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px] overflow-y-auto z-[9999]">
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {getCategories().map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                  <Input 
+                    placeholder="Search food..." 
+                    className="h-8 pl-7 w-[150px]"
+                    value={foodSearchQuery}
+                    onChange={(e) => setFoodSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto p-1 border rounded-md">
+              {filteredFoodItems.map((item) => {
+                const isSelected = selectedItems.some(si => si.foodItemId === item.id);
+                return (
+                  <div 
+                    key={item.id}
+                    className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${
+                      isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-secondary/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="h-8 w-8 rounded bg-secondary flex-shrink-0 overflow-hidden">
+                        <img src={item.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-bold truncate">{item.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{item.category}</p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant={isSelected ? "default" : "outline"}
+                      size="sm"
+                      className="h-7 w-7 p-0 rounded-full"
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedItems(prev => prev.filter(si => si.foodItemId !== item.id));
+                        } else {
+                          setSelectedItems(prev => [...prev, { foodItemId: item.id, quantity: menuEditingBooking?.guestCount || 1 }]);
+                        }
+                      }}
+                    >
+                      {isSelected ? <X className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {selectedItems.length > 0 && (
+              <div className="space-y-2">
+                <FormLabel className="text-xs font-bold uppercase text-muted-foreground">Selected Items ({selectedItems.length})</FormLabel>
+                <div className="flex flex-wrap gap-2">
+                  {selectedItems.map(si => {
+                    const item = foodItems.find(f => f.id === si.foodItemId);
+                    return (
+                      <Badge key={si.foodItemId} variant="secondary" className="pl-1 pr-2 py-1 flex items-center gap-1">
+                        <div className="h-4 w-4 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
+                          <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-3 w-3 p-0 hover:bg-transparent"
+                          onClick={() => setSelectedItems(prev => prev.filter(p => p.foodItemId !== si.foodItemId))}
+                        >
+                          <X className="h-2 w-2" />
+                        </Button>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={handleSaveMenu} disabled={saveMenuMutation.isPending}>
+              {saveMenuMutation.isPending && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
+              Save Menu
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={confirmDeleteOpen}
