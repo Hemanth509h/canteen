@@ -259,7 +259,13 @@ export default function AdminPaymentConfirmation() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] })}
+              onClick={() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] });
+                toast({
+                  title: "Refreshed",
+                  description: "Payment data has been updated",
+                });
+              }}
               className="gap-2"
               data-testid="button-refresh-admin-payment"
             >
