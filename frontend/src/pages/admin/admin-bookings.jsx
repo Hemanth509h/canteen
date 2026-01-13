@@ -435,7 +435,7 @@ export default function EventBookingsManager() {
                           <SelectTrigger className="w-[150px] h-8">
                             <SelectValue placeholder="Category" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="max-h-[300px] overflow-y-auto z-[9999]">
                             <SelectItem value="all">All Categories</SelectItem>
                             {getCategories().map(cat => (
                               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
