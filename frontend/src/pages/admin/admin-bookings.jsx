@@ -315,11 +315,11 @@ export default function EventBookingsManager() {
             if (!uniqueItemsMap.has(foodId)) {
               uniqueItemsMap.set(foodId, {
                 foodItemId: foodId,
-                quantity: latestBooking.guestCount || 1 // Force use latest guest count
+                quantity: item.quantity // Use the quantity from database
               });
             } else {
               const existing = uniqueItemsMap.get(foodId);
-              existing.quantity = latestBooking.guestCount || 1;
+              existing.quantity = Math.max(existing.quantity, item.quantity);
             }
           });
           setSelectedItems(Array.from(uniqueItemsMap.values()));
@@ -346,11 +346,11 @@ export default function EventBookingsManager() {
             if (!uniqueItemsMap.has(foodId)) {
               uniqueItemsMap.set(foodId, {
                 foodItemId: foodId,
-                quantity: latestBooking.guestCount || 1 // Force use latest guest count
+                quantity: item.quantity // Use the quantity from database
               });
             } else {
               const existing = uniqueItemsMap.get(foodId);
-              existing.quantity = latestBooking.guestCount || 1;
+              existing.quantity = Math.max(existing.quantity, item.quantity);
             }
           });
           setSelectedItems(Array.from(uniqueItemsMap.values()));
