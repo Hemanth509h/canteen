@@ -141,7 +141,18 @@ export function CartDrawer() {
                 <ShoppingCart size={40} className="text-muted-foreground" />
               </div>
               <h3 className="text-xl font-bold mb-2">Cart is empty</h3>
-              <p className="text-muted-foreground">Add some delicious items from our menu to get started!</p>
+              <p className="text-muted-foreground mb-6">Add some delicious items from our menu to get started!</p>
+              <SheetTrigger asChild>
+                <Button 
+                  className="rounded-xl px-8 font-bold bg-primary hover:bg-primary/90 text-white shadow-lg"
+                  onClick={() => {
+                    const menu = document.getElementById('menu');
+                    if (menu) menu.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  Explore Menus
+                </Button>
+              </SheetTrigger>
             </div>
           ) : (
             <>
