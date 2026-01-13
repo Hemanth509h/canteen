@@ -84,7 +84,7 @@ export function CartDrawer() {
     <>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="relative rounded-full w-12 h-12 bg-background/50 backdrop-blur-md border-primary/20 hover:bg-primary hover:text-white transition-all duration-300">
+          <Button variant="outline" size="icon" className="relative rounded-full w-12 h-12 bg-white text-black shadow-2xl hover:scale-110 transition-transform duration-300 border-none flex items-center justify-center">
             <ShoppingCart size={24} />
             {totalItems > 0 && (
               <Badge className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 bg-primary text-white border-2 border-background">

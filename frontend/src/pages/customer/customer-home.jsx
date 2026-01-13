@@ -513,7 +513,7 @@ export default function CustomerHome() {
       </Link>
 
       {/* Floating Cart Button */}
-      <div className="fixed bottom-24 right-6 z-[90] bg-white text-black p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center cursor-pointer">
+      <div className="fixed bottom-24 right-6 z-[90]">
         <CartDrawer />
       </div>
 
