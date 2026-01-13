@@ -656,13 +656,45 @@ export default function EventBookingsManager() {
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
-                          <span className="text-[9px] text-muted-foreground">Guests: {si.quantity}</span>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-[9px] text-muted-foreground">Guests:</span>
+                            <div className="flex items-center gap-0.5">
+                              <Button 
+                                type="button"
+                                variant="outline" 
+                                size="icon" 
+                                className="h-3 w-3 rounded-sm border-primary/20 p-0"
+                                onClick={() => setSelectedItems(prev => prev.map(p => p.foodItemId === si.foodItemId ? { ...p, quantity: Math.max(1, p.quantity - 1) } : p))}
+                              >
+                                <span className="text-[8px] font-bold">-</span>
+                              </Button>
+                              <Input
+                                type="number"
+                                min="1"
+                                value={si.quantity}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value) || 1;
+                                  setSelectedItems(prev => prev.map(p => p.foodItemId === si.foodItemId ? { ...p, quantity: val } : p));
+                                }}
+                                className="h-3.5 w-8 text-center text-[9px] font-bold bg-background border-primary/10 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                              <Button 
+                                type="button"
+                                variant="outline" 
+                                size="icon" 
+                                className="h-3 w-3 rounded-sm border-primary/20 p-0"
+                                onClick={() => setSelectedItems(prev => prev.map(p => p.foodItemId === si.foodItemId ? { ...p, quantity: p.quantity + 1 } : p))}
+                              >
+                                <span className="text-[8px] font-bold">+</span>
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-3 w-3 p-0 hover:bg-transparent"
+                          className="h-3 w-3 p-0 hover:bg-transparent ml-1"
                           onClick={() => setSelectedItems(prev => prev.filter(p => p.foodItemId !== si.foodItemId))}
                         >
                           <X className="h-2 w-2" />
