@@ -48,7 +48,8 @@ export default function EventBookingsManager() {
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [foodSearchQuery, setFoodSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [isMenuDialogOpen, setIsMenuDialogOpen] = useState(false);
+  const [isMenuEditDialogOpen, setIsMenuEditDialogOpen] = useState(false);
+  const [isMenuViewDialogOpen, setIsMenuViewDialogOpen] = useState(false);
   const [menuEditingBooking, setMenuEditingBooking] = useState(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -301,7 +302,25 @@ export default function EventBookingsManager() {
         }
       })
       .catch(err => console.error("Failed to fetch booking items:", err));
-    setIsMenuDialogOpen(true);
+    setIsMenuViewDialogOpen(true);
+  };
+
+  const handleEditMenu = (booking) => {
+    setMenuEditingBooking(booking);
+    setSelectedItems([]);
+    apiRequest("GET", `/api/bookings/${booking.id}/items`)
+      .then(res => res.json())
+      .then((response) => {
+        const items = response.data || response;
+        if (Array.isArray(items)) {
+          setSelectedItems(items.map(item => ({
+            foodItemId: item.foodItemId,
+            quantity: item.quantity
+          })));
+        }
+      })
+      .catch(err => console.error("Failed to fetch booking items:", err));
+    setIsMenuEditDialogOpen(true);
   };
 
   const saveMenuMutation = useMutation({
@@ -551,6 +570,9 @@ export default function EventBookingsManager() {
                       <Button variant="outline" size="sm" onClick={() => handleViewMenu(booking)}>
                         <List className="h-4 w-4 mr-1" /> Show Menu
                       </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleEditMenu(booking)}>
+                        <Pencil className="h-4 w-4 mr-1" /> Edit Menu
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}>
                         <CreditCard className="h-4 w-4 mr-1" /> View Payment
                       </Button>
@@ -569,7 +591,48 @@ export default function EventBookingsManager() {
         </CardContent>
       </Card>
 
-      <Dialog open={isMenuDialogOpen} onOpenChange={setIsMenuDialogOpen}>
+      <Dialog open={isMenuViewDialogOpen} onOpenChange={setIsMenuViewDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>View Menu - {menuEditingBooking?.clientName}</DialogTitle>
+            <DialogDescription>
+              Menu items selected for this event.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedItems.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-xs font-bold uppercase text-muted-foreground">Selected Items ({selectedItems.length})</div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedItems.map(si => {
+                    const item = foodItems.find(f => f.id === si.foodItemId);
+                    return (
+                      <Badge key={si.foodItemId} variant="secondary" className="pl-1 pr-2 py-1 flex items-center gap-1">
+                        <div className="h-4 w-4 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
+                          <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
+                          <span className="text-[9px] text-muted-foreground">Guests: {si.quantity}</span>
+                        </div>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No items selected for this menu.
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsMenuViewDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMenuEditDialogOpen} onOpenChange={setIsMenuEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Menu - {menuEditingBooking?.clientName}</DialogTitle>
