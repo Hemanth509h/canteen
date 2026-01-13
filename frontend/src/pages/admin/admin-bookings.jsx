@@ -93,9 +93,9 @@ export default function EventBookingsManager() {
     const matchesStatusFilter = !statusFilter || booking.status === statusFilter;
     if (!matchesStatusFilter) return false;
 
-    // Filter out confirmed/cancelled/completed from main list if not searching
+    // Filter out cancelled/completed from main list if not searching
     // and if more than 3 hours have passed since status update
-    if (["confirmed", "cancelled", "completed"].includes(booking.status)) {
+    if (["cancelled", "completed"].includes(booking.status)) {
       const updateTime = statusUpdateTimestamps[booking.id];
       if (updateTime) {
         const threeHoursInMs = 3 * 60 * 60 * 1000;
@@ -255,7 +255,7 @@ export default function EventBookingsManager() {
     },
     onSuccess: async (_booking, variables) => {
       // Record timestamp for specific status changes
-      if (variables.data.status && ["confirmed", "cancelled", "completed"].includes(variables.data.status)) {
+      if (variables.data.status && ["cancelled", "completed"].includes(variables.data.status)) {
         const newTimestamps = { ...statusUpdateTimestamps, [variables.id]: Date.now() };
         setStatusUpdateTimestamps(newTimestamps);
         localStorage.setItem("booking_status_timestamps", JSON.stringify(newTimestamps));
