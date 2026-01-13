@@ -15,8 +15,9 @@ import { useState, useEffect } from "react";
 
 import { API_URL } from "@/lib/queryClient";
 
-export default function PaymentConfirmation() {
-  const { bookingId } = useParams();
+export default function PaymentConfirmation({ bookingId: propBookingId }) {
+  const params = useParams();
+  const bookingId = propBookingId || params.bookingId;
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [advanceFile, setAdvanceFile] = useState(null);

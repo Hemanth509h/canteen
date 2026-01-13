@@ -15,10 +15,14 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
-      <Route path="/payment/:bookingId" component={PaymentConfirmation} />
+      <Route path="/payment/:bookingId">
+        {(params) => <PaymentConfirmation bookingId={params.bookingId} />}
+      </Route>
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/:rest*" component={AdminDashboard} />
+      <Route path="/admin/:rest*">
+        {(params) => <AdminDashboard rest={params.rest} />}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
