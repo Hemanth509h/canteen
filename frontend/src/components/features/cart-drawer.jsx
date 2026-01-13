@@ -1,12 +1,12 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar } from "lucide-react";
+import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar, Mail } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -16,11 +16,22 @@ export function CartDrawer() {
   const { toast } = useToast();
   const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests } = useCart();
   const [showContactDialog, setShowContactDialog] = useState(false);
-  const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "", eventDate: "", specialRequests: "" });
+  const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "", email: "", eventDate: "", specialRequests: "" });
 
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
   });
+
+  useEffect(() => {
+    const savedIdentifier = localStorage.getItem("customer_identifier");
+    if (savedIdentifier) {
+      const isEmail = savedIdentifier.includes("@");
+      setCustomerDetails(prev => ({
+        ...prev,
+        [isEmail ? "email" : "phone"]: savedIdentifier
+      }));
+    }
+  }, [showContactDialog]);
 
   const bookingMutation = useMutation({
     mutationFn: async (bookingData) => {
@@ -65,9 +76,9 @@ export function CartDrawer() {
     
     // Create the booking record in the database
     const bookingData = {
-      clientName: customerDetails.name,
-      contactPhone: customerDetails.phone,
-      contactEmail: "customer@example.com", // Placeholder since we don't ask for it
+      clientName: customerDetails.name || "Customer",
+      contactPhone: customerDetails.phone || "Not provided",
+      contactEmail: customerDetails.email || "customer@example.com",
       eventType: "Inquiry from Website",
       eventDate: customerDetails.eventDate,
       guestCount: globalGuests || 1,
@@ -79,6 +90,8 @@ export function CartDrawer() {
 
     bookingMutation.mutate(bookingData);
   };
+
+  const isLoggedIn = !!localStorage.getItem("customer_identifier");
 
   return (
     <>
@@ -267,31 +280,49 @@ export function CartDrawer() {
           </DialogHeader>
 
           <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold flex items-center gap-2 px-1">
-                <User size={16} className="text-primary" />
-                Your Name
-              </label>
-              <Input
-                placeholder="Enter your full name"
-                value={customerDetails.name}
-                onChange={(e) => setCustomerDetails(prev => ({ ...prev, name: e.target.value }))}
-                className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-bold flex items-center gap-2 px-1">
-                <Phone size={16} className="text-primary" />
-                Phone Number
-              </label>
-              <Input
-                placeholder="Enter your phone number"
-                value={customerDetails.phone}
-                onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
-                className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
-              />
-            </div>
+            {!isLoggedIn && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold flex items-center gap-2 px-1">
+                    <User size={16} className="text-primary" />
+                    Your Name
+                  </label>
+                  <Input
+                    placeholder="Enter your full name"
+                    value={customerDetails.name}
+                    onChange={(e) => setCustomerDetails(prev => ({ ...prev, name: e.target.value }))}
+                    className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-bold flex items-center gap-2 px-1">
+                    <Phone size={16} className="text-primary" />
+                    Phone Number
+                  </label>
+                  <Input
+                    placeholder="Enter your phone number"
+                    value={customerDetails.phone}
+                    onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
+                    className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold flex items-center gap-2 px-1">
+                    <Mail size={16} className="text-primary" />
+                    Email Address
+                  </label>
+                  <Input
+                    placeholder="Enter your email address"
+                    value={customerDetails.email}
+                    onChange={(e) => setCustomerDetails(prev => ({ ...prev, email: e.target.value }))}
+                    className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                  />
+                </div>
+              </>
+            )}
+
             <div className="space-y-2">
               <label className="text-sm font-bold flex items-center gap-2 px-1">
                 <Calendar size={16} className="text-primary" />
@@ -328,7 +359,7 @@ export function CartDrawer() {
               Cancel
             </Button>
             <Button
-              disabled={!customerDetails.name || !customerDetails.phone || !customerDetails.eventDate || bookingMutation.isPending}
+              disabled={(!isLoggedIn && (!customerDetails.name || !customerDetails.phone || !customerDetails.email)) || !customerDetails.eventDate || bookingMutation.isPending}
               onClick={handleContact}
               className="w-full h-12 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold"
             >
