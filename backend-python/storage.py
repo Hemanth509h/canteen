@@ -16,6 +16,9 @@ class MongoStorageWrapper:
     async def delete_food_item(self, id):
         return await self.storage.delete_food_item(id)
 
+    async def get_food_item(self, id):
+        return await self.storage.get_food_item(id)
+
     async def get_bookings(self):
         return await self.storage.get_bookings()
 
