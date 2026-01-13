@@ -424,8 +424,104 @@ export default function EventBookingsManager() {
                     )} />
                   </div>
                   <FormField control={form.control} name="specialRequests" render={({ field }) => (
-                    <FormItem><FormLabel>Special Requests / Menu Items</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Special Requests</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-base font-bold">Select Menu Items</FormLabel>
+                      <div className="flex gap-2">
+                        <Select onValueChange={(val) => setSelectedCategory(val)} value={selectedCategory}>
+                          <SelectTrigger className="w-[150px] h-8">
+                            <SelectValue placeholder="Category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {getCategories().map(cat => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                          <Input 
+                            placeholder="Search food..." 
+                            className="h-8 pl-7 w-[150px]"
+                            value={foodSearchQuery}
+                            onChange={(e) => setFoodSearchQuery(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto p-1 border rounded-md">
+                      {filteredFoodItems.map((item) => {
+                        const isSelected = selectedItems.some(si => si.foodItemId === item.id);
+                        return (
+                          <div 
+                            key={item.id}
+                            className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${
+                              isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-secondary/50'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <div className="h-8 w-8 rounded bg-secondary flex-shrink-0 overflow-hidden">
+                                <img src={item.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                              </div>
+                              <div className="overflow-hidden">
+                                <p className="text-xs font-bold truncate">{item.name}</p>
+                                <p className="text-[10px] text-muted-foreground truncate">{item.category}</p>
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant={isSelected ? "default" : "outline"}
+                              size="sm"
+                              className="h-7 w-7 p-0 rounded-full"
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedItems(prev => prev.filter(si => si.foodItemId !== item.id));
+                                } else {
+                                  setSelectedItems(prev => [...prev, { foodItemId: item.id, quantity: form.getValues("guestCount") || 1 }]);
+                                }
+                              }}
+                            >
+                              {isSelected ? <X className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {selectedItems.length > 0 && (
+                      <div className="space-y-2">
+                        <FormLabel className="text-xs font-bold uppercase text-muted-foreground">Selected Items ({selectedItems.length})</FormLabel>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedItems.map(si => {
+                            const item = foodItems.find(f => f.id === si.foodItemId);
+                            return (
+                              <Badge key={si.foodItemId} variant="secondary" className="pl-1 pr-2 py-1 flex items-center gap-1">
+                                <div className="h-4 w-4 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
+                                  <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                                </div>
+                                <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-3 w-3 p-0 hover:bg-transparent"
+                                  onClick={() => setSelectedItems(prev => prev.filter(p => p.foodItemId !== si.foodItemId))}
+                                >
+                                  <X className="h-2 w-2" />
+                                </Button>
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <DialogFooter>
                     <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                       {(createMutation.isPending || updateMutation.isPending) && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
