@@ -570,9 +570,6 @@ export default function EventBookingsManager() {
                       <Button variant="outline" size="sm" onClick={() => handleViewMenu(booking)}>
                         <List className="h-4 w-4 mr-1" /> Show Menu
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleEditMenu(booking)}>
-                        <Pencil className="h-4 w-4 mr-1" /> Edit Menu
-                      </Button>
                       <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}>
                         <CreditCard className="h-4 w-4 mr-1" /> View Payment
                       </Button>
@@ -627,7 +624,14 @@ export default function EventBookingsManager() {
             )}
           </div>
           <DialogFooter>
-            <Button onClick={() => setIsMenuViewDialogOpen(false)}>Close</Button>
+            <Button variant="outline" onClick={() => setIsMenuViewDialogOpen(false)}>Close</Button>
+            <Button onClick={() => {
+              setIsMenuViewDialogOpen(false);
+              handleEditMenu(menuEditingBooking);
+            }}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Menu
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
