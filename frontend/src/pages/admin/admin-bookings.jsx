@@ -378,13 +378,13 @@ export default function EventBookingsManager() {
 
   const handleSaveMenu = async () => {
     if (menuEditingBooking) {
-      // Find the latest version of this booking from the bookings list to get updated guest count
+      // Find the latest version of this booking from the bookings list to get updated booking ID
       const latestBooking = bookings.find(b => b.id === menuEditingBooking.id) || menuEditingBooking;
       
       const items = selectedItems.map(item => ({
         bookingId: latestBooking.id,
         foodItemId: item.foodItemId,
-        quantity: latestBooking.guestCount || 1
+        quantity: item.quantity // Use the individual item's quantity (allows overrides)
       }));
       
       await saveMenuMutation.mutateAsync({ id: latestBooking.id, items });
