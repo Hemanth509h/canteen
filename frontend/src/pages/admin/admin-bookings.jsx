@@ -376,7 +376,7 @@ export default function EventBookingsManager() {
     }
   });
 
-  const handleSaveMenu = () => {
+  const handleSaveMenu = async () => {
     if (menuEditingBooking) {
       // Find the latest version of this booking from the bookings list to get updated guest count
       const latestBooking = bookings.find(b => b.id === menuEditingBooking.id) || menuEditingBooking;
@@ -386,7 +386,11 @@ export default function EventBookingsManager() {
         foodItemId: item.foodItemId,
         quantity: latestBooking.guestCount || 1
       }));
-      saveMenuMutation.mutate({ id: latestBooking.id, items });
+      
+      await saveMenuMutation.mutateAsync({ id: latestBooking.id, items });
+      // Invalidate both bookings and chef printout queries to ensure everything is updated
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/chef-printout"] });
     }
   };
 

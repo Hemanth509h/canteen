@@ -35,15 +35,19 @@ export default function ChefPrintout() {
 
       const foodItem = item.foodItem;
       if (!foodItem) return;
+      
+      // Use the actual booking guest count which is the most authoritative
+      const guestCount = booking.guestCount || 0;
+      
       if (combinedItems[item.foodItemId]) {
-        combinedItems[item.foodItemId].totalQuantity += booking.guestCount;
-        combinedItems[item.foodItemId].totalGuests += booking.guestCount;
+        combinedItems[item.foodItemId].totalQuantity += guestCount;
+        combinedItems[item.foodItemId].totalGuests += guestCount;
       } else {
         combinedItems[item.foodItemId] = {
           name: foodItem.name,
           category: foodItem.category,
-          totalQuantity: booking.guestCount,
-          totalGuests: booking.guestCount
+          totalQuantity: guestCount,
+          totalGuests: guestCount
         };
       }
     });
