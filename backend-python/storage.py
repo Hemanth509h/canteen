@@ -85,4 +85,34 @@ class MongoStorageWrapper:
     async def mark_code_as_used(self, code_value):
         return await self.storage.mark_code_as_used(code_value)
 
+    async def get_booking_items(self, booking_id):
+        return await self.storage.get_booking_items(booking_id)
+
+    async def create_booking_item(self, item):
+        return await self.storage.create_booking_item(item)
+
+    async def update_booking_item(self, id, item):
+        return await self.storage.update_booking_item(id, item)
+
+    async def delete_booking_item(self, id):
+        return await self.storage.delete_booking_item(id)
+
+    async def get_audit_history(self):
+        return await self.storage.get_audit_history()
+
+    async def clear_audit_history(self):
+        return await self.storage.clear_audit_history()
+
+    async def get_staff_requests(self):
+        return await self.storage.get_staff_requests()
+
+    async def create_staff_request(self, request):
+        return await self.storage.create_staff_request(request)
+
+    async def get_staff_request_by_token(self, token):
+        return await self.storage.get_staff_request_by_token(token)
+
+    async def update_staff_request(self, id, request):
+        return await self.storage.update_staff_request(id, request)
+
 storage = MongoStorageWrapper(mongo_storage)

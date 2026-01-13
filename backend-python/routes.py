@@ -206,3 +206,69 @@ async def use_code(payload: dict = Body(...)):
     if not success:
         raise HTTPException(status_code=404, detail="Code not found or already used")
     return send_response({"success": True})
+
+@router.get("/chef-printout")
+async def get_chef_printout():
+    try:
+        bookings = await storage.get_bookings()
+        grouped = {}
+        
+        for booking in bookings:
+            if booking.get('status') != 'confirmed':
+                continue
+            
+            event_date = booking.get('eventDate')
+            if not event_date:
+                continue
+                
+            date_str = event_date.split('T')[0]
+            if date_str not in grouped:
+                grouped[date_str] = []
+            
+            items = await storage.get_booking_items(booking['id'])
+            items_with_details = []
+            for item in items:
+                food_item = await storage.get_food_item(item['foodItemId'])
+                items_with_details.append({**item, "foodItem": food_item})
+            
+            grouped[date_str].append({**booking, "items": items_with_details})
+            
+        return grouped
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/audit-history")
+async def get_audit_history():
+    history = await storage.get_audit_history()
+    return send_response(history)
+
+@router.delete("/audit-history")
+async def clear_audit_history():
+    await storage.clear_audit_history()
+    return send_response({"success": True})
+
+@router.get("/bookings/{booking_id}/items")
+async def get_booking_items(booking_id: str):
+    items = await storage.get_booking_items(booking_id)
+    return send_response(items)
+
+@router.post("/bookings/assign-staff")
+async def assign_staff(payload: dict = Body(...)):
+    booking_id = payload.get("bookingId")
+    staff_ids = payload.get("staffIds", [])
+    
+    if not booking_id:
+        raise HTTPException(status_code=400, detail="Booking ID is required")
+        
+    booking = await storage.update_booking(booking_id, {"staffIds": staff_ids})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+        
+    return send_response(booking)
+
+@router.get("/staff-requests/token/{token}")
+async def get_staff_request_by_token(token: str):
+    request = await storage.get_staff_request_by_token(token)
+    if not request:
+        raise HTTPException(status_code=404, detail="Staff request not found")
+    return send_response(request)
