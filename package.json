@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "This project consists of two independent applications: a backend API server and a frontend React application.",
   "main": "index.js",
+  
   "scripts": {
-    "build": "vite build",
-    "dev": "concurrently \"vite\" \"python3 main.py\"",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev"
+    "build": "cd frontend && ./node_modules/.bin/vite build",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && ./node_modules/.bin/vite",
+    "dev:backend": "cd backend && node index.js",
+    "dev:all": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
   },
   "keywords": [],
   "author": "",
