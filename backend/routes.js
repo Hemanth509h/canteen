@@ -139,10 +139,13 @@ export async function registerRoutes(app) {
 
   app.get("/api/bookings/search", async (req, res) => {
     try {
-      const { phone } = req.query;
-      if (!phone) return sendResponse(res, 400, null, "Phone number is required");
+      const { phone, email } = req.query;
+      if (!phone && !email) return sendResponse(res, 400, null, "Phone number or email is required");
       const bookings = await getStorageInstance().getBookings();
-      const customerBookings = bookings.filter(b => b.contactPhone === phone);
+      const customerBookings = bookings.filter(b => 
+        (phone && b.contactPhone === phone) || 
+        (email && b.contactEmail === email)
+      );
       sendResponse(res, 200, customerBookings);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to search bookings");

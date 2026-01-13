@@ -5,47 +5,49 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/features/loading-spinner";
-import { Search, Calendar, MapPin, User, Clock } from "lucide-react";
+import { Search, Calendar, MapPin, User, Clock, Mail } from "lucide-react";
 import { Link } from "wouter";
 
 export default function CustomerHome() {
-  const [phone, setPhone] = useState("");
-  const [searchPhone, setSearchPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
+  const [searchIdentifier, setSearchIdentifier] = useState("");
 
   const { data: bookings, isLoading, isError } = useQuery({
-    queryKey: ["/api/bookings/search", searchPhone],
+    queryKey: ["/api/bookings/search", searchIdentifier],
     queryFn: async () => {
-      if (!searchPhone) return [];
-      const res = await fetch(`/api/bookings/search?phone=${encodeURIComponent(searchPhone)}`);
+      if (!searchIdentifier) return [];
+      const isEmail = searchIdentifier.includes("@");
+      const param = isEmail ? `email=${encodeURIComponent(searchIdentifier)}` : `phone=${encodeURIComponent(searchIdentifier)}`;
+      const res = await fetch(`/api/bookings/search?${param}`);
       if (!res.ok) throw new Error("Search failed");
       const json = await res.json();
       
       // Save "login" state in localStorage
       if (json.data && json.data.length > 0) {
-        localStorage.setItem("customer_phone", searchPhone);
+        localStorage.setItem("customer_identifier", searchIdentifier);
       }
       return json.data || [];
     },
-    enabled: !!searchPhone,
+    enabled: !!searchIdentifier,
   });
 
   useEffect(() => {
-    const savedPhone = localStorage.getItem("customer_phone");
-    if (savedPhone) {
-      setPhone(savedPhone);
-      setSearchPhone(savedPhone);
+    const savedIdentifier = localStorage.getItem("customer_identifier");
+    if (savedIdentifier) {
+      setIdentifier(savedIdentifier);
+      setSearchIdentifier(savedIdentifier);
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("customer_phone");
-    setPhone("");
-    setSearchPhone("");
+    localStorage.removeItem("customer_identifier");
+    setIdentifier("");
+    setSearchIdentifier("");
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setSearchPhone(phone);
+    setSearchIdentifier(identifier);
   };
 
   return (
@@ -54,7 +56,7 @@ export default function CustomerHome() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-poppins font-bold text-primary">My Bookings</h1>
           <div className="flex gap-2">
-            {searchPhone && (
+            {searchIdentifier && (
               <Button variant="outline" onClick={handleLogout}>Logout</Button>
             )}
             <Link href="/">
@@ -66,11 +68,15 @@ export default function CustomerHome() {
         <Card className="p-6 mb-8 border-primary/20 bg-card/50 backdrop-blur-md">
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              {identifier.includes("@") ? (
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              ) : (
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              )}
               <Input
-                placeholder="Enter your phone number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter your phone number or email"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="pl-10 h-12 rounded-xl border-primary/20"
               />
             </div>
