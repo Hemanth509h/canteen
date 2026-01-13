@@ -578,7 +578,7 @@ export default function EventBookingsManager() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <FormLabel className="text-base font-bold">Menu Items</FormLabel>
+              <div className="text-base font-bold">Menu Items</div>
               <div className="flex gap-2">
                 <Select onValueChange={(val) => setSelectedCategory(val)} value={selectedCategory}>
                   <SelectTrigger className="w-[150px] h-8">
@@ -644,7 +644,7 @@ export default function EventBookingsManager() {
 
             {selectedItems.length > 0 && (
               <div className="space-y-2">
-                <FormLabel className="text-xs font-bold uppercase text-muted-foreground">Selected Items ({selectedItems.length})</FormLabel>
+                <div className="text-xs font-bold uppercase text-muted-foreground">Selected Items ({selectedItems.length})</div>
                 <div className="flex flex-wrap gap-2">
                   {selectedItems.map(si => {
                     const item = foodItems.find(f => f.id === si.foodItemId);
