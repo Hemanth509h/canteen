@@ -96,6 +96,28 @@ export default function AuditHistory() {
     return action.split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   };
 
+  const clearMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/audit-history", { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to clear history");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-history"] });
+      toast({
+        title: "History Cleared",
+        description: "All audit logs have been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between gap-4">
@@ -106,15 +128,29 @@ export default function AuditHistory() {
           </h1>
           <p className="text-muted-foreground mt-1">Track all system changes and actions</p>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => refetch()}
-          disabled={isFetching}
-          data-testid="button-refresh-audit"
-        >
-          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="destructive"
+            onClick={() => {
+              if (confirm("Are you sure you want to delete all audit history? This cannot be undone.")) {
+                clearMutation.mutate();
+              }
+            }}
+            disabled={clearMutation.isPending || !auditHistory?.length}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Clear All History
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            data-testid="button-refresh-audit"
+          >
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
       </div>
 
       <Card className="border border-border/50 shadow-sm">

@@ -325,6 +325,11 @@ export class MemoryStorage {
     return this.auditHistory.delete(id);
   }
 
+  async clearAllAuditHistory() {
+    this.auditHistory.clear();
+    return true;
+  }
+
   // User Codes
   async getUserCodes() {
     return Array.from(this.userCodes.values());

@@ -417,6 +417,25 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/audit-history", async (req, res) => {
+    try {
+      const { entityType, entityId } = req.query;
+      const logs = await getStorageInstance().getAuditHistory(entityType, entityId);
+      sendResponse(res, 200, logs);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch audit history");
+    }
+  });
+
+  app.delete("/api/audit-history", async (req, res) => {
+    try {
+      await getStorageInstance().clearAllAuditHistory();
+      sendResponse(res, 200, { success: true, message: "Audit history cleared" });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to clear audit history");
+    }
+  });
+
   app.get("/api/bookings/:id/assigned-staff", async (req, res) => {
     try {
       const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
