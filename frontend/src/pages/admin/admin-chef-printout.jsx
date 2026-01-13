@@ -87,6 +87,21 @@ export default function ChefPrintout() {
           </CardHeader>
         </Card>
 
+        {!activeDate && !isLoading && (
+          <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <div className="text-sm text-muted-foreground italic">No bookings found for selected date</div>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleRefresh} variant="outline" disabled={isRefetching}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+                {isRefetching ? 'Refreshing...' : 'Refresh'}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {dates.length > 0 && (
           <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-2">
