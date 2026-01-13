@@ -330,7 +330,7 @@ export default function EventBookingsManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({ title: "Menu Updated", description: "Menu items have been updated successfully" });
-      setIsMenuDialogOpen(false);
+      setIsMenuEditDialogOpen(false);
       setMenuEditingBooking(null);
       setSelectedItems([]);
     },
