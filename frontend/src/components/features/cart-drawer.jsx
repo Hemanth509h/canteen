@@ -18,6 +18,10 @@ export function CartDrawer() {
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "" });
 
+  const { data: companyInfo } = useQuery({
+    queryKey: ["/api/company-info"],
+  });
+
   const bookingMutation = useMutation({
     mutationFn: async (bookingData) => {
       return apiRequest("POST", "/api/bookings", bookingData);
@@ -25,10 +29,14 @@ export function CartDrawer() {
     onSuccess: () => {
       toast({
         title: "Booking Request Sent",
-        description: "Your details have been shared with our admin. We will contact you soon!",
+        description: "Your details have been shared with our admin. Initiating call...",
       });
       setShowContactDialog(false);
       clearCart();
+      
+      // Navigate to call using the company phone number or a fallback
+      const phoneToCall = companyInfo?.phoneNumber || "1234567890";
+      window.location.href = `tel:${phoneToCall}`;
     },
     onError: (error) => {
       toast({
