@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2 } from "lucide-react";
+import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ export function CartDrawer() {
   const { toast } = useToast();
   const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests } = useCart();
   const [showContactDialog, setShowContactDialog] = useState(false);
-  const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "" });
+  const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "", eventDate: "", specialRequests: "" });
 
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
@@ -48,7 +48,7 @@ export function CartDrawer() {
   });
 
   const handleContact = () => {
-    if (!customerDetails.name || !customerDetails.phone) return;
+    if (!customerDetails.name || !customerDetails.phone || !customerDetails.eventDate) return;
     
     // Create the booking record in the database
     const bookingData = {
@@ -56,11 +56,11 @@ export function CartDrawer() {
       contactPhone: customerDetails.phone,
       contactEmail: "customer@example.com", // Placeholder since we don't ask for it
       eventType: "Inquiry from Website",
-      eventDate: new Date().toISOString(),
+      eventDate: customerDetails.eventDate,
       guestCount: globalGuests || 1,
       pricePerPlate: 0,
       servingBoysNeeded: 0,
-      specialRequests: cartItems.map(item => `${item.name} (${item.quantity} guests)`).join(', '),
+      specialRequests: `${customerDetails.specialRequests || ""}\n\nSelected Menu: ${cartItems.map(item => `${item.name} (${item.quantity} guests)`).join(', ')}`.trim(),
       status: "pending"
     };
 
@@ -228,6 +228,31 @@ export function CartDrawer() {
                 className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
               />
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold flex items-center gap-2 px-1">
+                <Calendar size={16} className="text-primary" />
+                Event Date
+              </label>
+              <Input
+                type="date"
+                value={customerDetails.eventDate}
+                onChange={(e) => setCustomerDetails(prev => ({ ...prev, eventDate: e.target.value }))}
+                className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold flex items-center gap-2 px-1">
+                <Send size={16} className="text-primary" />
+                Other Requests
+              </label>
+              <Input
+                placeholder="Any special requests or details?"
+                value={customerDetails.specialRequests}
+                onChange={(e) => setCustomerDetails(prev => ({ ...prev, specialRequests: e.target.value }))}
+                className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+              />
+            </div>
           </div>
 
           <DialogFooter className="mt-8 flex flex-col sm:flex-row gap-3">
@@ -239,7 +264,7 @@ export function CartDrawer() {
               Cancel
             </Button>
             <Button
-              disabled={!customerDetails.name || !customerDetails.phone || bookingMutation.isPending}
+              disabled={!customerDetails.name || !customerDetails.phone || !customerDetails.eventDate || bookingMutation.isPending}
               onClick={handleContact}
               className="w-full h-12 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold"
             >
