@@ -12,7 +12,7 @@ import {
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
   Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle,
   Phone,
-  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart
+  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart, User
 } from "lucide-react";
 import { 
   Dialog, 
@@ -505,6 +505,13 @@ export default function CustomerHome() {
 
       <PhoneCallButton phone={companyInfo?.phone} />
       
+      {/* Floating Account Button */}
+      <Link href="/admin/login">
+        <div className="fixed bottom-40 right-6 z-[90] bg-white/10 backdrop-blur-md border-2 border-white/50 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center cursor-pointer">
+          <User size={32} />
+        </div>
+      </Link>
+
       {/* Floating Cart Button */}
       <div className="fixed bottom-24 right-6 z-[90]">
         <CartDrawer />
