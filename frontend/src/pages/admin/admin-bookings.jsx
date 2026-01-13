@@ -68,19 +68,50 @@ export default function EventBookingsManager() {
     queryKey: ["/api/staff"],
   });
 
+  const [statusUpdateTimestamps, setStatusUpdateTimestamps] = useState({});
+
+  useEffect(() => {
+    const savedTimestamps = localStorage.getItem("booking_status_timestamps");
+    if (savedTimestamps) {
+      try {
+        setStatusUpdateTimestamps(JSON.parse(savedTimestamps));
+      } catch (e) {
+        console.error("Failed to parse timestamps", e);
+      }
+    }
+  }, []);
+
   const filteredBookings = (bookings || []).filter((booking) => {
     const matchesSearch = (booking.clientName || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
       (booking.eventType || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
       (booking.contactEmail || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
       (booking.status || "").toLowerCase().includes(debouncedSearch.toLowerCase());
     
-    const matchesStatus = !statusFilter || booking.status === statusFilter;
+    // If searching, show all matches regardless of status or timing
+    if (debouncedSearch) return matchesSearch;
+
+    const matchesStatusFilter = !statusFilter || booking.status === statusFilter;
+    if (!matchesStatusFilter) return false;
+
+    // Filter out confirmed/cancelled/completed from main list if not searching
+    // and if more than 3 hours have passed since status update
+    if (["confirmed", "cancelled", "completed"].includes(booking.status)) {
+      const updateTime = statusUpdateTimestamps[booking.id];
+      if (updateTime) {
+        const threeHoursInMs = 3 * 60 * 60 * 1000;
+        const timePassed = Date.now() - updateTime;
+        if (timePassed > threeHoursInMs) return false;
+      } else {
+        // If no timestamp and it's already one of these statuses, hide it from main list
+        return false;
+      }
+    }
     
     const bookingDate = new Date(booking.eventDate);
     const matchesDateFrom = !dateFrom || bookingDate >= new Date(dateFrom);
     const matchesDateTo = !dateTo || bookingDate <= new Date(dateTo);
     
-    return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
+    return matchesSearch && matchesDateFrom && matchesDateTo;
   }).sort((a, b) => {
     let compareValue = 0;
     
@@ -223,6 +254,13 @@ export default function EventBookingsManager() {
       return apiRequest("PATCH", `/api/bookings/${id}`, updateData);
     },
     onSuccess: async (_booking, variables) => {
+      // Record timestamp for specific status changes
+      if (variables.data.status && ["confirmed", "cancelled", "completed"].includes(variables.data.status)) {
+        const newTimestamps = { ...statusUpdateTimestamps, [variables.id]: Date.now() };
+        setStatusUpdateTimestamps(newTimestamps);
+        localStorage.setItem("booking_status_timestamps", JSON.stringify(newTimestamps));
+      }
+
       // Refresh after update
       await queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       
