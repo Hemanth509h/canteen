@@ -287,6 +287,7 @@ export default function EventBookingsManager() {
 
   const handleViewMenu = (booking) => {
     setMenuEditingBooking(booking);
+    setSelectedItems([]); // Clear previous items before fetching
     // Fetch current items for this booking
     apiRequest("GET", `/api/bookings/${booking.id}/items`)
       .then(res => res.json())
@@ -653,7 +654,10 @@ export default function EventBookingsManager() {
                         <div className="h-4 w-4 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
                           <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
                         </div>
-                        <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] max-w-[100px] truncate">{item?.name}</span>
+                          <span className="text-[9px] text-muted-foreground">Guests: {si.quantity}</span>
+                        </div>
                         <Button
                           type="button"
                           variant="ghost"
