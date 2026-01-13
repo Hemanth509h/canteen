@@ -104,13 +104,31 @@ export function CartDrawer() {
               {cartItems.length > 0 && (
                 <div className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl">
                   <span className="text-sm font-medium whitespace-nowrap">No. of Guests:</span>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={globalGuests}
-                    onChange={(e) => updateGlobalGuests(e.target.value)}
-                    className="h-9 w-20 text-center font-bold bg-background border-primary/20"
-                  />
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-8 w-8 rounded-lg border-primary/20"
+                      onClick={() => updateGlobalGuests(Math.max(1, globalGuests - 1))}
+                    >
+                      <span className="text-lg font-bold">-</span>
+                    </Button>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={globalGuests}
+                      onChange={(e) => updateGlobalGuests(parseInt(e.target.value) || 1)}
+                      className="h-9 w-16 text-center font-bold bg-background border-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-8 w-8 rounded-lg border-primary/20"
+                      onClick={() => updateGlobalGuests(globalGuests + 1)}
+                    >
+                      <span className="text-lg font-bold">+</span>
+                    </Button>
+                  </div>
                   <span className="text-xs text-muted-foreground italic">(Applies to all)</span>
                 </div>
               )}
