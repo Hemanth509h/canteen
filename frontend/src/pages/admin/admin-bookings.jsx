@@ -205,10 +205,12 @@ export default function EventBookingsManager() {
       if (data.pricePerPlate !== undefined) {
         updateData.pricePerPlate = Math.round(data.pricePerPlate);
       }
-      const response = await apiRequest("PATCH", `/api/bookings/${id}`, updateData);
-      return await response.json();
+      return apiRequest("PATCH", `/api/bookings/${id}`, updateData);
     },
     onSuccess: async (_booking, variables) => {
+      // Refresh after update
+      await queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      
       if (selectedItems.length > 0) {
         const items = selectedItems.map(item => ({
           bookingId: variables.id,
@@ -217,7 +219,6 @@ export default function EventBookingsManager() {
         }));
         await apiRequest("POST", `/api/bookings/${variables.id}/items`, items);
       }
-      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({ 
         title: "Updated", 
         description: "Booking details have been updated successfully" 

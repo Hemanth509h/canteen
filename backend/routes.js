@@ -402,12 +402,52 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.get("/api/bookings/:id/items", async (req, res) => {
+  app.get("/api/bookings/:id/assigned-staff", async (req, res) => {
     try {
-      const items = await getStorageInstance().getBookingItems(req.params.id);
-      sendResponse(res, 200, items);
+      const staff = await getStorageInstance().getAcceptedStaffForBooking(req.params.id);
+      sendResponse(res, 200, staff);
     } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch booking items");
+      sendResponse(res, 500, null, "Failed to fetch assigned staff");
+    }
+  });
+
+  app.get("/api/staff-requests/:token", async (req, res) => {
+    try {
+      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
+      if (!request) return sendResponse(res, 404, null, "Request not found");
+      const booking = await getStorageInstance().getBooking(request.bookingId);
+      const staff = await getStorageInstance().getStaffMember(request.staffId);
+      sendResponse(res, 200, { request, booking, staff });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch staff request");
+    }
+  });
+
+  app.patch("/api/staff-requests/:token", async (req, res) => {
+    try {
+      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
+      if (!request) return sendResponse(res, 404, null, "Request not found");
+      const updated = await getStorageInstance().updateStaffBookingRequest(request.id, req.body);
+      sendResponse(res, 200, updated);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update staff request");
+    }
+  });
+
+  app.post("/api/bookings/:id/staff", async (req, res) => {
+    try {
+      const { staffId, role } = req.body;
+      const token = randomUUID();
+      const request = await getStorageInstance().createStaffBookingRequest({
+        bookingId: req.params.id,
+        staffId,
+        role,
+        token,
+        status: "pending"
+      });
+      sendResponse(res, 201, request);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to assign staff");
     }
   });
 

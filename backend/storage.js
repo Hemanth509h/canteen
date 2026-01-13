@@ -249,7 +249,12 @@ export class MemoryStorage {
   }
 
   async getStaffBookingRequests(bookingId) {
-    return Array.from(this.staffRequests.values()).filter(r => r.bookingId === bookingId);
+    const requests = Array.from(this.staffRequests.values()).filter(r => r.bookingId === bookingId);
+    // Join with staff details
+    return Promise.all(requests.map(async (r) => {
+      const staff = await this.getStaffMember(r.staffId);
+      return { ...r, staff };
+    }));
   }
 
   async createStaffBookingRequest(request) {
