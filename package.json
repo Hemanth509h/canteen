@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "This project consists of two independent applications: a backend API server and a frontend React application.",
   "main": "index.js",
-  
   "scripts": {
     "build": "cd frontend && npx vite build",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
@@ -31,6 +30,7 @@
     "concurrently": "^9.2.1",
     "cors": "^2.8.5",
     "cross-env": "^10.1.0",
+    "express": "^5.2.1",
     "framer-motion": "^12.23.26",
     "google-auth-library": "^10.5.0",
     "mongoose": "^9.1.0",
