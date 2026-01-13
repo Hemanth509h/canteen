@@ -288,17 +288,28 @@ export default function EventBookingsManager() {
 
   const handleViewMenu = (booking) => {
     setMenuEditingBooking(booking);
-    setSelectedItems([]); // Clear previous items before fetching
+    setSelectedItems([]); // Clear immediately
     // Fetch current items for this booking
     apiRequest("GET", `/api/bookings/${booking.id}/items`)
       .then(res => res.json())
       .then((response) => {
         const items = response.data || response;
         if (Array.isArray(items)) {
-          setSelectedItems(items.map(item => ({
-            foodItemId: item.foodItemId,
-            quantity: item.quantity
-          })));
+          // Use a Map to ensure unique food items by ID
+          const uniqueItemsMap = new Map();
+          items.forEach(item => {
+            const foodId = item.foodItemId;
+            if (!uniqueItemsMap.has(foodId)) {
+              uniqueItemsMap.set(foodId, {
+                foodItemId: foodId,
+                quantity: item.quantity
+              });
+            } else {
+              const existing = uniqueItemsMap.get(foodId);
+              existing.quantity = Math.max(existing.quantity, item.quantity);
+            }
+          });
+          setSelectedItems(Array.from(uniqueItemsMap.values()));
         }
       })
       .catch(err => console.error("Failed to fetch booking items:", err));
@@ -307,16 +318,27 @@ export default function EventBookingsManager() {
 
   const handleEditMenu = (booking) => {
     setMenuEditingBooking(booking);
-    setSelectedItems([]);
+    setSelectedItems([]); // Clear immediately
     apiRequest("GET", `/api/bookings/${booking.id}/items`)
       .then(res => res.json())
       .then((response) => {
         const items = response.data || response;
         if (Array.isArray(items)) {
-          setSelectedItems(items.map(item => ({
-            foodItemId: item.foodItemId,
-            quantity: item.quantity
-          })));
+          // Use a Map to ensure unique food items by ID
+          const uniqueItemsMap = new Map();
+          items.forEach(item => {
+            const foodId = item.foodItemId;
+            if (!uniqueItemsMap.has(foodId)) {
+              uniqueItemsMap.set(foodId, {
+                foodItemId: foodId,
+                quantity: item.quantity
+              });
+            } else {
+              const existing = uniqueItemsMap.get(foodId);
+              existing.quantity = Math.max(existing.quantity, item.quantity);
+            }
+          });
+          setSelectedItems(Array.from(uniqueItemsMap.values()));
         }
       })
       .catch(err => console.error("Failed to fetch booking items:", err));
