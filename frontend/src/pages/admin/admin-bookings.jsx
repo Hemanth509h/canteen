@@ -298,10 +298,12 @@ export default function EventBookingsManager() {
   };
 
   const handleViewMenu = (booking) => {
-    setMenuEditingBooking(booking);
+    // Get the most up-to-date booking info from the list
+    const latestBooking = bookings.find(b => b.id === booking.id) || booking;
+    setMenuEditingBooking(latestBooking);
     setSelectedItems([]); // Clear immediately
     // Fetch current items for this booking
-    apiRequest("GET", `/api/bookings/${booking.id}/items`)
+    apiRequest("GET", `/api/bookings/${latestBooking.id}/items`)
       .then(res => res.json())
       .then((response) => {
         const items = response.data || response;
@@ -313,11 +315,11 @@ export default function EventBookingsManager() {
             if (!uniqueItemsMap.has(foodId)) {
               uniqueItemsMap.set(foodId, {
                 foodItemId: foodId,
-                quantity: item.quantity
+                quantity: latestBooking.guestCount || 1 // Force use latest guest count
               });
             } else {
               const existing = uniqueItemsMap.get(foodId);
-              existing.quantity = Math.max(existing.quantity, item.quantity);
+              existing.quantity = latestBooking.guestCount || 1;
             }
           });
           setSelectedItems(Array.from(uniqueItemsMap.values()));
@@ -328,9 +330,11 @@ export default function EventBookingsManager() {
   };
 
   const handleEditMenu = (booking) => {
-    setMenuEditingBooking(booking);
+    // Get the most up-to-date booking info from the list
+    const latestBooking = bookings.find(b => b.id === booking.id) || booking;
+    setMenuEditingBooking(latestBooking);
     setSelectedItems([]); // Clear immediately
-    apiRequest("GET", `/api/bookings/${booking.id}/items`)
+    apiRequest("GET", `/api/bookings/${latestBooking.id}/items`)
       .then(res => res.json())
       .then((response) => {
         const items = response.data || response;
@@ -342,11 +346,11 @@ export default function EventBookingsManager() {
             if (!uniqueItemsMap.has(foodId)) {
               uniqueItemsMap.set(foodId, {
                 foodItemId: foodId,
-                quantity: item.quantity
+                quantity: latestBooking.guestCount || 1 // Force use latest guest count
               });
             } else {
               const existing = uniqueItemsMap.get(foodId);
-              existing.quantity = Math.max(existing.quantity, item.quantity);
+              existing.quantity = latestBooking.guestCount || 1;
             }
           });
           setSelectedItems(Array.from(uniqueItemsMap.values()));
