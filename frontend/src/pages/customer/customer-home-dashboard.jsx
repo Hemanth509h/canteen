@@ -5,8 +5,72 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/features/loading-spinner";
-import { Search, Calendar, MapPin, User, Clock, Mail } from "lucide-react";
+import { Search, Calendar, MapPin, User, Clock, Mail, Utensils, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "wouter";
+
+const BookingMenu = ({ bookingId }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { data: items, isLoading } = useQuery({
+    queryKey: ["/api/bookings", bookingId, "items"],
+    queryFn: async () => {
+      const res = await fetch(`/api/bookings/${bookingId}/items`);
+      if (!res.ok) return [];
+      const json = await res.json();
+      const items = json.data || json;
+      
+      // Fetch food item details for each booking item
+      return Promise.all(items.map(async (item) => {
+        const foodRes = await fetch(`/api/food-items`);
+        const foodJson = await foodRes.json();
+        const foodItems = foodJson.data || foodJson;
+        const foodItem = foodItems.find(f => f.id === item.foodItemId);
+        return { ...item, foodItem };
+      }));
+    },
+    enabled: isOpen,
+  });
+
+  return (
+    <div className="mt-4 border-t pt-4">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="w-full justify-between text-primary font-bold hover:bg-primary/5"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="flex items-center gap-2">
+          <Utensils className="w-4 h-4" />
+          View Booked Menu
+        </span>
+        {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </Button>
+      
+      {isOpen && (
+        <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+          {isLoading ? (
+            <div className="flex justify-center py-4"><LoadingSpinner size="sm" /></div>
+          ) : items?.length > 0 ? (
+            <div className="grid gap-2">
+              {items.map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center p-3 bg-secondary/20 rounded-lg">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-sm">{item.foodItem?.name || "Unknown Item"}</span>
+                    <span className="text-xs text-muted-foreground">{item.foodItem?.category}</span>
+                  </div>
+                  <Badge variant="outline" className="bg-background font-bold">
+                    {item.quantity} Guests
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-center text-muted-foreground italic py-2">No menu items selected yet.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function CustomerHome() {
   const [identifier, setIdentifier] = useState("");
@@ -141,6 +205,7 @@ export default function CustomerHome() {
                   <p className="text-lg font-mono font-bold text-foreground">{booking.id?.slice(-12) || booking._id?.slice(-12)}</p>
                 </div>
               </div>
+              <BookingMenu bookingId={booking.id || booking._id} />
             </Card>
           ))}
         </div>

@@ -469,13 +469,14 @@ export async function registerRoutes(app) {
   app.post("/api/bookings/:id/items", async (req, res) => {
     try {
       const items = req.body;
+      await getStorageInstance().deleteBookingItems(req.params.id);
       const results = [];
       for (const item of items) {
         results.push(await getStorageInstance().createBookingItem(item));
       }
       sendResponse(res, 201, results);
     } catch (error) {
-      sendResponse(res, 500, null, "Failed to create booking items");
+      sendResponse(res, 500, null, "Failed to update booking items");
     }
   });
 
