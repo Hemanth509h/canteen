@@ -137,6 +137,18 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/bookings/search", async (req, res) => {
+    try {
+      const { phone } = req.query;
+      if (!phone) return sendResponse(res, 400, null, "Phone number is required");
+      const bookings = await getStorageInstance().getBookings();
+      const customerBookings = bookings.filter(b => b.contactPhone === phone);
+      sendResponse(res, 200, customerBookings);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to search bookings");
+    }
+  });
+
   app.get("/api/bookings/:id", async (req, res) => {
     try {
       const booking = await getStorageInstance().getBooking(req.params.id);

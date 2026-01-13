@@ -506,7 +506,7 @@ export default function CustomerHome() {
       <PhoneCallButton phone={companyInfo?.phone} />
       
       {/* Floating Account Button */}
-      <Link href="/customer/home">
+      <Link href="/customer/dashboard">
         <div className="fixed bottom-40 right-6 z-[90] bg-white/10 backdrop-blur-md border-2 border-white/50 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center cursor-pointer">
           <User size={24} />
         </div>
