@@ -18,7 +18,19 @@ import { API_URL } from "@/lib/queryClient";
 
 export default function PaymentConfirmation({ bookingId: propBookingId }) {
   const params = useParams();
-  const bookingId = propBookingId || params.bookingId;
+  let bookingId = propBookingId || params.bookingId;
+  
+  // Extract actual booking ID from composite ID if needed
+  // Composite ID format: {bookingId}-{paymentType}-{timestamp}
+  if (bookingId && bookingId.includes('-')) {
+    const parts = bookingId.split('-');
+    // MongoDB ObjectId is 24 hex characters, take parts until we have 24 chars
+    const bookingIdCandidate = parts[0];
+    if (bookingIdCandidate.length === 24 && /^[a-f0-9]{24}$/.test(bookingIdCandidate)) {
+      bookingId = bookingIdCandidate;
+    }
+  }
+  
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [advanceFile, setAdvanceFile] = useState(null);
