@@ -155,7 +155,48 @@ export default function AdminPaymentConfirmation() {
     },
   });
 
-  const handleSendWhatsApp = () => {
+  const sendPaymentLinkMutation = useMutation({
+    mutationFn: async () => {
+      if (!booking) throw new Error("Booking not found");
+      
+      const phoneNumber = booking.contactPhone?.replace(/\D/g, "");
+      if (!phoneNumber) throw new Error("Phone number not available");
+      
+      const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
+      const amount = booking.advancePaymentStatus === "pending" 
+        ? (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5))
+        : (totalAmount - (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5)));
+      
+      const paymentType = booking.advancePaymentStatus === "pending" ? "advance" : "final";
+      
+      return apiRequest("POST", "/api/payments/send-whatsapp", {
+        bookingId: booking._id || booking.id || bookingId,
+        paymentType,
+        customerPhone: phoneNumber,
+        customerName: booking.clientName,
+        customerEmail: booking.contactEmail,
+        amount,
+        eventDate: booking.eventDate
+      });
+    },
+    onSuccess: (response) => {
+      toast({
+        title: "Success",
+        description: "Payment link sent via WhatsApp!",
+      });
+      console.log("Payment link response:", response);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send payment link",
+        variant: "destructive",
+      });
+      console.error("Payment link error:", error);
+    },
+  });
+
+  const handleSendWhatsApp = async () => {
     if (!booking) return;
     
     const phoneNumber = booking.contactPhone?.replace(/\D/g, "");
@@ -168,27 +209,8 @@ export default function AdminPaymentConfirmation() {
       return;
     }
 
-    const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
-    const storedAdvanceAmount = booking ? (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5)) : 0;
-    const advanceAmount = isEditing && editAdvanceAmount !== null ? editAdvanceAmount : storedAdvanceAmount;
-    const finalAmount = totalAmount - advanceAmount;
-
-    let message = "";
-    if (booking.advancePaymentStatus === "pending") {
-      message = encodeURIComponent(
-        `Hi ${booking.clientName},\n\n*Advance Payment Required*\nAmount: ₹${advanceAmount.toLocaleString('en-IN')}\nUPI ID: ${companyInfo?.upiId || "N/A"}\nEvent: ${new Date(booking.eventDate).toLocaleDateString('en-IN')}\n\nPay online: ${window.location.origin}/payment/${bookingId}\n\nThank you!`
-      );
-    } else if (booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "pending") {
-      message = encodeURIComponent(
-        `Hi ${booking.clientName},\n\n*Final Payment Required*\nAmount: ₹${finalAmount.toLocaleString('en-IN')}\nUPI ID: ${companyInfo?.upiId || "N/A"}\nEvent: ${new Date(booking.eventDate).toLocaleDateString('en-IN')}\n\nPay online: ${window.location.origin}/payment/${bookingId}\n\nThank you!`
-      );
-    } else if (booking.advancePaymentStatus === "paid" && booking.finalPaymentStatus === "paid") {
-      message = encodeURIComponent(
-        `Hi ${booking.clientName},\n\n*Booking Confirmed!*\nTotal Paid: ₹${totalAmount.toLocaleString('en-IN')}\nEvent: ${new Date(booking.eventDate).toLocaleDateString('en-IN')}\n\nThank you for your payment. We'll contact you soon with event details.`
-      );
-    }
-
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+    // Send payment link via WhatsApp using backend API
+    sendPaymentLinkMutation.mutate();
   };
 
   const openPaymentPage = () => {
@@ -583,9 +605,14 @@ export default function AdminPaymentConfirmation() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Button className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white" onClick={handleSendWhatsApp} data-testid="button-whatsapp-reminder">
+                  <Button 
+                    className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white" 
+                    onClick={handleSendWhatsApp}
+                    disabled={sendPaymentLinkMutation.isPending}
+                    data-testid="button-whatsapp-reminder"
+                  >
                     <MessageCircle className="w-4 h-4" />
-                    Send Payment Link
+                    {sendPaymentLinkMutation.isPending ? "Sending..." : "Send Payment Link"}
                   </Button>
                   <Invoice booking={booking} companyInfo={companyInfo} isAdmin={true} />
                 </div>
