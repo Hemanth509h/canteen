@@ -162,3 +162,19 @@ export const insertCodeRequestSchema = z.object({
   eventDetails: z.string().max(1000).optional(),
   status: z.enum(["pending", "granted", "rejected"]).default("pending"),
 });
+
+// ==================== CASHFREE PAYMENTS ====================
+
+export const paymentInitiationSchema = z.object({
+  bookingId: z.string().min(1, "Booking ID is required"),
+  paymentType: z.enum(["advance", "final"], { required_error: "Payment type is required (advance/final)" }),
+  amount: z.number().int().positive("Amount must be positive"),
+  customerName: z.string().min(1, "Customer name is required"),
+  customerEmail: z.string().email("Valid email is required"),
+  customerPhone: z.string().min(10, "Valid phone number required"),
+});
+
+export const paymentVerificationSchema = z.object({
+  orderId: z.string().min(1, "Order ID is required"),
+  paymentSessionId: z.string().min(1, "Payment session ID is required"),
+});

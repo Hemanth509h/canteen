@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
+import { cashfreeConfig, initializeCashfree } from "./cashfree-config.js";
 
 import { 
   insertFoodItemSchema, 
@@ -16,7 +17,9 @@ import {
   insertStaffBookingRequestSchema, 
   updateStaffBookingRequestSchema,
   insertUserCodeSchema,
-  insertCodeRequestSchema
+  insertCodeRequestSchema,
+  paymentInitiationSchema,
+  paymentVerificationSchema
 } from "./schema.js";
 
 import { fromZodError } from "zod-validation-error";
@@ -505,6 +508,107 @@ export async function registerRoutes(app) {
       sendResponse(res, 200, items);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to fetch booking items");
+    }
+  });
+
+  // ==================== CASHFREE PAYMENT INTEGRATION ====================
+  
+  // Initialize Cashfree on startup
+  await initializeCashfree();
+
+  // Initiate payment
+  app.post("/api/payments/initiate", async (req, res) => {
+    try {
+      const result = paymentInitiationSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+
+      const { bookingId, paymentType, amount, customerName, customerEmail, customerPhone } = result.data;
+      
+      // Generate unique order ID
+      const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
+      
+      // In test mode, create payment session
+      const paymentSession = {
+        orderId,
+        bookingId,
+        paymentType,
+        amount,
+        customerName,
+        customerEmail,
+        customerPhone,
+        status: "initiated",
+        environment: cashfreeConfig.environment,
+        returnUrl: `${cashfreeConfig.returnUrl}?orderId=${orderId}`,
+        notifyUrl: cashfreeConfig.notifyUrl,
+        createdAt: new Date().toISOString(),
+      };
+
+      // In test mode, we return the payment session for frontend integration
+      sendResponse(res, 201, {
+        success: true,
+        paymentSession,
+        testMode: true,
+        message: "Payment initiated in TEST MODE (SANDBOX)",
+        instructions: "Use test card: 4111111111111111 for successful payment"
+      });
+    } catch (error) {
+      console.error("Payment initiation error:", error);
+      sendResponse(res, 500, null, "Failed to initiate payment");
+    }
+  });
+
+  // Verify payment
+  app.post("/api/payments/verify", async (req, res) => {
+    try {
+      const result = paymentVerificationSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+
+      const { orderId, paymentSessionId } = result.data;
+
+      // In test mode, verify payment
+      const isPaymentSuccess = !orderId.includes("failed");
+      
+      if (isPaymentSuccess) {
+        sendResponse(res, 200, {
+          success: true,
+          orderId,
+          paymentStatus: "paid",
+          message: "Payment verified successfully in TEST MODE"
+        });
+      } else {
+        sendResponse(res, 400, null, "Payment verification failed");
+      }
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      sendResponse(res, 500, null, "Failed to verify payment");
+    }
+  });
+
+  // Payment webhook (for Cashfree callback)
+  app.post("/api/payment/webhook", async (req, res) => {
+    try {
+      const { orderId, paymentStatus } = req.body;
+      console.log(`💳 Payment webhook received - Order: ${orderId}, Status: ${paymentStatus}`);
+      
+      // Update booking payment status
+      const bookingId = orderId.split("-")[0];
+      if (bookingId) {
+        const paymentType = orderId.includes("advance") ? "advance" : "final";
+        const statusField = paymentType === "advance" ? "advancePaymentStatus" : "finalPaymentStatus";
+        
+        await getStorageInstance().updateBooking(bookingId, {
+          [statusField]: paymentStatus === "SUCCESS" ? "paid" : "pending"
+        });
+      }
+      
+      sendResponse(res, 200, { success: true });
+    } catch (error) {
+      console.error("Webhook error:", error);
+      sendResponse(res, 500, null, "Webhook processing failed");
     }
   });
 
