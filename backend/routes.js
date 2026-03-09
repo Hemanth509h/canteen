@@ -632,6 +632,9 @@ export async function registerRoutes(app) {
       // Generate unique order ID
       const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
       
+      // Extract base URL from request headers or environment
+      const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.PAYMENT_BASE_URL || process.env.REPLIT_DEV_DOMAIN || '';
+      
       // Create payment order with Cashfree to get actual payment link
       let paymentLink;
       try {
@@ -642,13 +645,14 @@ export async function registerRoutes(app) {
           customerEmail,
           customerPhone,
           paymentType,
-          bookingId
+          bookingId,
+          baseUrl
         });
-        paymentLink = paymentOrder.paymentLink || getCashfreePaymentLink(orderId);
+        paymentLink = paymentOrder.paymentLink || getCashfreePaymentLink(orderId, baseUrl);
       } catch (error) {
         console.warn("⚠️ Cashfree order creation failed, using fallback link:", error.message);
-        // Fallback to local payment URL if Cashfree fails
-        paymentLink = `${process.env.PAYMENT_BASE_URL || "http://localhost:5000"}/payment/${orderId}`;
+        // Fallback to payment URL
+        paymentLink = baseUrl ? `${baseUrl}/payment/${orderId}` : `/payment/${orderId}`;
       }
 
       // Send via WhatsApp

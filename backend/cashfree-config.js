@@ -8,8 +8,8 @@ export const cashfreeConfig = {
   
   // Payment settings
   currency: "INR",
-  returnUrl: process.env.CASHFREE_RETURN_URL || "http://localhost:5000/payment-callback",
-  notifyUrl: process.env.CASHFREE_NOTIFY_URL || "http://localhost:3000/api/payment/webhook",
+  returnUrl: process.env.CASHFREE_RETURN_URL || "/payment-callback",
+  notifyUrl: process.env.CASHFREE_NOTIFY_URL || "/api/payment/webhook",
 };
 
 // Cashfree SDK initialization
@@ -31,12 +31,12 @@ export async function initializeCashfree() {
 // Create payment order with Cashfree
 export async function createCashfreePaymentOrder(orderData) {
   try {
-    const { orderId, amount, customerName, customerEmail, customerPhone, bookingId } = orderData;
+    const { orderId, amount, customerName, customerEmail, customerPhone, bookingId, baseUrl } = orderData;
     
     // In test mode, generate a payment link pointing to the local payment page
     // This allows customers to upload payment screenshots for manual verification
-    const baseUrl = process.env.PAYMENT_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:5000");
-    const paymentLink = `${baseUrl}/payment/${bookingId}`;
+    const finalBaseUrl = baseUrl || process.env.PAYMENT_BASE_URL || process.env.REPLIT_DEV_DOMAIN || "";
+    const paymentLink = `${finalBaseUrl}/payment/${bookingId}`;
     
     console.log(`💳 Cashfree payment order created: ${orderId}, Amount: ₹${amount}`);
     console.log(`📱 Customer payment page: ${paymentLink}`);
@@ -54,9 +54,10 @@ export async function createCashfreePaymentOrder(orderData) {
 }
 
 // Get Cashfree payment link from order ID
-export function getCashfreePaymentLink(orderId) {
+export function getCashfreePaymentLink(orderId, baseUrl) {
   // Generate a payment link URL for Cashfree
-  return `${process.env.PAYMENT_BASE_URL || "http://localhost:5000"}/payment/${orderId}`;
+  const finalBaseUrl = baseUrl || process.env.PAYMENT_BASE_URL || process.env.REPLIT_DEV_DOMAIN || "";
+  return `${finalBaseUrl}/payment/${orderId}`;
 }
 
 // Test Mode Payment Helpers
