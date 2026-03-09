@@ -59,3 +59,5 @@ integrations = ["javascript_object_storage:2.0.0"]
 [userenv.shared]
 PUBLIC_OBJECT_SEARCH_PATHS = "/objects/public"
 PRIVATE_OBJECT_DIR = "/objects/private"
+CASHFREE_CLIENT_ID = "TEST10968988a53f7e83e3a1bf19ce0188986901"
+CASHFREE_CLIENT_SECRET = "cfsk_ma_test_01376a88e8a30a9c0860876f26004fd5_5ca29033"
