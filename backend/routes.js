@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
-import { cashfreeConfig, initializeCashfree, createCashfreePaymentOrder, getCashfreePaymentLink } from "./cashfree-config.js";
+import { cashfreeConfig, initializeCashfree, createCashfreePaymentOrder, verifyCashfreePayment, getCashfreePaymentStatus } from "./cashfree-config.js";
 import { sendPaymentLinkWhatsApp, validateWhatsAppPhone } from "./whatsapp-service.js";
 
 import { 
@@ -534,42 +534,30 @@ export async function registerRoutes(app) {
       // Extract base URL from request headers
       const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.REPLIT_DEV_DOMAIN || '';
       
-      try {
-        // Create payment order with Cashfree
-        const paymentOrder = await createCashfreePaymentOrder({
-          orderId,
-          amount,
-          customerName,
-          customerEmail,
-          customerPhone,
-          bookingId,
-          paymentType,
-          baseUrl
-        });
-        
-        sendResponse(res, 201, {
-          success: true,
-          orderId,
-          paymentLink: paymentOrder.paymentLink,
-          environment: paymentOrder.environment,
-          message: "Payment initiated successfully with Cashfree",
-          orderDetails: paymentOrder.orderDetails
-        });
-      } catch (cashfreeError) {
-        console.warn("⚠️ Cashfree order creation failed, providing fallback:", cashfreeError.message);
-        // Provide fallback payment link
-        const fallbackLink = baseUrl ? `${baseUrl}/payment/${orderId}` : `/payment/${orderId}`;
-        sendResponse(res, 201, {
-          success: true,
-          orderId,
-          paymentLink: fallbackLink,
-          message: "Payment link generated (fallback mode)",
-          warning: "Cashfree integration encountered an issue"
-        });
-      }
+      // Create payment order with Cashfree
+      const paymentOrder = await createCashfreePaymentOrder({
+        orderId,
+        amount,
+        customerName,
+        customerEmail,
+        customerPhone,
+        bookingId,
+        paymentType,
+        baseUrl
+      });
+      
+      sendResponse(res, 201, {
+        success: true,
+        orderId,
+        paymentSessionId: paymentOrder.paymentSessionId,
+        paymentLink: paymentOrder.paymentLink,
+        environment: paymentOrder.environment,
+        message: "Payment initiated successfully",
+        orderDetails: paymentOrder.orderDetails
+      });
     } catch (error) {
       console.error("Payment initiation error:", error);
-      sendResponse(res, 500, null, "Failed to initiate payment");
+      sendResponse(res, 500, null, error.message || "Failed to initiate payment");
     }
   });
 
@@ -581,48 +569,59 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
 
-      const { orderId, paymentSessionId } = result.data;
+      const { orderId } = result.data;
 
-      // In test mode, verify payment
-      const isPaymentSuccess = !orderId.includes("failed");
+      // Verify payment with Cashfree API
+      const verificationResult = await verifyCashfreePayment(orderId);
       
-      if (isPaymentSuccess) {
+      if (verificationResult.success) {
         sendResponse(res, 200, {
           success: true,
           orderId,
           paymentStatus: "paid",
-          message: "Payment verified successfully in TEST MODE"
+          message: "Payment verified successfully",
+          paymentDetails: verificationResult.paymentDetails
         });
       } else {
-        sendResponse(res, 400, null, "Payment verification failed");
+        sendResponse(res, 400, null, {
+          success: false,
+          orderId,
+          paymentStatus: verificationResult.paymentStatus,
+          message: "Payment not yet completed",
+          payments: verificationResult.payments
+        });
       }
     } catch (error) {
       console.error("Payment verification error:", error);
-      sendResponse(res, 500, null, "Failed to verify payment");
+      sendResponse(res, 500, null, error.message || "Failed to verify payment");
     }
   });
 
   // Payment webhook (for Cashfree callback)
   app.post("/api/payment/webhook", async (req, res) => {
     try {
-      const { orderId, paymentStatus } = req.body;
+      const { order_id: orderId, order_amount: orderAmount, payment_status: paymentStatus } = req.body;
       console.log(`💳 Payment webhook received - Order: ${orderId}, Status: ${paymentStatus}`);
       
-      // Update booking payment status
-      const bookingId = orderId.split("-")[0];
+      // Extract booking ID and payment type from order ID
+      const [bookingId, paymentType] = orderId.split("-");
+      
       if (bookingId) {
-        const paymentType = orderId.includes("advance") ? "advance" : "final";
         const statusField = paymentType === "advance" ? "advancePaymentStatus" : "finalPaymentStatus";
+        const updatedStatus = paymentStatus === "SUCCESS" ? "paid" : "pending";
         
+        console.log(`📝 Updating booking ${bookingId}: ${statusField} = ${updatedStatus}`);
         await getStorageInstance().updateBooking(bookingId, {
-          [statusField]: paymentStatus === "SUCCESS" ? "paid" : "pending"
+          [statusField]: updatedStatus
         });
       }
       
-      sendResponse(res, 200, { success: true });
+      // Always respond with 200 to acknowledge receipt
+      res.status(200).json({ success: true, orderId });
     } catch (error) {
       console.error("Webhook error:", error);
-      sendResponse(res, 500, null, "Webhook processing failed");
+      // Still return 200 to prevent Cashfree from retrying
+      res.status(200).json({ success: false, error: error.message });
     }
   });
 
