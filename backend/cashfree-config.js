@@ -41,7 +41,7 @@ export async function initializeCashfree() {
   }
 }
 
-// Create payment order with Cashfree
+// Create payment order with Cashfree (or mock for development)
 export async function createCashfreePaymentOrder(orderData) {
   try {
     const {
@@ -54,7 +54,26 @@ export async function createCashfreePaymentOrder(orderData) {
       baseUrl,
     } = orderData;
 
-    // Prepare Cashfree order payload
+    // Use mock payment for development
+    const isMockMode = process.env.USE_MOCK_PAYMENTS === 'true' || !clientId || !clientSecret;
+    
+    if (isMockMode) {
+      console.log(`📌 [MOCK MODE] Payment order created: ${orderId}, Amount: ₹${amount}`);
+      return {
+        orderId,
+        paymentSessionId: `mock-session-${Date.now()}`,
+        paymentLink: `${baseUrl}/payment-mock?orderId=${orderId}&amount=${amount}`,
+        status: "created",
+        environment: "MOCK",
+        orderDetails: {
+          order_id: orderId,
+          amount,
+          customer_name: customerName,
+        },
+      };
+    }
+
+    // Real Cashfree implementation
     const orderPayload = {
       order_id: orderId,
       order_amount: amount,
@@ -71,7 +90,6 @@ export async function createCashfreePaymentOrder(orderData) {
       },
     };
 
-    // Create order with Cashfree API
     const response = await cashfree.PGCreateOrder(orderPayload);
 
     console.log(`✅ Cashfree order created: ${orderId}, Amount: ₹${amount}`);
@@ -86,7 +104,7 @@ export async function createCashfreePaymentOrder(orderData) {
       orderDetails: response,
     };
   } catch (error) {
-    console.error("❌ Failed to create Cashfree payment order:", error.message);
+    console.error("❌ Failed to create payment order:", error.message);
     throw error;
   }
 }
