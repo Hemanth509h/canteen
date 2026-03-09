@@ -169,7 +169,7 @@ export default function AdminPaymentConfirmation() {
       
       const paymentType = booking.advancePaymentStatus === "pending" ? "advance" : "final";
       
-      return apiRequest("POST", "/api/payments/send-whatsapp", {
+      const res = await apiRequest("POST", "/api/payments/send-whatsapp", {
         bookingId: booking._id || booking.id || bookingId,
         paymentType,
         customerPhone: phoneNumber,
@@ -178,13 +178,29 @@ export default function AdminPaymentConfirmation() {
         amount,
         eventDate: booking.eventDate
       });
+      return res.json();
     },
     onSuccess: (response) => {
+      const paymentLink = response?.data?.paymentLink || response?.paymentLink;
+      const whatsappPhone = booking.contactPhone?.replace(/\D/g, "");
+      
+      if (paymentLink && whatsappPhone) {
+        // Format phone number for WhatsApp
+        const formattedPhone = whatsappPhone.length === 10 ? `91${whatsappPhone}` : whatsappPhone;
+        
+        // Open WhatsApp with the payment link
+        const whatsappMessage = encodeURIComponent(
+          `Hi ${booking.clientName},\n\nPlease complete your payment using this link:\n${paymentLink}\n\nThank you!`
+        );
+        const whatsappUrl = `https://wa.me/${formattedPhone}?text=${whatsappMessage}`;
+        
+        window.open(whatsappUrl, "_blank");
+      }
+      
       toast({
         title: "Success",
         description: "Payment link sent via WhatsApp!",
       });
-      console.log("Payment link response:", response);
     },
     onError: (error) => {
       toast({
