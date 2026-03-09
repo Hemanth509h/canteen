@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
-import { cashfreeConfig, initializeCashfree, createCashfreePaymentOrder, verifyCashfreePayment, getCashfreePaymentStatus } from "./cashfree-config.js";
+import { cashfreeConfig, initializeCashfree, createCashfreePaymentOrder, verifyCashfreePayment } from "./cashfree-config.js";
 import { sendPaymentLinkWhatsApp, validateWhatsAppPhone } from "./whatsapp-service.js";
 
 import { 
@@ -517,129 +517,7 @@ export async function registerRoutes(app) {
   
   // Initialize Cashfree on startup
   await initializeCashfree();
-  import express from "express";
-  import dotenv from "dotenv";
 
-  import {
-    createCashfreePaymentOrder,
-    verifyCashfreePayment,
-  } from "./cashfreeService.js";
-
-  dotenv.config();
-
-  const app = express();
-  app.use(express.json());
-
-  /* ---------------- INITIATE PAYMENT ---------------- */
-  app.post("/api/payments/initiate", async (req, res) => {
-    try {
-      console.log("📩 Payment request received:", req.body);
-
-      const {
-        bookingId,
-        paymentType,
-        amount,
-        customerName,
-        customerEmail,
-        customerPhone
-      } = req.body;
-
-      const orderId = `${bookingId}_${paymentType}_${Date.now()}`;
-
-      const baseUrl =
-        req.get("origin") ||
-        req.get("referer")?.split("/").slice(0, 3).join("/") ||
-        "http://localhost:3000";
-
-      console.log("Creating Cashfree order:", orderId);
-
-      const paymentOrder = await createCashfreePaymentOrder({
-        orderId,
-        amount,
-        customerName,
-        customerEmail,
-        customerPhone,
-        bookingId,
-        baseUrl
-      });
-
-      console.log("✅ Cashfree order created:", paymentOrder);
-
-      res.status(201).json({
-        success: true,
-        orderId,
-        paymentSessionId: paymentOrder.paymentSessionId,
-        paymentLink: paymentOrder.paymentLink
-      });
-
-    } catch (error) {
-      console.error("❌ Payment initiation error:", error);
-
-      res.status(500).json({
-        success: false,
-        error: error.message
-      });
-    }
-  });
-
-  /* ---------------- VERIFY PAYMENT ---------------- */
-
-  app.post("/api/payments/verify", async (req, res) => {
-    try {
-      const { orderId } = req.body;
-
-      const result = await verifyCashfreePayment(orderId);
-
-      if (result.success) {
-        return res.json({
-          success: true,
-          message: "Payment successful",
-          paymentDetails: result.paymentDetails,
-        });
-      }
-
-      res.status(400).json({
-        success: false,
-        message: "Payment not completed",
-      });
-    } catch (error) {
-      console.error("Verification error:", error);
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  });
-
-  /* ---------------- CASHFREE WEBHOOK ---------------- */
-
-  app.post("/api/payment/webhook", async (req, res) => {
-    try {
-      const { order_id, payment_status } = req.body;
-
-      console.log(
-        `💳 Webhook received: Order=${order_id}, Status=${payment_status}`
-      );
-
-      if (payment_status === "SUCCESS") {
-        console.log("✅ Payment completed");
-        // Update database here
-      }
-
-      res.status(200).json({ success: true });
-    } catch (error) {
-      console.error("Webhook error:", error);
-      res.status(200).json({ success: false });
-    }
-  });
-
-  /* ---------------- START SERVER ---------------- */
-
-  const PORT = 5000;
-
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
   // Send payment link via WhatsApp
   app.post("/api/payments/send-whatsapp", async (req, res) => {
     try {
