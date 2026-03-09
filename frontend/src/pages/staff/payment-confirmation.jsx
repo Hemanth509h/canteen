@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { CashfreePayment } from "@/components/features/cashfree-payment";
 import { UPIPayment } from "@/components/features/upi-payment";
 import { Invoice } from "@/components/features/invoice";
 import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Calendar, Utensils, RefreshCw } from "lucide-react";
@@ -293,15 +294,22 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
               <CardContent className="space-y-6">
                 {booking.advancePaymentStatus !== "paid" ? (
                   <>
-                    <UPIPayment
-                      upiId={companyInfo?.upiId || ""}
-                      totalAmount={advanceAmount}
+                    <CashfreePayment
                       bookingId={bookingId}
-                      clientName={booking.clientName}
+                      amount={advanceAmount}
+                      customerName={booking.clientName}
+                      customerEmail={booking.contactEmail}
+                      customerPhone={booking.contactPhone}
                       paymentType="advance"
                     />
 
-                    <div className="border-t pt-6">
+                    <div className="border-t pt-6 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-px bg-border" />
+                        <span className="text-xs text-muted-foreground font-medium">OR</span>
+                        <div className="flex-1 h-px bg-border" />
+                      </div>
+                      
                       <div className="flex items-center gap-2 mb-4">
                         <Camera className="w-5 h-5 text-muted-foreground" />
                         <Label className="text-base font-semibold">Upload Payment Screenshot</Label>
@@ -411,15 +419,22 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
                   <CardContent className="space-y-6">
                     {booking.finalPaymentStatus !== "paid" ? (
                       <>
-                        <UPIPayment
-                          upiId={companyInfo?.upiId || ""}
-                          totalAmount={finalAmount}
+                        <CashfreePayment
                           bookingId={bookingId}
-                          clientName={booking.clientName}
+                          amount={finalAmount}
+                          customerName={booking.clientName}
+                          customerEmail={booking.contactEmail}
+                          customerPhone={booking.contactPhone}
                           paymentType="final"
                         />
 
-                        <div className="border-t pt-6">
+                        <div className="border-t pt-6 space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-px bg-border" />
+                            <span className="text-xs text-muted-foreground font-medium">OR</span>
+                            <div className="flex-1 h-px bg-border" />
+                          </div>
+                          
                           <div className="flex items-center gap-2 mb-4">
                             <Camera className="w-5 h-5 text-muted-foreground" />
                             <Label className="text-base font-semibold">Upload Payment Screenshot</Label>
