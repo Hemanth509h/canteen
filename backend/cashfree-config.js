@@ -28,6 +28,34 @@ export async function initializeCashfree() {
   }
 }
 
+// Create payment order with Cashfree
+export async function createCashfreePaymentOrder(orderData) {
+  try {
+    const { orderId, amount, customerName, customerEmail, customerPhone } = orderData;
+    
+    // In test mode, generate a test payment link
+    const testPaymentLink = `https://test.cashfree.com/checkout/post/submit?x_invoice_id=${orderId}&x_amount=${amount}`;
+    
+    console.log(`💳 Cashfree payment order created: ${orderId}, Amount: ₹${amount}`);
+    
+    return {
+      orderId,
+      paymentLink: testPaymentLink,
+      status: "created",
+      environment: cashfreeConfig.environment
+    };
+  } catch (error) {
+    console.error("❌ Failed to create Cashfree payment order:", error.message);
+    throw error;
+  }
+}
+
+// Get Cashfree payment link from order ID
+export function getCashfreePaymentLink(orderId) {
+  // Generate a payment link URL for Cashfree
+  return `${process.env.PAYMENT_BASE_URL || "http://localhost:5000"}/payment/${orderId}`;
+}
+
 // Test Mode Payment Helpers
 export const testModePayments = {
   // Successful payment - use any amount

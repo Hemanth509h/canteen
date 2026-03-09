@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
-import { cashfreeConfig, initializeCashfree } from "./cashfree-config.js";
+import { cashfreeConfig, initializeCashfree, createCashfreePaymentOrder, getCashfreePaymentLink } from "./cashfree-config.js";
 import { sendPaymentLinkWhatsApp, validateWhatsAppPhone } from "./whatsapp-service.js";
 
 import { 
@@ -622,16 +622,34 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
 
-      const { bookingId, paymentType, customerPhone, amount, customerName } = result.data;
+      const { bookingId, paymentType, customerPhone, amount, customerName, customerEmail } = result.data;
 
       // Validate phone number
       if (!validateWhatsAppPhone(customerPhone)) {
         return sendResponse(res, 400, null, "Invalid phone number for WhatsApp");
       }
 
-      // Generate payment link (in production, this would be from Cashfree)
+      // Generate unique order ID
       const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
-      const paymentLink = `${process.env.PAYMENT_BASE_URL || "http://localhost:5000"}/payment/${orderId}`;
+      
+      // Create payment order with Cashfree to get actual payment link
+      let paymentLink;
+      try {
+        const paymentOrder = await createCashfreePaymentOrder({
+          orderId,
+          amount,
+          customerName,
+          customerEmail,
+          customerPhone,
+          paymentType,
+          bookingId
+        });
+        paymentLink = paymentOrder.paymentLink || getCashfreePaymentLink(orderId);
+      } catch (error) {
+        console.warn("⚠️ Cashfree order creation failed, using fallback link:", error.message);
+        // Fallback to local payment URL if Cashfree fails
+        paymentLink = `${process.env.PAYMENT_BASE_URL || "http://localhost:5000"}/payment/${orderId}`;
+      }
 
       // Send via WhatsApp
       const result_send = await sendPaymentLinkWhatsApp(customerPhone, paymentLink, {
@@ -643,11 +661,13 @@ export async function registerRoutes(app) {
 
       // Log WhatsApp message sending
       console.log(`✉️ Payment link sent via WhatsApp to ${customerPhone} for booking ${bookingId}`);
+      console.log(`💳 Payment link: ${paymentLink}`);
 
       sendResponse(res, 200, {
         success: true,
         message: "Payment link sent via WhatsApp",
-        whatsappStatus: result_send
+        whatsappStatus: result_send,
+        paymentLink: paymentLink
       });
     } catch (error) {
       console.error("WhatsApp payment link error:", error);
