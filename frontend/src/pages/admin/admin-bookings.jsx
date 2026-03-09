@@ -145,7 +145,7 @@ export default function EventBookingsManager() {
     if (typeof window !== 'undefined') {
       return window.location.origin;
     }
-    return 'http://localhost:5000';
+    return '';
   };
 
   const fetchAssignedStaff = async () => {
