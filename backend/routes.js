@@ -518,7 +518,7 @@ export async function registerRoutes(app) {
   // Initialize Cashfree on startup
   await initializeCashfree();
 
-  // Initiate payment
+  // Initiate payment with Cashfree
   app.post("/api/payments/initiate", async (req, res) => {
     try {
       const result = paymentInitiationSchema.safeParse(req.body);
@@ -531,30 +531,42 @@ export async function registerRoutes(app) {
       // Generate unique order ID
       const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
       
-      // In test mode, create payment session
-      const paymentSession = {
-        orderId,
-        bookingId,
-        paymentType,
-        amount,
-        customerName,
-        customerEmail,
-        customerPhone,
-        status: "initiated",
-        environment: cashfreeConfig.environment,
-        returnUrl: `${cashfreeConfig.returnUrl}?orderId=${orderId}`,
-        notifyUrl: cashfreeConfig.notifyUrl,
-        createdAt: new Date().toISOString(),
-      };
-
-      // In test mode, we return the payment session for frontend integration
-      sendResponse(res, 201, {
-        success: true,
-        paymentSession,
-        testMode: true,
-        message: "Payment initiated in TEST MODE (SANDBOX)",
-        instructions: "Use test card: 4111111111111111 for successful payment"
-      });
+      // Extract base URL from request headers
+      const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.REPLIT_DEV_DOMAIN || '';
+      
+      try {
+        // Create payment order with Cashfree
+        const paymentOrder = await createCashfreePaymentOrder({
+          orderId,
+          amount,
+          customerName,
+          customerEmail,
+          customerPhone,
+          bookingId,
+          paymentType,
+          baseUrl
+        });
+        
+        sendResponse(res, 201, {
+          success: true,
+          orderId,
+          paymentLink: paymentOrder.paymentLink,
+          environment: paymentOrder.environment,
+          message: "Payment initiated successfully with Cashfree",
+          orderDetails: paymentOrder.orderDetails
+        });
+      } catch (cashfreeError) {
+        console.warn("⚠️ Cashfree order creation failed, providing fallback:", cashfreeError.message);
+        // Provide fallback payment link
+        const fallbackLink = baseUrl ? `${baseUrl}/payment/${orderId}` : `/payment/${orderId}`;
+        sendResponse(res, 201, {
+          success: true,
+          orderId,
+          paymentLink: fallbackLink,
+          message: "Payment link generated (fallback mode)",
+          warning: "Cashfree integration encountered an issue"
+        });
+      }
     } catch (error) {
       console.error("Payment initiation error:", error);
       sendResponse(res, 500, null, "Failed to initiate payment");
