@@ -3,6 +3,7 @@ import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
 import { cashfreeConfig, initializeCashfree } from "./cashfree-config.js";
+import { sendPaymentLinkWhatsApp, validateWhatsAppPhone } from "./whatsapp-service.js";
 
 import { 
   insertFoodItemSchema, 
@@ -19,7 +20,8 @@ import {
   insertUserCodeSchema,
   insertCodeRequestSchema,
   paymentInitiationSchema,
-  paymentVerificationSchema
+  paymentVerificationSchema,
+  sendPaymentLinkWhatsAppSchema
 } from "./schema.js";
 
 import { fromZodError } from "zod-validation-error";
@@ -609,6 +611,47 @@ export async function registerRoutes(app) {
     } catch (error) {
       console.error("Webhook error:", error);
       sendResponse(res, 500, null, "Webhook processing failed");
+    }
+  });
+
+  // Send payment link via WhatsApp
+  app.post("/api/payments/send-whatsapp", async (req, res) => {
+    try {
+      const result = sendPaymentLinkWhatsAppSchema.safeParse(req.body);
+      if (!result.success) {
+        return sendResponse(res, 400, null, fromZodError(result.error).message);
+      }
+
+      const { bookingId, paymentType, customerPhone, amount, customerName } = result.data;
+
+      // Validate phone number
+      if (!validateWhatsAppPhone(customerPhone)) {
+        return sendResponse(res, 400, null, "Invalid phone number for WhatsApp");
+      }
+
+      // Generate payment link (in production, this would be from Cashfree)
+      const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
+      const paymentLink = `${process.env.PAYMENT_BASE_URL || "http://localhost:5000"}/payment/${orderId}`;
+
+      // Send via WhatsApp
+      const result_send = await sendPaymentLinkWhatsApp(customerPhone, paymentLink, {
+        customerName,
+        amount,
+        orderId,
+        eventDate: req.body.eventDate
+      });
+
+      // Log WhatsApp message sending
+      console.log(`✉️ Payment link sent via WhatsApp to ${customerPhone} for booking ${bookingId}`);
+
+      sendResponse(res, 200, {
+        success: true,
+        message: "Payment link sent via WhatsApp",
+        whatsappStatus: result_send
+      });
+    } catch (error) {
+      console.error("WhatsApp payment link error:", error);
+      sendResponse(res, 500, null, error.message || "Failed to send payment link via WhatsApp");
     }
   });
 

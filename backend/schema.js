@@ -178,3 +178,13 @@ export const paymentVerificationSchema = z.object({
   orderId: z.string().min(1, "Order ID is required"),
   paymentSessionId: z.string().min(1, "Payment session ID is required"),
 });
+
+// ==================== WHATSAPP PAYMENT LINK ====================
+
+export const sendPaymentLinkWhatsAppSchema = z.object({
+  bookingId: z.string().min(1, "Booking ID is required"),
+  paymentType: z.enum(["advance", "final"], { required_error: "Payment type is required" }),
+  customerPhone: z.string().min(10, "Valid phone number required"),
+  amount: z.number().int().positive("Amount must be positive"),
+  customerName: z.string().min(1, "Customer name is required"),
+});
