@@ -10,6 +10,7 @@ if (!clientId || !clientSecret) {
 
 const cashfree = new Cashfree({
   apiKey: clientSecret,
+  appId: clientId,
 });
 
 export const cashfreeConfig = {
