@@ -1,47 +1,39 @@
 import { Cashfree } from "cashfree-pg";
+import dotenv from "dotenv";
 
-// Initialize Cashfree SDK with credentials from environment
-const clientId = process.env.CASHFREE_CLIENT_ID;
-const clientSecret = process.env.CASHFREE_CLIENT_SECRET;
+dotenv.config();
+
+// Load credentials
+const clientId = 'TEST10968988a53f7e83e3a1bf19ce0188986901';
+const clientSecret = 'cfsk_ma_test_01376a88e8a30a9c0860876f26004fd5_5ca29033';
 
 if (!clientId || !clientSecret) {
-  console.error("❌ Missing Cashfree credentials: CASHFREE_CLIENT_ID and CASHFREE_CLIENT_SECRET must be set");
+  console.error("❌ Missing Cashfree credentials");
+  process.exit(1);
 }
 
+// Initialize SDK
 const cashfree = new Cashfree({
-  apiKey: clientSecret,
   appId: clientId,
+  apiKey: clientSecret,
+  environment: Cashfree.Environment.SANDBOX,
 });
 
+// Configuration
 export const cashfreeConfig = {
-  clientId,
-  clientSecret,
-  environment: "SANDBOX", // Use SANDBOX for testing, change to PRODUCTION for live
-  apiVersion: "2023-08-01",
   currency: "INR",
   returnUrl: process.env.CASHFREE_RETURN_URL,
   notifyUrl: process.env.CASHFREE_NOTIFY_URL,
 };
 
-// Initialize Cashfree SDK
+
+// Initialize Cashfree
 export async function initializeCashfree() {
-  try {
-    if (!clientId || !clientSecret) {
-      throw new Error("Cashfree credentials are not configured");
-    }
-    console.log("✅ Cashfree SDK initialized with APP ID:", clientId.substring(0, 10) + "...");
-    return {
-      environment: cashfreeConfig.environment,
-      clientId: cashfreeConfig.clientId,
-      apiVersion: cashfreeConfig.apiVersion,
-    };
-  } catch (error) {
-    console.error("❌ Failed to initialize Cashfree:", error.message);
-    throw error;
-  }
+  console.log("✅ Cashfree initialized");
 }
 
-// Create payment order with Cashfree (or mock for development)
+/* ---------------- CREATE ORDER ---------------- */
+
 export async function createCashfreePaymentOrder(orderData) {
   try {
     const {
@@ -54,119 +46,87 @@ export async function createCashfreePaymentOrder(orderData) {
       baseUrl,
     } = orderData;
 
-    // Use mock payment for development
-    const isMockMode = process.env.USE_MOCK_PAYMENTS === 'true' || !clientId || !clientSecret;
-    
-    if (isMockMode) {
-      console.log(`📌 [MOCK MODE] Payment order created: ${orderId}, Amount: ₹${amount}`);
-      return {
-        orderId,
-        paymentSessionId: `mock-session-${Date.now()}`,
-        paymentLink: `${baseUrl}/payment-mock?orderId=${orderId}&amount=${amount}`,
-        status: "created",
-        environment: "MOCK",
-        orderDetails: {
-          order_id: orderId,
-          amount,
-          customer_name: customerName,
-        },
-      };
-    }
-
-    // Real Cashfree implementation
     const orderPayload = {
       order_id: orderId,
       order_amount: amount,
       order_currency: cashfreeConfig.currency,
+
       customer_details: {
         customer_id: bookingId,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
       },
+
       order_meta: {
-        return_url: baseUrl ? `${baseUrl}/payment-callback` : "/payment-callback",
-        notify_url: baseUrl ? `${baseUrl}/api/payment/webhook` : "/api/payment/webhook",
+        return_url: `${baseUrl}/payment-success?order_id={order_id}`,
+        notify_url: cashfreeConfig.notifyUrl,
       },
     };
 
     const response = await cashfree.PGCreateOrder(orderPayload);
 
-    console.log(`✅ Cashfree order created: ${orderId}, Amount: ₹${amount}`);
-    console.log(`📱 Payment session ID: ${response.payment_session_id}`);
+    if (!response.payment_session_id) {
+      throw new Error("Payment session not created");
+    }
 
     return {
       orderId,
       paymentSessionId: response.payment_session_id,
       paymentLink: response.payment_link,
       status: "created",
-      environment: cashfreeConfig.environment,
       orderDetails: response,
     };
   } catch (error) {
-    console.error("❌ Failed to create payment order:", error.message);
+    console.error("❌ Order creation failed:", error.message);
     throw error;
   }
 }
 
-// Verify payment with Cashfree
+/* ---------------- VERIFY PAYMENT ---------------- */
+
 export async function verifyCashfreePayment(orderId) {
   try {
     const response = await cashfree.PGOrderFetchPayments(orderId);
 
-    // Check if any successful payment exists
-    const successfulPayments = response.payments.filter(
-      (payment) => payment.payment_status === "SUCCESS"
+    const successPayment = response.payments.find(
+      (p) => p.payment_status === "SUCCESS"
     );
 
-    if (successfulPayments.length > 0) {
-      console.log(`✅ Payment verified for order ${orderId}`);
+    if (successPayment) {
       return {
         success: true,
-        orderId,
         paymentStatus: "paid",
-        paymentDetails: successfulPayments[0],
-      };
-    } else {
-      console.log(`❌ No successful payments found for order ${orderId}`);
-      return {
-        success: false,
-        orderId,
-        paymentStatus: "pending",
-        payments: response.payments,
+        paymentDetails: successPayment,
       };
     }
+
+    return {
+      success: false,
+      paymentStatus: "pending",
+      payments: response.payments,
+    };
   } catch (error) {
-    console.error("❌ Failed to verify Cashfree payment:", error.message);
+    console.error("❌ Verification failed:", error.message);
     throw error;
   }
 }
 
-// Get payment status for an order
-export async function getCashfreePaymentStatus(orderId) {
-  try {
-    const response = await cashfree.PGOrderFetchPayments(orderId);
-    return response;
-  } catch (error) {
-    console.error("❌ Failed to fetch payment status:", error.message);
-    throw error;
-  }
-}
+/* ---------------- REFUND PAYMENT ---------------- */
 
-// Refund a payment
-export async function refundCashfreePayment(orderId, refundAmount, refundNote) {
+export async function refundCashfreePayment(orderId, amount, note) {
   try {
     const refundPayload = {
-      refund_id: `${orderId}-refund-${Date.now()}`,
-      refund_amount: refundAmount,
-      refund_note: refundNote,
+      refund_id: `refund_${Date.now()}`,
+      refund_amount: amount,
+      refund_note: note,
     };
 
     const response = await cashfree.PGCreateRefund(orderId, refundPayload);
-    console.log(`✅ Refund initiated for order ${orderId}`);
+
     return response;
   } catch (error) {
-    console.error("❌ Failed to initiate refund:", error.message);
+    console.error("❌ Refund failed:", error.message);
     throw error;
   }
 }

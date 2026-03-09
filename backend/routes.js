@@ -517,24 +517,42 @@ export async function registerRoutes(app) {
   
   // Initialize Cashfree on startup
   await initializeCashfree();
+  import express from "express";
+  import dotenv from "dotenv";
 
-  // Initiate payment with Cashfree
+  import {
+    createCashfreePaymentOrder,
+    verifyCashfreePayment,
+  } from "./cashfreeService.js";
+
+  dotenv.config();
+
+  const app = express();
+  app.use(express.json());
+
+  /* ---------------- INITIATE PAYMENT ---------------- */
   app.post("/api/payments/initiate", async (req, res) => {
     try {
-      const result = paymentInitiationSchema.safeParse(req.body);
-      if (!result.success) {
-        return sendResponse(res, 400, null, fromZodError(result.error).message);
-      }
+      console.log("📩 Payment request received:", req.body);
 
-      const { bookingId, paymentType, amount, customerName, customerEmail, customerPhone } = result.data;
-      
-      // Generate unique order ID
-      const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
-      
-      // Extract base URL from request headers
-      const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.REPLIT_DEV_DOMAIN || '';
-      
-      // Create payment order with Cashfree
+      const {
+        bookingId,
+        paymentType,
+        amount,
+        customerName,
+        customerEmail,
+        customerPhone
+      } = req.body;
+
+      const orderId = `${bookingId}_${paymentType}_${Date.now()}`;
+
+      const baseUrl =
+        req.get("origin") ||
+        req.get("referer")?.split("/").slice(0, 3).join("/") ||
+        "http://localhost:3000";
+
+      console.log("Creating Cashfree order:", orderId);
+
       const paymentOrder = await createCashfreePaymentOrder({
         orderId,
         amount,
@@ -542,89 +560,86 @@ export async function registerRoutes(app) {
         customerEmail,
         customerPhone,
         bookingId,
-        paymentType,
         baseUrl
       });
-      
-      sendResponse(res, 201, {
+
+      console.log("✅ Cashfree order created:", paymentOrder);
+
+      res.status(201).json({
         success: true,
         orderId,
         paymentSessionId: paymentOrder.paymentSessionId,
-        paymentLink: paymentOrder.paymentLink,
-        environment: paymentOrder.environment,
-        message: "Payment initiated successfully",
-        orderDetails: paymentOrder.orderDetails
+        paymentLink: paymentOrder.paymentLink
       });
+
     } catch (error) {
-      console.error("Payment initiation error:", error);
-      sendResponse(res, 500, null, error.message || "Failed to initiate payment");
+      console.error("❌ Payment initiation error:", error);
+
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
     }
   });
 
-  // Verify payment
+  /* ---------------- VERIFY PAYMENT ---------------- */
+
   app.post("/api/payments/verify", async (req, res) => {
     try {
-      const result = paymentVerificationSchema.safeParse(req.body);
-      if (!result.success) {
-        return sendResponse(res, 400, null, fromZodError(result.error).message);
-      }
+      const { orderId } = req.body;
 
-      const { orderId } = result.data;
+      const result = await verifyCashfreePayment(orderId);
 
-      // Verify payment with Cashfree API
-      const verificationResult = await verifyCashfreePayment(orderId);
-      
-      if (verificationResult.success) {
-        sendResponse(res, 200, {
+      if (result.success) {
+        return res.json({
           success: true,
-          orderId,
-          paymentStatus: "paid",
-          message: "Payment verified successfully",
-          paymentDetails: verificationResult.paymentDetails
-        });
-      } else {
-        sendResponse(res, 400, null, {
-          success: false,
-          orderId,
-          paymentStatus: verificationResult.paymentStatus,
-          message: "Payment not yet completed",
-          payments: verificationResult.payments
+          message: "Payment successful",
+          paymentDetails: result.paymentDetails,
         });
       }
+
+      res.status(400).json({
+        success: false,
+        message: "Payment not completed",
+      });
     } catch (error) {
-      console.error("Payment verification error:", error);
-      sendResponse(res, 500, null, error.message || "Failed to verify payment");
+      console.error("Verification error:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
   });
 
-  // Payment webhook (for Cashfree callback)
+  /* ---------------- CASHFREE WEBHOOK ---------------- */
+
   app.post("/api/payment/webhook", async (req, res) => {
     try {
-      const { order_id: orderId, order_amount: orderAmount, payment_status: paymentStatus } = req.body;
-      console.log(`💳 Payment webhook received - Order: ${orderId}, Status: ${paymentStatus}`);
-      
-      // Extract booking ID and payment type from order ID
-      const [bookingId, paymentType] = orderId.split("-");
-      
-      if (bookingId) {
-        const statusField = paymentType === "advance" ? "advancePaymentStatus" : "finalPaymentStatus";
-        const updatedStatus = paymentStatus === "SUCCESS" ? "paid" : "pending";
-        
-        console.log(`📝 Updating booking ${bookingId}: ${statusField} = ${updatedStatus}`);
-        await getStorageInstance().updateBooking(bookingId, {
-          [statusField]: updatedStatus
-        });
+      const { order_id, payment_status } = req.body;
+
+      console.log(
+        `💳 Webhook received: Order=${order_id}, Status=${payment_status}`
+      );
+
+      if (payment_status === "SUCCESS") {
+        console.log("✅ Payment completed");
+        // Update database here
       }
-      
-      // Always respond with 200 to acknowledge receipt
-      res.status(200).json({ success: true, orderId });
+
+      res.status(200).json({ success: true });
     } catch (error) {
       console.error("Webhook error:", error);
-      // Still return 200 to prevent Cashfree from retrying
-      res.status(200).json({ success: false, error: error.message });
+      res.status(200).json({ success: false });
     }
   });
 
+  /* ---------------- START SERVER ---------------- */
+
+  const PORT = 5000;
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
   // Send payment link via WhatsApp
   app.post("/api/payments/send-whatsapp", async (req, res) => {
     try {
