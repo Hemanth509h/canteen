@@ -31,16 +31,19 @@ export async function initializeCashfree() {
 // Create payment order with Cashfree
 export async function createCashfreePaymentOrder(orderData) {
   try {
-    const { orderId, amount, customerName, customerEmail, customerPhone } = orderData;
+    const { orderId, amount, customerName, customerEmail, customerPhone, bookingId } = orderData;
     
-    // In test mode, generate a test payment link
-    const testPaymentLink = `https://test.cashfree.com/checkout/post/submit?x_invoice_id=${orderId}&x_amount=${amount}`;
+    // In test mode, generate a payment link pointing to the local payment page
+    // This allows customers to upload payment screenshots for manual verification
+    const baseUrl = process.env.PAYMENT_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:5000");
+    const paymentLink = `${baseUrl}/payment/${bookingId}`;
     
     console.log(`💳 Cashfree payment order created: ${orderId}, Amount: ₹${amount}`);
+    console.log(`📱 Customer payment page: ${paymentLink}`);
     
     return {
       orderId,
-      paymentLink: testPaymentLink,
+      paymentLink,
       status: "created",
       environment: cashfreeConfig.environment
     };
