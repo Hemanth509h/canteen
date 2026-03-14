@@ -229,12 +229,16 @@ function MenuSection({ foodItems, isLoading, onSelectItem, addToCart, cartItems 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading
             ? Array(8).fill(0).map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                <Skeleton className="h-52 w-full rounded-none" />
-                <div className="p-5 space-y-2">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-10 w-full rounded-xl" />
+              <div key={i} className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-5 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex items-center justify-between pt-2">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-9 w-20 rounded-xl" />
                 </div>
               </div>
             ))
@@ -245,48 +249,40 @@ function MenuSection({ foodItems, isLoading, onSelectItem, addToCart, cartItems 
                   key={item.id}
                   onClick={() => !inCart && onSelectItem(item)}
                   className={cn(
-                    "group rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-zinc-900",
+                    "group rounded-2xl bg-white dark:bg-zinc-900 border transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-zinc-900",
                     inCart
                       ? "border-amber-400 dark:border-amber-500 shadow-lg shadow-amber-500/10"
                       : "border-zinc-100 dark:border-zinc-800 hover:border-amber-200 dark:hover:border-zinc-700"
                   )}
                 >
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"; }}
-                    />
-                    <div className={cn(
-                      "absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-jakarta font-bold uppercase tracking-wide border backdrop-blur-md",
-                      item.type === "Veg"
-                        ? "bg-green-500/15 border-green-500/30 text-green-400"
-                        : "bg-red-500/15 border-red-500/30 text-red-400"
-                    )}>
-                      {item.type}
-                    </div>
-                    {inCart && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="flex items-center gap-2 bg-amber-500 text-zinc-950 px-4 py-2 rounded-xl font-jakarta font-bold text-sm">
-                          <CheckCircle size={16} /> In Cart
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
                   <div className="p-5">
-                    <h3 className="font-playfair font-bold text-zinc-900 dark:text-white text-lg mb-1 line-clamp-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                      {item.name}
-                    </h3>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm font-jakarta line-clamp-2 mb-4 leading-relaxed">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-playfair font-bold text-zinc-900 dark:text-white text-lg mb-1 line-clamp-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                          {item.name}
+                        </h3>
+                      </div>
+                      <span className={cn(
+                        "shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-jakarta font-bold uppercase tracking-wide border",
+                        item.type === "Veg"
+                          ? "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400"
+                          : "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400"
+                      )}>
+                        {item.type}
+                      </span>
+                    </div>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm font-jakarta line-clamp-2 mb-5 leading-relaxed">
                       {item.description}
                     </p>
                     <div className="flex items-center justify-between">
                       {item.price && (
                         <span className="font-playfair font-bold text-amber-600 dark:text-amber-400 text-lg">₹{item.price}</span>
                       )}
-                      {!inCart && (
+                      {inCart ? (
+                        <span className="ml-auto flex items-center gap-1.5 text-amber-500 font-jakarta font-bold text-sm">
+                          <CheckCircle size={15} /> In Cart
+                        </span>
+                      ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); addToCart(item); }}
                           className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-jakarta font-bold text-sm transition-all hover:scale-105 shadow-md shadow-amber-500/20"
