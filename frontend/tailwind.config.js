@@ -4,8 +4,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        playfair: ['"Playfair Display"', 'Georgia', 'serif'],
+        jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
-        inter: ['Inter', 'sans-serif'],
+        inter: ['"Plus Jakarta Sans"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -46,6 +48,10 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        'gold': '0 4px 24px hsl(38 82% 48% / 0.2)',
+        'gold-lg': '0 12px 48px hsl(38 82% 48% / 0.25)',
       },
     },
   },

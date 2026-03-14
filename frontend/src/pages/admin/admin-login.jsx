@@ -107,104 +107,83 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden animate-fade-in">
-      <div className="absolute inset-0 bg-primary/10 backdrop-blur-[2px]" />
-      {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-20 animate-float">
-          <UtensilsCrossed className="w-16 h-16 text-white" />
-        </div>
-        <div className="absolute bottom-32 right-20 animate-float-delayed">
-          <ChefHat className="w-20 h-20 text-white" />
-        </div>
-        <div className="absolute top-1/3 right-1/4 animate-float">
-          <UtensilsCrossed className="w-12 h-12 text-white" />
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden fade-in dark">
+      {/* Ambient background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-primary/6 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
-      {/* Back to Home Link */}
-      <div 
-        className="absolute top-6 left-6 animate-slide-up"
-      >
+      {/* Back to Home */}
+      <div className="absolute top-6 left-6 z-10">
         <Link href="/">
-          <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 transition-all">
+          <Button variant="ghost" className="font-jakarta text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
         </Link>
       </div>
 
-      <div
-        className="w-full max-w-md relative z-10 animate-scale-in"
-      >
-        <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-sm card-hover-lift hover:shadow-3xl transition-all duration-300">
-          <CardHeader className="space-y-4 text-center pb-2">
-            <div 
-              className="flex justify-center animate-scale-in"
-            >
-              <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border border-primary/20 animate-gentle-pulse">
-                <img src={logoSrc} alt="Logo" className="w-16 h-16 text-primary" />
+      <div className="w-full max-w-md relative z-10 slide-up">
+        <Card className="border border-border/50 shadow-gold-lg bg-card/95 backdrop-blur-sm rounded-2xl overflow-hidden">
+          <CardHeader className="space-y-5 text-center pb-3 pt-10">
+            <div className="flex justify-center">
+              <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center">
+                <img src={logoSrc} alt="Logo" className="w-12 h-12" />
               </div>
             </div>
-            <div
-            >
-              <CardTitle className="text-2xl font-serif font-bold">
+            <div>
+              <CardTitle className="text-2xl font-playfair font-bold">
                 Admin Portal
               </CardTitle>
-              <CardDescription className="mt-2">
+              <CardDescription className="mt-2 font-jakarta">
                 Enter your credentials to access the management panel
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
+
+          <CardContent className="pt-4 pb-8 px-8">
             <form onSubmit={handleLogin} className="space-y-5">
-              <div 
-                className="space-y-2"
-              >
-                <Label htmlFor="password" className="text-sm font-medium">Admin Password</Label>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-jakarta font-medium">Admin Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter password"
+                    placeholder="Enter your password"
                     value={password || ""}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
-                    className="pl-10 py-5"
+                    className="pl-10 h-12 font-jakarta rounded-xl border-border/60 focus:ring-2 focus:ring-primary/20"
                     data-testid="input-password"
                   />
                 </div>
               </div>
-              <div
+
+              <Button
+                type="submit"
+                className="w-full h-12 text-base font-jakarta font-bold rounded-xl bg-primary text-primary-foreground shadow-gold hover:shadow-gold-lg hover:bg-primary/90 transition-all duration-300"
+                disabled={isLoading}
+                data-testid="button-login"
               >
-                <Button
-                  type="submit"
-                  className="w-full py-5 text-base font-medium"
-                  disabled={isLoading}
-                  data-testid="button-login"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Logging in...
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-4 h-4 mr-2" />
-                      Sign In
-                    </>
-                  )}
-                </Button>
-              </div>
-              <div 
-                className="text-center pt-2"
-              >
-                <p className="text-xs text-muted-foreground">
-                  Protected area for authorized personnel only
-                </p>
-              </div>
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4 mr-2" />
+                    Sign In
+                  </>
+                )}
+              </Button>
+
+              <p className="text-center text-xs text-muted-foreground font-jakarta pt-1">
+                Protected area — authorised personnel only
+              </p>
             </form>
           </CardContent>
         </Card>

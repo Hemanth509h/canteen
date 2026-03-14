@@ -8,15 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
+import {
   ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
-  Leaf, Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter, MessageCircle,
-  Phone,
-  ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart, User
+  Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter,
+  Phone, ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart, User, Sparkles
 } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
+import {
+  Dialog,
+  DialogContent,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import ReviewsCarousel from "@/components/reviews-carousel";
@@ -24,42 +23,63 @@ import ReviewForm from "@/components/review-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useCart } from "@/lib/cart-context";
 import { CartDrawer } from "@/components/features/cart-drawer";
-
 import HowItWorks from "@/components/features/how-it-works";
 import NavigationButton from "@/components/features/back-to-top";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 
 const PhoneCallButton = ({ phone }) => (
-  <a 
+  <a
     href={`tel:${phone?.replace(/\D/g, '') || '1234567890'}`}
-    className="fixed bottom-6 left-6 z-[90] bg-primary text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center group"
+    className="fixed bottom-6 left-6 z-[90] bg-primary text-primary-foreground p-4 rounded-full shadow-gold-lg hover:scale-110 transition-all duration-300 flex items-center justify-center group"
   >
-    <Phone size={32} />
-    <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-3 transition-all duration-500 whitespace-nowrap font-bold">
+    <Phone size={28} />
+    <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-3 transition-all duration-500 whitespace-nowrap font-bold text-sm">
       Call us
     </span>
   </a>
 );
 
+const OrnamentalDivider = ({ label }) => (
+  <div className="flex items-center justify-center gap-4 my-2">
+    <div className="h-px flex-1 max-w-16 bg-gradient-to-r from-transparent to-primary/40" />
+    {label ? (
+      <span className="text-primary text-xs uppercase tracking-[0.25em] font-jakarta font-semibold">{label}</span>
+    ) : (
+      <Sparkles size={14} className="text-primary/60" />
+    )}
+    <div className="h-px flex-1 max-w-16 bg-gradient-to-l from-transparent to-primary/40" />
+  </div>
+);
+
 const Testimonials = ({ reviews }) => (
-  <section className="py-24 px-6 bg-secondary/5">
+  <section className="py-24 px-6 bg-secondary/30">
     <div className="max-w-7xl mx-auto text-center">
-      <h2 className="text-3xl md:text-5xl font-poppins font-bold mb-12 md:mb-16">What Our Clients Say</h2>
+      <OrnamentalDivider label="Testimonials" />
+      <h2 className="text-4xl md:text-6xl font-playfair font-bold mt-4 mb-4">What Our Clients Say</h2>
+      <p className="text-muted-foreground font-jakarta mb-16 max-w-xl mx-auto">Experiences shared by those who've trusted us with their most important moments.</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {(reviews || [
           { customerName: "Sarah J.", eventType: "Wedding", comment: "The food was absolutely divine! Every guest was impressed by the presentation and flavor." },
           { customerName: "Michael R.", eventType: "Corporate", comment: "Professional service and exceptional quality. They made our event truly special." },
-          { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering experience we've ever had. Highly recommend their organic menu!" }
+          { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering experience we've ever had. Highly recommend their artisan menu!" }
         ]).slice(0, 3).map((review, idx) => (
-          <Card key={idx} className="p-6 md:p-8 bg-card border-none shadow-xl rounded-[1.5rem] md:rounded-[2rem] hover:-translate-y-2 transition-transform">
-            <Quote className="text-primary/20 mb-4 md:mb-6" size={32} />
-            <p className="text-base md:text-lg italic mb-4 md:mb-6">"{review.comment}"</p>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-primary text-primary" />)}
+          <div key={idx} className="relative p-8 bg-card border border-border/60 rounded-2xl card-hover text-left group overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/10 transition-colors duration-500" />
+            <Quote className="text-primary/25 mb-5" size={36} />
+            <p className="text-base italic mb-6 leading-relaxed text-foreground/80 font-jakarta">"{review.comment}"</p>
+            <div className="flex items-center gap-1 mb-4">
+              {[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-primary text-primary" />)}
             </div>
-            <h4 className="font-bold text-base text-primary">{review.customerName}</h4>
-            <span className="text-sm text-muted-foreground font-medium">{review.eventType}</span>
-          </Card>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary font-bold font-playfair text-lg">
+                {review.customerName.charAt(0)}
+              </div>
+              <div>
+                <h4 className="font-bold text-sm font-jakarta">{review.customerName}</h4>
+                <span className="text-xs text-muted-foreground font-jakarta">{review.eventType} Event</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
@@ -67,50 +87,42 @@ const Testimonials = ({ reviews }) => (
 );
 
 const Footer = ({ companyInfo, logoSrc }) => (
-  <footer className="bg-card pt-24 pb-12 px-6 border-t border-border/30 relative overflow-hidden">
-    <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-       <Leaf size={300} className="absolute -bottom-20 -left-20 rotate-45" />
-    </div>
-    <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-8 text-center relative z-10">
+  <footer className="bg-card pt-20 pb-10 px-6 border-t border-border/30 relative overflow-hidden">
+    <div className="max-w-7xl mx-auto flex flex-col items-center gap-10 text-center relative z-10">
       <div className="flex items-center gap-3">
-        <img src={logoSrc} alt="Logo" className="w-8 h-8 text-primary" />
-        <h3 className="text-3xl font-poppins font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
+        <img src={logoSrc} alt="Logo" className="w-9 h-9" />
+        <h3 className="text-2xl font-playfair font-bold">{companyInfo?.companyName || "Elite Catering"}</h3>
       </div>
-      
-      <p className="text-muted-foreground max-w-md leading-relaxed italic text-base px-4">
-        "{companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}"
+
+      <p className="text-muted-foreground max-w-md leading-relaxed italic text-sm font-jakarta px-4">
+        "{companyInfo?.tagline || "Artisan culinary experiences crafted with passion and precision."}"
       </p>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium">
-        <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-primary transition-colors cursor-pointer">Home</button>
-        <button onClick={() => document.getElementById('menu')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors cursor-pointer">Our Menu</button>
-        <button onClick={() => document.getElementById('contact-section')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-primary transition-colors cursor-pointer">Contact Us</button>
+      <nav className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-jakarta font-medium">
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-primary transition-colors cursor-pointer">Home</button>
+        <button onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-primary transition-colors cursor-pointer">Our Menu</button>
+        <button onClick={() => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-primary transition-colors cursor-pointer">Contact Us</button>
         <Link href="/admin/login" className="hover:text-primary transition-colors flex items-center gap-2 font-semibold">
-          <Lock size={14} className="text-primary" />
+          <Lock size={13} className="text-primary" />
           Admin Portal
         </Link>
+      </nav>
+
+      <div className="flex gap-3">
+        {[Instagram, Facebook, Twitter].map((Icon, i) => (
+          <Button key={i} variant="ghost" size="icon" className="rounded-full w-10 h-10 border border-border/50 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300">
+            <Icon size={16} />
+          </Button>
+        ))}
       </div>
 
-      <div className="flex gap-6 py-2">
-        <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
-          <Instagram size={20} />
-        </Button>
-        <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
-          <Facebook size={20} />
-        </Button>
-        <Button variant="ghost" size="icon" className="rounded-full bg-secondary/50 hover:bg-primary hover:text-white transition-colors">
-          <Twitter size={20} />
-        </Button>
-      </div>
-
-      <div className="w-full pt-8 border-t border-border/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-        <div className="flex flex-col md:flex-row gap-8 items-center">
-          <span className="flex items-center gap-2"><MapPin size={16} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</span>
-          <span className="flex items-center gap-2 font-medium text-foreground">Email: events@elite-catering.com</span>
-          <span className="flex items-center gap-2"><Clock size={16} className="text-primary" /> Mon - Sun: 9AM - 10PM</span>
+      <div className="w-full pt-8 border-t border-border/20 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground font-jakarta">
+        <div className="flex flex-wrap gap-6 items-center justify-center">
+          <span className="flex items-center gap-2"><MapPin size={14} className="text-primary" /> {companyInfo?.address || "123 Culinary St, Food City"}</span>
+          <span className="flex items-center gap-2"><Clock size={14} className="text-primary" /> Mon – Sun: 9AM – 10PM</span>
           {companyInfo?.phoneNumber && (
-            <span className="flex items-center gap-2 font-bold text-primary">
-              <Phone size={16} /> {companyInfo.phoneNumber}
+            <span className="flex items-center gap-2 text-primary font-semibold">
+              <Phone size={14} /> {companyInfo.phoneNumber}
             </span>
           )}
         </div>
@@ -127,10 +139,8 @@ const features = [
   { icon: Clock, title: "On-Time Service", description: "Punctual delivery and setup for stress-free events" },
 ];
 
-const BackgroundLeaf = ({ className }) => (
-  <div className={cn("absolute pointer-events-none text-primary/10", className)}>
-    <Leaf size={120} />
-  </div>
+const FloatingOrb = ({ className }) => (
+  <div className={cn("absolute pointer-events-none rounded-full blur-3xl", className)} />
 );
 
 export default function CustomerHome() {
@@ -140,7 +150,6 @@ export default function CustomerHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [heroIndex, setHeroIndex] = useState(0);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [showWebsite, setShowWebsite] = useState(false);
 
@@ -168,62 +177,21 @@ export default function CustomerHome() {
     gcTime: 0,
   });
 
-  const dynamicHeroImages = useMemo(() => {
-    if (companyInfo?.heroImages && Array.isArray(companyInfo.heroImages)) {
-      const validImages = companyInfo.heroImages.filter(img => 
-        (typeof img === 'string' && img.trim() !== "" && (img.startsWith('http') || img.startsWith('/')))
-      );
-      if (validImages.length > 0) return validImages;
-    }
-    return [];
-  }, [companyInfo?.heroImages]);
-
   useEffect(() => {
-    if (!dynamicHeroImages.length && !isLoadingFood) {
+    if (!isLoadingFood) {
       setIsPageLoaded(true);
       return;
     }
-    let loadedCount = 0;
-    const totalToLoad = dynamicHeroImages.length;
-    if (totalToLoad === 0) {
-      if (!isLoadingFood) setIsPageLoaded(true);
-      return;
-    }
-    const images = dynamicHeroImages.map(src => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === totalToLoad) setIsPageLoaded(true);
-      };
-      img.onerror = () => {
-        loadedCount++;
-        if (loadedCount === totalToLoad) setIsPageLoaded(true);
-      };
-      return img;
-    });
-    return () => {
-      images.forEach(img => {
-        img.onload = null;
-        img.onerror = null;
-      });
-    };
-  }, [dynamicHeroImages, isLoadingFood]);
+    const timeout = setTimeout(() => setIsPageLoaded(true), 4000);
+    return () => clearTimeout(timeout);
+  }, [isLoadingFood]);
 
   useEffect(() => {
     if (isPageLoaded) {
-      const timer = setTimeout(() => setShowWebsite(true), 800);
+      const timer = setTimeout(() => setShowWebsite(true), 500);
       return () => clearTimeout(timer);
     }
   }, [isPageLoaded]);
-
-  useEffect(() => {
-    if (!dynamicHeroImages || dynamicHeroImages.length === 0) return;
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % dynamicHeroImages.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [dynamicHeroImages?.length]);
 
   const categories = useMemo(() => {
     if (!foodItems) return ["All"];
@@ -239,9 +207,9 @@ export default function CustomerHome() {
       const isSearching = searchQuery !== "";
       const matchesType = isSearching ? true : (!selectedType || item.type === selectedType);
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-      const matchesSearch = searchQuery === "" || 
-                           item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           item.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = searchQuery === "" ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesType && matchesCategory && matchesSearch;
     }) || [];
   }, [foodItems, selectedType, selectedCategory, searchQuery]);
@@ -251,16 +219,16 @@ export default function CustomerHome() {
   if (!showWebsite) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background">
-        <div className="relative">
+        <div className="relative mb-6">
           <LoadingSpinner size="lg" className="text-primary" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <img src={logoSrc} alt="Logo" className="w-16 h-16 text-primary animate-pulse" />
+            <img src={logoSrc} alt="Logo" className="w-14 h-14 animate-pulse" />
           </div>
         </div>
-        <p className="mt-6 text-xl font-poppins font-bold animate-pulse text-primary tracking-widest uppercase">
+        <p className="text-xl font-playfair font-bold text-primary tracking-widest uppercase">
           {companyInfo?.companyName || "Elite Catering"}
         </p>
-        <p className="mt-2 text-sm text-muted-foreground font-light italic">
+        <p className="mt-2 text-sm text-muted-foreground font-jakarta font-light italic">
           Preparing your culinary experience...
         </p>
       </div>
@@ -268,90 +236,105 @@ export default function CustomerHome() {
   }
 
   return (
-    <div className="font-inter relative overflow-hidden bg-background text-foreground selection:bg-primary/20 animate-in fade-in zoom-in-95 duration-1000 dark">
+    <div className="relative overflow-hidden bg-background text-foreground selection:bg-primary/20 animate-in fade-in duration-700 dark">
+      {/* Background ambient orbs */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <BackgroundLeaf className="top-20 -left-10 rotate-12 leaf-float-1 opacity-10 dark:opacity-20" />
-        <BackgroundLeaf className="top-[40%] -right-10 -rotate-12 leaf-float-2 opacity-10 dark:opacity-20" />
-        <BackgroundLeaf className="bottom-20 left-[10%] rotate-45 leaf-float-3 opacity-10 dark:opacity-20" />
+        <FloatingOrb className="top-[-10%] left-[-5%] w-96 h-96 bg-primary/6 dot-float-1" />
+        <FloatingOrb className="top-[40%] right-[-8%] w-80 h-80 bg-primary/4 dot-float-2" />
+        <FloatingOrb className="bottom-[10%] left-[15%] w-64 h-64 bg-primary/5 dot-float-3" />
       </div>
 
-      <div className="relative h-screen min-h-[600px] overflow-hidden">
-        <div className="absolute top-6 right-6 z-50 flex items-center gap-4 fade-in theme-toggle-container">
+      {/* ─── HERO ─────────────────────────────────────────────────────────── */}
+      <div className="relative min-h-[92vh] overflow-hidden flex items-center">
+        <div className="absolute top-6 right-6 z-50 flex items-center gap-3 fade-in">
           <ThemeToggle />
         </div>
-        
-        <div className="absolute inset-0 flex transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
-          {dynamicHeroImages.map((img, idx) => (
-            <div 
-              key={idx}
-              className="min-w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${img})` }}
-            />
-          ))}
-        </div>
-        <div className="absolute inset-0 bg-black/40" />
-        
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8 slide-up">
-            <img src={logoSrc} alt="Logo" className="w-12 h-12 text-primary" />
-            <span className="text-sm font-medium tracking-wider uppercase">Nature's Finest Catering</span>
+
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-950 via-stone-900 to-zinc-950" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        {/* Subtle gold glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+
+        {/* Hero content */}
+        <div className="relative z-10 w-full flex flex-col items-center justify-center text-white text-center px-6 py-28">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass bg-white/10 border border-white/20 mb-8 slide-up">
+            <Sparkles size={14} className="text-primary" />
+            <span className="text-xs font-jakarta font-medium tracking-[0.2em] uppercase text-white/90">Premium Catering</span>
           </div>
-          
-          <h1 className="text-3xl sm:text-7xl md:text-8xl font-poppins font-bold mb-4 sm:mb-8 leading-[1.1] tracking-tight slide-up text-white drop-shadow-lg">
+
+          <h1 className="text-4xl sm:text-7xl md:text-8xl font-playfair font-bold mb-6 leading-[1.05] tracking-tight slide-up text-white drop-shadow-2xl">
             {companyInfo?.companyName || "Elite Catering"}
           </h1>
-          
-          <p className="text-base sm:text-xl md:text-2xl max-w-2xl mb-8 sm:mb-12 font-inter font-light slide-up text-white drop-shadow-md">
-            {companyInfo?.tagline || "Artisan culinary experiences inspired by the organic beauty of nature."}
+
+          <p className="text-base sm:text-xl max-w-xl mb-10 font-jakarta font-light slide-up text-white/75 leading-relaxed">
+            {companyInfo?.tagline || "Artisan culinary experiences crafted for life's most meaningful occasions."}
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto slide-up">
-            <Button 
-              size="lg" 
-              className="group rounded-2xl px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl shadow-2xl hover:shadow-primary/40 transition-all duration-500 font-bold bg-[#22c55e] text-white hover:bg-[#16a34a] hover:scale-105 border-none"
+
+          <div className="flex flex-col sm:flex-row gap-4 slide-up">
+            <Button
+              size="lg"
+              className="group rounded-xl px-10 py-6 text-base font-jakarta font-bold shadow-gold-lg hover:shadow-gold transition-all duration-500 bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 border-none"
               onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
             >
               Explore Menu
-              <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="group rounded-xl px-10 py-6 text-base font-jakarta font-semibold border-white/30 text-white hover:bg-white/15 glass backdrop-blur"
+              onClick={() => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Book an Event
             </Button>
           </div>
         </div>
       </div>
 
-      <section className="py-16 sm:py-24 px-4 sm:px-6 relative">
+      {/* ─── ABOUT / STATS ─────────────────────────────────────────────────── */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 sm:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left: story */}
             <div className="slide-up">
-              <span className="text-primary font-bold tracking-[0.2em] uppercase text-xs sm:text-sm mb-4 block">Our Story</span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-poppins font-bold mb-6 sm:mb-8 leading-tight">The Art of Organic Gastronomy</h2>
-              <p className="text-lg sm:text-xl text-muted-foreground mb-8 sm:mb-10 leading-relaxed font-light italic">
-                "{companyInfo?.description || "We bring the garden to your table, celebrating the pure essence of every ingredient."}"
+              <OrnamentalDivider label="Our Story" />
+              <h2 className="text-3xl sm:text-5xl font-playfair font-bold mt-6 mb-6 leading-tight">
+                The Art of<br />
+                <span className="gold-shimmer">Gastronomy</span>
+              </h2>
+              <p className="text-lg text-muted-foreground mb-10 leading-relaxed font-jakarta font-light italic">
+                "{companyInfo?.description || "We bring the finest ingredients together, celebrating the pure essence of every occasion with flavors that linger."}"
               </p>
-              
-              <div className="grid grid-cols-2 gap-8 sm:gap-12">
+
+              <div className="grid grid-cols-2 gap-8">
                 <div className="group">
-                  <div className="text-4xl sm:text-6xl font-bold text-primary mb-2 transition-transform group-hover:scale-110 duration-500">
+                  <div className="text-5xl sm:text-6xl font-playfair font-bold text-primary mb-1 transition-transform group-hover:scale-105 duration-500">
                     {companyInfo?.yearsExperience || 15}+
                   </div>
-                  <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Years of Craft</div>
+                  <div className="text-xs font-jakarta font-bold uppercase tracking-widest text-muted-foreground/70">Years of Craft</div>
                 </div>
                 <div className="group">
-                  <div className="text-4xl sm:text-6xl font-bold text-primary mb-2 transition-transform group-hover:scale-110 duration-500">
+                  <div className="text-5xl sm:text-6xl font-playfair font-bold text-primary mb-1 transition-transform group-hover:scale-105 duration-500">
                     {companyInfo?.eventsPerYear || 500}+
                   </div>
-                  <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Annual Celebrations</div>
+                  <div className="text-xs font-jakarta font-bold uppercase tracking-widest text-muted-foreground/70">Annual Events</div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            {/* Right: feature cards */}
+            <div className="grid grid-cols-2 gap-5 sm:gap-6">
               {features.map((feature, idx) => (
-                <div key={idx} className="p-4 sm:p-8 bg-card rounded-[1.5rem] sm:rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 group slide-up">
-                  <div className="w-10 h-10 sm:w-14 h-14 rounded-xl sm:rounded-2xl bg-primary/5 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary transition-colors duration-500">
-                    <feature.icon className="w-5 h-5 sm:w-7 h-7 text-primary group-hover:text-white transition-colors duration-500" />
+                <div
+                  key={idx}
+                  className="p-6 sm:p-8 bg-card rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-500 group slide-up cursor-default"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center mb-5 group-hover:bg-primary transition-colors duration-500">
+                    <feature.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors duration-500" />
                   </div>
-                  <h3 className="font-poppins font-bold text-sm sm:text-lg mb-2 sm:mb-3">{feature.title}</h3>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground leading-relaxed font-inter line-clamp-2">{feature.description}</p>
+                  <h3 className="font-playfair font-bold text-base sm:text-lg mb-2">{feature.title}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-jakarta line-clamp-2">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -361,70 +344,73 @@ export default function CustomerHome() {
 
       <HowItWorks />
 
-      <section id="menu" className="py-16 sm:py-24 px-4 sm:px-6 bg-secondary/5 rounded-[2rem] sm:rounded-[4rem] mx-2 sm:mx-4 lg:mx-8">
-        <div className="max-w-[95%] sm:max-w-[90%] md:max-w-[95%] lg:max-w-[98%] 2xl:max-w-[1920px] mx-auto">
-          <div className="text-center mb-12 sm:mb-20 slide-up">
-            <h2 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-4 sm:mb-6">Seasonal Selections</h2>
-            <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-6 sm:mb-8 rounded-full" />
-            
-            <div className="flex justify-center mb-8 sm:mb-12">
+      {/* ─── MENU ──────────────────────────────────────────────────────────── */}
+      <section id="menu" className="py-20 sm:py-28 px-4 sm:px-6 bg-secondary/20 rounded-3xl mx-3 sm:mx-6 lg:mx-10 relative z-10">
+        <div className="max-w-[98%] mx-auto">
+          <div className="text-center mb-14 slide-up">
+            <OrnamentalDivider label="Our Menu" />
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-playfair font-bold mt-5 mb-4">Seasonal Selections</h2>
+            <p className="text-muted-foreground font-jakarta mb-10 max-w-lg mx-auto">Explore our curated dishes, crafted from the freshest seasonal ingredients.</p>
+
+            {/* Filters */}
+            <div className="flex justify-center mb-8">
               <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
                 <div className="w-full sm:w-1/3">
                   <Select value={selectedType} onValueChange={(val) => { setSelectedType(val); setSelectedCategory("All"); }}>
-                    <SelectTrigger className="rounded-2xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg text-foreground">
-                      <SelectValue placeholder="Type" className="text-foreground" />
+                    <SelectTrigger className="rounded-xl h-14 border border-border/60 bg-card shadow-sm focus:ring-2 focus:ring-primary/20 font-jakarta text-base">
+                      <SelectValue placeholder="Type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="All">All</SelectItem>
-                      <SelectItem value="Veg">Veg</SelectItem>
-                      <SelectItem value="Non-Veg">Non-Veg</SelectItem>
+                      <SelectItem value="All">All Types</SelectItem>
+                      <SelectItem value="Veg">Vegetarian</SelectItem>
+                      <SelectItem value="Non-Veg">Non-Vegetarian</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="relative flex-1 group">
-                  <Search className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                  <Input 
-                    placeholder="Find your flavor..." 
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <Input
+                    placeholder="Search dishes..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     list="food-suggestions"
-                    className="pl-12 sm:pl-14 rounded-2xl sm:rounded-3xl h-14 sm:h-16 border-none bg-background shadow-lg shadow-primary/5 focus:ring-2 focus:ring-primary/20 transition-all text-base sm:text-lg text-foreground"
+                    className="pl-11 rounded-xl h-14 border border-border/60 bg-card shadow-sm focus:ring-2 focus:ring-primary/20 font-jakarta text-base"
                   />
                   <datalist id="food-suggestions">
-                    {foodItems?.map((item, idx) => (
-                      <option key={idx} value={item.name} />
-                    ))}
+                    {foodItems?.map((item, idx) => <option key={idx} value={item.name} />)}
                   </datalist>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 sm:gap-4 justify-center max-w-5xl mx-auto px-4">
+            {/* Category pills */}
+            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center max-w-5xl mx-auto">
               {categories.map((cat) => (
-                <Button 
-                  key={cat} 
-                  variant="ghost"
+                <button
+                  key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "rounded-xl px-4 sm:px-6 py-2 h-auto text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 border border-transparent",
-                    selectedCategory === cat 
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105 border-primary" 
-                      : "bg-background text-foreground hover:bg-secondary/50 hover:border-secondary-foreground/10"
+                    "rounded-full px-5 py-2 text-xs font-jakarta font-semibold tracking-wide transition-all duration-300 border",
+                    selectedCategory === cat
+                      ? "bg-primary text-primary-foreground border-primary shadow-gold"
+                      : "bg-card text-foreground border-border/60 hover:border-primary/40 hover:text-primary"
                   )}
                 >
                   {cat}
-                </Button>
+                </button>
               ))}
             </div>
           </div>
 
-          <div className="max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-8">
+          {/* Menu grid */}
+          <div className="max-h-[820px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {isLoadingFood ? (
-                Array(6).fill(0).map((_, i) => (
+                Array(8).fill(0).map((_, i) => (
                   <div key={i} className="space-y-4 slide-up">
-                    <Skeleton className="h-48 sm:h-80 w-full rounded-[1rem] sm:rounded-[2.5rem]" />
+                    <Skeleton className="h-52 w-full rounded-2xl" />
                     <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
                   </div>
                 ))
               ) : (
@@ -434,57 +420,72 @@ export default function CustomerHome() {
                   const quantity = cartItem?.quantity || 0;
 
                   return (
-                    <div 
-                      key={item.id}
-                      className="group relative slide-up"
-                    >
-                      <Card 
+                    <div key={item.id} className="group relative slide-up">
+                      <Card
                         onClick={() => !isSelected && setSelectedItem(item)}
                         className={cn(
-                        "overflow-hidden bg-card border-none shadow-sm hover:shadow-2xl transition-all duration-700 rounded-[1rem] sm:rounded-[2rem] cursor-pointer group-hover:-translate-y-3 h-full flex flex-col",
-                        isSelected && "ring-2 ring-primary"
-                      )}>
-                        <div className="h-32 sm:h-64 relative overflow-hidden">
-                          <img 
-                            src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"} 
+                          "overflow-hidden bg-card border border-border/50 hover:border-primary/25 shadow-sm hover:shadow-gold-lg transition-all duration-500 rounded-2xl cursor-pointer hover:-translate-y-2 h-full flex flex-col",
+                          isSelected && "ring-2 ring-primary border-primary/50"
+                        )}
+                      >
+                        <div className="h-48 sm:h-56 relative overflow-hidden">
+                          <img
+                            src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"}
                             alt={item.name}
-                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             onError={(e) => {
                               e.target.onerror = null;
                               e.target.src = 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop';
                             }}
                           />
-                          <div className="absolute top-2 left-2 sm:top-4 left-4 flex flex-col gap-2">
-                            <Badge variant="outline" className={cn("text-[10px] sm:text-xs uppercase font-bold tracking-widest backdrop-blur-md px-2 sm:px-3 py-1", item.type === 'Veg' ? 'text-green-400 border-green-500/50 bg-green-500/10' : 'text-red-400 border-red-500/50 bg-red-500/10')}>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                          <div className="absolute top-3 left-3">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-[10px] uppercase font-jakarta font-bold tracking-wider backdrop-blur-sm glass px-2.5 py-0.5",
+                                item.type === 'Veg'
+                                  ? 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10'
+                                  : 'text-rose-400 border-rose-500/40 bg-rose-500/10'
+                              )}
+                            >
                               {item.type}
                             </Badge>
                           </div>
                           {isSelected && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4">
-                              <div className="bg-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 animate-in zoom-in duration-300">
-                                <CheckCircle size={20} />
+                            <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
+                              <div className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-jakarta font-bold text-sm flex items-center gap-2">
+                                <CheckCircle size={16} />
                                 Added to Cart
                               </div>
                             </div>
                           )}
                         </div>
-                        <div className="p-4 sm:p-6 text-center flex flex-col flex-grow">
-                          <h3 className="text-sm sm:text-xl font-poppins font-bold mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
-                          <p className="text-[10px] sm:text-sm text-muted-foreground line-clamp-2 mb-4 sm:mb-6 font-light italic flex-grow">"{item.description}"</p>
-                          
-                          <div className="flex items-center justify-between gap-2 mt-auto">
+
+                        <div className="p-5 flex flex-col flex-grow text-left">
+                          <h3 className="font-playfair font-bold text-base sm:text-lg mb-1 group-hover:text-primary transition-colors line-clamp-1">
+                            {item.name}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-4 font-jakarta font-light italic flex-grow">
+                            {item.description}
+                          </p>
+                          <div className="flex items-center justify-between mt-auto">
+                            {item.price && (
+                              <span className="text-primary font-playfair font-bold text-lg">
+                                ₹{item.price}
+                              </span>
+                            )}
                             {!isSelected && (
-                              <Button 
-                                className="w-full rounded-xl sm:rounded-2xl h-10 sm:h-14 font-bold text-[10px] sm:text-base shadow-lg transition-all hover:scale-105 border-none bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-green-500/20"
+                              <Button
+                                size="sm"
+                                className="rounded-xl h-9 px-4 font-jakarta font-bold text-xs shadow-gold hover:shadow-gold-lg transition-all hover:scale-105 bg-primary text-primary-foreground border-none ml-auto"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   addToCart(item);
                                 }}
                               >
-                                <span className="flex items-center gap-2">
-                                  <Plus className="w-3 h-3 sm:w-5 h-5" />
-                                  Add to Cart
-                                </span>
+                                <Plus className="w-3 h-3 mr-1" />
+                                Add
                               </Button>
                             )}
                           </div>
@@ -504,15 +505,15 @@ export default function CustomerHome() {
       <Footer companyInfo={companyInfo} logoSrc={logoSrc} />
 
       <PhoneCallButton phone={companyInfo?.phone} />
-      
-      {/* Floating Account Button */}
+
+      {/* Floating account button */}
       <Link href="/customer/dashboard">
-        <div className="fixed bottom-40 right-6 z-[90] bg-white/10 backdrop-blur-md border-2 border-white/50 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center cursor-pointer">
-          <User size={24} />
+        <div className="fixed bottom-40 right-6 z-[90] bg-card/80 glass border border-border/60 text-foreground p-4 rounded-full shadow-lg hover:scale-110 hover:border-primary/40 transition-all duration-300 flex items-center justify-center cursor-pointer">
+          <User size={22} />
         </div>
       </Link>
 
-      {/* Floating Cart Button */}
+      {/* Floating cart */}
       <div className="fixed bottom-24 right-6 z-[90]">
         <CartDrawer />
       </div>
@@ -520,10 +521,10 @@ export default function CustomerHome() {
       <NavigationButton />
 
       <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-[2rem] sm:rounded-[3rem] bg-card">
-          <FoodItemQuickView 
-            item={selectedItem} 
-            onClose={() => setSelectedItem(null)} 
+        <DialogContent className="max-w-4xl p-0 overflow-hidden border border-border/50 rounded-3xl bg-card">
+          <FoodItemQuickView
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
             defaultFoodImage="https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"
           />
         </DialogContent>
