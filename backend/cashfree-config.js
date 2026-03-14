@@ -4,12 +4,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Load credentials
-const clientId = 'TEST10968988a53f7e83e3a1bf19ce0188986901';
-const clientSecret = 'cfsk_ma_test_01376a88e8a30a9c0860876f26004fd5_5ca29033';
+const clientId = process.env.CASHFREE_APP_ID;
+const clientSecret = process.env.CASHFREE_SECRET_KEY;
 
 if (!clientId || !clientSecret) {
-  console.error("❌ Missing Cashfree credentials");
-  process.exit(1);
+  console.warn("⚠️ Cashfree credentials not set. Payments will run in mock mode.");
 }
 
 // Initialize SDK
