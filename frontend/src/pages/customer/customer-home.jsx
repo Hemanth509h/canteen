@@ -9,9 +9,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  ChefHat, Award, Users, Clock, Utensils, Search, Lock, Moon, Sun,
-  Sprout, Wind, ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter,
-  Phone, ArrowUp, Camera, Calendar, CheckCircle, Plus, ShoppingCart, User, Sparkles
+  ChefHat, Award, Users, Clock, Search, Lock,
+  ChevronRight, Star, Quote, MapPin, Instagram, Facebook, Twitter,
+  Phone, CheckCircle, Plus, User, Sparkles
 } from "lucide-react";
 import {
   Dialog,
