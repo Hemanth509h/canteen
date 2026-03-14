@@ -856,7 +856,7 @@ export default function EventBookingsManager() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsMenuDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setIsMenuEditDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSaveMenu} disabled={saveMenuMutation.isPending}>
               {saveMenuMutation.isPending && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
               Update Menu
