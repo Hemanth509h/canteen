@@ -61,22 +61,11 @@ All API endpoints are prefixed with `/api`:
 - **Vite Dev Server**: Proxies `/api` requests to backend during development
 
 ### Key NPM Packages
-- **Backend**: express, mongoose, passport, zod, express-session, redis (optional), ws (WebSocket support), cashfree-pg
+- **Backend**: express, mongoose, passport, zod, express-session, redis (optional), ws (WebSocket support)
 - **Frontend**: @tanstack/react-query, @radix-ui components, react-router-dom, react-hook-form, framer-motion, date-fns
 
-## Payment Integration (Cashfree)
+## Payment Flow
 
-### Configuration
-- **Credentials**: Stored in `.env` files (not in version control)
-- **Mode**: SANDBOX (Test mode for development)
-- **Payment Flow**: 
-  - Customer initiates payment request
-  - Backend generates Cashfree payment order with dynamic payment link
-  - Payment link includes proper domain (request origin or environment variable)
-  - Link sent via WhatsApp with booking details
-
-### Recent Migration Notes (2026-03-09)
-- Fixed hardcoded localhost URLs in payment link generation
-- Implemented dynamic URL extraction from HTTP request headers
-- Payment links now work correctly in Replit preview and deployed environments
-- All Cashfree credentials configured via environment variables
+- Customers upload payment screenshots (advance and final) for admin approval
+- Payment links can be sent via WhatsApp to customers
+- Admin reviews and approves/rejects payment screenshots

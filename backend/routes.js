@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
-import { cashfreeConfig, initializeCashfree, createCashfreePaymentOrder, verifyCashfreePayment } from "./cashfree-config.js";
 import { sendPaymentLinkWhatsApp, validateWhatsAppPhone } from "./whatsapp-service.js";
 
 import { 
@@ -19,8 +18,6 @@ import {
   updateStaffBookingRequestSchema,
   insertUserCodeSchema,
   insertCodeRequestSchema,
-  paymentInitiationSchema,
-  paymentVerificationSchema,
   sendPaymentLinkWhatsAppSchema,
   insertStaffPaymentSchema,
   updateStaffPaymentSchema
@@ -515,12 +512,8 @@ export async function registerRoutes(app) {
     }
   });
 
-  // ==================== CASHFREE PAYMENT INTEGRATION ====================
-  
-  // Initialize Cashfree on startup
-  await initializeCashfree();
+  // ==================== WHATSAPP PAYMENT LINK ====================
 
-  // Send payment link via WhatsApp
   app.post("/api/payments/send-whatsapp", async (req, res) => {
     try {
       const result = sendPaymentLinkWhatsAppSchema.safeParse(req.body);
@@ -528,40 +521,16 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
 
-      const { bookingId, paymentType, customerPhone, amount, customerName, customerEmail } = result.data;
+      const { bookingId, paymentType, customerPhone, amount, customerName } = result.data;
 
-      // Validate phone number
       if (!validateWhatsAppPhone(customerPhone)) {
         return sendResponse(res, 400, null, "Invalid phone number for WhatsApp");
       }
 
-      // Generate unique order ID
       const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
-      
-      // Extract base URL from request headers or environment
       const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.PAYMENT_BASE_URL || process.env.REPLIT_DEV_DOMAIN || '';
-      
-      // Create payment order with Cashfree to get actual payment link
-      let paymentLink;
-      try {
-        const paymentOrder = await createCashfreePaymentOrder({
-          orderId,
-          amount,
-          customerName,
-          customerEmail,
-          customerPhone,
-          paymentType,
-          bookingId,
-          baseUrl
-        });
-        paymentLink = paymentOrder.paymentLink || getCashfreePaymentLink(orderId, baseUrl);
-      } catch (error) {
-        console.warn("⚠️ Cashfree order creation failed, using fallback link:", error.message);
-        // Fallback to payment URL
-        paymentLink = baseUrl ? `${baseUrl}/payment/${orderId}` : `/payment/${orderId}`;
-      }
+      const paymentLink = baseUrl ? `${baseUrl}/payment/${bookingId}` : `/payment/${bookingId}`;
 
-      // Send via WhatsApp
       const result_send = await sendPaymentLinkWhatsApp(customerPhone, paymentLink, {
         customerName,
         amount,
@@ -569,15 +538,11 @@ export async function registerRoutes(app) {
         eventDate: req.body.eventDate
       });
 
-      // Log WhatsApp message sending
-      console.log(`✉️ Payment link sent via WhatsApp to ${customerPhone} for booking ${bookingId}`);
-      console.log(`💳 Payment link: ${paymentLink}`);
-
       sendResponse(res, 200, {
         success: true,
         message: "Payment link sent via WhatsApp",
         whatsappStatus: result_send,
-        paymentLink: paymentLink
+        paymentLink
       });
     } catch (error) {
       console.error("WhatsApp payment link error:", error);
