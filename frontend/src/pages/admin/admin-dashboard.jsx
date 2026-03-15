@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star, ImagePlus, Ticket, Printer, Wallet } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star, ImagePlus, Ticket, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,6 @@ import BookingsManager from "./admin-bookings";
 import StaffManager from "./admin-staff";
 import AdminPaymentConfirmation from "./admin-payment";
 import ChefPrintout from "./admin-chef-printout";
-import StaffPayments from "./admin-staff-payments";
 import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +27,6 @@ const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Staff", url: "/admin/staff", icon: Users },
-  { title: "Staff Payments", url: "/admin/staff-payments", icon: Wallet },
   { title: "Chef Printout", url: "/admin/chef-printout", icon: Printer },
   { title: "Hero Images", url: "/admin/hero-images", icon: ImagePlus },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
@@ -196,7 +194,6 @@ export default function AdminDashboard() {
                 <Route path="/admin/bookings" component={BookingsManager} />
                 {/* Remove the internal payment route as it's now handled by the main App router */}
                 <Route path="/admin/staff" component={StaffManager} />
-                <Route path="/admin/staff-payments" component={StaffPayments} />
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
                 <Route path="/admin/history" component={AdminHistory} />
                 <Route path="/admin/settings" component={CompanySettingsManager} />
