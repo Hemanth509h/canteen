@@ -4,7 +4,10 @@ import mongoose, { Schema, model } from "mongoose";
 export async function connectToDatabase() {
   // Direct Atlas URI with specific configuration for Vercel
   // Using the standard SRV connection string which is required for modern Atlas clusters
-  const uri = process.env.MONGODB_URI || "mongodb+srv://phemanthkumar746:htnameh509h@data.psr09.mongodb.net/canteen?retryWrites=true&w=majority&appName=data";
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error("MONGODB_URI environment variable is not set.");
+  }
   
   console.log("Connecting to MongoDB Atlas...");
   
