@@ -179,6 +179,20 @@ export const paymentVerificationSchema = z.object({
   paymentSessionId: z.string().min(1, "Payment session ID is required"),
 });
 
+// ==================== STAFF PAYMENTS ====================
+
+export const insertStaffPaymentSchema = z.object({
+  staffId: z.string().min(1, "Staff ID is required"),
+  bookingId: z.string().optional(),
+  amount: z.number().positive("Amount must be positive"),
+  paymentDate: z.string().min(1, "Payment date is required"),
+  paymentMethod: z.enum(["cash", "upi", "bank_transfer"], { required_error: "Payment method is required" }),
+  notes: z.string().optional(),
+  status: z.enum(["paid", "pending"]).default("paid"),
+});
+
+export const updateStaffPaymentSchema = insertStaffPaymentSchema.partial();
+
 // ==================== WHATSAPP PAYMENT LINK ====================
 
 export const sendPaymentLinkWhatsAppSchema = z.object({

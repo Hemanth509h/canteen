@@ -60,6 +60,7 @@ const StaffBookingRequestModel = model("staffbookingrequests", genericSchema);
 const AuditHistoryModel = model("audithistories", genericSchema);
 const UserCodeModel = model("usercodes", genericSchema);
 const CodeRequestModel = model("coderequests", genericSchema);
+const StaffPaymentModel = model("staffpayments", genericSchema);
 
 function toJSON(doc) {
   if (!doc) return null;
@@ -206,6 +207,16 @@ class MongoStorage {
   async getCodeRequests() { return (await CodeRequestModel.find().sort({ createdAt: -1 })).map(toJSON); }
   async createCodeRequest(requestData) { return toJSON(await CodeRequestModel.create(requestData)); }
   async updateCodeRequest(id, requestData) { return toJSON(await CodeRequestModel.findByIdAndUpdate(id, requestData, { new: true })); }
+
+  // Staff Payment Methods
+  async getStaffPayments(staffId) {
+    const query = staffId ? { staffId } : {};
+    return (await StaffPaymentModel.find(query).sort({ createdAt: -1 })).map(toJSON);
+  }
+  async getStaffPayment(id) { return toJSON(await StaffPaymentModel.findById(id)); }
+  async createStaffPayment(payment) { return toJSON(await StaffPaymentModel.create({ ...payment, createdAt: new Date() })); }
+  async updateStaffPayment(id, payment) { return toJSON(await StaffPaymentModel.findByIdAndUpdate(id, payment, { new: true })); }
+  async deleteStaffPayment(id) { return (await StaffPaymentModel.findByIdAndDelete(id)) !== null; }
 }
 
 let storageInstance = null;

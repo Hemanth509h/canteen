@@ -21,7 +21,9 @@ import {
   insertCodeRequestSchema,
   paymentInitiationSchema,
   paymentVerificationSchema,
-  sendPaymentLinkWhatsAppSchema
+  sendPaymentLinkWhatsAppSchema,
+  insertStaffPaymentSchema,
+  updateStaffPaymentSchema
 } from "./schema.js";
 
 import { fromZodError } from "zod-validation-error";
@@ -580,6 +582,51 @@ export async function registerRoutes(app) {
     } catch (error) {
       console.error("WhatsApp payment link error:", error);
       sendResponse(res, 500, null, error.message || "Failed to send payment link via WhatsApp");
+    }
+  });
+
+  // ==================== STAFF PAYMENTS ====================
+
+  app.get("/api/staff-payments", async (req, res) => {
+    try {
+      const { staffId } = req.query;
+      const payments = await getStorageInstance().getStaffPayments(staffId || null);
+      sendResponse(res, 200, payments);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch staff payments");
+    }
+  });
+
+  app.post("/api/staff-payments", async (req, res) => {
+    try {
+      const result = insertStaffPaymentSchema.safeParse(req.body);
+      if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
+      const payment = await getStorageInstance().createStaffPayment(result.data);
+      sendResponse(res, 201, payment);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create staff payment");
+    }
+  });
+
+  app.patch("/api/staff-payments/:id", async (req, res) => {
+    try {
+      const result = updateStaffPaymentSchema.safeParse(req.body);
+      if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
+      const payment = await getStorageInstance().updateStaffPayment(req.params.id, result.data);
+      if (!payment) return sendResponse(res, 404, null, "Payment not found");
+      sendResponse(res, 200, payment);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update staff payment");
+    }
+  });
+
+  app.delete("/api/staff-payments/:id", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteStaffPayment(req.params.id);
+      if (!success) return sendResponse(res, 404, null, "Payment not found");
+      sendResponse(res, 200, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete staff payment");
     }
   });
 
