@@ -1,0 +1,72 @@
+ npm run dev                                                
+
+> workspace@1.0.0 dev
+> concurrently "npm run dev:frontend" "npm run dev:backend"
+
+[1] 
+[1] > workspace@1.0.0 dev:backend
+[1] > cd backend && node index.js
+[1]
+[0]
+[0] > workspace@1.0.0 dev:frontend
+[0] > cd frontend && npx vite --host 0.0.0.0
+[0]
+[1] node:internal/modules/package_json_reader:316
+[1]   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+[1]         ^
+[1]
+[1] Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from C:\Users\hemanth\OneDrive\Documents\projects\canteen\backend\index.js
+[1]     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:316:9)
+[1]     at packageResolve (node:internal/modules/esm/resolve:768:81)
+[1]     at moduleResolve (node:internal/modules/esm/resolve:858:18)
+[1]     at defaultResolve (node:internal/modules/esm/resolve:990:11)
+[1]     at #cachedDefaultResolve (node:internal/modules/esm/loader:718:20)
+[1]     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:735:38)
+[1]     at ModuleLoader.resolveSync (node:internal/modules/esm/loader:764:52)
+[1]     at #resolve (node:internal/modules/esm/loader:700:17)
+[1]     at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:620:35)
+[1]     at ModuleJob.syncLink (node:internal/modules/esm/module_job:143:33) {
+[1]   code: 'ERR_MODULE_NOT_FOUND'
+[1] }
+[1]
+[1] Node.js v24.12.0
+[1] npm run dev:backend exited with code 1
+[0] vite.config.ts (1:406) [UNRESOLVED_IMPORT] Warning: Could not resolve 'vite' in vite.config.ts
+[0]    ╭─[ vite.config.ts:1:407 ]
+[0]    │
+[0]  1 │ const __vite_injected_original_dirname = "C:\\Users\\hemanth\\OneDrive\\Documents\\projects\\canteen\\frontend";const __vite_injected_original_filename = "C:\\Users\\hemanth\\OneDrive\\Documents\\projects\\canteen\\frontend\\vite.config.ts";const __vite_injected_original_import_meta_url = "file:///C:/Users/hemanth/OneDrive/Documents/projects/canteen/frontend/vite.config.ts";import { defineConfig } from "vite";
+[0]    │                                                                                                            
+                                                                                                                    
+                                                                                                                    
+                                                                   ───┬──
+[0]    │                                                                                                            
+                                                                                                                    
+                                                                                                                    
+                                                                      ╰──── Module not found, treating it as an external dependency
+[0] ───╯
+[0]
+[0] vite.config.ts (2:18) [UNRESOLVED_IMPORT] Warning: Could not resolve '@vitejs/plugin-react' in vite.config.ts   
+[0]    ╭─[ vite.config.ts:2:19 ]
+[0]    │
+[0]  2 │ import react from "@vitejs/plugin-react";
+[0]    │                   ───────────┬──────────
+[0]    │                              ╰──────────── Module not found, treating it as an external dependency
+[0] ───╯
+[0]
+[0] failed to load config from C:\Users\hemanth\OneDrive\Documents\projects\canteen\frontend\vite.config.ts
+[0] error when starting dev server:
+[0] Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from C:\Users\hemanth\OneDrive\Documents\projects\canteen\node_modules\.vite-temp\vite.config.ts.timestamp-1773566197778-376722c529bc7.mjs
+[0]     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:316:9)
+[0]     at packageResolve (node:internal/modules/esm/resolve:768:81)
+[0]     at moduleResolve (node:internal/modules/esm/resolve:858:18)
+[0]     at defaultResolve (node:internal/modules/esm/resolve:990:11)
+[0]     at #cachedDefaultResolve (node:internal/modules/esm/loader:718:20)
+[0]     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:735:38)
+[0]     at ModuleLoader.resolveSync (node:internal/modules/esm/loader:764:52)
+[0]     at #resolve (node:internal/modules/esm/loader:700:17)
+[0]     at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:620:35)
+[0]     at ModuleJob.syncLink (node:internal/modules/esm/module_job:143:33) {
+[0]   code: 'ERR_MODULE_NOT_FOUND'
+[0] }
+[0] npm run dev:frontend exited with code 1
+PS C:\Users\hemanth\OneDrive\Documents\projects\canteen> 
