@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }) {
   const { theme, setTheme } = useTheme();
 
   return (
@@ -17,6 +17,7 @@ export function ThemeToggle() {
         <Button
           variant="ghost"
           size="icon"
+          className={className}
           data-testid="button-theme-toggle"
           aria-label="Toggle theme"
         >

@@ -107,7 +107,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden fade-in dark">
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4 relative overflow-hidden fade-in dark">
       {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-primary/6 rounded-full blur-3xl" />

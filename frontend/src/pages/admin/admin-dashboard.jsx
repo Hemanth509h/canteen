@@ -169,7 +169,7 @@ export default function AdminDashboard() {
 
   return (
     <SidebarProvider style={style}>
-      <div className="flex h-screen w-full bg-background">
+      <div className="flex h-screen w-full bg-background text-foreground">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden w-full">
           <header className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border bg-background z-10">
