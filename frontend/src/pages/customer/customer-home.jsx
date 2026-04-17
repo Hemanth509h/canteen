@@ -214,7 +214,7 @@ function MenuSection({ foodItems, isLoading, onSelectItem, addToCart, cartItems 
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 max-h-[500px] overflow-y-auto custom-scrollbar p-2 -m-2">
           {isLoading
             ? Array(8).fill(0).map((_, i) => (
               <div key={i} className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-5 space-y-3 transition-colors">
