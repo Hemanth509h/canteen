@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Switch, Route, Link, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
@@ -36,17 +37,35 @@ function Router() {
 }
 
 
+function AppContent() {
+  const { data: companyInfo } = useQuery({ 
+    queryKey: ["/api/company-info"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  useEffect(() => {
+    if (companyInfo?.companyName) {
+      const tagline = companyInfo.tagline ? ` | ${companyInfo.tagline}` : "";
+      document.title = `${companyInfo.companyName}${tagline}`;
+    }
+  }, [companyInfo]);
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <main className="flex-1">
+        <Router />
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
         <ThemeProvider defaultTheme="light" storageKey="elite-catering-theme">
           <TooltipProvider>
-            <div className="min-h-screen bg-background flex flex-col">
-              <main className="flex-1">
-                <Router />
-              </main>
-            </div>
+            <AppContent />
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>
