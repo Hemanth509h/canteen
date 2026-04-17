@@ -49,8 +49,8 @@ export const updateEventBookingSchema = insertEventBookingSchema.partial().exten
   finalPaymentApprovalStatus: z.enum(["pending", "approved", "rejected"]).optional(),
   advancePaymentScreenshot: z.string().nullable().optional(),
   finalPaymentScreenshot: z.string().nullable().optional(),
-  totalAmount: z.number().int().positive().optional(),
-  advanceAmount: z.number().int().positive().optional(),
+  totalAmount: z.number().int().min(0).optional(),
+  advanceAmount: z.number().int().min(0).optional(),
 });
 
 export const insertBookingItemSchema = z.object({
