@@ -11,11 +11,11 @@ export default defineConfig({
   },
   server: {
     port: 5000,
-    host: "0.0.0.0",
+    host: "[IP_ADDRESS]",
     allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target: "https://canteen-f0rq.onrender.com",
         changeOrigin: true,
         secure: false,
       },
