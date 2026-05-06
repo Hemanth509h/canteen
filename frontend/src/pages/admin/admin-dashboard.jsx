@@ -5,6 +5,15 @@ import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, User
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { GlobalSearch } from "@/components/features/global-search";
 import { ErrorBoundary } from "@/components/layout/error-boundary";
 import DashboardOverview from "./admin-dashboard-overview";
@@ -172,7 +181,7 @@ export default function AdminDashboard() {
       <div className="flex h-screen w-full bg-background text-foreground">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden w-full">
-          <header className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-border bg-background z-10">
+          <header className="sticky top-4 mx-4 z-10 flex items-center justify-between gap-2 px-4 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl transition-all duration-300">
             <div className="flex items-center gap-2">
               <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9 text-foreground" />
               <h1 className="text-sm font-semibold sm:hidden truncate max-w-[120px]">
@@ -182,6 +191,33 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-1 sm:gap-2">
               <GlobalSearch className="text-foreground" />
               <ThemeToggle className="text-foreground" />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full w-9 h-9">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src="" />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">AD</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 mt-2">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setLocation("/admin/account")}>
+                    <UserCog className="mr-2 h-4 w-4" />
+                    <span>Account Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocation("/admin/settings")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Company Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-rose-600 focus:text-rose-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
           <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20 p-4 sm:p-6">

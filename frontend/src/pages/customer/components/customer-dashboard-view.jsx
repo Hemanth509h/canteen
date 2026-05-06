@@ -168,10 +168,9 @@ export default function CustomerDashboardView({ onBack }) {
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-orange-500/6 rounded-full blur-[100px]" />
       </div>
 
-      {/* Header */}
-      <header className="relative z-10 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md transition-colors">
+      <header className="sticky top-4 mx-4 z-20 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-md rounded-2xl transition-all duration-300">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <button onClick={onBack} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors font-jakarta text-sm font-medium">
+          <button onClick={onBack} className="flex items-center gap-2 text-zinc-500 hover:text-amber-500 transition-colors font-jakarta text-sm font-medium">
             <ArrowLeft size={16} /> Back to Home
           </button>
           <span className="font-playfair font-bold text-base text-zinc-900 dark:text-white">My Bookings</span>

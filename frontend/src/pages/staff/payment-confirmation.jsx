@@ -312,6 +312,18 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
                       </div>
                       <p className="text-sm text-muted-foreground mb-4">After completing payment, upload a screenshot as proof.</p>
                       
+                      {companyInfo?.upiId && (
+                        <div className="mb-8 p-4 bg-muted/30 rounded-xl border border-dashed">
+                          <UPIPayment 
+                            upiId={companyInfo.upiId} 
+                            totalAmount={advanceAmount} 
+                            bookingId={bookingId} 
+                            clientName={booking.clientName} 
+                            paymentType="advance" 
+                          />
+                        </div>
+                      )}
+                      
                       <div className="space-y-4">
                         {advancePreview && (
                           <div className="animate-in fade-in duration-300 relative w-full max-w-xs mx-auto"
@@ -422,6 +434,18 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
                           </div>
                           <p className="text-sm text-muted-foreground mb-4">After completing payment, upload a screenshot as proof.</p>
                           
+                          {companyInfo?.upiId && (
+                            <div className="mb-8 p-4 bg-muted/30 rounded-xl border border-dashed">
+                              <UPIPayment 
+                                upiId={companyInfo.upiId} 
+                                totalAmount={finalAmount} 
+                                bookingId={bookingId} 
+                                clientName={booking.clientName} 
+                                paymentType="final" 
+                              />
+                            </div>
+                          )}
+
                           <div className="space-y-4">
                             {finalPreview && (
                               <div className="animate-in fade-in duration-300 relative w-full max-w-xs mx-auto"
