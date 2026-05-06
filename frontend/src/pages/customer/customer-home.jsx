@@ -12,6 +12,7 @@ import {
   Search, Star, Phone, MapPin, Instagram, Facebook, Twitter,
   ChevronRight, Plus, CheckCircle, Lock, Clock, Award, Users, ChefHat
 } from "lucide-react";
+import { STATIC_FOOD_ITEMS, STATIC_COMPANY_INFO, STATIC_REVIEWS } from "@/lib/static-data";
 
 /* ─── Navbar ─────────────────────────────────────────────────────────────── */
 function Navbar({ companyName, logoSrc }) {
@@ -394,9 +395,27 @@ export default function CustomerHome() {
   const { addToCart, cartItems } = useCart();
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const { data: foodItems, isLoading: isLoadingFood } = useQuery({ queryKey: ["/api/food-items"], staleTime: 0, gcTime: 0 });
-  const { data: companyInfo } = useQuery({ queryKey: ["/api/company-info"], staleTime: 0, gcTime: 0 });
-  const { data: reviews } = useQuery({ queryKey: ["/api/reviews"], staleTime: 0, gcTime: 0 });
+  const { data: foodItems, isLoading: isLoadingFood } = useQuery({ 
+    queryKey: ["/api/food-items"], 
+    staleTime: 5000, 
+    gcTime: 10000,
+    placeholderData: STATIC_FOOD_ITEMS,
+    refetchOnWindowFocus: false
+  });
+  const { data: companyInfo } = useQuery({ 
+    queryKey: ["/api/company-info"], 
+    staleTime: 5000, 
+    gcTime: 10000,
+    placeholderData: STATIC_COMPANY_INFO,
+    refetchOnWindowFocus: false
+  });
+  const { data: reviews } = useQuery({ 
+    queryKey: ["/api/reviews"], 
+    staleTime: 5000, 
+    gcTime: 10000,
+    placeholderData: STATIC_REVIEWS,
+    refetchOnWindowFocus: false
+  });
 
   const logoSrc = "/leaf_logo.png";
 
