@@ -13,6 +13,7 @@ import AdminDashboard from "@/pages/admin/admin-dashboard";
 import AdminPaymentConfirmation from "@/pages/admin/admin-payment";
 import PaymentConfirmation from "@/pages/staff/payment-confirmation";
 import NotFound from "@/pages/not-found";
+import { STATIC_COMPANY_INFO } from "@/lib/static-data";
 
 function Router() {
   return (
@@ -38,17 +39,31 @@ function Router() {
 
 
 function AppContent() {
+  const [location] = useLocation();
   const { data: companyInfo } = useQuery({ 
     queryKey: ["/api/company-info"],
     staleTime: 1000 * 60 * 5, // 5 minutes
+    placeholderData: STATIC_COMPANY_INFO,
   });
 
   useEffect(() => {
-    if (companyInfo?.companyName) {
-      const tagline = companyInfo.tagline ? ` | ${companyInfo.tagline}` : "";
-      document.title = `${companyInfo.companyName}${tagline}`;
+    const baseTitle = companyInfo?.companyName || "Elite Catering";
+    let pageTitle = "";
+
+    if (location === "/") {
+      pageTitle = companyInfo?.tagline ? ` | ${companyInfo.tagline}` : "";
+    } else if (location.startsWith("/admin")) {
+      pageTitle = " | Admin Portal";
+    } else if (location === "/customer/dashboard") {
+      pageTitle = " | My Bookings";
+    } else if (location.startsWith("/payment/")) {
+      pageTitle = " | Payment Confirmation";
+    } else if (location.startsWith("/admin/bookings/payment/")) {
+      pageTitle = " | Payment Confirmation";
     }
-  }, [companyInfo]);
+
+    document.title = `${baseTitle}${pageTitle}`;
+  }, [location, companyInfo]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

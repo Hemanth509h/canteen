@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   Search, Calendar, MapPin, User, Clock, Mail, Phone, Utensils,
   ChevronDown, ChevronUp, ArrowLeft, BookOpen, CheckCircle,
-  XCircle, AlertCircle, HelpCircle
+  XCircle, AlertCircle, HelpCircle, CreditCard
 } from "lucide-react";
 
 /* ─── Status config ──────────────────────────────────────────────────────── */
@@ -115,6 +115,51 @@ function BookingCard({ booking }) {
               </div>
             )}
           </div>
+
+          {/* Payment Info */}
+          {(booking.totalAmount !== undefined || booking.advanceAmount !== undefined) && (
+            <div className="mt-4 p-4 rounded-xl bg-zinc-800/30 border border-zinc-700/50">
+              <h4 className="text-xs font-jakarta font-semibold text-zinc-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <CreditCard size={14} className="text-amber-500" /> Payment Summary
+              </h4>
+              <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                {booking.totalAmount !== undefined && (
+                  <div className="flex justify-between items-center bg-zinc-900/50 p-2.5 rounded-lg border border-zinc-800">
+                    <span className="text-zinc-400 font-jakarta">Total Amount</span>
+                    <span className="font-mono text-white font-medium">₹{booking.totalAmount.toLocaleString()}</span>
+                  </div>
+                )}
+                {booking.advanceAmount !== undefined && (
+                  <div className="flex justify-between items-center bg-zinc-900/50 p-2.5 rounded-lg border border-zinc-800">
+                    <span className="text-zinc-400 font-jakarta">Advance</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-white font-medium">₹{booking.advanceAmount.toLocaleString()}</span>
+                      <span className={cn(
+                        "text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider",
+                        booking.advancePaymentStatus === "paid" ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20" : "bg-amber-400/10 text-amber-400 border border-amber-400/20"
+                      )}>
+                        {booking.advancePaymentStatus || "Pending"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {booking.totalAmount !== undefined && booking.advanceAmount !== undefined && (
+                  <div className="flex justify-between items-center bg-zinc-900/50 p-2.5 rounded-lg border border-zinc-800 sm:col-span-2">
+                    <span className="text-zinc-400 font-jakarta">Pending Balance</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-white font-medium">₹{(booking.totalAmount - booking.advanceAmount).toLocaleString()}</span>
+                      <span className={cn(
+                        "text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider",
+                        booking.finalPaymentStatus === "paid" ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20" : "bg-amber-400/10 text-amber-400 border border-amber-400/20"
+                      )}>
+                        {booking.finalPaymentStatus || "Pending"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ID block */}
