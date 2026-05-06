@@ -7,7 +7,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { CartProvider } from "@/lib/cart-context";
 import CustomerHome from "@/pages/customer/customer-home";
-import CustomerHomeDashboard from "@/pages/customer/customer-home-dashboard";
 import AdminLogin from "@/pages/admin/admin-login";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
 import AdminPaymentConfirmation from "@/pages/admin/admin-payment";
@@ -19,7 +18,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
-      <Route path="/customer/dashboard" component={CustomerHomeDashboard} />
       <Route path="/payment/:bookingId">
         {(params) => <PaymentConfirmation bookingId={params.bookingId} />}
       </Route>
@@ -54,8 +52,6 @@ function AppContent() {
       pageTitle = companyInfo?.tagline ? ` | ${companyInfo.tagline}` : "";
     } else if (location.startsWith("/admin")) {
       pageTitle = " | Admin Portal";
-    } else if (location === "/customer/dashboard") {
-      pageTitle = " | My Bookings";
     } else if (location.startsWith("/payment/")) {
       pageTitle = " | Payment Confirmation";
     } else if (location.startsWith("/admin/bookings/payment/")) {
