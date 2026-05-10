@@ -9981,29 +9981,13 @@ export const STATIC_FOOD_ITEMS = [
   }
 ];
 
+import branding from "./branding.json";
+
 export const STATIC_COMPANY_INFO = {
-  "companyName": "Ome Caterings",
-  "tagline": "Exceptional Food for Unforgettable Events",
-  "description": "Crafting unforgettable culinary memories with passion, precision, and the finest ingredients.",
-  "email": "events@elite-catering.com",
-  "phone": "9177319695",
-  "address": "123 Gourmet Avenue, Culinary City",
-  "eventsPerYear": 500,
-  "websiteUrl": "https://github.com/Hemanth509h/RailServe.git",
-  "upiId": "elite@upi",
-  "minAdvanceBookingDays": 2,
+  ...branding,
   "updatedAt": "2026-04-17T12:48:34.973Z",
-  "yearsExperience": 1,
-  "heroImages": [
-    "https://png.pngtree.com/background/20230611/original/pngtree-many-different-kinds-of-food-are-arranged-on-a-table-picture-image_3145533.jpg",
-    "https://static01.nyt.com/images/2022/06/15/dining/13Burner-Show/merlin_208481367_8b9012fb-679c-4e7e-8c74-492f11c6a251-videoSixteenByNine3000.jpg"
-  ],
-  "logoUrl": "/logo.svg",
-  "primaryColor": "#ea580c",
   "id": "694ff3a0880c765eb8ca717e",
-  "contactEmail": "events@elite-catering.com",
-  "contactPhone": "9177319695",
-  "itemDescription": "Crafting unforgettable culinary memories with passion, precision, and the finest ingredients.",
+  "itemDescription": branding.description,
   "Id": "694ff3a0880c765eb8ca717e",
   "_V": 0
 };

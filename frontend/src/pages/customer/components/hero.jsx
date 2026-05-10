@@ -17,11 +17,11 @@ export default function Hero({ companyName, tagline }) {
         </div>
 
         <h1 className="text-5xl sm:text-7xl lg:text-8xl font-playfair font-bold text-zinc-900 dark:text-white leading-[1.05] mb-6 transition-colors">
-          {companyName || "Elite Catering"}
+          {companyName || "Ome Caterings"}
         </h1>
 
         <p className="text-lg sm:text-xl text-zinc-500 dark:text-zinc-400 font-jakarta font-light max-w-2xl mx-auto mb-12 leading-relaxed transition-colors">
-          {tagline || "Crafting unforgettable culinary experiences for your most cherished occasions."}
+          {tagline || "Exceptional Food for Unforgettable Events"}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

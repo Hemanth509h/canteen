@@ -7,10 +7,12 @@ import { UtensilsCrossed, RefreshCw, CalendarDays, Users, IndianRupee, Clock, Ch
 import { PageLoader } from "@/components/features/loading-spinner";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { STATIC_COMPANY_INFO } from "@/lib/static-data";
 
 export default function DashboardOverview() {
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
+    placeholderData: STATIC_COMPANY_INFO,
   });
 
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
@@ -92,7 +94,7 @@ export default function DashboardOverview() {
             Dashboard Overview
           </h2>
           <p className="text-muted-foreground">
-            Real-time insights and management for {companyInfo?.companyName || "Elite Catering"}
+            Real-time insights and management for {companyInfo?.companyName || "Ome Caterings"}
           </p>
         </div>
         <Button

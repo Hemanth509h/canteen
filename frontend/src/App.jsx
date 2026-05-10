@@ -45,7 +45,7 @@ function AppContent() {
   });
 
   useEffect(() => {
-    const baseTitle = companyInfo?.companyName || "Elite Catering";
+    const baseTitle = companyInfo?.companyName || "Ome Caterings";
     let pageTitle = "";
 
     if (location === "/") {

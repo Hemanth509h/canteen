@@ -26,7 +26,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setView("home"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
             {logoSrc && <img src={logoSrc} alt="logo" className="w-8 h-8 object-contain" />}
             <span className="font-playfair font-bold text-lg text-zinc-900 dark:text-white transition-colors">
-              {companyName || "Elite Catering"}
+              {companyName || "Ome Caterings"}
             </span>
           </div>
 

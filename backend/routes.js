@@ -3,6 +3,12 @@ import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
 import { sendPaymentLinkWhatsApp, validateWhatsAppPhone } from "./whatsapp-service.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import { 
   insertFoodItemSchema, 
@@ -29,7 +35,50 @@ import { z } from "zod";
 
 const getStorageInstance = () => getStorage();
 
+async function syncBrandingToFrontend(info) {
+  if (!info) return;
+  try {
+    const frontendBrandingPath = path.resolve(__dirname, "../frontend/src/lib/branding.json");
+    // Ensure the directory exists (though it should)
+    const dir = path.dirname(frontendBrandingPath);
+    if (!fs.existsSync(dir)) {
+      console.warn(`[SYNC] Frontend directory not found at ${dir}. Skipping sync.`);
+      return;
+    }
+    
+    // We only want to sync specific public branding fields
+    const brandingData = {
+      companyName: info.companyName,
+      tagline: info.tagline,
+      description: info.description,
+      email: info.email,
+      phone: info.phone,
+      address: info.address,
+      eventsPerYear: info.eventsPerYear,
+      websiteUrl: info.websiteUrl,
+      upiId: info.upiId,
+      minAdvanceBookingDays: info.minAdvanceBookingDays,
+      yearsExperience: info.yearsExperience,
+      logoUrl: info.logoUrl,
+      primaryColor: info.primaryColor,
+      heroImages: info.heroImages,
+      contactEmail: info.contactEmail,
+      contactPhone: info.contactPhone
+    };
+
+    fs.writeFileSync(frontendBrandingPath, JSON.stringify(brandingData, null, 2));
+    console.log(`[SYNC] Successfully synced branding to ${frontendBrandingPath}`);
+  } catch (error) {
+    console.error("[SYNC] Failed to sync branding to frontend:", error.message);
+  }
+}
+
 export async function registerRoutes(app) {
+  // Sync on startup
+  const initialInfo = await getStorageInstance().getCompanyInfo();
+  if (initialInfo) {
+    await syncBrandingToFrontend(initialInfo);
+  }
   const sendResponse = (res, status, data, error = null) => {
     return res.status(status).json({
       success: status >= 200 && status < 300,
@@ -252,6 +301,8 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       const info = await getStorageInstance().updateCompanyInfo(null, result.data);
+      // Sync to frontend file automatically
+      await syncBrandingToFrontend(info);
       sendResponse(res, 200, info);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update company info");

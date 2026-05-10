@@ -31,6 +31,7 @@ import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { STATIC_COMPANY_INFO } from "@/lib/static-data";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
@@ -49,6 +50,7 @@ function AppSidebar({ onLogout }) {
   const [location] = useLocation();
   const { data: companyInfo, isLoading } = useQuery({
     queryKey: ["/api/company-info"],
+    placeholderData: STATIC_COMPANY_INFO,
   });
 
   return (
@@ -64,7 +66,7 @@ function AppSidebar({ onLogout }) {
                 <Skeleton className="h-5 w-24 mb-1" />
               ) : (
                 <span className="font-serif font-bold text-lg block truncate text-sidebar-foreground" data-testid="text-sidebar-company-name">
-                  {companyInfo?.companyName || "Elite Catering"}
+                  {companyInfo?.companyName || "Ome Caterings"}
                 </span>
               )}
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin</Badge>
@@ -124,6 +126,7 @@ export default function AdminDashboard() {
   
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
+    placeholderData: STATIC_COMPANY_INFO,
   });
 
   useEffect(() => {

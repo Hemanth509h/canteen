@@ -9,10 +9,10 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               {logoSrc && <img src={logoSrc} alt="logo" className="w-8 h-8" />}
-              <span className="font-playfair font-bold text-white text-lg">{companyInfo?.companyName || "Elite Catering"}</span>
+              <span className="font-playfair font-bold text-white text-lg">{companyInfo?.companyName || "Ome Caterings"}</span>
             </div>
             <p className="font-jakarta text-sm leading-relaxed italic">
-              "{companyInfo?.tagline || "Artisan culinary experiences for life's finest moments."}"
+              "{companyInfo?.tagline || "Exceptional Food for Unforgettable Events"}"
             </p>
             <div className="flex gap-3 mt-5">
               {[Instagram, Facebook, Twitter].map((Icon, i) => (
@@ -52,7 +52,7 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-jakarta">
-          <p>© 2025 {companyInfo?.companyName || "Elite Catering"}. All rights reserved.</p>
+          <p>© 2025 {companyInfo?.companyName || "Ome Caterings"}. All rights reserved.</p>
           {companyInfo?.phoneNumber && (
             <a href={`tel:${companyInfo.phoneNumber.replace(/\D/g, "")}`} className="flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
               <Phone size={13} /> Call Us Now
