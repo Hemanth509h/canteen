@@ -28,8 +28,7 @@ import { useLocation } from "wouter";
 import { ExportButton } from "@/components/features/export-button";
 import { TableSkeleton } from "@/components/features/loading-spinner";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { printElement } from "@/lib/print-utils";
 
 const statusColors = {
   pending: "secondary",
@@ -347,52 +346,8 @@ export default function EventBookingsManager() {
 
   const handlePrintMenu = async () => {
     setIsGeneratingMenuPDF(true);
-    try {
-      const element = menuPrintRef.current;
-      if (!element) return;
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        logging: false, onclone: (clonedDoc) => { const elements = clonedDoc.getElementsByTagName("*"); for (let i = 0; i < elements.length; i++) { const el = elements[i]; const style = window.getComputedStyle(el); ["color", "backgroundColor", "borderColor"].forEach(prop => { const val = el.style[prop] || style[prop]; if (val && val.includes("oklch")) { if (prop === "backgroundColor") el.style[prop] = "#ffffff"; else if (prop === "color") el.style[prop] = "#000000"; else el.style[prop] = "#333333"; } }); } },
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const imgWidth = 190;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const pageHeight = 277;
-      let heightLeft = imgHeight;
-      let position = 10;
-
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + 10;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      const blobUrl = pdf.output('bloburi');
-      const printWindow = window.open(blobUrl);
-      if (printWindow) {
-        printWindow.addEventListener('load', () => {
-          setTimeout(() => printWindow.print(), 250);
-        });
-      }
-    } catch (error) {
-      console.error('Error generating menu PDF:', error);
-    } finally {
-      setIsGeneratingMenuPDF(false);
-    }
+    await printElement(menuPrintRef.current);
+    setIsGeneratingMenuPDF(false);
   };
 
   const handleViewMenu = (booking) => {
@@ -730,25 +685,9 @@ export default function EventBookingsManager() {
         </CardContent>
       </Card>
 
-      <style>{`
-        @media print {
-          * { visibility: hidden; }
-          .print-menu-dialog, .print-menu-dialog * { visibility: visible !important; }
-          body { margin: 0 !important; padding: 0 !important; }
-          .print-menu-dialog { 
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0 !important;
-            padding: 0.5in !important;
-          }
-        }
-      `}</style>
-
       <Dialog open={isMenuViewDialogOpen} onOpenChange={setIsMenuViewDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <div ref={menuPrintRef} className="print-menu-dialog space-y-4">
+          <div ref={menuPrintRef} className="bg-white space-y-4 p-4" style={{ width: "210mm", maxWidth: "100%", boxSizing: "border-box" }}>
             <DialogHeader>
               <DialogTitle>View Menu - {menuEditingBooking?.clientName}</DialogTitle>
               <DialogDescription>
@@ -803,22 +742,6 @@ export default function EventBookingsManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <style>{`
-        @media print {
-          * { visibility: hidden; }
-          .print-menu-dialog, .print-menu-dialog * { visibility: visible !important; }
-          body { margin: 0 !important; padding: 0 !important; }
-          .print-menu-dialog { 
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0 !important;
-            padding: 0.5in !important;
-          }
-        }
-      `}</style>
 
       <Dialog open={isMenuEditDialogOpen} onOpenChange={setIsMenuEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

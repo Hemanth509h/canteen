@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Printer, Loader2 } from "lucide-react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { printElement, downloadPDF } from "@/lib/print-utils";
 
 export function Invoice({ booking, companyInfo, isAdmin = false }) {
   const invoiceRef = useRef(null);
@@ -12,84 +11,31 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
   const [isGeneratingDownload, setIsGeneratingDownload] = useState(false);
 
   const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
-  // Use stored advance amount if available, otherwise calculate 50%
   const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
   const finalAmount = totalAmount - advanceAmount;
-  
-  // Real business logic: status is 'paid' only if APPROVED
-  const advancePaid = booking.advancePaymentStatus === 'paid' && booking.advancePaymentApprovalStatus === 'approved';
-  const finalPaid = booking.finalPaymentStatus === 'paid' && booking.finalPaymentApprovalStatus === 'approved';
-  
+
+  const advancePaid = booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "approved";
+  const finalPaid = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "approved";
+
   const balanceAmount = totalAmount - (advancePaid ? advanceAmount : 0) - (finalPaid ? finalAmount : 0);
   const paymentStatus = balanceAmount <= 0 ? "PAID" : "UNPAID";
 
-  const invoiceDate = new Date().toLocaleDateString('en-IN');
-  const eventDate = new Date(booking.eventDate).toLocaleDateString('en-IN');
-  const invoiceNumber = `INV-${booking.id || booking._id.slice(-6).toUpperCase()}`;
-
-  const generatePDF = async () => {
-    try {
-      const element = invoiceRef.current;
-      if (!element) return;
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        logging: false, onclone: (clonedDoc) => { const elements = clonedDoc.getElementsByTagName("*"); for (let i = 0; i < elements.length; i++) { const el = elements[i]; const style = window.getComputedStyle(el); ["color", "backgroundColor", "borderColor"].forEach(prop => { const val = el.style[prop] || style[prop]; if (val && val.includes("oklch")) { if (prop === "backgroundColor") el.style[prop] = "#ffffff"; else if (prop === "color") el.style[prop] = "#000000"; else el.style[prop] = "#333333"; } }); } },
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const imgWidth = 190; // A4 width - 20mm margins
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const pageHeight = 277; // A4 height - 20mm margins
-      let heightLeft = imgHeight;
-      let position = 10; // 10mm margin
-
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + 10;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      return pdf;
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      return null;
-    }
-  };
+  const invoiceDate = new Date().toLocaleDateString("en-IN");
+  const eventDate = new Date(booking.eventDate).toLocaleDateString("en-IN");
+  const invoiceNumber = `INV-${(booking.id || booking._id || "").slice(-6).toUpperCase()}`;
 
   const handlePrint = async () => {
     setIsGeneratingPrint(true);
-    const pdf = await generatePDF();
-    if (pdf) {
-      const blobUrl = pdf.output('bloburi');
-      const printWindow = window.open(blobUrl);
-      if (printWindow) {
-        printWindow.addEventListener('load', () => {
-          setTimeout(() => printWindow.print(), 250);
-        });
-      }
-    }
+    await printElement(invoiceRef.current);
     setIsGeneratingPrint(false);
   };
 
   const handleDownload = async () => {
     setIsGeneratingDownload(true);
-    const pdf = await generatePDF();
-    if (pdf) {
-      pdf.save(`Invoice-${invoiceNumber}-${invoiceDate.replace(/\//g, '-')}.pdf`);
-    }
+    await downloadPDF(
+      invoiceRef.current,
+      `Invoice-${invoiceNumber}-${invoiceDate.replace(/\//g, "-")}.pdf`
+    );
     setIsGeneratingDownload(false);
   };
 
@@ -97,7 +43,7 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
     <Card className="w-full">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Payment Receipt & Invoice</CardTitle>
+          <CardTitle>Payment Receipt &amp; Invoice</CardTitle>
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -133,15 +79,15 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
       <CardContent>
         <div
           ref={invoiceRef}
-          className="bg-white p-12 space-y-6"
-          style={{ width: '210mm', margin: '0 auto' }}
+          className="bg-white p-10 space-y-6"
+          style={{ width: "210mm", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}
         >
-          {/* Header Section */}
+          {/* Header */}
           <div className="border-b-4 border-blue-600 pb-6">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900">{companyInfo?.companyName || 'OM Caterers'}</h1>
-                <p className="text-xs text-gray-600 mt-1">{companyInfo?.tagline || 'Professional Catering Services'}</p>
+                <h1 className="text-4xl font-bold text-gray-900">{companyInfo?.companyName || "OM Caterers"}</h1>
+                <p className="text-xs text-gray-600 mt-1">{companyInfo?.tagline || "Professional Catering Services"}</p>
               </div>
               <div className="text-right">
                 <h2 className="text-3xl font-bold text-blue-600">INVOICE</h2>
@@ -151,24 +97,23 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
             </div>
           </div>
 
-          {/* Bill To & Event Details Section */}
+          {/* Bill To & Event Details */}
           <div className="grid grid-cols-2 gap-8">
-            {/* Bill To */}
             <div className="border rounded-lg p-4 bg-gray-50">
               <h3 className="text-sm font-bold uppercase text-gray-700 mb-3">Bill To</h3>
               <p className="text-sm font-semibold text-gray-900">{booking.clientName}</p>
               <p className="text-xs text-gray-600 mt-1">{booking.contactPhone}</p>
               <p className="text-xs text-gray-600">{booking.contactEmail}</p>
             </div>
-
-            {/* Event Details */}
             <div className="border rounded-lg p-4 bg-gray-50">
               <h3 className="text-sm font-bold uppercase text-gray-700 mb-3">Event Details</h3>
               <div className="space-y-1 text-xs">
                 <p><span className="font-semibold text-gray-900">{booking.eventType}</span></p>
                 <p className="text-gray-600">Date: <span className="font-semibold text-gray-900">{eventDate}</span></p>
                 <p className="text-gray-600">Guests: <span className="font-semibold text-gray-900">{booking.guestCount}</span></p>
-                {booking.servingStaff && <p className="text-gray-600">Staff: <span className="font-semibold text-gray-900">{booking.servingStaff}</span></p>}
+                {booking.servingStaff && (
+                  <p className="text-gray-600">Staff: <span className="font-semibold text-gray-900">{booking.servingStaff}</span></p>
+                )}
               </div>
             </div>
           </div>
@@ -203,7 +148,6 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
 
           {/* Payment Summary */}
           <div className="space-y-3 border-t pt-4">
-            {/* Advance Payment */}
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium text-gray-800">Advance Payment (50%)</p>
@@ -214,18 +158,21 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
                 <Badge
                   className={`text-xs font-semibold ${
                     advancePaid
-                      ? 'bg-green-100 text-green-800'
-                      : booking.advancePaymentStatus === 'paid'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
+                      ? "bg-green-100 text-green-800"
+                      : booking.advancePaymentStatus === "paid"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  {advancePaid ? 'Approved' : booking.advancePaymentStatus === 'paid' ? 'Pending Approval' : 'Pending'}
+                  {advancePaid
+                    ? "Approved"
+                    : booking.advancePaymentStatus === "paid"
+                    ? "Pending Approval"
+                    : "Pending"}
                 </Badge>
               </div>
             </div>
 
-            {/* Final Payment */}
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium text-gray-800">Final Payment (50%)</p>
@@ -236,40 +183,46 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
                 <Badge
                   className={`text-xs font-semibold ${
                     finalPaid
-                      ? 'bg-green-100 text-green-800'
-                      : booking.finalPaymentStatus === 'paid'
-                      ? 'bg-yellow-100 text-yellow-800'
+                      ? "bg-green-100 text-green-800"
+                      : booking.finalPaymentStatus === "paid"
+                      ? "bg-yellow-100 text-yellow-800"
                       : advancePaid
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  {finalPaid ? 'Approved' : booking.finalPaymentStatus === 'paid' ? 'Pending Approval' : advancePaid ? 'Pending' : 'Awaiting Advance'}
+                  {finalPaid
+                    ? "Approved"
+                    : booking.finalPaymentStatus === "paid"
+                    ? "Pending Approval"
+                    : advancePaid
+                    ? "Pending"
+                    : "Awaiting Advance"}
                 </Badge>
               </div>
             </div>
           </div>
 
           {/* Balance Due */}
-          <div className="border-t-2 pt-4 pb-4">
-            <div className={`text-right p-4 rounded-lg ${balanceAmount <= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+          <div className="border-t-2 pt-4 pb-2">
+            <div className={`text-right p-4 rounded-lg ${balanceAmount <= 0 ? "bg-green-50" : "bg-red-50"}`}>
               <p className="text-xs text-gray-600 uppercase mb-1">Balance Due</p>
-              <p className={`text-3xl font-bold ${balanceAmount <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-3xl font-bold ${balanceAmount <= 0 ? "text-green-600" : "text-red-600"}`}>
                 ₹{Math.abs(balanceAmount)}
               </p>
             </div>
           </div>
 
-          {/* Paid Stamp */}
-          {paymentStatus === 'PAID' && (
-            <div className="relative h-24 flex items-center justify-center">
+          {/* PAID stamp */}
+          {paymentStatus === "PAID" && (
+            <div className="relative h-20 flex items-center justify-center">
               <div className="absolute text-6xl font-bold text-green-600 opacity-20 transform -rotate-45">
                 ✓ PAID
               </div>
             </div>
           )}
 
-          {/* UPI Payment Info */}
+          {/* UPI Info */}
           {balanceAmount > 0 && companyInfo?.upiId && (
             <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
               <h4 className="text-sm font-bold text-blue-900 mb-2">UPI Payment</h4>

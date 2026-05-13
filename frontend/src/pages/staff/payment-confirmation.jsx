@@ -9,15 +9,18 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { UPIPayment } from "@/components/features/upi-payment";
 import { Invoice } from "@/components/features/invoice";
-import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Calendar, Utensils, RefreshCw } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Camera, Users, Calendar, Utensils, RefreshCw, Printer, Loader2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { printElement } from "@/lib/print-utils";
 
 import { API_URL } from "@/lib/queryClient";
 
 export default function PaymentConfirmation({ bookingId: propBookingId }) {
   const params = useParams();
   let bookingId = propBookingId || params.bookingId;
+  const printRef = useRef(null);
+  const [isPrinting, setIsPrinting] = useState(false);
   
   // Extract actual booking ID from composite ID if needed
   // Composite ID format: {bookingId}-{paymentType}-{timestamp}
@@ -570,9 +573,22 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
 
             <div className="space-y-4">
               <h3 className="text-sm font-semibold px-1 text-muted-foreground">Actions</h3>
-              <Invoice booking={booking} companyInfo={companyInfo} />
-              <Button variant="outline" className="w-full gap-2" onClick={() => window.print()} data-testid="button-print-payment">
-                Print Payment Details
+              <div ref={printRef}>
+                <Invoice booking={booking} companyInfo={companyInfo} />
+              </div>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                disabled={isPrinting}
+                onClick={async () => {
+                  setIsPrinting(true);
+                  await printElement(printRef.current);
+                  setIsPrinting(false);
+                }}
+                data-testid="button-print-payment"
+              >
+                {isPrinting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                {isPrinting ? "Generating..." : "Print Payment Details"}
               </Button>
             </div>
 

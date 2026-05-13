@@ -1,18 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Printer, Calendar, RefreshCw, Eye, Loader2 } from "lucide-react";
+import { Printer, Calendar, RefreshCw, Loader2 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { printElement } from "@/lib/print-utils";
 
 export default function ChefPrintout() {
   const printRef = useRef(null);
@@ -76,94 +69,18 @@ export default function ChefPrintout() {
     groupedByCategory[item.category].push(item);
   });
 
-  const generatePDF = async () => {
-    try {
-      const element = printRef.current;
-      if (!element) return;
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const imgWidth = 190;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const pageHeight = 277;
-      let heightLeft = imgHeight;
-      let position = 10;
-
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + 10;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      return pdf;
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      return null;
-    }
-  };
-
   const handlePrint = async () => {
     setIsGeneratingPDF(true);
-    const pdf = await generatePDF();
-    if (pdf) {
-      const blobUrl = pdf.output('bloburi');
-      const printWindow = window.open(blobUrl);
-      if (printWindow) {
-        printWindow.addEventListener('load', () => {
-          setTimeout(() => printWindow.print(), 250);
-        });
-      }
-    }
+    await printElement(printRef.current);
     setIsGeneratingPDF(false);
   };
 
   return (
     <>
-      <style>{`
-        @media print {
-          * { visibility: hidden; }
-          .print-page, .print-page * { visibility: visible !important; }
-          .no-print { display: none !important; visibility: hidden !important; }
-          body { margin: 0 !important; padding: 0 !important; }
-          .print-page { 
-            max-width: none !important; 
-            margin: 0 !important; 
-            padding: 0.5in !important;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-          .print-header { background: none !important; border: none !important; padding-bottom: 1rem !important; }
-          .print-section-avoid { page-break-inside: avoid; break-inside: avoid; }
-          .print-summary { display: none !important; }
-          table { page-break-inside: auto; width: 100% !important; }
-          tr { page-break-inside: avoid; page-break-after: auto; }
-          thead { display: table-header-group; }
-          tbody { display: table-row-group; }
-        }
-      `}</style>
-
       <div
         ref={printRef}
-        className="print-page bg-white p-6 space-y-6"
-        style={{ width: '210mm', margin: '0 auto' }}
+        className="bg-white p-6 space-y-6"
+        style={{ width: "210mm", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}
       >
         <Card className="print-header">
           <CardHeader className="text-center space-y-2">
