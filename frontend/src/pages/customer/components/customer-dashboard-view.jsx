@@ -8,6 +8,7 @@ import {
   AlertCircle, CheckCircle, XCircle, Calendar, 
   User, MapPin, Utensils, ChevronUp, ChevronDown 
 } from "lucide-react";
+import localMenuItems from "@/lib/menu.json";
 
 const STATUS = {
   pending: { icon: AlertCircle, color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/30" },
@@ -26,9 +27,16 @@ function BookingMenu({ bookingId }) {
       if (!res.ok) return [];
       const json = await res.json();
       const rawItems = json.data || json;
-      const foodRes = await fetch("/api/food-items");
-      const foodJson = await foodRes.json();
-      const foodItems = foodJson.data || foodJson;
+      let foodItems = localMenuItems;
+      try {
+        const foodRes = await fetch("/api/food-items");
+        if (foodRes.ok) {
+          const foodJson = await foodRes.json();
+          foodItems = foodJson.data || foodJson || localMenuItems;
+        }
+      } catch {
+        foodItems = localMenuItems;
+      }
       return rawItems.map((item) => ({
         ...item,
         foodItem: foodItems.find((f) => f.id === item.foodItemId),

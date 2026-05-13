@@ -29,6 +29,7 @@ import { ExportButton } from "@/components/features/export-button";
 import { TableSkeleton } from "@/components/features/loading-spinner";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { printElement } from "@/lib/print-utils";
+import localMenuItems from "@/lib/menu.json";
 
 const statusColors = {
   pending: "secondary",
@@ -71,6 +72,17 @@ export default function EventBookingsManager() {
 
   const { data: foodItems = [] } = useQuery({
     queryKey: ["/api/food-items"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/food-items");
+        if (!res.ok) throw new Error("Food API unavailable");
+        const json = await res.json();
+        return json.data || json || localMenuItems;
+      } catch {
+        return localMenuItems;
+      }
+    },
+    placeholderData: localMenuItems,
   });
 
   const { data: staffList = [] } = useQuery({

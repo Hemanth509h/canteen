@@ -8,6 +8,7 @@ import { PageLoader } from "@/components/features/loading-spinner";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
+import localMenuItems from "@/lib/menu.json";
 
 export default function DashboardOverview() {
   const { data: companyInfo } = useQuery({
@@ -21,6 +22,17 @@ export default function DashboardOverview() {
 
   const { data: foodItems, isLoading: isLoadingFood, isFetching: isFetchingFood, refetch: refetchAll } = useQuery({
     queryKey: ["/api/food-items"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/food-items");
+        if (!res.ok) throw new Error("Food API unavailable");
+        const json = await res.json();
+        return json.data || json || localMenuItems;
+      } catch {
+        return localMenuItems;
+      }
+    },
+    placeholderData: localMenuItems,
   });
 
   const { data: staff, isLoading: isLoadingStaff } = useQuery({

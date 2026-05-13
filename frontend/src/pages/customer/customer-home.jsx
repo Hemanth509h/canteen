@@ -5,7 +5,8 @@ import { Phone } from "lucide-react";
 
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { STATIC_FOOD_ITEMS, STATIC_COMPANY_INFO, STATIC_REVIEWS } from "@/lib/static-data";
+import { STATIC_COMPANY_INFO, STATIC_REVIEWS } from "@/lib/static-data";
+import localMenuItems from "@/lib/menu.json";
 
 import Navbar from "./components/navbar";
 import Hero from "./components/hero";
@@ -22,9 +23,19 @@ export default function CustomerHome() {
 
   const { data: foodItems, isLoading: isLoadingFood } = useQuery({
     queryKey: ["/api/food-items"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/food-items");
+        if (!res.ok) throw new Error("Food API unavailable");
+        const json = await res.json();
+        return json.data || json || localMenuItems;
+      } catch {
+        return localMenuItems;
+      }
+    },
     staleTime: 5000,
     gcTime: 10000,
-    placeholderData: STATIC_FOOD_ITEMS,
+    placeholderData: localMenuItems,
     refetchOnWindowFocus: false
   });
   const { data: companyInfo } = useQuery({

@@ -20,6 +20,7 @@ import { insertFoodItemSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import imageCompression from 'browser-image-compression';
+import localMenuItems from "@/lib/menu.json";
 
 const defaultCategories = [];
 
@@ -72,6 +73,17 @@ export default function FoodItemsManager() {
 
   const { data: foodItems = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["/api/food-items"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/food-items");
+        if (!res.ok) throw new Error("Food API unavailable");
+        const json = await res.json();
+        return json.data || json || localMenuItems;
+      } catch {
+        return localMenuItems;
+      }
+    },
+    placeholderData: localMenuItems,
   });
 
   const filteredFoodItems = (foodItems || []).filter((item) => {
