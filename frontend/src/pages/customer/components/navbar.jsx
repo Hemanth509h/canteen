@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { CartDrawer } from "@/components/features/cart-drawer";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronRight, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Navbar({ companyName, logoSrc, setView }) {
@@ -21,34 +21,40 @@ export default function Navbar({ companyName, logoSrc, setView }) {
 
   return (
     <>
-      <nav className="fixed top-4 left-4 right-4 z-50 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <nav className="fixed left-4 right-4 top-4 z-50 rounded-lg border border-zinc-200/80 bg-white/95 shadow-lg shadow-zinc-900/5 backdrop-blur-xl transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950/92 dark:shadow-black/25">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-5 px-4 sm:px-6">
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setView("home"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-            {logoSrc && <img src={logoSrc} alt="logo" className="w-8 h-8 object-contain" />}
-            <span className="font-playfair font-bold text-lg text-zinc-900 dark:text-white transition-colors">
-              {companyName || "Ome Caterings"}
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm shadow-emerald-900/20">
+              <Leaf className="h-5 w-5" />
+            </span>
+            <span className="leading-tight">
+              <span className="block font-playfair text-lg font-bold text-zinc-950 transition-colors dark:text-white">
+                {companyName || "Ome Caterings"}
+              </span>
+              <span className="hidden text-[10px] font-jakarta font-bold uppercase tracking-[0.18em] text-amber-600 sm:block">
+                Catering Service
+              </span>
             </span>
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-jakarta font-medium text-zinc-500 dark:text-zinc-400">
+          <div className="hidden items-center gap-8 text-sm font-jakarta font-semibold text-zinc-500 dark:text-zinc-400 md:flex">
             {navItems.map((item) => (
               <button 
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors relative group"
+                className="relative py-2 transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-amber-500 after:transition-all hover:text-zinc-950 hover:after:w-full dark:hover:text-white"
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full" />
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-900">
             <ThemeToggle />
             <button 
               onClick={() => setView("bookings")} 
-              className="text-sm font-jakarta font-semibold text-zinc-600 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors hidden sm:block"
+              className="hidden rounded-md px-3 py-2 text-sm font-jakarta font-semibold text-zinc-700 transition-colors hover:bg-white hover:text-amber-700 hover:shadow-sm dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-amber-300 sm:block"
             >
               My Bookings
             </button>
@@ -57,7 +63,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
             {/* Mobile Menu Toggle */}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 md:hidden text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+              className="rounded-md p-2 text-zinc-600 transition-colors hover:bg-white hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white md:hidden"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -105,4 +111,3 @@ export default function Navbar({ companyName, logoSrc, setView }) {
     </>
   );
 }
-

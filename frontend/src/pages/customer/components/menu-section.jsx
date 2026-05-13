@@ -26,23 +26,23 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
   }, [foodItems, type, category, search]);
 
   return (
-    <section id="menu" className="bg-zinc-50 dark:bg-zinc-950 py-20 px-6 transition-colors duration-300">
+    <section id="menu" className="bg-zinc-50 px-4 py-14 transition-colors duration-300 dark:bg-zinc-950 sm:px-6 sm:py-20">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="mb-10 text-center sm:mb-12">
           <p className="text-amber-600 dark:text-amber-400 text-xs font-jakarta font-bold uppercase tracking-[0.3em] mb-3">Our Menu</p>
-          <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-zinc-900 dark:text-white mb-4 transition-colors">Seasonal Selections</h2>
+          <h2 className="text-3xl font-playfair font-bold text-zinc-900 transition-colors dark:text-white sm:text-5xl">Seasonal Selections</h2>
           <p className="text-zinc-500 dark:text-zinc-400 font-jakarta max-w-lg mx-auto">Curated dishes made with the freshest seasonal ingredients.</p>
         </div>
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900 shrink-0 transition-colors">
+          <div className="grid grid-cols-3 overflow-hidden rounded-lg border border-zinc-200 bg-white transition-colors dark:border-zinc-800 dark:bg-zinc-900 sm:flex sm:shrink-0">
             {["All", "Veg", "Non-Veg"].map((t) => (
               <button
                 key={t}
                 onClick={() => { setType(t); setCategory("All"); }}
                 className={cn(
-                  "px-5 py-2.5 text-sm font-jakarta font-semibold transition-colors",
+                  "px-4 py-2.5 text-sm font-jakarta font-semibold transition-colors sm:px-5",
                   type === t
                     ? "bg-amber-500 text-white"
                     : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -57,19 +57,19 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
               placeholder="Search dishes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-11 pl-11 pr-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm font-jakarta text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-colors"
+              className="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-11 pr-4 text-sm font-jakarta text-zinc-900 transition-colors placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
             />
           </div>
         </div>
 
         {/* Category pills */}
-        <div className="flex flex-wrap gap-2 mb-10">
+        <div className="mb-8 flex gap-2 overflow-x-auto pb-2 sm:mb-10 sm:flex-wrap sm:overflow-visible">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
               className={cn(
-                "px-4 py-1.5 rounded-full text-xs font-jakarta font-bold border transition-all",
+                "shrink-0 rounded-full border px-4 py-1.5 text-xs font-jakarta font-bold transition-all",
                 category === cat
                   ? "bg-amber-500 text-white border-amber-500"
                   : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-900 hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400"
@@ -79,7 +79,7 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 max-h-[500px] overflow-y-auto custom-scrollbar p-2 -m-2">
+        <div className="-m-2 grid grid-cols-1 gap-4 p-2 sm:grid-cols-2 lg:max-h-[520px] lg:grid-cols-3 lg:overflow-y-auto xl:grid-cols-4">
           {isLoading
             ? Array(8).fill(0).map((_, i) => (
               <div key={i} className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-5 space-y-3 transition-colors">
@@ -102,7 +102,7 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
                   key={item.id}
                   onClick={() => !inCart && onSelectItem(item)}
                   className={cn(
-                    "group rounded-2xl bg-white dark:bg-zinc-900 border transition-all duration-300 cursor-pointer hover:-translate-y-1",
+                    "group rounded-lg border bg-white transition-all duration-300 cursor-pointer hover:-translate-y-1 dark:bg-zinc-900",
                     inCart
                       ? "border-amber-400 dark:border-amber-500 shadow-lg shadow-amber-500/10"
                       : "border-zinc-200 dark:border-zinc-800 hover:border-amber-300 dark:hover:border-zinc-700 hover:shadow-lg dark:hover:shadow-zinc-900"

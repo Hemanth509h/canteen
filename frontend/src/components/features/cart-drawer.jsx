@@ -173,12 +173,8 @@ export function CartDrawer() {
                 <div className="space-y-6 py-4">
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex gap-4 group">
-                      <div className="h-20 w-20 rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
-                        <img 
-                          src={item.imageUrl || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=200&auto=format&fit=crop"} 
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-secondary text-sm font-bold text-muted-foreground">
+                        {String(item.name || "M").slice(0, 1).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start gap-2">

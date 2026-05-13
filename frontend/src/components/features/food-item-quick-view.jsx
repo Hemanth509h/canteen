@@ -11,31 +11,18 @@ import { Clock, ChefHat, ShoppingCart, Plus, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";
 
-const FoodItemQuickView = ({ item, onClose, defaultFoodImage }) => {
+const FoodItemQuickView = ({ item, onClose }) => {
   const { addToCart, cartItems } = useCart();
   if (!item) return null;
   const isSelected = cartItems.some(i => i.id === item.id);
 
   return (
-    <div className="grid md:grid-cols-2 bg-card">
-      <div className="h-64 md:h-full relative">
-        <img 
-          src={item.imageUrl || defaultFoodImage || "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop"} 
-          alt={item.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = defaultFoodImage || 'https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=600&auto=format&fit=crop';
-          }}
-        />
-        <div className="absolute top-4 left-4">
-          <Badge className="bg-primary text-white border-none py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
-            {item.category}
-          </Badge>
-        </div>
-      </div>
+    <div className="bg-card">
       <div className="p-8 flex flex-col justify-center bg-card text-card-foreground">
         <div className="mb-6">
+          <Badge className="mb-4 bg-primary text-white border-none py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-widest">
+            {item.category}
+          </Badge>
           <h3 className="text-3xl font-poppins font-bold text-primary mb-2">
             {item.name}
           </h3>

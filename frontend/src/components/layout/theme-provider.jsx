@@ -33,7 +33,6 @@ export function ThemeProvider({
       document.body.classList.add(actualTheme);
       
       root.style.colorScheme = actualTheme;
-      console.log("Applied theme:", actualTheme);
     };
 
     applyTheme(theme);

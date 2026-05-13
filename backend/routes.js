@@ -35,50 +35,26 @@ import { z } from "zod";
 
 const getStorageInstance = () => getStorage();
 
-async function syncBrandingToFrontend(info) {
-  if (!info) return;
-  try {
-    const frontendBrandingPath = path.resolve(__dirname, "../frontend/src/lib/branding.json");
-    // Ensure the directory exists (though it should)
-    const dir = path.dirname(frontendBrandingPath);
-    if (!fs.existsSync(dir)) {
-      console.warn(`[SYNC] Frontend directory not found at ${dir}. Skipping sync.`);
-      return;
-    }
-    
-    // We only want to sync specific public branding fields
-    const brandingData = {
-      companyName: info.companyName,
-      tagline: info.tagline,
-      description: info.description,
-      email: info.email,
-      phone: info.phone,
-      address: info.address,
-      eventsPerYear: info.eventsPerYear,
-      websiteUrl: info.websiteUrl,
-      upiId: info.upiId,
-      minAdvanceBookingDays: info.minAdvanceBookingDays,
-      yearsExperience: info.yearsExperience,
-      logoUrl: info.logoUrl,
-      primaryColor: info.primaryColor,
-      heroImages: info.heroImages,
-      contactEmail: info.contactEmail,
-      contactPhone: info.contactPhone
-    };
+const frontendBrandingPath = path.resolve(__dirname, "../frontend/src/lib/branding.json");
 
-    fs.writeFileSync(frontendBrandingPath, JSON.stringify(brandingData, null, 2));
-    console.log(`[SYNC] Successfully synced branding to ${frontendBrandingPath}`);
-  } catch (error) {
-    console.error("[SYNC] Failed to sync branding to frontend:", error.message);
-  }
+function readBrandingFromFrontend() {
+  if (!fs.existsSync(frontendBrandingPath)) return {};
+  return JSON.parse(fs.readFileSync(frontendBrandingPath, "utf8"));
+}
+
+function writeBrandingToFrontend(data) {
+  const current = readBrandingFromFrontend();
+  const next = {
+    ...current,
+    ...data,
+    contactEmail: data.contactEmail ?? data.email ?? current.contactEmail ?? current.email,
+    contactPhone: data.contactPhone ?? data.phone ?? current.contactPhone ?? current.phone,
+  };
+  fs.writeFileSync(frontendBrandingPath, `${JSON.stringify(next, null, 2)}\n`);
+  return next;
 }
 
 export async function registerRoutes(app) {
-  // Sync on startup
-  const initialInfo = await getStorageInstance().getCompanyInfo();
-  if (initialInfo) {
-    await syncBrandingToFrontend(initialInfo);
-  }
   const sendResponse = (res, status, data, error = null) => {
     return res.status(status).json({
       success: status >= 200 && status < 300,
@@ -287,7 +263,7 @@ export async function registerRoutes(app) {
 
   app.get("/api/company-info", async (_req, res) => {
     try {
-      const info = await getStorageInstance().getCompanyInfo();
+      const info = readBrandingFromFrontend();
       sendResponse(res, 200, info || {});
     } catch (error) {
       sendResponse(res, 500, null, "Failed to fetch company info");
@@ -296,13 +272,23 @@ export async function registerRoutes(app) {
 
   app.patch("/api/company-info", async (req, res) => {
     try {
-      const result = insertCompanyInfoSchema.partial().safeParse(req.body);
+      const sanitizedBody = { ...req.body };
+      if (sanitizedBody.websiteUrl === "") delete sanitizedBody.websiteUrl;
+      if (sanitizedBody.email === "") delete sanitizedBody.email;
+      if (sanitizedBody.contactEmail === "") delete sanitizedBody.contactEmail;
+      if (sanitizedBody.phone === "") delete sanitizedBody.phone;
+      if (sanitizedBody.contactPhone === "") delete sanitizedBody.contactPhone;
+      if (sanitizedBody.upiId === "") delete sanitizedBody.upiId;
+
+      const result = insertCompanyInfoSchema.partial().extend({
+        heroImages: z.array(z.string()).optional(),
+        contactEmail: z.string().email().optional(),
+        contactPhone: z.string().optional(),
+      }).safeParse(sanitizedBody);
       if (!result.success) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
-      const info = await getStorageInstance().updateCompanyInfo(null, result.data);
-      // Sync to frontend file automatically
-      await syncBrandingToFrontend(info);
+      const info = writeBrandingToFrontend(result.data);
       sendResponse(res, 200, info);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update company info");

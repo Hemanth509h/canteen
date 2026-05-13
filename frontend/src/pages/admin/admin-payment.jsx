@@ -279,50 +279,61 @@ export default function AdminPaymentConfirmation() {
   const allPaid = advancePaid && finalPaid;
   const advanceUploaded = booking ? (booking.advancePaymentStatus === "paid" && booking.advancePaymentApprovalStatus === "pending") : false;
   const finalUploaded = booking ? (booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "pending") : false;
+  const amountCollected = (advancePaid ? advanceAmount : 0) + (finalPaid ? finalAmount : 0);
+  const balanceAmount = Math.max(displayTotal - amountCollected, 0);
+  const paymentProgress = displayTotal > 0 ? Math.min(Math.round((amountCollected / displayTotal) * 100), 100) : 0;
+  const nextPaymentLabel = allPaid ? "Complete" : advancePaid ? "Final Due" : "Advance Due";
+  const nextPaymentAmount = allPaid ? 0 : advancePaid ? finalAmount : advanceAmount;
+  const needsApproval = advanceUploaded || finalUploaded;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="animate-in fade-in duration-300 mb-6">
-          <div className="flex gap-2 mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => setLocation("/admin/bookings")}
-              className="gap-2"
-              data-testid="button-back-bookings-admin"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Bookings
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                refetchBooking();
-                toast({
-                  title: "Refreshed",
-                  description: "Payment data has been updated",
-                });
-              }}
-              className="gap-2"
-              data-testid="button-refresh-admin-payment"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
-          </div>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-3 sm:p-4 md:p-6">
+      <div className="max-w-6xl mx-auto space-y-5">
+        <div className="animate-in fade-in duration-300 rounded-xl border bg-card/95 p-4 shadow-sm md:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation("/admin/bookings")}
+                  className="gap-2 px-2"
+                  data-testid="button-back-bookings-admin"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    refetchBooking();
+                    toast({
+                      title: "Refreshed",
+                      description: "Payment data has been updated",
+                    });
+                  }}
+                  className="gap-2"
+                  data-testid="button-refresh-admin-payment"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </Button>
+              </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">Payment Management</h1>
-              <p className="text-muted-foreground">View and manage customer payment</p>
+              <p className="text-sm text-muted-foreground md:text-base">
+                {booking.clientName} · {new Date(booking.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
+            </div>
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
               <Badge 
-                variant={allPaid ? "default" : "secondary"} 
+                variant={allPaid ? "default" : needsApproval ? "outline" : "secondary"} 
                 className="text-sm px-3 py-1"
                 data-testid="badge-booking-status-admin"
               >
-                {allPaid ? "Fully Paid" : advancePaid ? "Advance Paid" : "Pending"}
+                {allPaid ? "Fully Paid" : needsApproval ? "Approval Needed" : advancePaid ? "Advance Paid" : "Pending"}
               </Badge>
               {!isEditing && (
                 <Button size="sm" variant="outline" onClick={handleEditClick} data-testid="button-edit-payment-admin">
@@ -330,21 +341,61 @@ export default function AdminPaymentConfirmation() {
                   Edit
                 </Button>
               )}
+              <Button size="sm" variant="ghost" onClick={openPaymentPage} className="gap-1">
+                <ExternalLink className="w-4 h-4" />
+                Customer Page
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Total Amount</p>
+              {isEditing ? (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-lg font-bold">₹</span>
+                  <Input
+                    type="number"
+                    value={editTotalAmount ?? totalAmount}
+                    onChange={(e) => setEditTotalAmount(Number(e.target.value))}
+                    className="h-9 font-bold"
+                    data-testid="input-edit-total-amount"
+                  />
+                </div>
+              ) : (
+                <p className="mt-1 text-2xl font-bold" data-testid="text-total-amount-admin">₹{totalAmount.toLocaleString('en-IN')}</p>
+              )}
+            </div>
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Collected</p>
+              <p className="mt-1 text-2xl font-bold text-green-700 dark:text-green-300">₹{amountCollected.toLocaleString('en-IN')}</p>
+            </div>
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Balance</p>
+              <p className="mt-1 text-2xl font-bold text-amber-700 dark:text-amber-300">₹{balanceAmount.toLocaleString('en-IN')}</p>
+            </div>
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{nextPaymentLabel}</p>
+              <p className="mt-1 text-2xl font-bold">₹{nextPaymentAmount.toLocaleString('en-IN')}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-2">
+            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+              <span>Payment progress</span>
+              <span>{paymentProgress}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${paymentProgress}%` }} />
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="animate-in fade-in duration-300 lg:col-span-2 space-y-6">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="animate-in fade-in duration-300 space-y-5">
             <Card>
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  Booking Details
-                  <Button size="sm" variant="ghost" onClick={openPaymentPage} className="ml-auto gap-1">
-                    <ExternalLink className="w-4 h-4" />
-                    View Customer Page
-                  </Button>
-                </CardTitle>
+                <CardTitle className="text-lg">Booking Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 pt-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -365,18 +416,8 @@ export default function AdminPaymentConfirmation() {
                   </div>
                   <div className="bg-primary/10 rounded-lg p-3 text-center border border-primary/20">
                     <IndianRupee className="w-5 h-5 mx-auto mb-1 text-primary" />
-                    {isEditing ? (
-                      <Input 
-                        type="number" 
-                        value={editTotalAmount ?? totalAmount}
-                        onChange={(e) => setEditTotalAmount(Number(e.target.value))}
-                        className="text-center font-bold text-lg h-8 w-24 mx-auto"
-                        data-testid="input-edit-total-amount"
-                      />
-                    ) : (
-                      <p className="text-2xl font-bold text-primary" data-testid="text-total-amount-admin">₹{totalAmount.toLocaleString('en-IN')}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-2xl font-bold text-primary">₹{baseAmount.toLocaleString('en-IN')}</p>
+                    <p className="text-xs text-muted-foreground">Plate Cost</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm border-t pt-4">
@@ -601,9 +642,11 @@ export default function AdminPaymentConfirmation() {
                 </Button>
               </div>
             )}
+
+            <Invoice booking={booking} companyInfo={companyInfo} isAdmin={true} />
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5 xl:sticky xl:top-4 xl:self-start">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Payment Actions</CardTitle>
@@ -630,7 +673,10 @@ export default function AdminPaymentConfirmation() {
                     <MessageCircle className="w-4 h-4" />
                     {sendPaymentLinkMutation.isPending ? "Sending..." : "Send Payment Link"}
                   </Button>
-                  <Invoice booking={booking} companyInfo={companyInfo} isAdmin={true} />
+                  <Button size="sm" variant="outline" onClick={openPaymentPage} className="w-full gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    Open Customer Page
+                  </Button>
                 </div>
               </CardContent>
             </Card>

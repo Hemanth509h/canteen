@@ -1,4 +1,3 @@
-import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 const fixOklchColors = (clonedDoc) => {
@@ -28,14 +27,27 @@ async function captureCanvas(element) {
 
 export async function printElement(element) {
   if (!element) return;
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("title", "Print Preview");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  iframe.style.opacity = "0";
+  iframe.style.pointerEvents = "none";
+  document.body.appendChild(iframe);
+
   try {
     const canvas = await captureCanvas(element);
     const imgData = canvas.toDataURL("image/png");
+    const printWindow = iframe.contentWindow;
+    const printDocument = iframe.contentDocument || printWindow?.document;
+    if (!printWindow || !printDocument) throw new Error("Unable to create print frame");
 
-    const win = window.open("", "_blank");
-    if (!win) return;
-
-    win.document.write(`<!DOCTYPE html>
+    printDocument.open();
+    printDocument.write(`<!DOCTYPE html>
 <html>
   <head>
     <title>Print Preview</title>
@@ -47,47 +59,32 @@ export async function printElement(element) {
     </style>
   </head>
   <body>
-    <img src="${imgData}" />
+    <img id="print-image" src="${imgData}" />
+    <script>
+      const image = document.getElementById("print-image");
+      const triggerPrint = () => {
+        window.focus();
+        window.print();
+      };
+      if (image.complete) {
+        setTimeout(triggerPrint, 100);
+      } else {
+        image.onload = () => setTimeout(triggerPrint, 100);
+      }
+    </script>
   </body>
 </html>`);
-    win.document.close();
-    win.focus();
-    setTimeout(() => {
-      win.print();
-    }, 400);
+    printDocument.close();
+
+    const removeFrame = () => {
+      setTimeout(() => {
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      }, 500);
+    };
+    printWindow.addEventListener("afterprint", removeFrame, { once: true });
+    setTimeout(removeFrame, 30000);
   } catch (err) {
     console.error("Print failed:", err);
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
   }
-}
-
-export async function generatePDF(element, { margin = 10 } = {}) {
-  if (!element) return null;
-  try {
-    const canvas = await captureCanvas(element);
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-    const pageW = pdf.internal.pageSize.getWidth();
-    const pageH = pdf.internal.pageSize.getHeight();
-    const imgW = pageW - margin * 2;
-    const imgH = (canvas.height * imgW) / canvas.width;
-    const contentH = pageH - margin * 2;
-
-    let page = 0;
-    while (page * contentH < imgH) {
-      if (page > 0) pdf.addPage();
-      pdf.addImage(imgData, "PNG", margin, margin - page * contentH, imgW, imgH);
-      page++;
-    }
-
-    return pdf;
-  } catch (err) {
-    console.error("PDF generation failed:", err);
-    return null;
-  }
-}
-
-export async function downloadPDF(element, filename = "document.pdf", options = {}) {
-  const pdf = await generatePDF(element, options);
-  if (pdf) pdf.save(filename);
 }

@@ -42,7 +42,7 @@ export default function EventBookingsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [isGeneratingMenuPDF, setIsGeneratingMenuPDF] = useState(false);
+  const [isPreparingMenuPrint, setIsPreparingMenuPrint] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState(null);
@@ -102,18 +102,10 @@ export default function EventBookingsManager() {
     const matchesStatusFilter = !statusFilter || booking.status === statusFilter;
     if (!matchesStatusFilter) return false;
 
-    // Filter out cancelled/completed from main list if not searching
-    // and if more than 3 hours have passed since status update
-    if (["cancelled", "completed"].includes(booking.status)) {
-      const updateTime = statusUpdateTimestamps[booking.id];
-      if (updateTime) {
-        const threeHoursInMs = 3 * 60 * 60 * 1000;
-        const timePassed = Date.now() - updateTime;
-        if (timePassed > threeHoursInMs) return false;
-      } else {
-        // If no timestamp and it's already one of these statuses, hide it from main list
-        return false;
-      }
+    // Keep Event Bookings focused on active work. Completed/cancelled records
+    // remain available from History, or by explicitly filtering/searching here.
+    if (!statusFilter && ["cancelled", "completed"].includes(booking.status)) {
+      return false;
     }
     
     const bookingDate = new Date(booking.eventDate);
@@ -345,9 +337,9 @@ export default function EventBookingsManager() {
   };
 
   const handlePrintMenu = async () => {
-    setIsGeneratingMenuPDF(true);
+    setIsPreparingMenuPrint(true);
     await printElement(menuPrintRef.current);
-    setIsGeneratingMenuPDF(false);
+    setIsPreparingMenuPrint(false);
   };
 
   const handleViewMenu = (booking) => {
@@ -686,51 +678,71 @@ export default function EventBookingsManager() {
       </Card>
 
       <Dialog open={isMenuViewDialogOpen} onOpenChange={setIsMenuViewDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <div ref={menuPrintRef} className="bg-white space-y-4 p-4" style={{ width: "210mm", maxWidth: "100%", boxSizing: "border-box" }}>
+        <DialogContent className="w-[min(94vw,720px)] max-w-none overflow-hidden p-0">
+          <div className="max-h-[78vh] overflow-y-auto bg-background">
+            <div className="space-y-5 p-5 sm:p-6 print:bg-white print:p-8">
             <DialogHeader>
-              <DialogTitle>View Menu - {menuEditingBooking?.clientName}</DialogTitle>
+              <DialogTitle className="pr-8 leading-tight">View Menu - {menuEditingBooking?.clientName}</DialogTitle>
               <DialogDescription>
                 Menu items selected for this event.
               </DialogDescription>
             </DialogHeader>
+
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="grid gap-3 text-sm sm:grid-cols-3">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Client</p>
+                  <p className="mt-1 truncate font-semibold">{menuEditingBooking?.clientName || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Guests</p>
+                  <p className="mt-1 font-semibold">{menuEditingBooking?.guestCount || 0}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Items</p>
+                  <p className="mt-1 font-semibold">{selectedItems.length}</p>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-4">
             {selectedItems.length > 0 ? (
               <div className="space-y-2">
                 <div className="text-xs font-bold uppercase text-muted-foreground">Selected Items ({selectedItems.length})</div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid gap-2 sm:grid-cols-2">
                   {selectedItems.map(si => {
                     const item = foodItems.find(f => f.id === si.foodItemId);
                     return (
-                      <Badge key={si.foodItemId} variant="secondary" className="pl-2 pr-3 py-2 flex items-center gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
-                          <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                      <div key={si.foodItemId} className="flex min-w-0 items-center gap-3 rounded-lg border bg-card p-3 shadow-sm">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary">
+                          {String(item?.name || "M").slice(0, 1).toUpperCase()}
                         </div>
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold max-w-[150px] truncate">{item?.name}</span>
-                          <span className="text-[10px] text-muted-foreground font-medium">Guests: {si.quantity}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold">{item?.name || "Menu item"}</p>
+                          <p className="text-xs text-muted-foreground">Guests: {si.quantity}</p>
                         </div>
-                      </Badge>
+                      </div>
                     );
                   })}
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
                 No items selected for this menu.
               </div>
             )}
-          </div>
             </div>
-          <DialogFooter>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 border-t bg-card p-4 sm:p-4">
             <Button variant="outline" onClick={() => setIsMenuViewDialogOpen(false)}>Close</Button>
-            <Button variant="outline" onClick={handlePrintMenu} disabled={isGeneratingMenuPDF}>
-              {isGeneratingMenuPDF ? (
+            <Button variant="outline" onClick={handlePrintMenu} disabled={isPreparingMenuPrint}>
+              {isPreparingMenuPrint ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <Printer className="h-4 w-4 mr-2" />
               )}
-              {isGeneratingMenuPDF ? 'Generating...' : 'Print'}
+              {isPreparingMenuPrint ? 'Preparing...' : 'Print'}
             </Button>
             <Button onClick={() => {
               setIsMenuViewDialogOpen(false);
@@ -742,6 +754,58 @@ export default function EventBookingsManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <div className="fixed left-[-10000px] top-0 bg-white p-8 text-black" style={{ width: "210mm", boxSizing: "border-box" }}>
+        <div ref={menuPrintRef} className="space-y-6">
+          <div className="border-b-4 border-blue-600 pb-5">
+            <h1 className="text-3xl font-bold text-gray-900">Event Menu</h1>
+            <p className="mt-1 text-sm text-gray-600">{menuEditingBooking?.clientName || "N/A"}</p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 rounded-lg border bg-gray-50 p-4 text-sm">
+            <div>
+              <p className="text-xs font-bold uppercase text-gray-500">Client</p>
+              <p className="mt-1 font-semibold text-gray-900">{menuEditingBooking?.clientName || "N/A"}</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase text-gray-500">Guests</p>
+              <p className="mt-1 font-semibold text-gray-900">{menuEditingBooking?.guestCount || 0}</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase text-gray-500">Items</p>
+              <p className="mt-1 font-semibold text-gray-900">{selectedItems.length}</p>
+            </div>
+          </div>
+
+          {selectedItems.length > 0 ? (
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-gray-900 text-white">
+                  <th className="w-14 p-3 text-left">#</th>
+                  <th className="p-3 text-left">Item</th>
+                  <th className="w-28 p-3 text-center">Guests</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedItems.map((si, index) => {
+                  const item = foodItems.find(f => f.id === si.foodItemId);
+                  return (
+                    <tr key={si.foodItemId} className="border-b">
+                      <td className="p-3 text-gray-600">{index + 1}</td>
+                      <td className="p-3 font-semibold text-gray-900">{item?.name || "Menu item"}</td>
+                      <td className="p-3 text-center font-bold text-gray-900">{si.quantity}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div className="rounded-lg border border-dashed py-10 text-center text-gray-500">
+              No items selected for this menu.
+            </div>
+          )}
+        </div>
+      </div>
 
       <Dialog open={isMenuEditDialogOpen} onOpenChange={setIsMenuEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -789,8 +853,8 @@ export default function EventBookingsManager() {
                     }`}
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <div className="h-8 w-8 rounded bg-secondary flex-shrink-0 overflow-hidden">
-                        <img src={item.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-secondary text-[10px] font-bold text-muted-foreground">
+                        {String(item.name || "M").slice(0, 1).toUpperCase()}
                       </div>
                       <div className="overflow-hidden">
                         <p className="text-xs font-bold truncate">{item.name}</p>
@@ -825,8 +889,8 @@ export default function EventBookingsManager() {
                     const item = foodItems.find(f => f.id === si.foodItemId);
                     return (
                       <Badge key={si.foodItemId} variant="secondary" className="pl-2 pr-3 py-2 flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-primary/20 flex-shrink-0 overflow-hidden">
-                          <img src={item?.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">
+                          {String(item?.name || "M").slice(0, 1).toUpperCase()}
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-sm font-bold max-w-[150px] truncate">{item?.name}</span>

@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertStaffSchema, updateStaffSchema } from "@/schema";
 import {
   UserPlus, Search, MoreVertical, Pencil, Trash2, Phone, RefreshCw, User,
-  IndianRupee, Plus, Wallet, Banknote, Smartphone, CreditCard, Users, TrendingUp, Clock
+  IndianRupee, Plus, Wallet, Banknote, Smartphone, CreditCard, Users, TrendingUp, Clock, ChefHat
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -29,11 +29,18 @@ import { cn } from "@/lib/utils";
 
 const roleMap = {
   chef: "Chef",
-  worker: "Worker",
-  serving_boy: "Serving Boy",
+  worker: "Staff",
+  serving_boy: "Boy",
   manager: "Manager",
-  server: "Server",
+  server: "Boy",
   cleaner: "Cleaner",
+};
+
+const ROLE_GROUPS = {
+  all: { label: "All Team", roles: null, icon: Users },
+  chef: { label: "Chef", roles: ["chef"], icon: ChefHat },
+  staff: { label: "Staff", roles: ["worker", "manager", "cleaner"], icon: User },
+  boys: { label: "Boys", roles: ["serving_boy", "server"], icon: Users },
 };
 
 const roleColors = {
@@ -75,6 +82,7 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [roleFilter, setRoleFilter] = useState("");
+  const [roleGroup, setRoleGroup] = useState("all");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState(null);
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
@@ -149,7 +157,9 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
         (roleMap[staff.role] || staff.role).toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         (staff.phone && staff.phone.includes(debouncedSearch));
       const matchesRole = !roleFilter || staff.role === roleFilter;
-      return matchesSearch && matchesRole;
+      const groupRoles = ROLE_GROUPS[roleGroup]?.roles;
+      const matchesGroup = !groupRoles || groupRoles.includes(staff.role);
+      return matchesSearch && matchesRole && matchesGroup;
     })
     .sort((a, b) => {
       let compareValue = 0;
@@ -162,6 +172,15 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
     if (editingStaff) updateMutation.mutate(data);
     else createMutation.mutate(data);
   };
+
+  const groupCounts = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(ROLE_GROUPS).map(([key, group]) => [
+        key,
+        group.roles ? staffList.filter((staff) => group.roles.includes(staff.role)).length : staffList.length,
+      ])
+    );
+  }, [staffList]);
 
   return (
     <div className="space-y-4">
@@ -186,6 +205,35 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
           <UserPlus className="w-4 h-4 mr-2" />
           Add Staff
         </Button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {Object.entries(ROLE_GROUPS).map(([key, group]) => {
+          const Icon = group.icon;
+          const active = roleGroup === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setRoleGroup(key)}
+              className={cn(
+                "flex items-center justify-between rounded-xl border bg-card p-4 text-left shadow-sm transition-all hover:border-primary/40",
+                active && "border-primary bg-primary/10 text-primary"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg bg-muted", active && "bg-primary text-primary-foreground")}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold">{group.label}</p>
+                  <p className="text-xs text-muted-foreground">{key === "all" ? "Complete team" : "Role group"}</p>
+                </div>
+              </div>
+              <span className="text-2xl font-bold">{groupCounts[key] || 0}</span>
+            </button>
+          );
+        })}
       </div>
 
       <Card className="border border-border/50 shadow-sm">
@@ -226,6 +274,8 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="chef">Chef</SelectItem>
+                  <SelectItem value="worker">Staff</SelectItem>
+                  <SelectItem value="serving_boy">Boy</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
                   <SelectItem value="server">Server</SelectItem>
                   <SelectItem value="cleaner">Cleaner</SelectItem>

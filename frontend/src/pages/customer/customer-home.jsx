@@ -42,7 +42,8 @@ export default function CustomerHome() {
     refetchOnWindowFocus: false
   });
 
-  const logoSrc = "/leaf_logo.png";
+  const logoSrc = companyInfo?.logoUrl || "/leaf_logo.png";
+  const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;
 
 
   return view === "bookings" ? (
@@ -50,8 +51,15 @@ export default function CustomerHome() {
   ) : (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
       <Navbar companyName={companyInfo?.companyName} logoSrc={logoSrc} setView={setView} />
-      <main className="pt-16">
-        <Hero companyName={companyInfo?.companyName} tagline={companyInfo?.tagline} />
+      <main>
+        <Hero
+          companyName={companyInfo?.companyName}
+          tagline={companyInfo?.tagline}
+          description={companyInfo?.description}
+          heroImages={companyInfo?.heroImages}
+          yearsExperience={companyInfo?.yearsExperience}
+          eventsPerYear={companyInfo?.eventsPerYear}
+        />
         <Features />
         <MenuSection
           foodItems={foodItems}
@@ -64,9 +72,9 @@ export default function CustomerHome() {
         <Footer companyInfo={companyInfo} logoSrc={logoSrc} setView={setView} />
       </main>
 
-      {companyInfo?.phoneNumber && (
+      {phoneNumber && (
         <a
-          href={`tel:${companyInfo.phoneNumber.replace(/\D/g, "")}`}
+          href={`tel:${phoneNumber.replace(/\D/g, "")}`}
           className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 hover:scale-110 transition-transform"
         >
           <Phone size={22} />

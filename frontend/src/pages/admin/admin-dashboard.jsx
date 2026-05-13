@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, Settings, ChefHat, Users, LogOut, UserCog, Home, Package, History, Star, ImagePlus, Ticket, Printer } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, ChefHat, Users, LogOut, UserCog, Home, History, Star, Printer, BarChart3, Settings, CreditCard, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -20,27 +20,49 @@ import DashboardOverview from "./admin-dashboard-overview";
 import FoodItemsManager from "./admin-food-items";
 import AdminAccount from "./admin-account";
 import AdminHistory from "./admin-history";
+import CompanySettingsManager from "./admin-company-settings";
 import ReviewsManager from "./admin-reviews";
 import BookingsManager from "./admin-bookings";
 import StaffManager from "./admin-staff";
 import AdminPaymentConfirmation from "./admin-payment";
+import AdminPayments from "./admin-payments";
 import ChefPrintout from "./admin-chef-printout";
+import AnalyticsReports from "./admin-analytics";
 import { useEffect, useState } from "react";
 import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
 
-const menuItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Bookings", url: "/admin/bookings", icon: CalendarDays },
-  { title: "Staff", url: "/admin/staff", icon: Users },
-  { title: "Chef Printout", url: "/admin/chef-printout", icon: Printer },
-  { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
-  { title: "Reviews", url: "/admin/reviews", icon: Star },
-  { title: "History", url: "/admin/history", icon: History },
-  { title: "Account Settings", url: "/admin/account", icon: UserCog },
+const menuSections = [
+  {
+    label: "Operations",
+    items: [
+      { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
+      { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+      { title: "Bookings", url: "/admin/bookings", icon: CalendarDays },
+      { title: "Payments", url: "/admin/payments", icon: CreditCard },
+      { title: "Staff", url: "/admin/staff", icon: Users },
+    ],
+  },
+  {
+    label: "Kitchen",
+    items: [
+      { title: "Chef Printout", url: "/admin/chef-printout", icon: Printer },
+      { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
+    ],
+  },
+  {
+    label: "Records",
+    items: [
+      { title: "Company Info", url: "/admin/company-info", icon: Building2 },
+      { title: "Reviews", url: "/admin/reviews", icon: Star },
+      { title: "History", url: "/admin/history", icon: History },
+    ],
+  },
 ];
+
+const menuItems = menuSections.flatMap((section) => section.items);
 
 function AppSidebar({ onLogout }) {
   const [location] = useLocation();
@@ -50,11 +72,11 @@ function AppSidebar({ onLogout }) {
   });
 
   return (
-    <Sidebar className="border-r border-border/50 bg-sidebar">
-      <SidebarContent className="bg-sidebar">
-        <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-3 px-4 py-6 mb-2">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+    <Sidebar className="border-r border-border/60 bg-sidebar">
+      <SidebarContent className="bg-sidebar px-3 py-4">
+        <SidebarGroup className="p-0">
+          <SidebarGroupLabel className="mb-5 flex h-auto items-center gap-3 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 px-3 py-3">
+            <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
               <ChefHat className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 overflow-hidden">
@@ -65,30 +87,49 @@ function AppSidebar({ onLogout }) {
                   {companyInfo?.companyName || "Ome Caterings"}
                 </span>
               )}
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin</Badge>
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin Portal</Badge>
             </div>
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={location === item.url}
-                    className="rounded-lg transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
-                  >
-                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replace(' ', '-')}`} className="flex items-center gap-2 font-medium">
-                      <item.icon className="w-4 h-4 shrink-0" />
-                      <span className="truncate">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
+          {menuSections.map((section) => (
+            <SidebarGroupContent key={section.label} className="pb-4">
+              <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wide text-sidebar-foreground/45">
+                {section.label}
+              </p>
+              <SidebarMenu>
+                {section.items.map((item) => {
+                  const isActive = item.exact ? location === item.url : location === item.url || location.startsWith(`${item.url}/`);
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        className="relative h-10 rounded-xl px-3 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-sm"
+                      >
+                        <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replaceAll(' ', '-')}`} className="flex items-center gap-3 font-medium">
+                          <item.icon className="w-4 h-4 shrink-0" />
+                          <span className="truncate">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          ))}
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-border/50 p-3 space-y-2 bg-sidebar">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+          asChild
+        >
+          <Link href="/admin/account">
+            <Settings className="w-4 h-4 mr-2 shrink-0" />
+            <span className="truncate">Settings</span>
+          </Link>
+        </Button>
         <Link href="/">
           <Button
             variant="ghost"
@@ -171,7 +212,7 @@ export default function AdminDashboard() {
   }
 
   const style = {
-    "--sidebar-width": "14rem",
+    "--sidebar-width": "15.5rem",
     "--sidebar-width-icon": "2.5rem",
   };
 
@@ -180,10 +221,10 @@ export default function AdminDashboard() {
       <div className="flex h-screen w-full bg-background text-foreground">
         <AppSidebar onLogout={handleLogout} />
         <div className="flex flex-col flex-1 overflow-hidden w-full">
-          <header className="sticky top-4 mx-4 z-10 flex items-center justify-between gap-2 px-4 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl transition-all duration-300">
+          <header className="sticky top-3 mx-3 z-10 flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 shadow-sm transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950 lg:hidden">
             <div className="flex items-center gap-2">
               <SidebarTrigger data-testid="button-sidebar-toggle" className="w-9 h-9 text-foreground" />
-              <h1 className="text-sm font-semibold sm:hidden truncate max-w-[120px]">
+              <h1 className="text-sm font-semibold truncate max-w-[140px]">
                 {menuItems.find(item => item.url === location)?.title || "Admin"}
               </h1>
             </div>
@@ -218,15 +259,19 @@ export default function AdminDashboard() {
           <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20 p-4 sm:p-6">
             <ErrorBoundary>
               <Switch>
-                <Route path="/admin" component={DashboardOverview} />
+                <Route path="/admin/analytics" component={AnalyticsReports} />
+                <Route path="/admin/payments" component={AdminPayments} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/reviews" component={ReviewsManager} />
                 <Route path="/admin/bookings" component={BookingsManager} />
                 {/* Remove the internal payment route as it's now handled by the main App router */}
                 <Route path="/admin/staff" component={StaffManager} />
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
+                <Route path="/admin/company-info" component={CompanySettingsManager} />
+                <Route path="/admin/branding"><Redirect to="/admin/company-info" /></Route>
                 <Route path="/admin/history" component={AdminHistory} />
                 <Route path="/admin/account" component={AdminAccount} />
+                <Route path="/admin" component={DashboardOverview} />
               </Switch>
             </ErrorBoundary>
           </main>

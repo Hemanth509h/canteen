@@ -207,49 +207,89 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
   const finalUploaded = booking.finalPaymentStatus === "paid" && booking.finalPaymentApprovalStatus === "pending";
 
   const allPaid = advancePaid && finalPaid;
+  const amountCollected = (advancePaid ? advanceAmount : 0) + (finalPaid ? finalAmount : 0);
+  const balanceAmount = Math.max(totalAmount - amountCollected, 0);
+  const paymentProgress = totalAmount > 0 ? Math.min(Math.round((amountCollected / totalAmount) * 100), 100) : 0;
+  const nextPaymentLabel = allPaid ? "Complete" : advancePaid ? "Final Due" : "Advance Due";
+  const nextPaymentAmount = allPaid ? 0 : advancePaid ? finalAmount : advanceAmount;
+  const waitingForApproval = advanceUploaded || finalUploaded;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="animate-in fade-in duration-300 mb-6">
-          <div className="flex gap-2 mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => setLocation("/")}
-              className="gap-2"
-              data-testid="button-back-home"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] })}
-              className="gap-2"
-              data-testid="button-refresh-payment"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
-          </div>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Payment</h1>
-              <p className="text-muted-foreground">Complete your booking payment</p>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-3 sm:p-4 md:p-6">
+      <div className="max-w-6xl mx-auto space-y-5">
+        <div className="animate-in fade-in duration-300 rounded-xl border bg-card/95 p-4 shadow-sm md:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation("/")}
+                  className="gap-2 px-2"
+                  data-testid="button-back-home"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/bookings", bookingId] })}
+                  className="gap-2"
+                  data-testid="button-refresh-payment"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </Button>
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">Payment</h1>
+                <p className="text-sm text-muted-foreground md:text-base">
+                  {booking.clientName} · {new Date(booking.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
+              </div>
             </div>
             <Badge 
-              variant={allPaid ? "default" : "secondary"} 
+              variant={allPaid ? "default" : waitingForApproval ? "outline" : "secondary"} 
               className="w-fit text-sm px-3 py-1"
               data-testid="badge-booking-status"
             >
-              {allPaid ? "Fully Paid" : advancePaid ? "Advance Paid" : "Payment Pending"}
+              {allPaid ? "Fully Paid" : waitingForApproval ? "Under Review" : advancePaid ? "Advance Paid" : "Payment Pending"}
             </Badge>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Total Amount</p>
+              <p className="mt-1 text-2xl font-bold" data-testid="text-total-amount">₹{totalAmount.toLocaleString('en-IN')}</p>
+            </div>
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Confirmed Paid</p>
+              <p className="mt-1 text-2xl font-bold text-green-700 dark:text-green-300">₹{amountCollected.toLocaleString('en-IN')}</p>
+            </div>
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Balance</p>
+              <p className="mt-1 text-2xl font-bold text-amber-700 dark:text-amber-300">₹{balanceAmount.toLocaleString('en-IN')}</p>
+            </div>
+            <div className="rounded-lg border bg-background/60 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{nextPaymentLabel}</p>
+              <p className="mt-1 text-2xl font-bold">₹{nextPaymentAmount.toLocaleString('en-IN')}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-2">
+            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+              <span>Payment progress</span>
+              <span>{paymentProgress}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${paymentProgress}%` }} />
+            </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="animate-in fade-in duration-300 lg:col-span-2 space-y-6">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="animate-in fade-in duration-300 space-y-5">
             <Card>
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Booking Summary</CardTitle>
@@ -272,8 +312,8 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
                     <p className="text-xs text-muted-foreground">Event Date</p>
                   </div>
                   <div className="bg-primary/10 rounded-lg p-3 text-center border border-primary/20">
-                    <p className="text-xs text-muted-foreground mb-1">Total Amount</p>
-                    <p className="text-2xl font-bold text-primary" data-testid="text-total-amount">₹{totalAmount.toLocaleString('en-IN')}</p>
+                    <p className="text-xs text-muted-foreground mb-1">Plate Cost</p>
+                    <p className="text-2xl font-bold text-primary">₹{baseAmount.toLocaleString('en-IN')}</p>
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t">
@@ -528,9 +568,13 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
                 </Card>
               </div>
             )}
+
+            <div ref={printRef}>
+              <Invoice booking={booking} companyInfo={companyInfo} />
+            </div>
           </div>
 
-          <div className="animate-in fade-in duration-300 delay-150 space-y-6">
+          <div className="animate-in fade-in duration-300 delay-150 space-y-5 xl:sticky xl:top-4 xl:self-start">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Event Summary</CardTitle>
@@ -573,9 +617,6 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
 
             <div className="space-y-4">
               <h3 className="text-sm font-semibold px-1 text-muted-foreground">Actions</h3>
-              <div ref={printRef}>
-                <Invoice booking={booking} companyInfo={companyInfo} />
-              </div>
               <Button
                 variant="outline"
                 className="w-full gap-2"
@@ -588,7 +629,7 @@ export default function PaymentConfirmation({ bookingId: propBookingId }) {
                 data-testid="button-print-payment"
               >
                 {isPrinting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-                {isPrinting ? "Generating..." : "Print Payment Details"}
+                {isPrinting ? "Preparing..." : "Print Payment Details"}
               </Button>
             </div>
 

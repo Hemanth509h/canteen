@@ -2,13 +2,12 @@ import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Printer, Loader2 } from "lucide-react";
-import { printElement, downloadPDF } from "@/lib/print-utils";
+import { Printer, Loader2 } from "lucide-react";
+import { printElement } from "@/lib/print-utils";
 
 export function Invoice({ booking, companyInfo, isAdmin = false }) {
   const invoiceRef = useRef(null);
   const [isGeneratingPrint, setIsGeneratingPrint] = useState(false);
-  const [isGeneratingDownload, setIsGeneratingDownload] = useState(false);
 
   const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
   const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
@@ -30,15 +29,6 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
     setIsGeneratingPrint(false);
   };
 
-  const handleDownload = async () => {
-    setIsGeneratingDownload(true);
-    await downloadPDF(
-      invoiceRef.current,
-      `Invoice-${invoiceNumber}-${invoiceDate.replace(/\//g, "-")}.pdf`
-    );
-    setIsGeneratingDownload(false);
-  };
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -57,21 +47,7 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
               ) : (
                 <Printer className="w-4 h-4 mr-2" />
               )}
-              {isGeneratingPrint ? "Generating..." : "Print"}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleDownload}
-              disabled={isGeneratingDownload}
-              data-testid="button-download-invoice"
-            >
-              {isGeneratingDownload ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4 mr-2" />
-              )}
-              {isGeneratingDownload ? "Generating..." : "Download PDF"}
+              {isGeneratingPrint ? "Preparing..." : "Print"}
             </Button>
           </div>
         </div>

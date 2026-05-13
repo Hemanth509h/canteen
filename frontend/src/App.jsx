@@ -62,8 +62,8 @@ function AppContent() {
   }, [location, companyInfo]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <main className="flex-1">
+    <div className="flex min-h-screen min-w-0 flex-col bg-background text-foreground">
+      <main className="min-w-0 flex-1">
         <Router />
       </main>
     </div>
@@ -74,7 +74,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <ThemeProvider defaultTheme="light" storageKey="elite-catering-theme">
+        <ThemeProvider defaultTheme="system" storageKey="elite-catering-theme">
           <TooltipProvider>
             <AppContent />
             <Toaster />
