@@ -17,12 +17,10 @@ import {
 import { GlobalSearch } from "@/components/features/global-search";
 import { ErrorBoundary } from "@/components/layout/error-boundary";
 import DashboardOverview from "./admin-dashboard-overview";
-import HeroImagesManager from "./admin-hero-images";
 import FoodItemsManager from "./admin-food-items";
 import AdminAccount from "./admin-account";
 import AdminHistory from "./admin-history";
 import ReviewsManager from "./admin-reviews";
-import CompanySettingsManager from "./admin-company-settings";
 import BookingsManager from "./admin-bookings";
 import StaffManager from "./admin-staff";
 import AdminPaymentConfirmation from "./admin-payment";
@@ -38,11 +36,9 @@ const menuItems = [
   { title: "Bookings", url: "/admin/bookings", icon: CalendarDays },
   { title: "Staff", url: "/admin/staff", icon: Users },
   { title: "Chef Printout", url: "/admin/chef-printout", icon: Printer },
-  { title: "Hero Images", url: "/admin/hero-images", icon: ImagePlus },
   { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
   { title: "Reviews", url: "/admin/reviews", icon: Star },
   { title: "History", url: "/admin/history", icon: History },
-  { title: "Company Settings", url: "/admin/settings", icon: CalendarDays },
   { title: "Account Settings", url: "/admin/account", icon: UserCog },
 ];
 
@@ -210,10 +206,6 @@ export default function AdminDashboard() {
                     <UserCog className="mr-2 h-4 w-4" />
                     <span>Account Settings</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/admin/settings")}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Company Settings</span>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-rose-600 focus:text-rose-600">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -227,7 +219,6 @@ export default function AdminDashboard() {
             <ErrorBoundary>
               <Switch>
                 <Route path="/admin" component={DashboardOverview} />
-                <Route path="/admin/hero-images" component={HeroImagesManager} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/reviews" component={ReviewsManager} />
                 <Route path="/admin/bookings" component={BookingsManager} />
@@ -235,7 +226,6 @@ export default function AdminDashboard() {
                 <Route path="/admin/staff" component={StaffManager} />
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
                 <Route path="/admin/history" component={AdminHistory} />
-                <Route path="/admin/settings" component={CompanySettingsManager} />
                 <Route path="/admin/account" component={AdminAccount} />
               </Switch>
             </ErrorBoundary>

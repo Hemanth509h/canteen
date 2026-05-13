@@ -1,13 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Calendar, RefreshCw } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Printer, Calendar, RefreshCw, Eye, Loader2 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function ChefPrintout() {
+  const printRef = useRef(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const { data: groupedBookings, isLoading, isRefetching } = useQuery({
     queryKey: ["/api/chef-printout"],
@@ -66,20 +76,83 @@ export default function ChefPrintout() {
     groupedByCategory[item.category].push(item);
   });
 
-  const handlePrint = () => {
-    window.print();
+  const generatePDF = async () => {
+    try {
+      const element = printRef.current;
+      if (!element) return;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageHeight = 277;
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      return pdf;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      return null;
+    }
+  };
+
+  const handlePrint = async () => {
+    setIsGeneratingPDF(true);
+    const pdf = await generatePDF();
+    if (pdf) {
+      const blobUrl = pdf.output('bloburi');
+      const printWindow = window.open(blobUrl);
+      if (printWindow) {
+        printWindow.addEventListener('load', () => {
+          setTimeout(() => printWindow.print(), 250);
+        });
+      }
+    }
+    setIsGeneratingPDF(false);
   };
 
   return (
     <>
       <style>{`
         @media print {
-          .no-print { display: none !important; }
-          .print-page { max-width: none !important; margin: 0 !important; padding: 0.5in !important; }
+          * { visibility: hidden; }
+          .print-page, .print-page * { visibility: visible !important; }
+          .no-print { display: none !important; visibility: hidden !important; }
+          body { margin: 0 !important; padding: 0 !important; }
+          .print-page { 
+            max-width: none !important; 
+            margin: 0 !important; 
+            padding: 0.5in !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
           .print-header { background: none !important; border: none !important; padding-bottom: 1rem !important; }
           .print-section-avoid { page-break-inside: avoid; break-inside: avoid; }
-          .print-summary, .print-events { display: none !important; }
-          .print-header h1 { content: "Chef Preparation Menu" !important; }
+          .print-summary { display: none !important; }
           table { page-break-inside: auto; width: 100% !important; }
           tr { page-break-inside: avoid; page-break-after: auto; }
           thead { display: table-header-group; }
@@ -87,7 +160,11 @@ export default function ChefPrintout() {
         }
       `}</style>
 
-      <div className="print-page max-w-6xl mx-auto p-6 space-y-6">
+      <div
+        ref={printRef}
+        className="print-page bg-white p-6 space-y-6"
+        style={{ width: '210mm', margin: '0 auto' }}
+      >
         <Card className="print-header">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-3xl text-foreground">Chef Preparation Menu</CardTitle>
@@ -130,9 +207,17 @@ export default function ChefPrintout() {
                 <RefreshCw className={`mr-2 h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
                 {isRefetching ? 'Refreshing...' : 'Refresh'}
               </Button>
-              <Button onClick={handlePrint} variant="default">
-                <Printer className="mr-2 h-4 w-4" />
-                Print This Sheet
+              <Button
+                onClick={handlePrint}
+                variant="default"
+                disabled={isGeneratingPDF}
+              >
+                {isGeneratingPDF ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Printer className="mr-2 h-4 w-4" />
+                )}
+                {isGeneratingPDF ? 'Generating...' : 'Print'}
               </Button>
             </div>
           </div>

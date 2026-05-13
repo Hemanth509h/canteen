@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,13 +21,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, RefreshCw, List, DollarSign, Users, CreditCard, X } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, RefreshCw, List, DollarSign, Users, CreditCard, X, Loader2 } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { ExportButton } from "@/components/features/export-button";
 import { TableSkeleton } from "@/components/features/loading-spinner";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const statusColors = {
   pending: "secondary",
@@ -31,9 +39,11 @@ const statusColors = {
 };
 
 export default function EventBookingsManager() {
+  const menuPrintRef = useRef(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [isGeneratingMenuPDF, setIsGeneratingMenuPDF] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState(null);
@@ -333,6 +343,56 @@ export default function EventBookingsManager() {
       status: booking.status || "pending",
     });
     setIsDialogOpen(true);
+  };
+
+  const handlePrintMenu = async () => {
+    setIsGeneratingMenuPDF(true);
+    try {
+      const element = menuPrintRef.current;
+      if (!element) return;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        logging: false, onclone: (clonedDoc) => { const elements = clonedDoc.getElementsByTagName("*"); for (let i = 0; i < elements.length; i++) { const el = elements[i]; const style = window.getComputedStyle(el); ["color", "backgroundColor", "borderColor"].forEach(prop => { const val = el.style[prop] || style[prop]; if (val && val.includes("oklch")) { if (prop === "backgroundColor") el.style[prop] = "#ffffff"; else if (prop === "color") el.style[prop] = "#000000"; else el.style[prop] = "#333333"; } }); } },
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageHeight = 277;
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const blobUrl = pdf.output('bloburi');
+      const printWindow = window.open(blobUrl);
+      if (printWindow) {
+        printWindow.addEventListener('load', () => {
+          setTimeout(() => printWindow.print(), 250);
+        });
+      }
+    } catch (error) {
+      console.error('Error generating menu PDF:', error);
+    } finally {
+      setIsGeneratingMenuPDF(false);
+    }
   };
 
   const handleViewMenu = (booking) => {
@@ -670,15 +730,32 @@ export default function EventBookingsManager() {
         </CardContent>
       </Card>
 
+      <style>{`
+        @media print {
+          * { visibility: hidden; }
+          .print-menu-dialog, .print-menu-dialog * { visibility: visible !important; }
+          body { margin: 0 !important; padding: 0 !important; }
+          .print-menu-dialog { 
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0 !important;
+            padding: 0.5in !important;
+          }
+        }
+      `}</style>
+
       <Dialog open={isMenuViewDialogOpen} onOpenChange={setIsMenuViewDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>View Menu - {menuEditingBooking?.clientName}</DialogTitle>
-            <DialogDescription>
-              Menu items selected for this event.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
+          <div ref={menuPrintRef} className="print-menu-dialog space-y-4">
+            <DialogHeader>
+              <DialogTitle>View Menu - {menuEditingBooking?.clientName}</DialogTitle>
+              <DialogDescription>
+                Menu items selected for this event.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
             {selectedItems.length > 0 ? (
               <div className="space-y-2">
                 <div className="text-xs font-bold uppercase text-muted-foreground">Selected Items ({selectedItems.length})</div>
@@ -705,8 +782,17 @@ export default function EventBookingsManager() {
               </div>
             )}
           </div>
+            </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsMenuViewDialogOpen(false)}>Close</Button>
+            <Button variant="outline" onClick={handlePrintMenu} disabled={isGeneratingMenuPDF}>
+              {isGeneratingMenuPDF ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Printer className="h-4 w-4 mr-2" />
+              )}
+              {isGeneratingMenuPDF ? 'Generating...' : 'Print'}
+            </Button>
             <Button onClick={() => {
               setIsMenuViewDialogOpen(false);
               handleEditMenu(menuEditingBooking);
@@ -717,6 +803,22 @@ export default function EventBookingsManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <style>{`
+        @media print {
+          * { visibility: hidden; }
+          .print-menu-dialog, .print-menu-dialog * { visibility: visible !important; }
+          body { margin: 0 !important; padding: 0 !important; }
+          .print-menu-dialog { 
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0 !important;
+            padding: 0.5in !important;
+          }
+        }
+      `}</style>
 
       <Dialog open={isMenuEditDialogOpen} onOpenChange={setIsMenuEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
