@@ -8,7 +8,9 @@ export async function apiRequest(method, url, data) {
     cleanPath = cleanPath.slice(4);
   }
 
-  const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
+  const finalUrl = API_URL.startsWith('http') 
+    ? `${API_URL}/${cleanPath}`.replace(/([^:])\/+/g, '$1/')
+    : `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
 
   const res = await fetch(finalUrl, {
     method,
@@ -40,7 +42,9 @@ export const getQueryFn =
         cleanPath = cleanPath.slice(4);
       }
 
-      const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
+      const finalUrl = API_URL.startsWith('http') 
+        ? `${API_URL}/${cleanPath}`.replace(/([^:])\/+/g, '$1/')
+        : `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
 
       const res = await fetch(finalUrl);
 
