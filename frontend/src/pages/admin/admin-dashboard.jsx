@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, ChefHat, Users, LogOut, UserCog, Home, History, Star, Printer, BarChart3, Settings, CreditCard, Building2 } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, ChefHat, Users, LogOut, UserCog, Home, History, Star, Printer, BarChart3, Settings, CreditCard, Building2, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -26,11 +26,12 @@ import BookingsManager from "./admin-bookings";
 import StaffManager from "./admin-staff";
 import AdminPaymentConfirmation from "./admin-payment";
 import AdminPayments from "./admin-payments";
+import AdminExpenses from "./admin-expenses";
 import ChefPrintout from "./admin-chef-printout";
 import AnalyticsReports from "./admin-analytics";
 import branding from "@/lib/branding.json";
 import { useEffect, useState } from "react";
-import { clearAdminSession, isAdminAuthenticated, onAdminAuthStateChange } from "@/lib/auth";
+import { clearAdminSession, isAdminAuthenticated, onAdminAuthStateChange, getAdminSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
@@ -39,33 +40,34 @@ const menuSections = [
   {
     label: "Operations",
     items: [
-      { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
-      { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
-      { title: "Bookings", url: "/admin/bookings", icon: CalendarDays },
-      { title: "Payments", url: "/admin/payments", icon: CreditCard },
-      { title: "Staff", url: "/admin/staff", icon: Users },
+      { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true, roles: ["superadmin", "accountant", "chef"] },
+      { title: "Analytics", url: "/admin/analytics", icon: BarChart3, roles: ["superadmin", "accountant"] },
+      { title: "Bookings", url: "/admin/bookings", icon: CalendarDays, roles: ["superadmin", "accountant"] },
+      { title: "Payments", url: "/admin/payments", icon: CreditCard, roles: ["superadmin", "accountant"] },
+      { title: "Expenses", url: "/admin/expenses", icon: ReceiptText, roles: ["superadmin", "accountant"] },
+      { title: "Staff", url: "/admin/staff", icon: Users, roles: ["superadmin"] },
     ],
   },
   {
     label: "Kitchen",
     items: [
-      { title: "Chef Printout", url: "/admin/chef-printout", icon: Printer },
-      { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed },
+      { title: "Chef Printout", url: "/admin/chef-printout", icon: Printer, roles: ["superadmin", "chef"] },
+      { title: "Food Items", url: "/admin/food-items", icon: UtensilsCrossed, roles: ["superadmin", "chef"] },
     ],
   },
   {
     label: "Records",
     items: [
-      { title: "Company Info", url: "/admin/company-info", icon: Building2 },
-      { title: "Reviews", url: "/admin/reviews", icon: Star },
-      { title: "History", url: "/admin/history", icon: History },
+      { title: "Company Info", url: "/admin/company-info", icon: Building2, roles: ["superadmin"] },
+      { title: "Reviews", url: "/admin/reviews", icon: Star, roles: ["superadmin", "accountant"] },
+      { title: "History", url: "/admin/history", icon: History, roles: ["superadmin", "accountant"] },
     ],
   },
 ];
 
 const menuItems = menuSections.flatMap((section) => section.items);
 
-function AppSidebar({ onLogout }) {
+function AppSidebar({ onLogout, role }) {
   const [location] = useLocation();
   const { data: companyInfo, isLoading } = useQuery({
     queryKey: ["/api/company-info"],
@@ -91,32 +93,38 @@ function AppSidebar({ onLogout }) {
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin Portal</Badge>
             </div>
           </SidebarGroupLabel>
-          {menuSections.map((section) => (
-            <SidebarGroupContent key={section.label} className="pb-4">
-              <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wide text-sidebar-foreground/45">
-                {section.label}
-              </p>
-              <SidebarMenu>
-                {section.items.map((item) => {
-                  const isActive = item.exact ? location === item.url : location === item.url || location.startsWith(`${item.url}/`);
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        className="relative h-10 rounded-xl px-3 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-sm"
-                      >
-                        <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replaceAll(' ', '-')}`} className="flex items-center gap-3 font-medium">
-                          <item.icon className="w-4 h-4 shrink-0" />
-                          <span className="truncate">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          ))}
+          {menuSections.map((section) => {
+            const visibleItems = section.items.filter(
+              (item) => !item.roles || item.roles.includes(role)
+            );
+            if (visibleItems.length === 0) return null;
+            return (
+              <SidebarGroupContent key={section.label} className="pb-4">
+                <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wide text-sidebar-foreground/45">
+                  {section.label}
+                </p>
+                <SidebarMenu>
+                  {visibleItems.map((item) => {
+                    const isActive = item.exact ? location === item.url : location === item.url || location.startsWith(`${item.url}/`);
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive}
+                          className="relative h-10 rounded-xl px-3 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-sm"
+                        >
+                          <Link href={item.url} data-testid={`link-${item.title.toLowerCase().replaceAll(' ', '-')}`} className="flex items-center gap-3 font-medium">
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            );
+          })}
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-border/50 p-3 space-y-2 bg-sidebar">
@@ -161,7 +169,8 @@ export default function AdminDashboard() {
   const [location, setLocation] = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  
+  const [role, setRole] = useState("superadmin");
+
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
     placeholderData: STATIC_COMPANY_INFO,
@@ -174,16 +183,22 @@ export default function AdminDashboard() {
       .then((authenticated) => {
         if (!isMounted) return;
         setIsAuthenticated(authenticated);
+        if (authenticated) {
+          const session = getAdminSession();
+          setRole(session.role || "superadmin");
+        }
       })
       .finally(() => {
-        if (isMounted) {
-          setIsChecking(false);
-        }
+        if (isMounted) setIsChecking(false);
       });
 
     const unsubscribe = onAdminAuthStateChange((authenticated) => {
       if (isMounted) {
         setIsAuthenticated(authenticated);
+        if (authenticated) {
+          const session = getAdminSession();
+          setRole(session.role || "superadmin");
+        }
       }
     });
 
@@ -231,7 +246,7 @@ export default function AdminDashboard() {
   return (
     <SidebarProvider style={style}>
       <div className="flex h-screen w-full bg-background text-foreground">
-        <AppSidebar onLogout={handleLogout} />
+        <AppSidebar onLogout={handleLogout} role={role} />
         <div className="flex flex-col flex-1 overflow-hidden w-full">
           <header className="sticky top-3 mx-3 z-10 flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 shadow-sm transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950 lg:hidden">
             <div className="flex items-center gap-2">
@@ -273,6 +288,7 @@ export default function AdminDashboard() {
               <Switch>
                 <Route path="/admin/analytics" component={AnalyticsReports} />
                 <Route path="/admin/payments" component={AdminPayments} />
+                <Route path="/admin/expenses" component={AdminExpenses} />
                 <Route path="/admin/food-items" component={FoodItemsManager} />
                 <Route path="/admin/reviews" component={ReviewsManager} />
                 <Route path="/admin/bookings" component={BookingsManager} />

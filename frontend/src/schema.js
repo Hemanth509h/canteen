@@ -104,6 +104,8 @@ export const insertStaffSchema = z.object({
     .transform(sanitizeName),
   role: z.string().min(1, "Role is required").max(50),
   phone: z.string().min(10, "Phone must be at least 10 digits").transform(sanitizePhone),
+  email: optionalEmailSchema,
+  password: z.string().min(6, "Password must be at least 6 characters").optional(),
 });
 
 export const updateStaffSchema = insertStaffSchema.partial();
@@ -150,3 +152,31 @@ export const insertCodeRequestSchema = z.object({
   eventDetails: z.string().max(1000).optional(),
   status: z.enum(["pending", "granted", "rejected"]).default("pending"),
 });
+
+export const insertStaffPaymentSchema = z.object({
+  staffId: z.string().min(1, "Staff ID is required"),
+  bookingId: z.string().optional(),
+  amount: z.number().positive("Amount must be positive"),
+  paymentDate: z.string().min(1, "Payment date is required"),
+  paymentMethod: z.enum(["cash", "upi", "bank_transfer"], { required_error: "Payment method is required" }),
+  notes: z.string().optional(),
+  status: z.enum(["paid", "pending"]).default("paid"),
+});
+
+export const updateStaffPaymentSchema = insertStaffPaymentSchema.partial();
+
+export const insertExpenseSchema = z.object({
+  title: z.string().min(1, "Expense title is required").max(120).transform(sanitizeName),
+  category: z.enum(["raw_materials", "transport", "utilities", "staff", "rent", "maintenance", "other"]).default("other"),
+  amount: z.number().positive("Amount must be positive"),
+  expenseDate: z.string().min(1, "Expense date is required").refine(
+    (date) => !isNaN(Date.parse(date)),
+    "Invalid expense date"
+  ),
+  vendor: z.string().max(120).optional().default(""),
+  notes: z.string().max(1000).optional().default(""),
+  bookingId: z.string().optional().default(""),
+  paymentMethod: z.enum(["cash", "upi", "bank_transfer", "card", "other"]).default("cash"),
+});
+
+export const updateExpenseSchema = insertExpenseSchema.partial();

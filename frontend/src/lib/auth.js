@@ -1,11 +1,15 @@
 const AUTH_KEY = "adminAuthenticated";
 const AUTH_EXPIRY_KEY = "adminAuthExpiry";
+const AUTH_ROLE_KEY = "adminRole";
+const AUTH_USER_KEY = "adminUser";
 const SESSION_DURATION = 24 * 60 * 60 * 1000;
 
-export function setAdminSession() {
+export function setAdminSession(sessionData = { role: "superadmin", user: { username: "admin" } }) {
   const expiryTime = Date.now() + SESSION_DURATION;
   localStorage.setItem(AUTH_KEY, "true");
   localStorage.setItem(AUTH_EXPIRY_KEY, expiryTime.toString());
+  if (sessionData.role) localStorage.setItem(AUTH_ROLE_KEY, sessionData.role);
+  if (sessionData.user) localStorage.setItem(AUTH_USER_KEY, JSON.stringify(sessionData.user));
 }
 
 export async function isAdminAuthenticated() {
@@ -25,9 +29,21 @@ export async function isAdminAuthenticated() {
   return true;
 }
 
+export function getAdminSession() {
+  const role = localStorage.getItem(AUTH_ROLE_KEY) || "superadmin";
+  const userStr = localStorage.getItem(AUTH_USER_KEY);
+  let user = { username: "admin" };
+  if (userStr) {
+    try { user = JSON.parse(userStr); } catch (e) {}
+  }
+  return { role, user };
+}
+
 export async function clearAdminSession() {
   localStorage.removeItem(AUTH_KEY);
   localStorage.removeItem(AUTH_EXPIRY_KEY);
+  localStorage.removeItem(AUTH_ROLE_KEY);
+  localStorage.removeItem(AUTH_USER_KEY);
 }
 
 export function refreshSession() {

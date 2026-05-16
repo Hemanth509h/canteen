@@ -12,8 +12,10 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
     "express": "^4.21.2",
+    "helmet": "^8.1.0",
     "mongoose": "^8.20.0",
     "resend": "^6.12.3",
+    "socket.io": "^4.8.3",
     "zod": "^3.24.2",
     "zod-validation-error": "^5.0.0"
   }

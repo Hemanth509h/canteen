@@ -28,14 +28,87 @@ import {
   insertCodeRequestSchema,
   sendPaymentLinkEmailSchema,
   insertStaffPaymentSchema,
-  updateStaffPaymentSchema
+  updateStaffPaymentSchema,
+  insertExpenseSchema,
+  updateExpenseSchema,
+  insertAdminUserSchema,
+  updateAdminUserSchema
 } from "./schema.js";
 
 import { fromZodError } from "zod-validation-error";
-import { verifyPassword, updatePassword } from "./password-manager.js";
+import { verifyPassword, updatePassword, hashPassword, comparePassword } from "./password-manager.js";
 import { z } from "zod";
 
 const getStorageInstance = () => getStorage();
+
+const rateLimitBuckets = new Map();
+const staffOtpCodes = new Map();
+const staffPasswordResetTokens = new Map();
+
+function rateLimit({ windowMs = 15 * 60 * 1000, max = 10, keyPrefix = "global" } = {}) {
+  return (req, res, next) => {
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip || req.socket.remoteAddress || "unknown";
+    const key = `${keyPrefix}:${ip}`;
+    const now = Date.now();
+    const bucket = rateLimitBuckets.get(key) || { count: 0, resetAt: now + windowMs };
+
+    if (bucket.resetAt <= now) {
+      bucket.count = 0;
+      bucket.resetAt = now + windowMs;
+    }
+
+    bucket.count += 1;
+    rateLimitBuckets.set(key, bucket);
+
+    if (bucket.count > max) {
+      res.setHeader("Retry-After", Math.ceil((bucket.resetAt - now) / 1000));
+      return res.status(429).json({
+        success: false,
+        data: null,
+        error: "Too many attempts. Please try again later.",
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    next();
+  };
+}
+
+const authRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 8, keyPrefix: "auth" });
+const otpRateLimit = rateLimit({ windowMs: 10 * 60 * 1000, max: 5, keyPrefix: "otp" });
+
+function stripStaffSecrets(staff) {
+  const { password: _, ...staffWithoutPassword } = staff;
+  return staffWithoutPassword;
+}
+
+function normalizeStaffIdentifier(value) {
+  const raw = String(value || "").trim();
+  const normalizedPhone = raw.replace(/\D/g, "");
+  const normalizedEmail = raw.toLowerCase();
+  return {
+    raw,
+    key: raw.includes("@") ? `email:${normalizedEmail}` : `phone:${normalizedPhone}`,
+    phone: normalizedPhone,
+    email: normalizedEmail,
+    isEmail: raw.includes("@"),
+  };
+}
+
+async function getStaffByIdentifier(identifier) {
+  const normalized = normalizeStaffIdentifier(identifier);
+  if (!normalized.raw) return null;
+  if (normalized.isEmail) return getStorageInstance().getStaffByEmail(normalized.email);
+  return getStorageInstance().getStaffByPhone(normalized.phone);
+}
+
+async function validateStaffCredentials(identifier, password) {
+  if (!identifier || !password) return null;
+  const staff = await getStaffByIdentifier(identifier);
+  if (!staff || !staff.password) return null;
+  const isValid = await comparePassword(password, staff.password);
+  return isValid ? staff : null;
+}
 
 async function readBranding() {
   try {
@@ -80,14 +153,36 @@ export async function registerRoutes(app) {
     });
   };
 
-  app.post("/api/admin/login", async (req, res) => {
+  app.post("/api/admin/login", authRateLimit, async (req, res) => {
     try {
-      const { password } = req.body;
-      const isValid = await verifyPassword(password);
+      const { username, password } = req.body;
+      
+      // Support legacy login with only password
+      if (!username) {
+        const isValid = await verifyPassword(password);
+        if (isValid) {
+          return sendResponse(res, 200, { success: true, role: "superadmin" });
+        }
+        return sendResponse(res, 401, null, "Invalid password");
+      }
+
+      // Role-based login
+      const adminUser = await getStorageInstance().getAdminUserByUsername(username);
+      
+      // Fallback for "admin" username if no user found
+      if (!adminUser && username === "admin") {
+        const isValid = await verifyPassword(password);
+        if (isValid) return sendResponse(res, 200, { success: true, role: "superadmin", username: "admin" });
+      }
+
+      if (!adminUser) return sendResponse(res, 401, null, "Invalid username or password");
+
+      const isValid = await comparePassword(password, adminUser.password);
       if (isValid) {
-        sendResponse(res, 200, { success: true });
+        const { password: _, ...userWithoutPassword } = adminUser;
+        sendResponse(res, 200, { success: true, role: adminUser.role, user: userWithoutPassword });
       } else {
-        sendResponse(res, 401, null, "Invalid password");
+        sendResponse(res, 401, null, "Invalid username or password");
       }
     } catch (error) {
       sendResponse(res, 500, null, "Login failed");
@@ -111,6 +206,66 @@ export async function registerRoutes(app) {
       sendResponse(res, 200, { success: true, message: "Password changed successfully" });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to change password");
+    }
+  });
+
+  // Admin Users CRUD
+  app.get("/api/admin/users", async (_req, res) => {
+    try {
+      const users = await getStorageInstance().getAdminUsers();
+      const safeUsers = users.map(u => {
+        const { password, ...safe } = u;
+        return safe;
+      });
+      sendResponse(res, 200, safeUsers);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch admin users");
+    }
+  });
+
+  app.post("/api/admin/users", async (req, res) => {
+    try {
+      const result = insertAdminUserSchema.safeParse(req.body);
+      if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
+      
+      const existing = await getStorageInstance().getAdminUserByUsername(result.data.username);
+      if (existing) return sendResponse(res, 400, null, "Username already exists");
+
+      const userData = { ...result.data };
+      userData.password = await hashPassword(userData.password);
+      const user = await getStorageInstance().createAdminUser(userData);
+      const { password, ...safeUser } = user;
+      sendResponse(res, 201, safeUser);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create admin user");
+    }
+  });
+
+  app.patch("/api/admin/users/:id", async (req, res) => {
+    try {
+      const result = updateAdminUserSchema.safeParse(req.body);
+      if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
+
+      const userData = { ...result.data };
+      if (userData.password) {
+        userData.password = await hashPassword(userData.password);
+      }
+      const user = await getStorageInstance().updateAdminUser(req.params.id, userData);
+      if (!user) return sendResponse(res, 404, null, "User not found");
+      const { password, ...safeUser } = user;
+      sendResponse(res, 200, safeUser);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update admin user");
+    }
+  });
+
+  app.delete("/api/admin/users/:id", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteAdminUser(req.params.id);
+      if (!success) return sendResponse(res, 404, null, "User not found");
+      sendResponse(res, 204, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete admin user");
     }
   });
 
@@ -194,17 +349,52 @@ export async function registerRoutes(app) {
       // Admin Notification
       try {
         const companyInfo = await readBranding();
-        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
         const baseUrl = getPublicBaseUrl(req);
         const adminBookingLink = `${baseUrl}/admin/bookings`; 
         
+        // Resolve admin notification recipient
+        // Priority: 1. Admin Settings Email, 2. Branding Email, 3. Branding Contact Email, 4. Fallback
+        let adminEmail = "";
+        
+        // Try to get email from admin users collection first
+        try {
+          const adminUsers = await getStorageInstance().getAdminUsers();
+          const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
+          if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
+            adminEmail = primaryAdmin.email;
+            console.log(`[MAIL-DEBUG] Using admin email from settings: ${adminEmail}`);
+          }
+        } catch (e) {
+          console.warn("[MAIL-WARN] Could not fetch admin users from database");
+        }
+        
+        if (!adminEmail) {
+          // Fallback to branding email
+          adminEmail = (companyInfo?.email || companyInfo?.contactEmail || "").trim();
+        }
+        
+        if (!validateEmail(adminEmail)) {
+          // If branding email is invalid/missing, fallback to RESEND_FROM_EMAIL but extract raw address
+          const fromEnv = process.env.RESEND_FROM_EMAIL || "";
+          const match = fromEnv.match(/<([^>]+)>/) || [null, fromEnv];
+          adminEmail = match[1].trim();
+          
+          if (adminEmail === "onboarding@resend.dev") {
+             console.warn("[MAIL-WARN] Admin email is resolving to onboarding@resend.dev. You will not receive notifications here. Please set a valid email in Admin Panel > Staff Settings.");
+          }
+        }
+
         if (validateEmail(adminEmail)) {
+          console.log(`[MAIL-DEBUG] Sending admin notification to: ${adminEmail}`);
           await sendAdminBookingNotificationEmail(adminEmail, { ...booking, companyName: companyInfo.companyName }, adminBookingLink);
+        } else {
+          console.error("[MAIL-ERROR] Failed to resolve any valid admin email for notification.");
         }
       } catch (adminEmailError) {
         console.error("Admin booking notification error:", adminEmailError);
       }
 
+      req.io.emit("booking:new", booking);
       sendResponse(res, 201, { ...booking, emailStatus });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create booking");
@@ -249,7 +439,23 @@ export async function registerRoutes(app) {
       if (req.body.advancePaymentScreenshot || req.body.finalPaymentScreenshot) {
         try {
           const companyInfo = await readBranding();
-          const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+          let adminEmail = "";
+          
+          // Try to get email from admin users collection first
+          try {
+            const adminUsers = await getStorageInstance().getAdminUsers();
+            const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
+            if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
+              adminEmail = primaryAdmin.email;
+            }
+          } catch (e) {
+            console.warn("[MAIL-WARN] Could not fetch admin users from database");
+          }
+          
+          if (!adminEmail) {
+            adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+          }
+          
           const baseUrl = getPublicBaseUrl(req);
           const adminLink = `${baseUrl}/admin/bookings/payment/${booking.id || booking._id}`;
           
@@ -266,7 +472,12 @@ export async function registerRoutes(app) {
         }
       }
 
+      req.io.emit("booking:updated", booking);
+      if (req.body.advancePaymentScreenshot || req.body.finalPaymentScreenshot) {
+        req.io.emit("payment:uploaded", { bookingId: booking.id, type: req.body.advancePaymentScreenshot ? "advance" : "final" });
+      }
       sendResponse(res, 200, booking);
+
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update booking");
     }
@@ -322,6 +533,7 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       const review = await getStorageInstance().createReview(result.data);
+      req.io.emit("review:new", review);
       sendResponse(res, 201, review);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create review");
@@ -382,6 +594,7 @@ export async function registerRoutes(app) {
       }
       
       const info = await writeBranding(result.data);
+      req.io.emit("company:updated", info);
       sendResponse(res, 200, info);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update company info");
@@ -403,7 +616,14 @@ export async function registerRoutes(app) {
       if (!result.success) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
-      const staff = await getStorageInstance().createStaffMember(result.data);
+      const staffData = { ...result.data };
+      if (!staffData.password) {
+        // Default password is phone number
+        staffData.password = staffData.phone;
+      }
+      staffData.password = await hashPassword(staffData.password);
+      
+      const staff = await getStorageInstance().createStaffMember(staffData);
       sendResponse(res, 201, staff);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create staff member");
@@ -416,7 +636,11 @@ export async function registerRoutes(app) {
       if (!result.success) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
-      const staff = await getStorageInstance().updateStaffMember(req.params.id, result.data);
+      const staffData = { ...result.data };
+      if (staffData.password) {
+        staffData.password = await hashPassword(staffData.password);
+      }
+      const staff = await getStorageInstance().updateStaffMember(req.params.id, staffData);
       if (!staff) return sendResponse(res, 404, null, "Staff member not found");
       sendResponse(res, 200, staff);
     } catch (error) {
@@ -431,6 +655,195 @@ export async function registerRoutes(app) {
       sendResponse(res, 204, { success: true });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to delete staff member");
+    }
+  });
+
+  app.post("/api/staff/login", authRateLimit, async (req, res) => {
+    try {
+      const { phone, email, identifier, password } = req.body;
+      const accountIdentifier = identifier || email || phone;
+      if (!accountIdentifier || !password) return sendResponse(res, 400, null, "Phone/email and password are required");
+      
+      const staff = await validateStaffCredentials(accountIdentifier, password);
+      if (!staff) return sendResponse(res, 401, null, "Invalid credentials");
+      sendResponse(res, 200, { success: true, staff: stripStaffSecrets(staff) });
+    } catch (error) {
+      sendResponse(res, 500, null, "Login failed");
+    }
+  });
+
+  app.post("/api/staff/login/request-otp", otpRateLimit, async (req, res) => {
+    try {
+      const { phone, email, identifier, password } = req.body;
+      const accountIdentifier = identifier || email || phone;
+      const staff = await validateStaffCredentials(accountIdentifier, password);
+      if (!staff) return sendResponse(res, 401, null, "Invalid credentials");
+
+      const code = String(randomInt(100000, 1000000));
+      const expiresAt = Date.now() + 10 * 60 * 1000;
+      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
+      staffOtpCodes.set(otpKey, { code, expiresAt, staffId: staff.id });
+
+      let delivery = "OTP generated";
+      if (staff.email && validateEmail(staff.email)) {
+        await sendCustomerLoginCodeEmail(staff.email, code);
+        delivery = "OTP sent to staff email";
+      }
+
+      sendResponse(res, 200, {
+        otpSent: true,
+        message: delivery,
+        expiresInSeconds: 600,
+        ...(process.env.NODE_ENV === "production" || (staff.email && validateEmail(staff.email)) ? {} : { otp: code }),
+      });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to send staff OTP");
+    }
+  });
+
+  app.post("/api/staff/login/forgot-password/request-otp", otpRateLimit, async (req, res) => {
+    try {
+      const { phone, email, identifier } = req.body;
+      const accountIdentifier = identifier || email || phone;
+      if (!String(accountIdentifier || "").trim()) return sendResponse(res, 400, null, "Phone or email is required");
+
+      const staff = await getStaffByIdentifier(accountIdentifier);
+      if (!staff) {
+        return sendResponse(res, 200, {
+          otpSent: false,
+          message: "No staff account found for this phone or email",
+        });
+      }
+
+      if (process.env.NODE_ENV === "production" && (!staff.email || !validateEmail(staff.email))) {
+        return sendResponse(res, 200, {
+          otpSent: false,
+          message: "Staff email is required for OTP login",
+        });
+      }
+
+      const code = String(randomInt(100000, 1000000));
+      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
+      staffOtpCodes.set(otpKey, { code, expiresAt: Date.now() + 10 * 60 * 1000, staffId: staff.id });
+
+      let delivery = "OTP generated";
+      if (staff.email && validateEmail(staff.email)) {
+        await sendCustomerLoginCodeEmail(staff.email, code);
+        delivery = "OTP sent to staff email";
+      }
+
+      sendResponse(res, 200, {
+        otpSent: true,
+        message: delivery,
+        expiresInSeconds: 600,
+        ...(process.env.NODE_ENV === "production" || (staff.email && validateEmail(staff.email)) ? {} : { otp: code }),
+      });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to send staff OTP");
+    }
+  });
+
+  app.post("/api/staff/login/verify-otp", authRateLimit, async (req, res) => {
+    try {
+      const { phone, email, identifier, password, code } = req.body;
+      const accountIdentifier = identifier || email || phone;
+      if (!accountIdentifier || !password || !code) return sendResponse(res, 400, null, "Phone/email, password, and OTP are required");
+
+      const staff = await validateStaffCredentials(accountIdentifier, password);
+      if (!staff) return sendResponse(res, 401, null, "Invalid credentials");
+
+      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
+      const record = staffOtpCodes.get(otpKey);
+      if (!record || record.staffId !== staff.id || record.code !== String(code).trim() || record.expiresAt < Date.now()) {
+        return sendResponse(res, 401, null, "Invalid or expired OTP");
+      }
+
+      staffOtpCodes.delete(otpKey);
+      sendResponse(res, 200, { success: true, staff: stripStaffSecrets(staff) });
+    } catch (error) {
+      sendResponse(res, 500, null, "OTP verification failed");
+    }
+  });
+
+  app.post("/api/staff/login/forgot-password/verify-otp", authRateLimit, async (req, res) => {
+    try {
+      const { phone, email, identifier, code } = req.body;
+      const accountIdentifier = identifier || email || phone;
+      if (!accountIdentifier || !code) return sendResponse(res, 400, null, "Phone/email and OTP are required");
+
+      const staff = await getStaffByIdentifier(accountIdentifier);
+      if (!staff) return sendResponse(res, 404, null, "Staff member not found");
+
+      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
+      const record = staffOtpCodes.get(otpKey);
+      if (!record || record.staffId !== staff.id || record.code !== String(code).trim() || record.expiresAt < Date.now()) {
+        return sendResponse(res, 401, null, "Invalid or expired OTP");
+      }
+
+      staffOtpCodes.delete(otpKey);
+      const resetToken = randomUUID();
+      staffPasswordResetTokens.set(resetToken, {
+        staffId: staff.id,
+        expiresAt: Date.now() + 10 * 60 * 1000,
+      });
+      sendResponse(res, 200, { success: true, resetToken });
+    } catch (error) {
+      sendResponse(res, 500, null, "OTP verification failed");
+    }
+  });
+
+  app.post("/api/staff/login/forgot-password/reset", authRateLimit, async (req, res) => {
+    try {
+      const { resetToken, newPassword } = req.body;
+      if (!resetToken || !newPassword) return sendResponse(res, 400, null, "Reset token and new password are required");
+      if (String(newPassword).length < 6) return sendResponse(res, 400, null, "New password must be at least 6 characters");
+
+      const reset = staffPasswordResetTokens.get(resetToken);
+      if (!reset || reset.expiresAt < Date.now()) {
+        return sendResponse(res, 401, null, "Invalid or expired reset token");
+      }
+
+      const staff = await getStorageInstance().getStaffMember(reset.staffId);
+      if (!staff) return sendResponse(res, 404, null, "Staff member not found");
+
+      const updated = await getStorageInstance().updateStaffMember(staff.id, {
+        password: await hashPassword(newPassword),
+      });
+      staffPasswordResetTokens.delete(resetToken);
+      sendResponse(res, 200, { success: true, staff: stripStaffSecrets(updated) });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to reset password");
+    }
+  });
+
+  app.get("/api/staff/me", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) return sendResponse(res, 401, null, "Unauthorized");
+      const staffId = authHeader.split(" ")[1];
+      const staff = await getStorageInstance().getStaffMember(staffId);
+      if (!staff) return sendResponse(res, 404, null, "Staff not found");
+      sendResponse(res, 200, stripStaffSecrets(staff));
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch staff info");
+    }
+  });
+
+  app.get("/api/staff/assignments", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) return sendResponse(res, 401, null, "Unauthorized");
+      const staffId = authHeader.split(" ")[1];
+      
+      const assignments = await getStorageInstance().getStaffAssignmentsByStaffId(staffId);
+      const enrichedAssignments = await Promise.all(assignments.map(async (assignment) => {
+        const booking = await getStorageInstance().getBooking(assignment.bookingId);
+        return { ...assignment, booking };
+      }));
+      
+      sendResponse(res, 200, enrichedAssignments);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch staff assignments");
     }
   });
 
@@ -474,7 +887,7 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.post("/api/customer/login/request-code", async (req, res) => {
+  app.post("/api/customer/login/request-code", otpRateLimit, async (req, res) => {
     try {
       const { identifier } = req.body;
       if (!identifier) return sendResponse(res, 400, null, "Identifier is required");
@@ -524,7 +937,23 @@ export async function registerRoutes(app) {
 
       // Notify admin
       try {
-        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+        let adminEmail = "";
+        
+        // Try to get email from admin users collection first
+        try {
+          const adminUsers = await getStorageInstance().getAdminUsers();
+          const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
+          if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
+            adminEmail = primaryAdmin.email;
+          }
+        } catch (e) {
+          console.warn("[MAIL-WARN] Could not fetch admin users from database");
+        }
+        
+        if (!adminEmail) {
+          adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+        }
+        
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
         }
@@ -601,7 +1030,23 @@ export async function registerRoutes(app) {
       // Notify admin via email
       try {
         const companyInfo = await readBranding();
-        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+        let adminEmail = "";
+        
+        // Try to get email from admin users collection first
+        try {
+          const adminUsers = await getStorageInstance().getAdminUsers();
+          const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
+          if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
+            adminEmail = primaryAdmin.email;
+          }
+        } catch (e) {
+          console.warn("[MAIL-WARN] Could not fetch admin users from database");
+        }
+        
+        if (!adminEmail) {
+          adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+        }
+        
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
         }
@@ -938,6 +1383,53 @@ export async function registerRoutes(app) {
       sendResponse(res, 200, { success: true });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to delete staff payment");
+    }
+  });
+
+  // ==================== EXPENSES ====================
+
+  app.get("/api/expenses", async (_req, res) => {
+    try {
+      const expenses = await getStorageInstance().getExpenses();
+      sendResponse(res, 200, expenses);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch expenses");
+    }
+  });
+
+  app.post("/api/expenses", async (req, res) => {
+    try {
+      const result = insertExpenseSchema.safeParse(req.body);
+      if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
+      const expense = await getStorageInstance().createExpense(result.data);
+      req.io.emit("expense:new", expense);
+      sendResponse(res, 201, expense);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to create expense");
+    }
+  });
+
+  app.patch("/api/expenses/:id", async (req, res) => {
+    try {
+      const result = updateExpenseSchema.safeParse(req.body);
+      if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
+      const expense = await getStorageInstance().updateExpense(req.params.id, result.data);
+      if (!expense) return sendResponse(res, 404, null, "Expense not found");
+      req.io.emit("expense:updated", expense);
+      sendResponse(res, 200, expense);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to update expense");
+    }
+  });
+
+  app.delete("/api/expenses/:id", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteExpense(req.params.id);
+      if (!success) return sendResponse(res, 404, null, "Expense not found");
+      req.io.emit("expense:deleted", { id: req.params.id });
+      sendResponse(res, 200, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete expense");
     }
   });
 

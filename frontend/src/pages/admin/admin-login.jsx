@@ -13,6 +13,7 @@ import { API_URL } from "@/lib/queryClient";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -56,11 +57,11 @@ export default function AdminLogin() {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username: username || "admin", password }),
       });
 
       if (!response.ok) {
-        let errorMessage = "Invalid password";
+        let errorMessage = "Invalid username or password";
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorData.data?.error || errorMessage;
@@ -77,12 +78,13 @@ export default function AdminLogin() {
 
       const data = await response.json();
       if (data.success || data.data?.success) {
-        setAdminSession();
+        const payload = data.data || data;
+        setAdminSession({ role: payload.role || "superadmin", user: payload.user || { username: "admin" } });
         setLocation("/admin");
       } else {
         toast({
           title: "Login Failed",
-          description: data.error || data.data?.error || "Invalid password",
+          description: data.error || data.data?.error || "Invalid username or password",
           variant: "destructive",
         });
       }
@@ -136,7 +138,22 @@ export default function AdminLogin() {
           <CardContent className="pt-4 pb-8 px-8">
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-jakarta font-medium">Admin Password</Label>
+                <Label htmlFor="username" className="text-sm font-jakarta font-medium">Username</Label>
+                <div className="relative">
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="Enter your username (default: admin)"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    autoComplete="username"
+                    className="h-12 font-jakarta rounded-xl border-border/60 focus:ring-2 focus:ring-primary/20"
+                    data-testid="input-username"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-jakarta font-medium">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input

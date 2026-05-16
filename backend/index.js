@@ -1,10 +1,61 @@
 import "dotenv/config";
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import helmet from "helmet";
 import { registerRoutes } from "./routes.js";
 import { connectToDatabase, getStorage } from "./db.js";
 import { seedBrandingFromFile } from "./branding.js";
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"]
+  }
+});
+
+// Security headers
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false,
+}));
+
+// Global API rate limiter (200 req / 15 min per IP)
+const globalApiRateLimit = (() => {
+  const buckets = new Map();
+  return (req, res, next) => {
+    if (!req.path.startsWith("/api")) return next();
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip || "unknown";
+    const now = Date.now();
+    const windowMs = 15 * 60 * 1000;
+    const max = 200;
+    const bucket = buckets.get(ip) || { count: 0, resetAt: now + windowMs };
+    if (bucket.resetAt <= now) { bucket.count = 0; bucket.resetAt = now + windowMs; }
+    bucket.count += 1;
+    buckets.set(ip, bucket);
+    if (bucket.count > max) {
+      res.setHeader("Retry-After", Math.ceil((bucket.resetAt - now) / 1000));
+      return res.status(429).json({ success: false, data: null, error: "Too many requests. Please slow down.", timestamp: new Date().toISOString() });
+    }
+    next();
+  };
+})();
+app.use(globalApiRateLimit);
+
+// Share io instance with requests
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+io.on("connection", (socket) => {
+  log(`Client connected: ${socket.id}`, "socket.io");
+  socket.on("disconnect", () => {
+    log(`Client disconnected: ${socket.id}`, "socket.io");
+  });
+});
 
 function log(message, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -94,7 +145,7 @@ const startServer = async () => {
     await registerRoutes(app);
 
     const port = process.env.PORT || 3000;
-    app.listen(port, "0.0.0.0", () => {
+    httpServer.listen(port, "0.0.0.0", () => {
       log(`API server listening on http://0.0.0.0:${port}`);
     });
   } catch (error) {

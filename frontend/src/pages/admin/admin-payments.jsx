@@ -9,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CalendarDays, CreditCard, IndianRupee, Search, AlertCircle, CheckCircle2, Clock, ExternalLink, Smartphone, Copy, Check, QrCode } from "lucide-react";
+import { CalendarDays, CreditCard, IndianRupee, Search, AlertCircle, CheckCircle2, Clock, ExternalLink, Smartphone, Copy, Check, QrCode, Trash2 } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import branding from "@/lib/branding.json";
 
 const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
@@ -75,6 +76,7 @@ export default function AdminPayments() {
   const [filter, setFilter] = useState("all");
   const [upiId, setUpiId] = useState("");
   const [copied, setCopied] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["/api/bookings"],
@@ -102,6 +104,25 @@ export default function AdminPayments() {
     },
     onError: (error) => {
       toast({ title: "Failed to update UPI ID", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deletePaymentRecordMutation = useMutation({
+    mutationFn: (bookingId) => apiRequest("PATCH", `/api/bookings/${bookingId}`, {
+      advancePaymentStatus: "pending",
+      finalPaymentStatus: "pending",
+      advancePaymentApprovalStatus: "pending",
+      finalPaymentApprovalStatus: "pending",
+      advancePaymentScreenshot: null,
+      finalPaymentScreenshot: null,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      toast({ title: "Payment record deleted", description: "Payment status and uploaded screenshots were cleared." });
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      toast({ title: "Failed to delete payment record", description: error.message, variant: "destructive" });
     },
   });
 
@@ -362,15 +383,26 @@ export default function AdminPayments() {
                       <p className="text-xs text-muted-foreground">Balance {money(payment.balance)}</p>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-2"
-                        onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        Manage
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-2"
+                          onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Manage
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-2 text-destructive hover:text-destructive"
+                          onClick={() => setDeleteTarget(booking)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -379,6 +411,16 @@ export default function AdminPayments() {
           </Table>
         </CardContent>
       </Card>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Payment Record"
+        description={`Clear payment status and screenshots for ${deleteTarget?.clientName || "this booking"}? The booking itself will remain.`}
+        confirmText="Delete"
+        variant="destructive"
+        isLoading={deletePaymentRecordMutation.isPending}
+        onConfirm={() => deleteTarget && deletePaymentRecordMutation.mutate(deleteTarget._id || deleteTarget.id)}
+      />
     </div>
   );
 }

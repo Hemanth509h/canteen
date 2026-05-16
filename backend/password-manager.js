@@ -26,8 +26,16 @@ export async function verifyPassword(password) {
 }
 
 export async function updatePassword(newPassword) {
-  const salt = await bcrypt.genSalt(10);
-  currentPasswordHash = await bcrypt.hash(newPassword, salt);
+  currentPasswordHash = await hashPassword(newPassword);
   // Note: In serverless, this memory update won't persist across instances.
   // The user should set ADMIN_PASSWORD_HASH in their environment variables for persistence.
+}
+
+export async function hashPassword(password) {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
+}
+
+export async function comparePassword(password, hash) {
+  return await bcrypt.compare(password, hash);
 }

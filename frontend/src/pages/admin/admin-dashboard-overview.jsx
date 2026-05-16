@@ -40,6 +40,10 @@ export default function DashboardOverview() {
     queryKey: ["/api/staff"],
   });
 
+  const { data: expenses, isLoading: isLoadingExpenses } = useQuery({
+    queryKey: ["/api/expenses"],
+  });
+
   useEffect(() => {
     if (companyInfo?.primaryColor) {
       document.documentElement.style.setProperty('--primary', companyInfo.primaryColor);
@@ -60,6 +64,9 @@ export default function DashboardOverview() {
   const totalRevenue = bookings?.filter(b => b.status === "completed" || b.status === "confirmed")
     .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0) || 0;
 
+  const totalExpenses = expenses?.reduce((sum, e) => sum + (Number(e.amount) || 0), 0) || 0;
+  const netProfit = totalRevenue - totalExpenses;
+
   const metrics = [
     {
       title: "Active Bookings",
@@ -74,8 +81,16 @@ export default function DashboardOverview() {
       value: `₹${totalRevenue.toLocaleString()}`,
       description: "Confirmed & Completed",
       icon: IndianRupee,
-      color: "text-green-600",
+      color: "text-emerald-600",
       loading: isLoadingBookings,
+    },
+    {
+      title: "Net Profit",
+      value: `₹${netProfit.toLocaleString()}`,
+      description: `₹${totalExpenses.toLocaleString()} expenses`,
+      icon: TrendingUp,
+      color: "text-emerald-500",
+      loading: isLoadingBookings || isLoadingExpenses,
     },
     {
       title: "Menu Items",
@@ -95,7 +110,7 @@ export default function DashboardOverview() {
     },
   ];
 
-  if (isLoadingFood && isLoadingBookings && isLoadingStaff) {
+  if (isLoadingFood && isLoadingBookings && isLoadingStaff && isLoadingExpenses) {
     return <PageLoader text="Analyzing catering data..." />;
   }
 
@@ -121,7 +136,7 @@ export default function DashboardOverview() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {metrics.map((metric) => (
           <Card key={metric.title} className="shadow-sm border-border/50 hover:shadow-md transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

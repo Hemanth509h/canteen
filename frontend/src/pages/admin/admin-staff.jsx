@@ -91,7 +91,7 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
 
   const form = useForm({
     resolver: zodResolver(editingStaff ? updateStaffSchema : insertStaffSchema),
-    defaultValues: { name: "", role: "chef", phone: "" },
+    defaultValues: { name: "", role: "chef", phone: "", email: "" },
   });
 
   const createMutation = useMutation({
@@ -142,7 +142,7 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
 
   const handleEdit = (staff) => {
     setEditingStaff(staff);
-    form.reset({ name: staff.name, role: staff.role, phone: staff.phone });
+    form.reset({ name: staff.name, role: staff.role, phone: staff.phone, email: staff.email || "" });
     setIsDialogOpen(true);
   };
 
@@ -198,7 +198,7 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
         <Button
           onClick={() => {
             setEditingStaff(null);
-            form.reset({ name: "", role: "chef", phone: "" });
+            form.reset({ name: "", role: "chef", phone: "", email: "" });
             setIsDialogOpen(true);
           }}
           data-testid="button-add-staff"
@@ -393,6 +393,9 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
               )} />
               <FormField control={form.control} name="phone" render={({ field }) => (
                 <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="email" render={({ field }) => (
+                <FormItem><FormLabel>Email for OTP</FormLabel><FormControl><Input type="email" placeholder="staff@example.com" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <DialogFooter>
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>

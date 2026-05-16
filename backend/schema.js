@@ -57,6 +57,7 @@ const eventBookingBaseSchema = z.object({
   servingBoysNeeded: z.number().int().min(0, "Serving staff cannot be negative").max(100).default(2),
   contactEmail: optionalEmailSchema,
   contactPhone: optionalPhoneSchema,
+  eventLocation: z.string().max(200, "Event location too long").optional().default(""),
   specialRequests: z.string().max(1000, "Special requests must be less than 1000 characters").nullable().optional(),
   totalAmount: z.number().int().optional(),
   advanceAmount: z.number().int().optional(),
@@ -119,6 +120,8 @@ export const insertStaffSchema = z.object({
     .transform(sanitizeName),
   role: z.string().min(1, "Role is required").max(50),
   phone: z.string().min(10, "Phone must be at least 10 digits").transform(sanitizePhone),
+  email: optionalEmailSchema,
+  password: z.string().min(6, "Password must be at least 6 characters").optional(),
 });
 
 export const updateStaffSchema = insertStaffSchema.partial();
@@ -200,6 +203,24 @@ export const insertStaffPaymentSchema = z.object({
 
 export const updateStaffPaymentSchema = insertStaffPaymentSchema.partial();
 
+// ==================== EXPENSES ====================
+
+export const insertExpenseSchema = z.object({
+  title: z.string().min(1, "Expense title is required").max(120).transform(sanitizeName),
+  category: z.enum(["raw_materials", "transport", "utilities", "staff", "rent", "maintenance", "other"]).default("other"),
+  amount: z.number().positive("Amount must be positive"),
+  expenseDate: z.string().min(1, "Expense date is required").refine(
+    (date) => !isNaN(Date.parse(date)),
+    "Invalid expense date"
+  ),
+  vendor: z.string().max(120).optional().default(""),
+  notes: z.string().max(1000).optional().default(""),
+  bookingId: z.string().optional().default(""),
+  paymentMethod: z.enum(["cash", "upi", "bank_transfer", "card", "other"]).default("cash"),
+});
+
+export const updateExpenseSchema = insertExpenseSchema.partial();
+
 // ==================== EMAIL PAYMENT LINK ====================
 
 export const sendPaymentLinkEmailSchema = z.object({
@@ -215,3 +236,15 @@ export const customerLoginVerifySchema = z.object({
   email: z.string().email("Valid email is required").transform(sanitizeEmail),
   code: z.string().trim().regex(/^\d{6}$/, "Enter the 6 digit code"),
 });
+
+// ==================== ADMIN USERS (RBAC) ====================
+
+export const insertAdminUserSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters").max(50).transform(sanitizeName),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["superadmin", "accountant", "chef"]).default("accountant"),
+  name: z.string().max(100).optional().default(""),
+  email: z.string().email("Invalid email address").optional().default(""),
+});
+
+export const updateAdminUserSchema = insertAdminUserSchema.partial();

@@ -64,7 +64,8 @@ const AuditHistoryModel = model("audithistories", genericSchema);
 const UserCodeModel = model("usercodes", genericSchema);
 const CodeRequestModel = model("coderequests", genericSchema);
 const StaffPaymentModel = model("staffpayments", genericSchema);
-
+const ExpenseModel = model("expenses", genericSchema);
+const AdminUserModel = model("adminusers", genericSchema);
 function toJSON(doc) {
   if (!doc) return null;
   const obj = doc.toObject ? doc.toObject({ virtuals: true, getters: true }) : doc;
@@ -162,6 +163,8 @@ class MongoStorage {
 
   async getStaff() { return (await StaffModel.find()).map(toJSON); }
   async getStaffMember(id) { return toJSON(await StaffModel.findById(id)); }
+  async getStaffByPhone(phone) { return toJSON(await StaffModel.findOne({ phone })); }
+  async getStaffByEmail(email) { return toJSON(await StaffModel.findOne({ email: String(email || "").trim().toLowerCase() })); }
   async createStaffMember(staff) { return toJSON(await StaffModel.create(staff)); }
   async updateStaffMember(id, staff) { return toJSON(await StaffModel.findByIdAndUpdate(id, staff, { new: true })); }
   async deleteStaffMember(id) { return (await StaffModel.findByIdAndDelete(id)) !== null; }
@@ -181,6 +184,7 @@ class MongoStorage {
   async updateStaffBookingRequest(id, request) { return toJSON(await StaffBookingRequestModel.findByIdAndUpdate(id, request, { new: true })); }
   async deleteStaffBookingRequest(bookingId, staffId) { return (await StaffBookingRequestModel.findOneAndDelete({ bookingId, staffId })) !== null; }
   async getStaffBookingRequestByToken(token) { return toJSON(await StaffBookingRequestModel.findOne({ token })); }
+  async getStaffAssignmentsByStaffId(staffId) { return (await StaffBookingRequestModel.find({ staffId })).map(toJSON); }
   async getAcceptedStaffForBooking(bookingId) {
     const accepted = await StaffBookingRequestModel.find({ bookingId, status: "accepted" });
     const staffIds = accepted.map(r => r.staffId);
@@ -227,6 +231,21 @@ class MongoStorage {
   async createStaffPayment(payment) { return toJSON(await StaffPaymentModel.create({ ...payment, createdAt: new Date() })); }
   async updateStaffPayment(id, payment) { return toJSON(await StaffPaymentModel.findByIdAndUpdate(id, payment, { new: true })); }
   async deleteStaffPayment(id) { return (await StaffPaymentModel.findByIdAndDelete(id)) !== null; }
+
+  // Expense Methods
+  async getExpenses() { return (await ExpenseModel.find().sort({ expenseDate: -1, createdAt: -1 })).map(toJSON); }
+  async getExpense(id) { return toJSON(await ExpenseModel.findById(id)); }
+  async createExpense(expense) { return toJSON(await ExpenseModel.create({ ...expense, createdAt: new Date() })); }
+  async updateExpense(id, expense) { return toJSON(await ExpenseModel.findByIdAndUpdate(id, expense, { new: true })); }
+  async deleteExpense(id) { return (await ExpenseModel.findByIdAndDelete(id)) !== null; }
+
+  // Admin User Methods
+  async getAdminUsers() { return (await AdminUserModel.find()).map(toJSON); }
+  async getAdminUser(id) { return toJSON(await AdminUserModel.findById(id)); }
+  async getAdminUserByUsername(username) { return toJSON(await AdminUserModel.findOne({ username })); }
+  async createAdminUser(user) { return toJSON(await AdminUserModel.create(user)); }
+  async updateAdminUser(id, user) { return toJSON(await AdminUserModel.findByIdAndUpdate(id, user, { new: true })); }
+  async deleteAdminUser(id) { return (await AdminUserModel.findByIdAndDelete(id)) !== null; }
 }
 
 let storageInstance = null;

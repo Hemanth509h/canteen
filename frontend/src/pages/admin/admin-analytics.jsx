@@ -171,6 +171,7 @@ export default function AnalyticsReports() {
   const { data: bookings = [], isLoading: loadingBookings } = useQuery({ queryKey: ["/api/bookings"] });
   const { data: staff = [], isLoading: loadingStaff } = useQuery({ queryKey: ["/api/staff"] });
   const { data: staffPayments = [], isLoading: loadingPayments } = useQuery({ queryKey: ["/api/staff-payments"] });
+  const { data: expenses = [], isLoading: loadingExpenses } = useQuery({ queryKey: ["/api/expenses"] });
 
   const filteredBookings = useMemo(
     () => filterByDateRange(bookings, startDate, endDate, getBookingDate),
@@ -185,9 +186,18 @@ export default function AnalyticsReports() {
     [staffPayments, startDate, endDate]
   );
 
+  const filteredExpenses = useMemo(
+    () => filterByDateRange(expenses, startDate, endDate, (expense) => {
+      const date = new Date(expense.expenseDate || expense.createdAt);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }),
+    [expenses, startDate, endDate]
+  );
+
   const analytics = useMemo(() => {
     const revenueBookings = filteredBookings.filter((b) => ["confirmed", "completed"].includes(b.status));
     const totalRevenue = revenueBookings.reduce((sum, booking) => sum + getBookingTotal(booking), 0);
+    const totalExpenses = filteredExpenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
     const avgBookingValue = revenueBookings.length ? Math.round(totalRevenue / revenueBookings.length) : 0;
 
     const monthlyMap = {};
@@ -221,6 +231,8 @@ export default function AnalyticsReports() {
 
     return {
       totalRevenue,
+      totalExpenses,
+      netProfit: totalRevenue - totalExpenses,
       avgBookingValue,
       confirmedCount: revenueBookings.length,
       pendingCount: filteredBookings.filter((b) => b.status === "pending").length,
@@ -232,7 +244,7 @@ export default function AnalyticsReports() {
         count: monthHeat[month] || 0,
       })),
     };
-  }, [filteredBookings]);
+  }, [filteredBookings, filteredExpenses]);
 
   const staffMap = useMemo(() => {
     const map = {};
@@ -300,13 +312,37 @@ export default function AnalyticsReports() {
     }], "staff_salary_sheet");
   };
 
+  const exportProfitReport = () => {
+    writeWorkbook([{
+      name: "Profit Report",
+      rows: [{
+        Revenue: analytics.totalRevenue,
+        Expenses: analytics.totalExpenses,
+        NetProfit: analytics.netProfit,
+        From: startDate,
+        To: endDate,
+      }],
+    }, {
+      name: "Expenses",
+      rows: filteredExpenses.map((expense) => ({
+        Date: expense.expenseDate,
+        Title: expense.title,
+        Category: expense.category,
+        Vendor: expense.vendor || "",
+        Method: expense.paymentMethod,
+        Amount: Number(expense.amount) || 0,
+        Notes: expense.notes || "",
+      })),
+    }], "profit_report");
+  };
+
   const handlePrintReport = async () => {
     setIsPrinting(true);
     await printElement(reportRef.current);
     setIsPrinting(false);
   };
 
-  const isLoading = loadingBookings || loadingStaff || loadingPayments;
+  const isLoading = loadingBookings || loadingStaff || loadingPayments || loadingExpenses;
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -346,16 +382,16 @@ export default function AnalyticsReports() {
                 <CardContent><div className="text-2xl font-bold">{money(analytics.totalRevenue)}</div></CardContent>
               </Card>
               <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Expenses</CardTitle></CardHeader>
+                <CardContent><div className="text-2xl font-bold">{money(analytics.totalExpenses)}</div></CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Net Profit</CardTitle></CardHeader>
+                <CardContent><div className={analytics.netProfit >= 0 ? "text-2xl font-bold text-emerald-600" : "text-2xl font-bold text-rose-600"}>{money(analytics.netProfit)}</div></CardContent>
+              </Card>
+              <Card>
                 <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Avg. Booking Value</CardTitle></CardHeader>
                 <CardContent><div className="text-2xl font-bold">{money(analytics.avgBookingValue)}</div></CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Confirmed / Completed</CardTitle></CardHeader>
-                <CardContent><div className="text-2xl font-bold">{analytics.confirmedCount}</div></CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Pending Requests</CardTitle></CardHeader>
-                <CardContent><div className="text-2xl font-bold">{analytics.pendingCount}</div></CardContent>
               </Card>
             </div>
 
@@ -474,6 +510,10 @@ export default function AnalyticsReports() {
                     <Button variant="outline" className="justify-start gap-2" onClick={exportStaffSalarySheet}>
                       <Users className="h-4 w-4" />
                       Staff Salary Sheet Excel
+                    </Button>
+                    <Button variant="outline" className="justify-start gap-2" onClick={exportProfitReport}>
+                      <TrendingUp className="h-4 w-4" />
+                      Profit Report Excel
                     </Button>
                     <Button className="justify-start gap-2 md:col-span-3" onClick={handlePrintReport}>
                       <FileText className="h-4 w-4" />
