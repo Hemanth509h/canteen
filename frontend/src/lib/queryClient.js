@@ -1,8 +1,4 @@
-const API_ORIGIN = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
-
-export const API_URL = API_ORIGIN
-  ? `${API_ORIGIN.replace(/\/api$/, "")}/api`
-  : "/api";
+export const API_URL = "/api";
 
 export function apiUrl(url) {
   let cleanPath = url.startsWith("/") ? url.slice(1) : url;
