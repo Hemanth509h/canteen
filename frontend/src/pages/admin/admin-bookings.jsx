@@ -47,7 +47,7 @@ export default function EventBookingsManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState(null);
-  const [assignedStaff, setAssignedStaff] = useState([]);
+  const [staffAssignments, setStaffAssignments] = useState([]);
   const [viewType, setViewType] = useState("list");
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
@@ -161,20 +161,29 @@ export default function EventBookingsManager() {
     return '';
   };
 
-  const fetchAssignedStaff = async () => {
-    if (!selectedBookingForAssignment) return;
+  const getBookingId = (booking) => booking?._id || booking?.id;
+
+  const unwrapApiResponse = async (response) => {
+    const json = await response.json();
+    return json?.success && json.data !== undefined ? json.data : json;
+  };
+
+  const fetchStaffAssignments = async (booking = selectedBookingForAssignment) => {
+    const bookingId = getBookingId(booking);
+    if (!bookingId) return;
     try {
-      const res = await fetch(`/api/bookings/${selectedBookingForAssignment.id}/assigned-staff`);
-      const staff = await res.json();
-      setAssignedStaff(staff);
+      const res = await apiRequest("GET", `/api/bookings/${bookingId}/staff`);
+      const assignments = await unwrapApiResponse(res);
+      setStaffAssignments(Array.isArray(assignments) ? assignments : []);
     } catch (error) {
-      console.error("Failed to fetch assigned staff:", error);
+      console.error("Failed to fetch staff assignments:", error);
+      setStaffAssignments([]);
     }
   };
 
   useEffect(() => {
     if (assignmentModalOpen && selectedBookingForAssignment) {
-      fetchAssignedStaff();
+      fetchStaffAssignments();
     }
   }, [assignmentModalOpen, selectedBookingForAssignment]);
 
@@ -350,6 +359,66 @@ export default function EventBookingsManager() {
     },
   });
 
+  const assignStaffMutation = useMutation({
+    mutationFn: async ({ bookingId, staffId, role }) => {
+      const response = await apiRequest("POST", `/api/bookings/${bookingId}/staff`, {
+        staffId,
+        role,
+        status: "accepted",
+      });
+      return unwrapApiResponse(response);
+    },
+    onSuccess: async () => {
+      await fetchStaffAssignments();
+      toast({
+        title: "Staff Assigned",
+        description: "Staff member has been assigned to this booking.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Assignment Failed",
+        description: error?.message || "Unable to assign staff.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeStaffAssignmentMutation = useMutation({
+    mutationFn: async ({ bookingId, staffId }) => {
+      const response = await apiRequest("DELETE", `/api/bookings/${bookingId}/staff/${staffId}`);
+      return unwrapApiResponse(response);
+    },
+    onSuccess: async () => {
+      await fetchStaffAssignments();
+      toast({
+        title: "Staff Removed",
+        description: "Staff assignment has been removed.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Remove Failed",
+        description: error?.message || "Unable to remove staff assignment.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const openAssignmentModal = (booking) => {
+    if (booking.status !== "confirmed") {
+      toast({
+        title: "Confirm Booking First",
+        description: "Staff can be assigned after the event booking is confirmed.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedBookingForAssignment(booking);
+    setStaffAssignments([]);
+    setAssignmentModalOpen(true);
+  };
+
   const handleEdit = (booking) => {
     setEditingBooking(booking);
     // Clean up special requests if they contain the "Selected Menu:" string
@@ -366,6 +435,7 @@ export default function EventBookingsManager() {
       pricePerPlate: booking.pricePerPlate || 0,
       contactEmail: booking.contactEmail || "",
       contactPhone: booking.contactPhone || "",
+      servingBoysNeeded: booking.servingBoysNeeded || 2,
       eventLocation: booking.eventLocation || "",
       specialRequests: cleanedSpecialRequests,
       status: booking.status || "pending",
@@ -497,6 +567,7 @@ export default function EventBookingsManager() {
       ...data,
       guestCount,
       pricePerPlate,
+      servingBoysNeeded: parseInt(data.servingBoysNeeded) || 0,
       totalAmount,
       advanceAmount,
       advancePaymentStatus: editingBooking ? (data.advancePaymentStatus || editingBooking.advancePaymentStatus || "pending") : "pending",
@@ -538,6 +609,7 @@ export default function EventBookingsManager() {
       eventType: "",
       guestCount: 0,
       pricePerPlate: 0,
+      servingBoysNeeded: 2,
       contactEmail: "",
       contactPhone: "",
       eventLocation: "",
@@ -547,6 +619,12 @@ export default function EventBookingsManager() {
     setSelectedItems([]);
     setIsDialogOpen(true);
   };
+
+  const selectedBookingId = getBookingId(selectedBookingForAssignment);
+  const assignedStaffIds = new Set(staffAssignments.map((assignment) => String(assignment.staffId)));
+  const assignedStaffCount = staffAssignments.length;
+  const requiredStaffCount = selectedBookingForAssignment?.servingBoysNeeded || 0;
+  const availableStaff = (staffList || []).filter((staff) => !assignedStaffIds.has(String(staff.id || staff._id)));
 
   return (
     <div className="p-6 sm:p-8 space-y-6">
@@ -605,6 +683,9 @@ export default function EventBookingsManager() {
                     )} />
                     <FormField control={form.control} name="pricePerPlate" render={({ field }) => (
                       <FormItem><FormLabel>Price Per Plate (₹)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="servingBoysNeeded" render={({ field }) => (
+                      <FormItem><FormLabel>Staff Needed</FormLabel><FormControl><Input type="number" min="0" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="contactPhone" render={({ field }) => (
                       <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -726,6 +807,11 @@ export default function EventBookingsManager() {
                       <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}>
                         <CreditCard className="h-4 w-4 mr-1" /> View Payment
                       </Button>
+                      {booking.status === "confirmed" && (
+                        <Button variant="outline" size="sm" onClick={() => openAssignmentModal(booking)}>
+                          <Users className="h-4 w-4 mr-1" /> Assign Staff
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(booking)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -1014,6 +1100,103 @@ export default function EventBookingsManager() {
               {saveMenuMutation.isPending && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
               Update Menu
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Assign Staff - {selectedBookingForAssignment?.clientName}</DialogTitle>
+            <DialogDescription>
+              Staff can be assigned after the booking is confirmed.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5">
+            <div className="grid gap-3 rounded-lg border bg-muted/30 p-4 text-sm sm:grid-cols-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Event</p>
+                <p className="mt-1 font-semibold">{selectedBookingForAssignment?.eventType || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Date</p>
+                <p className="mt-1 font-semibold">
+                  {selectedBookingForAssignment?.eventDate ? new Date(selectedBookingForAssignment.eventDate).toLocaleDateString("en-IN") : "TBD"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Assigned</p>
+                <p className="mt-1 font-semibold">{assignedStaffCount}{requiredStaffCount ? ` / ${requiredStaffCount}` : ""}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-xs font-bold uppercase text-muted-foreground">Assigned Staff</div>
+              {staffAssignments.length > 0 ? (
+                <div className="space-y-2">
+                  {staffAssignments.map((assignment) => {
+                    const staff = assignment.staff;
+                    return (
+                      <div key={assignment.id || assignment.staffId} className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">{staff?.name || "Unknown Staff"}</p>
+                          <p className="text-xs capitalize text-muted-foreground">{assignment.role || staff?.role || "staff"} • {assignment.status}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          disabled={removeStaffAssignmentMutation.isPending}
+                          onClick={() => removeStaffAssignmentMutation.mutate({ bookingId: selectedBookingId, staffId: assignment.staffId })}
+                          title="Remove staff"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
+                  No staff assigned yet.
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-xs font-bold uppercase text-muted-foreground">Available Staff</div>
+              {availableStaff.length > 0 ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {availableStaff.map((staff) => {
+                    const staffId = staff.id || staff._id;
+                    return (
+                      <div key={staffId} className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">{staff.name}</p>
+                          <p className="text-xs capitalize text-muted-foreground">{staff.role} • {staff.phone}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          disabled={assignStaffMutation.isPending || !selectedBookingId}
+                          onClick={() => assignStaffMutation.mutate({ bookingId: selectedBookingId, staffId, role: staff.role })}
+                        >
+                          {assignStaffMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Assign"}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
+                  All available staff are assigned to this booking.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignmentModalOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

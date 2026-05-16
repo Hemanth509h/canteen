@@ -668,6 +668,50 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.get("/api/bookings/:id/staff", async (req, res) => {
+    try {
+      const requests = await getStorageInstance().getStaffBookingRequests(req.params.id);
+      const staff = await getStorageInstance().getStaff();
+      const staffById = new Map(staff.map((member) => [String(member.id), member]));
+      const assignments = requests.map((request) => ({
+        ...request,
+        staff: staffById.get(String(request.staffId)) || null,
+      }));
+      sendResponse(res, 200, assignments);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch assigned staff");
+    }
+  });
+
+  app.get("/api/staff-work", async (_req, res) => {
+    try {
+      const [bookings, staff] = await Promise.all([
+        getStorageInstance().getBookings(),
+        getStorageInstance().getStaff(),
+      ]);
+      const staffById = new Map(staff.map((member) => [String(member.id), member]));
+      const work = [];
+
+      for (const booking of bookings) {
+        const bookingId = booking.id || booking._id;
+        const requests = await getStorageInstance().getStaffBookingRequests(bookingId);
+        requests
+          .filter((request) => request.status === "accepted")
+          .forEach((request) => {
+            work.push({
+              ...request,
+              booking,
+              staff: staffById.get(String(request.staffId)) || null,
+            });
+          });
+      }
+
+      sendResponse(res, 200, work);
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to fetch staff work");
+    }
+  });
+
   app.get("/api/staff-requests/:token", async (req, res) => {
     try {
       const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
@@ -693,18 +737,44 @@ export async function registerRoutes(app) {
 
   app.post("/api/bookings/:id/staff", async (req, res) => {
     try {
-      const { staffId, role } = req.body;
+      const booking = await getStorageInstance().getBooking(req.params.id);
+      if (!booking) return sendResponse(res, 404, null, "Booking not found");
+      if (booking.status !== "confirmed") {
+        return sendResponse(res, 400, null, "Staff can be assigned only after booking is confirmed");
+      }
+
+      const { staffId, role, status = "accepted" } = req.body;
+      if (!staffId) return sendResponse(res, 400, null, "Staff ID is required");
+      const assignmentStatus = ["pending", "accepted", "rejected"].includes(status) ? status : "accepted";
+
+      const staff = await getStorageInstance().getStaffMember(staffId);
+      if (!staff) return sendResponse(res, 404, null, "Staff member not found");
+
+      const existingRequests = await getStorageInstance().getStaffBookingRequests(req.params.id);
+      const existing = existingRequests.find((request) => String(request.staffId) === String(staffId));
+      if (existing) return sendResponse(res, 200, existing);
+
       const token = randomUUID();
       const request = await getStorageInstance().createStaffBookingRequest({
         bookingId: req.params.id,
         staffId,
-        role,
+        role: role || staff.role,
         token,
-        status: "pending"
+        status: assignmentStatus
       });
       sendResponse(res, 201, request);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to assign staff");
+    }
+  });
+
+  app.delete("/api/bookings/:id/staff/:staffId", async (req, res) => {
+    try {
+      const success = await getStorageInstance().deleteStaffBookingRequest(req.params.id, req.params.staffId);
+      if (!success) return sendResponse(res, 404, null, "Staff assignment not found");
+      sendResponse(res, 200, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to remove staff assignment");
     }
   });
 

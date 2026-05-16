@@ -17,7 +17,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertStaffSchema, updateStaffSchema } from "@/schema";
 import {
   UserPlus, Search, MoreVertical, Pencil, Trash2, Phone, RefreshCw, User,
-  IndianRupee, Plus, Wallet, Banknote, Smartphone, CreditCard, Users, TrendingUp, Clock, ChefHat
+  IndianRupee, Plus, Wallet, Banknote, Smartphone, CreditCard, Users, TrendingUp, Clock, ChefHat,
+  CalendarDays, MapPin, BriefcaseBusiness
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -444,11 +445,72 @@ function StaffPaymentsTab({ staffList }) {
     },
   });
 
+  const { data: staffWork = [], isLoading: loadingStaffWork } = useQuery({
+    queryKey: ["/api/staff-work"],
+    queryFn: async () => {
+      const res = await fetch("/api/staff-work");
+      const json = await res.json();
+      return json.data || json || [];
+    },
+  });
+
+  const getBookingId = (booking) => booking?.id || booking?._id;
+  const formatBookingLabel = (booking) => {
+    if (!booking) return "Unknown booking";
+    const date = booking.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-IN") : "N/A";
+    return `${booking.clientName || "Client"} - ${booking.eventType || "Event"} (${date})`;
+  };
+
   const staffMap = useMemo(() => {
     const m = {};
     staffList.forEach((s) => { m[s.id || s._id] = s; });
     return m;
   }, [staffList]);
+
+  const bookingMap = useMemo(() => {
+    const m = {};
+    bookings.forEach((booking) => { m[getBookingId(booking)] = booking; });
+    return m;
+  }, [bookings]);
+
+  const workWithPayments = useMemo(() => {
+    return staffWork.map((work) => {
+      const booking = work.booking || bookingMap[work.bookingId];
+      const paidAmount = payments
+        .filter((payment) => String(payment.staffId) === String(work.staffId) && String(payment.bookingId) === String(getBookingId(booking)) && payment.status === "paid")
+        .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0);
+
+      return { ...work, booking, paidAmount };
+    });
+  }, [staffWork, payments, bookingMap]);
+
+  const filteredWork = useMemo(() => {
+    const normalizedSearch = search.toLowerCase();
+    return workWithPayments.filter((work) => {
+      const staff = work.staff || staffMap[work.staffId];
+      const booking = work.booking || {};
+      const matchStaff = filterStaff === "all" || String(work.staffId) === String(filterStaff);
+      const matchSearch = !search ||
+        (staff?.name || "").toLowerCase().includes(normalizedSearch) ||
+        (booking.clientName || "").toLowerCase().includes(normalizedSearch) ||
+        (booking.eventType || "").toLowerCase().includes(normalizedSearch);
+      return matchStaff && matchSearch;
+    });
+  }, [workWithPayments, staffMap, filterStaff, search]);
+
+  const assignedBookingsForSelectedStaff = useMemo(() => {
+    if (!form.staffId) return [];
+    const seen = new Set();
+    return workWithPayments
+      .filter((work) => String(work.staffId) === String(form.staffId) && work.booking)
+      .map((work) => work.booking)
+      .filter((booking) => {
+        const bookingId = getBookingId(booking);
+        if (seen.has(bookingId)) return false;
+        seen.add(bookingId);
+        return true;
+      });
+  }, [workWithPayments, form.staffId]);
 
   const filtered = useMemo(() => {
     return payments.filter((p) => {
@@ -625,6 +687,76 @@ function StaffPaymentsTab({ staffList }) {
       <Card>
         <CardHeader className="border-b pb-4">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <BriefcaseBusiness size={18} className="text-blue-500" />
+            Staff Work For Payment
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {loadingStaffWork ? (
+            <div className="p-4 space-y-3">
+              {[1, 2].map((i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+            </div>
+          ) : filteredWork.length === 0 ? (
+            <div className="py-12 text-center">
+              <BriefcaseBusiness className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground font-medium">No assigned work found</p>
+              <p className="text-sm text-muted-foreground/70 mt-1">Confirm bookings and assign staff from Event Bookings.</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {filteredWork.map((work) => {
+                const staff = work.staff || staffMap[work.staffId];
+                const booking = work.booking || {};
+                const bookingId = getBookingId(booking);
+                return (
+                  <div key={work.id || `${work.staffId}-${bookingId}`} className="grid gap-3 px-6 py-4 hover:bg-muted/40 transition-colors md:grid-cols-[1.2fr_1fr_auto] md:items-center">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm">{staff?.name || "Unknown Staff"}</span>
+                        <Badge variant="secondary" className="capitalize">{work.role || staff?.role || "staff"}</Badge>
+                      </div>
+                      <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1"><CalendarDays size={12} />{booking.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "N/A"}</span>
+                        {booking.eventLocation && <span className="flex items-center gap-1 truncate"><MapPin size={12} />{booking.eventLocation}</span>}
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{booking.clientName || "Unknown Client"}</p>
+                      <p className="text-xs text-muted-foreground">{booking.eventType || "Event"} • {booking.guestCount || 0} guests</p>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 md:justify-end">
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Paid</p>
+                        <p className="font-bold">₹{Number(work.paidAmount || 0).toLocaleString("en-IN")}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditing(null);
+                          setForm({
+                            ...EMPTY_PAYMENT_FORM,
+                            staffId: work.staffId,
+                            bookingId,
+                            notes: `Wage for ${booking.eventType || "event"} - ${booking.clientName || "client"}`,
+                          });
+                          setDialogOpen(true);
+                        }}
+                      >
+                        Pay
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="border-b pb-4">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Wallet size={18} className="text-amber-500" />
             Payment Records
           </CardTitle>
@@ -644,6 +776,7 @@ function StaffPaymentsTab({ staffList }) {
             <div className="divide-y">
               {filtered.map((payment) => {
                 const staff = staffMap[payment.staffId];
+                const booking = bookingMap[payment.bookingId];
                 const MethodIcon = METHOD_LABELS[payment.paymentMethod]?.icon || Banknote;
                 return (
                   <div key={payment.id || payment._id} className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors">
@@ -658,6 +791,7 @@ function StaffPaymentsTab({ staffList }) {
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1"><MethodIcon size={12} />{METHOD_LABELS[payment.paymentMethod]?.label}</span>
                         <span>{new Date(payment.paymentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                        {booking && <span className="truncate max-w-[220px]">{formatBookingLabel(booking)}</span>}
                         {payment.notes && <span className="italic truncate max-w-[180px]">{payment.notes}</span>}
                       </div>
                     </div>
@@ -691,7 +825,7 @@ function StaffPaymentsTab({ staffList }) {
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
               <Label>Staff Member *</Label>
-              <Select value={form.staffId} onValueChange={(v) => setForm((f) => ({ ...f, staffId: v }))}>
+              <Select value={form.staffId} onValueChange={(v) => setForm((f) => ({ ...f, staffId: v, bookingId: "" }))}>
                 <SelectTrigger><SelectValue placeholder="Select staff member" /></SelectTrigger>
                 <SelectContent>
                   {staffList.map((s) => (
@@ -753,13 +887,20 @@ function StaffPaymentsTab({ staffList }) {
                 <SelectTrigger><SelectValue placeholder="Select booking (optional)" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No booking</SelectItem>
-                  {bookings.map((b) => (
+                  {(assignedBookingsForSelectedStaff.length > 0 ? assignedBookingsForSelectedStaff : bookings).map((b) => (
                     <SelectItem key={b.id || b._id} value={b.id || b._id}>
-                      {b.clientName} — {b.eventType} ({b.eventDate ? new Date(b.eventDate).toLocaleDateString("en-IN") : "N/A"})
+                      {formatBookingLabel(b)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {form.staffId && (
+                <p className="text-xs text-muted-foreground">
+                  {assignedBookingsForSelectedStaff.length > 0
+                    ? "Showing bookings assigned to this staff member."
+                    : "No assigned bookings found for this staff member; showing all bookings."}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
