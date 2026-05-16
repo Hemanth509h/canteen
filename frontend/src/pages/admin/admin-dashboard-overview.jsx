@@ -190,7 +190,7 @@ export default function DashboardOverview() {
                       <div>
                         <p className="font-bold text-sm sm:text-base">{event.clientName}</p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <ChefHat className="w-3 h-3" /> {event.eventType} • {event.guestCount} Guests
+                          <ChefHat className="w-3 h-3" /> {event.eventType} {event.mealType && `• ${event.mealType}`} • {event.guestCount} Guests
                         </p>
                       </div>
                     </div>

@@ -85,7 +85,7 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
             <div className="border rounded-lg p-4 bg-gray-50">
               <h3 className="text-sm font-bold uppercase text-gray-700 mb-3">Event Details</h3>
               <div className="space-y-1 text-xs">
-                <p><span className="font-semibold text-gray-900">{booking.eventType} {booking.mealType && `• ${booking.mealType}`}</span></p>
+                <p><span className="font-semibold text-gray-900">{booking.eventType}</span></p>
                 <p className="text-gray-600">Date: <span className="font-semibold text-gray-900">{eventDate}</span></p>
                 <p className="text-gray-600">Guests: <span className="font-semibold text-gray-900">{booking.guestCount}</span></p>
                 {booking.servingStaff && (

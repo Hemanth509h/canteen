@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar, Mail, MapPin, Tag, Utensils } from "lucide-react";
+import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar, Mail, MapPin, Tag, UtensilsCrossed } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/lib/cart-context";
@@ -10,29 +10,27 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import branding from "@/lib/branding.json";
+import { sendBookingEmails } from "@/lib/resend-email";
 
 export function CartDrawer() {
   const { toast } = useToast();
   const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests } = useCart();
   const [showContactDialog, setShowContactDialog] = useState(false);
-  const [customerDetails, setCustomerDetails] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    eventDate: "",
+  const [customerDetails, setCustomerDetails] = useState({ 
+    name: "", 
+    phone: "", 
+    email: "", 
+    eventDate: "", 
     eventType: "Wedding",
     mealType: "Lunch",
     eventLocation: "",
-    specialRequests: ""
+    specialRequests: "" 
   });
   const hasContactMethod = Boolean(customerDetails.phone.trim() || customerDetails.email.trim());
 
-  const { data: companyInfo } = useQuery({
-    queryKey: ["/api/company-info"],
-  });
+  const companyInfo = branding;
 
   useEffect(() => {
     const savedIdentifier = localStorage.getItem("customer_identifier");
@@ -45,27 +43,30 @@ export function CartDrawer() {
     }
   }, [showContactDialog]);
 
-  const bookingMutation = useMutation({
-    mutationFn: async (bookingData) => {
-      const response = await apiRequest("POST", "/api/bookings", bookingData);
-      const json = await response.json();
-      const booking = json.data || json;
-      const bookingId = booking.id || booking._id;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-      if (cartItems.length > 0 && bookingId) {
-        const items = cartItems.map(item => ({
-          bookingId: bookingId,
-          foodItemId: item.id,
-          quantity: item.quantity
-        }));
-        await apiRequest("POST", `/api/bookings/${bookingId}/items`, items);
-      }
-      return json;
-    },
-    onSuccess: (response) => {
-      const booking = response.data || response;
-      const emailSent = booking.emailStatus?.success;
-      const shouldCall = Boolean(customerDetails.phone.trim());
+  const handleContact = async () => {
+    if (!customerDetails.name || !hasContactMethod || !customerDetails.eventDate) return;
+
+    setIsSubmitting(true);
+
+    const booking = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      clientName: customerDetails.name,
+      eventType: customerDetails.eventType,
+      eventDate: customerDetails.eventDate,
+      guestCount: globalGuests,
+      mealType: customerDetails.mealType,
+      eventLocation: customerDetails.eventLocation,
+      contactEmail: customerDetails.email,
+      contactPhone: customerDetails.phone,
+      specialRequests: customerDetails.specialRequests,
+      companyName: companyInfo?.companyName || companyInfo?.name || "Sai Canteens",
+      adminEmail: import.meta.env.VITE_ADMIN_EMAIL || companyInfo?.contactEmail || companyInfo?.email,
+    };
+
+    try {
+      await sendBookingEmails(booking, window.location.origin);
 
       if (customerDetails.email.trim()) {
         localStorage.setItem("customer_identifier", customerDetails.email.trim().toLowerCase());
@@ -75,47 +76,28 @@ export function CartDrawer() {
 
       toast({
         title: "Booking Request Sent",
-        description: emailSent
-          ? "Your details have been shared and a confirmation email was sent."
-          : "Your details have been shared with our admin.",
+        description: "Your details have been received and confirmation emails have been sent.",
       });
+
       setShowContactDialog(false);
       clearCart();
 
-      if (shouldCall) {
-        const phoneToCall = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber || "";
-        if (phoneToCall) window.location.href = `tel:${phoneToCall.replace(/\D/g, "")}`;
+      const phoneToCall = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber || "";
+      if (phoneToCall) {
+        setTimeout(() => {
+          window.location.href = `tel:${phoneToCall.replace(/\D/g, "")}`;
+        }, 1500);
       }
-    },
-    onError: (error) => {
+    } catch (error) {
+      console.error("Booking error:", error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to send booking request. Please try calling us.",
+        title: "Submission Failed",
+        description: error.message || "Something went wrong while sending your request.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
-  });
-
-  const handleContact = () => {
-    if (!customerDetails.name || !hasContactMethod || !customerDetails.eventDate) return;
-
-    // Create the booking record in the database
-    const bookingData = {
-      clientName: customerDetails.name || "Customer",
-      contactPhone: customerDetails.phone.trim(),
-      contactEmail: customerDetails.email.trim().toLowerCase(),
-      eventType: customerDetails.eventType,
-      mealType: customerDetails.mealType,
-      eventLocation: customerDetails.eventLocation,
-      eventDate: customerDetails.eventDate,
-      guestCount: globalGuests || 1,
-      pricePerPlate: 0,
-      servingBoysNeeded: 0,
-      specialRequests: customerDetails.specialRequests,
-      status: "pending"
-    };
-
-    bookingMutation.mutate(bookingData);
   };
 
   const isLoggedIn = !!localStorage.getItem("customer_identifier");
@@ -339,8 +321,8 @@ export function CartDrawer() {
                     <Tag size={16} className="text-primary" />
                     Event Type
                   </label>
-                  <Select
-                    value={customerDetails.eventType}
+                  <Select 
+                    value={customerDetails.eventType} 
                     onValueChange={(v) => setCustomerDetails(prev => ({ ...prev, eventType: v }))}
                   >
                     <SelectTrigger className="rounded-xl h-12 border-primary/20 focus:ring-primary/20">
@@ -358,6 +340,28 @@ export function CartDrawer() {
                   </Select>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-sm font-bold flex items-center gap-2 px-1">
+                    <UtensilsCrossed size={16} className="text-primary" />
+                    Meal Type
+                  </label>
+                  <Select 
+                    value={customerDetails.mealType} 
+                    onValueChange={(v) => setCustomerDetails(prev => ({ ...prev, mealType: v }))}
+                  >
+                    <SelectTrigger className="rounded-xl h-12 border-primary/20 focus:ring-primary/20">
+                      <SelectValue placeholder="Select meal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Breakfast">Breakfast</SelectItem>
+                      <SelectItem value="Lunch">Lunch</SelectItem>
+                      <SelectItem value="Dinner">Dinner</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold flex items-center gap-2 px-1">
                     <Calendar size={16} className="text-primary" />
@@ -422,11 +426,11 @@ export function CartDrawer() {
               Cancel
             </Button>
             <Button
-              disabled={!customerDetails.name || !hasContactMethod || !customerDetails.eventDate || bookingMutation.isPending}
+              disabled={!customerDetails.name || !hasContactMethod || !customerDetails.eventDate || isSubmitting}
               onClick={handleContact}
               className="w-full h-12 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold"
             >
-              {bookingMutation.isPending ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Sending...

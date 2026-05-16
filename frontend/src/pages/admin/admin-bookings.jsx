@@ -212,6 +212,7 @@ export default function EventBookingsManager() {
       clientName: "",
       eventDate: "",
       eventType: "",
+      mealType: "",
       guestCount: 0,
       pricePerPlate: 0,
       servingBoysNeeded: 2,
@@ -519,6 +520,7 @@ export default function EventBookingsManager() {
       clientName: booking.clientName || "",
       eventDate: booking.eventDate ? new Date(booking.eventDate).toISOString().split('T')[0] : "",
       eventType: booking.eventType || "",
+      mealType: booking.mealType || "",
       guestCount: booking.guestCount || 0,
       pricePerPlate: booking.pricePerPlate || 0,
       contactEmail: booking.contactEmail || "",
@@ -676,8 +678,9 @@ export default function EventBookingsManager() {
     setEditingBooking(null);
     form.reset({
       clientName: "",
-      eventDate: "",
       eventType: "",
+      mealType: "",
+      eventDate: "",
       guestCount: 0,
       pricePerPlate: 0,
       servingBoysNeeded: 2,
@@ -695,6 +698,7 @@ export default function EventBookingsManager() {
       clientName: "",
       eventDate: "",
       eventType: "",
+      mealType: "",
       guestCount: 0,
       pricePerPlate: 0,
       servingBoysNeeded: 2,
@@ -762,6 +766,20 @@ export default function EventBookingsManager() {
                     )} />
                     <FormField control={form.control} name="eventType" render={({ field }) => (
                       <FormItem><FormLabel>Event Type</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="mealType" render={({ field }) => (
+                      <FormItem><FormLabel>Meal Type</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl><SelectTrigger><SelectValue placeholder="Select meal" /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Breakfast">Breakfast</SelectItem>
+                            <SelectItem value="Lunch">Lunch</SelectItem>
+                            <SelectItem value="Dinner">Dinner</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="eventDate" render={({ field }) => (
                       <FormItem><FormLabel>Event Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
@@ -845,7 +863,7 @@ export default function EventBookingsManager() {
                       <div className="text-xs text-muted-foreground">{booking.contactPhone}</div>
                     </TableCell>
                     <TableCell>
-                      <div>{booking.eventType}</div>
+                      <div>{booking.eventType} {booking.mealType && <Badge variant="outline" className="ml-1 text-[10px] h-4 px-1">{booking.mealType}</Badge>}</div>
                       <div className="text-xs text-muted-foreground">
                         {booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-IN') : "TBD"} • {booking.guestCount} Guests
                       </div>

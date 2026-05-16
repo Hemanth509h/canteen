@@ -101,7 +101,7 @@ function BookingCard({ booking }) {
           </div>
 
           <h3 className="text-xl font-playfair font-bold text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-            {booking.eventType}
+            {booking.eventType} {booking.mealType && <span className="text-sm font-jakarta font-normal text-zinc-400 ml-2">• {booking.mealType}</span>}
           </h3>
 
           <div className="flex flex-col gap-1">

@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-// ==================== VALIDATION HELPERS ====================
-
 const sanitizeString = (val) => val.trim().slice(0, 500);
 const sanitizeName = (val) => val.trim().slice(0, 100);
 const sanitizePhone = (val) => val.replace(/\D/g, "").slice(0, 15);
@@ -19,8 +17,6 @@ const optionalPhoneSchema = z.string()
   .transform(sanitizePhone)
   .refine((val) => !val || val.length >= 10, "Phone number must be at least 10 digits");
 
-// ==================== FOOD ITEMS ====================
-
 export const insertFoodItemSchema = z.object({
   name: z.string()
     .min(1, "Food item name is required")
@@ -34,12 +30,10 @@ export const insertFoodItemSchema = z.object({
     .transform(sanitizeString),
   category: z.string().min(1, "Category is required").max(50),
   type: z.enum(["Veg", "Non-Veg"], { required_error: "Type (Veg/Non-Veg) is required" }),
-  imageUrl: z.string().url("Invalid image URL").or(z.string().length(0)).optional().nullable(),
+  imageUrl: z.string().url("Invalid image URL").min(1, "Image URL is required"),
   dietaryTags: z.array(z.string()).optional(),
   price: z.number().int().min(1, "Price must be at least 1").optional(),
 });
-
-// ==================== EVENT BOOKINGS ====================
 
 const eventBookingBaseSchema = z.object({
   clientName: z.string()
@@ -52,16 +46,13 @@ const eventBookingBaseSchema = z.object({
     "Invalid date format"
   ),
   eventType: z.string().min(1, "Event type is required").max(50),
-  mealType: z.string().max(50).optional().default(""),
   guestCount: z.number().int().min(1, "At least 1 guest is required").max(10000, "Guest count too large"),
   pricePerPlate: z.number().int().min(0, "Price must be non-negative").max(100000),
   servingBoysNeeded: z.number().int().min(0, "Serving staff cannot be negative").max(100).default(2),
   contactEmail: optionalEmailSchema,
   contactPhone: optionalPhoneSchema,
-  eventLocation: z.string().max(200, "Event location too long").optional().default(""),
+  eventLocation: z.string().max(500, "Event location must be less than 500 characters").optional().default(""),
   specialRequests: z.string().max(1000, "Special requests must be less than 1000 characters").nullable().optional(),
-  totalAmount: z.number().int().optional(),
-  advanceAmount: z.number().int().optional(),
 });
 
 export const insertEventBookingSchema = eventBookingBaseSchema.superRefine((data, ctx) => {
@@ -86,15 +77,11 @@ export const updateEventBookingSchema = eventBookingBaseSchema.partial().extend(
   advanceAmount: z.number().int().min(0).optional(),
 });
 
-// ==================== BOOKING ITEMS ====================
-
 export const insertBookingItemSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
   foodItemId: z.string().min(1, "Food item ID is required"),
   quantity: z.number().int().positive("Quantity must be positive").default(1),
 });
-
-// ==================== COMPANY INFO ====================
 
 export const insertCompanyInfoSchema = z.object({
   companyName: z.string().max(100, "Company name too long").optional(),
@@ -108,11 +95,7 @@ export const insertCompanyInfoSchema = z.object({
   websiteUrl: z.string().url("Please enter a valid website URL").optional(),
   upiId: z.string().regex(/^[\w\-@.]+$/, "Invalid UPI ID format").optional(),
   minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
-  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format").optional(),
-  logoUrl: z.string().min(1, "Logo URL is required").or(z.string().length(0)).optional().nullable(),
 });
-
-// ==================== STAFF ====================
 
 export const insertStaffSchema = z.object({
   name: z.string()
@@ -127,8 +110,6 @@ export const insertStaffSchema = z.object({
 
 export const updateStaffSchema = insertStaffSchema.partial();
 
-// ==================== CUSTOMER REVIEWS ====================
-
 export const insertCustomerReviewSchema = z.object({
   customerName: z.string().min(1, "Name is required"),
   eventType: z.string().min(1, "Event type is required"),
@@ -138,8 +119,6 @@ export const insertCustomerReviewSchema = z.object({
 
 export const updateCustomerReviewSchema = insertCustomerReviewSchema.partial();
 
-// ==================== ADMIN NOTIFICATIONS ====================
-
 export const insertAdminNotificationSchema = z.object({
   type: z.enum(["booking", "payment"]),
   title: z.string().min(1),
@@ -147,8 +126,6 @@ export const insertAdminNotificationSchema = z.object({
   bookingId: z.string().optional(),
   read: z.boolean().default(false),
 });
-
-// ==================== STAFF BOOKING REQUESTS ====================
 
 export const insertStaffBookingRequestSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
@@ -161,8 +138,6 @@ export const updateStaffBookingRequestSchema = z.object({
   status: z.enum(["pending", "accepted", "rejected"]),
 });
 
-// ==================== AUDIT HISTORY ====================
-
 export const insertAuditHistorySchema = z.object({
   action: z.string().min(1, "Action is required"),
   entityType: z.enum(["booking", "staff", "payment", "assignment"]),
@@ -170,27 +145,13 @@ export const insertAuditHistorySchema = z.object({
   details: z.record(z.unknown()).default({}),
 });
 
-// ==================== USER CODES ====================
-
-export const insertUserCodeSchema = z.object({
-  code: z.string().min(4, "Code must be at least 4 characters").max(20),
-  isUsed: z.boolean().default(false),
-  expiresAt: z.string().optional().refine(
-    (date) => !date || !isNaN(Date.parse(date)),
-    "Invalid expiration date"
-  ),
-  notes: z.string().max(200).optional(),
-});
-
 export const insertCodeRequestSchema = z.object({
-  customerName: z.string().min(1, "Name is required").max(100).transform(sanitizeName),
+  customerName: z.string().min(1, "Name is required").max(100).transform(val => val.trim().slice(0, 100)),
   customerEmail: z.string().email("Valid email is required"),
-  customerPhone: z.string().min(10, "Phone number required").transform(sanitizePhone),
+  customerPhone: z.string().min(10, "Phone number required").transform(val => val.replace(/\D/g, "").slice(0, 15)),
   eventDetails: z.string().max(1000).optional(),
   status: z.enum(["pending", "granted", "rejected"]).default("pending"),
 });
-
-// ==================== STAFF PAYMENTS ====================
 
 export const insertStaffPaymentSchema = z.object({
   staffId: z.string().min(1, "Staff ID is required"),
@@ -203,8 +164,6 @@ export const insertStaffPaymentSchema = z.object({
 });
 
 export const updateStaffPaymentSchema = insertStaffPaymentSchema.partial();
-
-// ==================== EXPENSES ====================
 
 export const insertExpenseSchema = z.object({
   title: z.string().min(1, "Expense title is required").max(120).transform(sanitizeName),
@@ -221,30 +180,3 @@ export const insertExpenseSchema = z.object({
 });
 
 export const updateExpenseSchema = insertExpenseSchema.partial();
-
-// ==================== EMAIL PAYMENT LINK ====================
-
-export const sendPaymentLinkEmailSchema = z.object({
-  bookingId: z.string().min(1, "Booking ID is required"),
-  paymentType: z.enum(["advance", "final"]).optional(),
-});
-
-export const customerLoginRequestSchema = z.object({
-  identifier: z.string().trim().min(1, "Email or mobile number is required"),
-});
-
-export const customerLoginVerifySchema = z.object({
-  email: z.string().email("Valid email is required").transform(sanitizeEmail),
-  code: z.string().trim().regex(/^\d{6}$/, "Enter the 6 digit code"),
-});
-
-// ==================== ADMIN USERS (RBAC) ====================
-
-export const insertAdminUserSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters").max(50).transform(sanitizeName),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["superadmin", "accountant", "chef"]).default("accountant"),
-  name: z.string().max(100).optional().default(""),
-});
-
-export const updateAdminUserSchema = insertAdminUserSchema.partial();

@@ -159,6 +159,7 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
     "Booking Summary:",
     `- Booking ID: ${booking.id || booking._id || ""}`,
     `- Event Type: ${booking.eventType || "Event booking"}`,
+    `- Meal Type: ${booking.mealType || "N/A"}`,
     `- Event Date: ${formattedDate || "TBD"}`,
     `- Guests: ${booking.guestCount || "N/A"}`,
     `- Location: ${booking.eventLocation || "TBD"}`,
@@ -186,6 +187,7 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
           <h3 style="margin:0 0 16px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#6b7280">Booking Summary</h3>
           <table style="width:100%;border-collapse:collapse;font-size:15px">
             <tr><td style="padding:8px 0;color:#6b7280">Event Type:</td><td style="padding:8px 0;text-align:right;font-weight:600">${safeEventType}</td></tr>
+            <tr><td style="padding:8px 0;color:#6b7280">Meal Type:</td><td style="padding:8px 0;text-align:right;font-weight:600">${escapeHtml(booking.mealType || "N/A")}</td></tr>
             <tr><td style="padding:8px 0;color:#6b7280">Event Date:</td><td style="padding:8px 0;text-align:right;font-weight:600">${safeFormattedDate}</td></tr>
             <tr><td style="padding:8px 0;color:#6b7280">Guests:</td><td style="padding:8px 0;text-align:right;font-weight:600">${escapeHtml(booking.guestCount || "N/A")}</td></tr>
             <tr><td style="padding:8px 0;color:#6b7280">Location:</td><td style="padding:8px 0;text-align:right;font-weight:600">${safeLocation}</td></tr>
@@ -238,6 +240,7 @@ function buildBookingUpdateEmail(booking, bookingLink, customMessage) {
     `Status: ${safeStatus}`,
     `Booking ID: ${booking.id || booking._id || ""}`,
     `Event: ${booking.eventType || "Event booking"}`,
+    `Meal Type: ${booking.mealType || "N/A"}`,
     `Event Date: ${formattedDate || "TBD"}`,
     `Guests: ${booking.guestCount || "N/A"}`,
     "",
@@ -263,6 +266,7 @@ function buildBookingUpdateEmail(booking, bookingLink, customMessage) {
           <p style="margin:0 0 8px"><strong>Status:</strong> <span style="color: #ea580c; font-weight: bold;">${safeStatus}</span></p>
           <p style="margin:0 0 8px"><strong>Booking ID:</strong> ${safeBookingId}</p>
           <p style="margin:0 0 8px"><strong>Event:</strong> ${safeEventType}</p>
+          <p style="margin:0 0 8px"><strong>Meal Type:</strong> ${escapeHtml(booking.mealType || "N/A")}</p>
           <p style="margin:0 0 8px"><strong>Event Date:</strong> ${safeFormattedDate}</p>
           <p style="margin:0"><strong>Guests:</strong> ${escapeHtml(booking.guestCount || "N/A")}</p>
         </div>
@@ -368,6 +372,7 @@ function buildAdminBookingNotificationEmail(booking, bookingLink) {
     "Event Information:",
     `- Booking ID: ${booking.id || booking._id || ""}`,
     `- Type: ${booking.eventType || "Event booking"}`,
+    `- Meal Type: ${booking.mealType || "N/A"}`,
     `- Date: ${formattedDate || "TBD"}`,
     `- Guests: ${booking.guestCount || "N/A"}`,
     `- Location: ${booking.eventLocation || "Not provided"}`,
@@ -397,6 +402,7 @@ function buildAdminBookingNotificationEmail(booking, bookingLink) {
           <table style="width:100%;border-collapse:collapse;font-size:15px">
             <tr><td style="padding:6px 0;color:#6b7280;width:120px">Booking ID:</td><td style="padding:6px 0;font-family:monospace">${safeBookingId}</td></tr>
             <tr><td style="padding:6px 0;color:#6b7280">Event Type:</td><td style="padding:6px 0;font-weight:700">${safeEventType}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b7280">Meal Type:</td><td style="padding:6px 0;font-weight:700">${escapeHtml(booking.mealType || "N/A")}</td></tr>
             <tr><td style="padding:6px 0;color:#6b7280">Event Date:</td><td style="padding:6px 0;font-weight:700">${safeFormattedDate}</td></tr>
             <tr><td style="padding:6px 0;color:#6b7280">Guest Count:</td><td style="padding:6px 0;font-weight:700">${escapeHtml(booking.guestCount || "N/A")}</td></tr>
             <tr><td style="padding:6px 0;color:#6b7280">Location:</td><td style="padding:6px 0;font-weight:700;color:#ea580c">${safeLocation}</td></tr>

@@ -1,0 +1,110 @@
+import { useState } from "react";
+
+
+import { Phone } from "lucide-react";
+
+import FoodItemQuickView from "@/components/features/food-item-quick-view";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import branding from "@/lib/branding.json";
+import localMenuItems from "@/lib/menu.json";
+import { useCart } from "@/lib/cart-context";
+
+import Navbar from "./components/navbar";
+import Hero from "./components/hero";
+import Features from "./components/features";
+import MenuSection from "./components/menu-section";
+import Testimonials from "./components/testimonials";
+import Footer from "./components/footer";
+import { CartDrawer } from "@/components/features/cart-drawer";
+
+export default function CustomerHome() {
+  const [view, setView] = useState("home");
+  const { cartItems, addToCart } = useCart();
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const foodItems = localMenuItems;
+  const isLoadingFood = false;
+  const companyInfo = branding;
+  const reviews = [
+    {
+      id: "review-1",
+      name: "Sri",
+      title: "Fantastic food and service",
+      message: "Sai Canteens handled our event beautifully. The flavors were outstanding and the team was very responsive.",
+      rating: 5,
+    },
+    {
+      id: "review-2",
+      name: "Nithya",
+      title: "Delicious catering with great value",
+      message: "The menu had great variety, and the food arrived fresh and on time. Highly recommend for small and large events.",
+      rating: 5,
+    },
+    {
+      id: "review-3",
+      name: "Aravind",
+      title: "Excellent support and tasty dishes",
+      message: "Everything from ordering to delivery was smooth. The team made our celebration easy and delicious.",
+      rating: 5,
+    },
+  ];
+
+  const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
+  const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;
+
+
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
+      <Navbar companyName={companyInfo?.companyName} logoSrc={logoSrc} setView={setView} />
+      <main>
+        <Hero
+          companyName={companyInfo?.companyName}
+          tagline={companyInfo?.tagline}
+          description={companyInfo?.description}
+          heroImages={companyInfo?.heroImages}
+          yearsExperience={companyInfo?.yearsExperience}
+          eventsPerYear={companyInfo?.eventsPerYear}
+        />
+        <Features />
+        <MenuSection
+          foodItems={foodItems}
+          isLoading={isLoadingFood}
+          onSelectItem={setSelectedItem}
+          addToCart={addToCart}
+          cartItems={cartItems}
+        />
+        <Testimonials reviews={reviews} />
+        <Footer companyInfo={companyInfo} logoSrc={logoSrc} setView={setView} />
+      </main>
+
+      {phoneNumber && (
+        <a
+          href={`tel:${phoneNumber.replace(/\D/g, "")}`}
+          className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 hover:scale-110 transition-transform"
+        >
+          <Phone size={22} />
+        </a>
+      )}
+
+      <div className="fixed bottom-6 right-6 z-50">
+        <CartDrawer />
+      </div>
+
+      <Dialog open={!!selectedItem} onOpenChange={(o) => !o && setSelectedItem(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+          <div className="sr-only">
+            <DialogTitle>{selectedItem?.name || "Food Item Details"}</DialogTitle>
+            <DialogDescription>
+              View details and description for {selectedItem?.name || "this food item"}.
+            </DialogDescription>
+          </div>
+          <FoodItemQuickView
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            defaultFoodImage="https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

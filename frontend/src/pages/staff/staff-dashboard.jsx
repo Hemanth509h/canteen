@@ -232,7 +232,9 @@ function AssignmentCard({ assignment, isUpcoming }) {
       <CardHeader className="pb-3 pt-5">
         <div className="flex justify-between items-start gap-4">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-base truncate">{booking.eventType}</CardTitle>
+            <CardTitle className="text-base truncate">
+              {booking.eventType} {booking.mealType && <span className="text-xs font-normal text-muted-foreground ml-1">• {booking.mealType}</span>}
+            </CardTitle>
             <CardDescription className="font-medium text-foreground mt-1 truncate">{booking.clientName}</CardDescription>
           </div>
           <div className="text-right shrink-0 bg-muted/50 rounded-lg p-2 text-center min-w-16">

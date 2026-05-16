@@ -77,6 +77,7 @@ function toJSON(doc) {
     clientName: ['client_name', 'client', 'name'],
     eventDate: ['event_date', 'date'],
     eventType: ['event_type', 'type'],
+    mealType: ['meal_type', 'meal'],
     guestCount: ['guest_count', 'guests', 'total_guests'],
     pricePerPlate: ['price_per_plate', 'price_per_head', 'ppp'],
     contactEmail: ['contact_email', 'email'],
