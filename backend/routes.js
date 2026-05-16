@@ -372,9 +372,12 @@ export async function registerRoutes(app) {
           await sendAdminBookingNotificationEmail(adminEmail, { ...booking, companyName: companyInfo.companyName }, adminBookingLink);
         } else {
           console.error("[MAIL-ERROR] Failed to resolve any valid admin email for notification.");
+          throw new Error("No valid admin email configured for notifications.");
         }
       } catch (adminEmailError) {
         console.error("Admin booking notification error:", adminEmailError);
+        // Throw here so the booking process fails if admin can't be notified
+        throw new Error(`Admin notification failed: ${adminEmailError.message}`);
       }
 
       req.io.emit("booking:new", booking);

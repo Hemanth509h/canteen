@@ -203,44 +203,50 @@ export async function sendResendEmail({ to, subject, text, html }) {
 export async function sendBookingEmails(booking, bookingLink) {
   const customerEmail = booking.contactEmail?.trim();
   const adminEmail = ADMIN_EMAIL?.trim() || booking.adminEmail?.trim() || "";
-  const recipients = [];
-
-  if (customerEmail) {
-    recipients.push(customerEmail);
-  }
-  if (adminEmail) {
-    recipients.push(adminEmail);
-  }
-
-  if (recipients.length === 0) {
+  
+  if (!customerEmail && !adminEmail) {
     throw new Error("No email recipient configured for booking notifications.");
   }
 
   const confirmationEmail = buildBookingConfirmationEmail(booking, bookingLink);
   const adminEmailPayload = buildAdminBookingNotificationEmail(booking, bookingLink);
 
-  const sendPromises = [];
+  let customerEmailSuccess = false;
+  let adminEmailSuccess = false;
+
+  // 1. Attempt Customer Confirmation Email
   if (customerEmail) {
-    sendPromises.push(
-      sendResendEmail({
+    try {
+      await sendResendEmail({
         to: [customerEmail],
         subject: confirmationEmail.subject,
         text: confirmationEmail.text,
         html: confirmationEmail.html,
-      })
-    );
+      });
+      customerEmailSuccess = true;
+    } catch (error) {
+      console.error("[MAIL-ERROR] Customer confirmation email failed:", error);
+      // We don't throw here to allow the booking to proceed if admin notification works
+    }
   }
 
+  // 2. Attempt Admin Notification Email (Critical)
   if (adminEmail) {
-    sendPromises.push(
-      sendResendEmail({
+    try {
+      await sendResendEmail({
         to: [adminEmail],
         subject: adminEmailPayload.subject,
         text: adminEmailPayload.text,
         html: adminEmailPayload.html,
-      })
-    );
+      });
+      adminEmailSuccess = true;
+    } catch (error) {
+      console.error("[MAIL-ERROR] Admin notification email failed:", error);
+      // We throw if admin notification fails as it's critical for the business
+      throw new Error(`Failed to notify admin: ${error.message}`);
+    }
   }
 
-  return Promise.all(sendPromises);
+  return { customerEmailSuccess, adminEmailSuccess };
 }
+

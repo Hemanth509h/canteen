@@ -66,7 +66,7 @@ export function CartDrawer() {
     };
 
     try {
-      await sendBookingEmails(booking, window.location.origin);
+      const { customerEmailSuccess } = await sendBookingEmails(booking, window.location.origin);
 
       if (customerDetails.email.trim()) {
         localStorage.setItem("customer_identifier", customerDetails.email.trim().toLowerCase());
@@ -76,7 +76,9 @@ export function CartDrawer() {
 
       toast({
         title: "Booking Request Sent",
-        description: "Your details have been received and confirmation emails have been sent.",
+        description: customerEmailSuccess 
+          ? "Your details have been received and confirmation emails have been sent."
+          : "Your details have been shared with our team. We will contact you shortly.",
       });
 
       setShowContactDialog(false);

@@ -76,8 +76,8 @@ export function CartDrawer() {
       toast({
         title: "Booking Request Sent",
         description: emailSent
-          ? "Your details have been shared and a confirmation email was sent."
-          : "Your details have been shared with our admin.",
+          ? "Your details have been received and confirmation emails have been sent."
+          : "Your details have been shared with our team. We will contact you shortly.",
       });
       setShowContactDialog(false);
       clearCart();
