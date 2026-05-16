@@ -29,7 +29,7 @@ import AdminPayments from "./admin-payments";
 import ChefPrintout from "./admin-chef-printout";
 import AnalyticsReports from "./admin-analytics";
 import { useEffect, useState } from "react";
-import { isAdminAuthenticated, clearAdminSession, refreshSession } from "@/lib/auth";
+import { clearAdminSession, isAdminAuthenticated, onAdminAuthStateChange } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
@@ -167,22 +167,33 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    setIsAuthenticated(isAdminAuthenticated());
-    setIsChecking(false);
-    
-    // Refresh session on activity
-    const handleActivity = () => refreshSession();
-    window.addEventListener("click", handleActivity);
-    window.addEventListener("keypress", handleActivity);
-    
+    let isMounted = true;
+
+    isAdminAuthenticated()
+      .then((authenticated) => {
+        if (!isMounted) return;
+        setIsAuthenticated(authenticated);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsChecking(false);
+        }
+      });
+
+    const unsubscribe = onAdminAuthStateChange((authenticated) => {
+      if (isMounted) {
+        setIsAuthenticated(authenticated);
+      }
+    });
+
     return () => {
-      window.removeEventListener("click", handleActivity);
-      window.removeEventListener("keypress", handleActivity);
+      isMounted = false;
+      unsubscribe();
     };
   }, []);
 
-  const handleLogout = () => {
-    clearAdminSession();
+  const handleLogout = async () => {
+    await clearAdminSession();
     setLocation("/admin/login");
   };
 

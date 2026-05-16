@@ -291,7 +291,7 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-[250px] font-semibold">Name</TableHead>
                   <TableHead className="font-semibold">Role</TableHead>
-                  <TableHead className="font-semibold">Phone Number</TableHead>
+                  <TableHead className="font-semibold">Mobile Number</TableHead>
                   <TableHead className="text-right font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -391,7 +391,7 @@ function StaffMembersTab({ staffList, isLoading, isFetching, refetch }) {
                 </FormItem>
               )} />
               <FormField control={form.control} name="phone" render={({ field }) => (
-                <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <DialogFooter>
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>

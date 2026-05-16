@@ -9,7 +9,6 @@ export async function apiRequest(method, url, data) {
   }
 
   const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
-  console.log(`[API] Requesting: ${finalUrl}`);
 
   const res = await fetch(finalUrl, {
     method,
@@ -42,7 +41,6 @@ export const getQueryFn =
     }
 
     const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
-    console.log(`[QUERY] Fetching: ${finalUrl}`);
 
     const res = await fetch(finalUrl);
 

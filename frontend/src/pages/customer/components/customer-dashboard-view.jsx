@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  Search, Phone, Mail, BookOpen, ArrowLeft, 
+  Search, Mail, Phone, BookOpen, ArrowLeft, 
   AlertCircle, CheckCircle, XCircle, Calendar, 
-  User, MapPin, Utensils, ChevronUp, ChevronDown 
+  Utensils, ChevronUp, ChevronDown,
+  Loader2, LogIn
 } from "lucide-react";
 import localMenuItems from "@/lib/menu.json";
+import { apiRequest } from "@/lib/queryClient";
 
 const STATUS = {
   pending: { icon: AlertCircle, color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/30" },
@@ -143,30 +145,128 @@ function BookingCard({ booking }) {
 
 export default function CustomerDashboardView({ onBack }) {
   const [identifier, setIdentifier] = useState("");
-  const [submitted, setSubmitted] = useState("");
+  const [code, setCode] = useState("");
+  const [loginStep, setLoginStep] = useState("email");
+  const [customerSession, setCustomerSession] = useState(null);
 
   const { data: bookings, isLoading, isError, isFetching } = useQuery({
-    queryKey: ["/api/bookings/search", submitted],
+    queryKey: ["/api/customer/bookings", customerSession?.token],
     queryFn: async () => {
-      if (!submitted) return [];
-      const isEmail = submitted.includes("@");
-      const param = isEmail ? `email=${encodeURIComponent(submitted)}` : `phone=${encodeURIComponent(submitted)}`;
-      const res = await fetch(`/api/bookings/search?${param}`);
+      if (!customerSession?.token) return [];
+      const res = await fetch("/api/customer/bookings", {
+        headers: {
+          Authorization: `Bearer ${customerSession.token}`,
+        },
+      });
+      if (res.status === 401) {
+        localStorage.removeItem("customer_session");
+        setCustomerSession(null);
+        throw new Error("Session expired");
+      }
       if (!res.ok) throw new Error("Search failed");
       const json = await res.json();
-      if (json.data?.length) localStorage.setItem("customer_identifier", submitted);
       return json.data || [];
     },
-    enabled: !!submitted,
+    enabled: !!customerSession?.token,
+  });
+
+  const requestCodeMutation = useMutation({
+    mutationFn: async (identifier) => {
+      const res = await apiRequest("POST", "/api/customer/login/request-code", { identifier });
+      return res.json();
+    },
+    onSuccess: (response) => {
+      const result = response.data || response;
+      if (result.codeSent === false) return;
+      if (result.directLogin) {
+        const session = {
+          token: result.token,
+          phone: result.phone,
+          identifier: result.identifier || result.phone,
+        };
+        localStorage.setItem("customer_session", JSON.stringify(session));
+        localStorage.setItem("customer_identifier", session.identifier);
+        setCustomerSession(session);
+        return;
+      }
+      setLoginStep("code");
+      setCode("");
+    },
+  });
+
+  const verifyCodeMutation = useMutation({
+    mutationFn: async ({ email, code }) => {
+      const res = await apiRequest("POST", "/api/customer/login/verify", { email, code });
+      return res.json();
+    },
+    onSuccess: (response) => {
+      const session = response.data || response;
+      localStorage.setItem("customer_session", JSON.stringify(session));
+      localStorage.setItem("customer_identifier", session.email || session.identifier);
+      setCustomerSession(session);
+    },
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem("customer_identifier");
-    if (saved) { setIdentifier(saved); setSubmitted(saved); }
+    const savedSession = localStorage.getItem("customer_session");
+    if (savedSession) {
+      try {
+        const parsed = JSON.parse(savedSession);
+        if (parsed?.token && (parsed?.email || parsed?.phone)) {
+          setCustomerSession(parsed);
+          setIdentifier(parsed.email || parsed.phone || parsed.identifier || "");
+          return;
+        }
+      } catch {
+        localStorage.removeItem("customer_session");
+      }
+    }
+
+    const savedIdentifier = localStorage.getItem("customer_identifier");
+    if (savedIdentifier) {
+      setIdentifier(savedIdentifier);
+    }
   }, []);
 
-  const handleSubmit = (e) => { e.preventDefault(); setSubmitted(identifier.trim()); };
-  const handleSignOut = () => { localStorage.removeItem("customer_identifier"); setIdentifier(""); setSubmitted(""); };
+  const handleRequestCode = (e) => {
+    e.preventDefault();
+    const trimmedIdentifier = identifier.trim();
+    if (!trimmedIdentifier) return;
+    requestCodeMutation.mutate(trimmedIdentifier);
+  };
+
+  const handleVerifyCode = (e) => {
+    e.preventDefault();
+    const email = identifier.trim().toLowerCase();
+    verifyCodeMutation.mutate({ email, code: code.trim() });
+  };
+
+  const handleSignOut = async () => {
+    if (customerSession?.token) {
+      try {
+        await fetch("/api/customer/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${customerSession.token}`,
+          },
+        });
+      } catch {
+        // The local session should still be cleared if the network request fails.
+      }
+    }
+    localStorage.removeItem("customer_session");
+    localStorage.removeItem("customer_identifier");
+    setCustomerSession(null);
+    setIdentifier("");
+    setCode("");
+    setLoginStep("email");
+  };
+
+  const loginError = requestCodeMutation.error || verifyCodeMutation.error;
+  const loginMessage = requestCodeMutation.data?.data?.codeSent === false
+    ? requestCodeMutation.data.data.message
+    : null;
+  const isSubmittingLogin = requestCodeMutation.isPending || verifyCodeMutation.isPending;
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
@@ -182,7 +282,7 @@ export default function CustomerDashboardView({ onBack }) {
             <ArrowLeft size={16} /> Back to Home
           </button>
           <span className="font-playfair font-bold text-base text-zinc-900 dark:text-white">My Bookings</span>
-          {submitted ? (
+          {customerSession ? (
             <button onClick={handleSignOut} className="text-xs font-jakarta font-semibold text-zinc-400 hover:text-rose-400 transition-colors">
               Sign Out
             </button>
@@ -196,30 +296,80 @@ export default function CustomerDashboardView({ onBack }) {
           <p className="text-amber-400 text-xs font-jakarta font-bold uppercase tracking-[0.3em] mb-4">Booking Portal</p>
           <h1 className="text-4xl sm:text-5xl font-playfair font-bold text-zinc-900 dark:text-white mb-4 transition-colors">Track Your Bookings</h1>
           <p className="text-zinc-400 font-jakarta max-w-md mx-auto">
-            Enter your phone or email to view all your event bookings.
+            Sign in with the email or mobile number used for your booking to view your event details.
           </p>
         </div>
 
-        {/* Search */}
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 mb-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 transition-colors">
-          <div className="relative flex-1">
-            {identifier.includes("@")
-              ? <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
-              : <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />}
-            <input
-              placeholder="Phone number or email address"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder:text-zinc-500 font-jakarta text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
-            />
+        {!customerSession && (
+          <div className="mb-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-5 transition-colors">
+            {loginStep === "email" ? (
+              <form onSubmit={handleRequestCode} className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  {identifier.includes("@") ? (
+                    <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  ) : (
+                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  )}
+                  <input
+                    type="text"
+                    placeholder="Email or mobile number used for booking"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder:text-zinc-500 font-jakarta text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmittingLogin}
+                  className="h-12 px-7 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-zinc-950 font-jakarta font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-105 shadow-lg shadow-amber-500/20 shrink-0"
+                >
+                  {requestCodeMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
+                  Continue
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyCode} className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <LogIn size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input
+                      inputMode="numeric"
+                      placeholder="Enter 6 digit code"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder:text-zinc-500 font-jakarta text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingLogin || code.length !== 6}
+                    className="h-12 px-7 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-zinc-950 font-jakarta font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-105 shadow-lg shadow-amber-500/20 shrink-0"
+                  >
+                    {verifyCodeMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                    View Bookings
+                  </button>
+                </div>
+                <div className="flex items-center justify-between gap-3 text-xs font-jakarta text-zinc-500">
+                  <span>Code sent to {identifier.trim().toLowerCase()}</span>
+                  <button type="button" onClick={() => setLoginStep("email")} className="font-semibold text-amber-500 hover:text-amber-400">
+                    Change Login
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {loginError && (
+              <p className="mt-3 text-sm text-rose-400 font-jakarta">
+                {loginError.message || "Unable to sign in. Please try again."}
+              </p>
+            )}
+            {loginMessage && (
+              <p className="mt-3 text-sm text-rose-400 font-jakarta">
+                {loginMessage}
+              </p>
+            )}
           </div>
-          <button
-            type="submit"
-            className="h-12 px-7 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-jakarta font-bold text-sm flex items-center gap-2 transition-all hover:scale-105 shadow-lg shadow-amber-500/20 shrink-0"
-          >
-            <Search size={16} /> Find Bookings
-          </button>
-        </form>
+        )}
 
         {/* Loading */}
         {(isLoading || isFetching) && (
@@ -245,12 +395,12 @@ export default function CustomerDashboardView({ onBack }) {
         )}
 
         {/* Empty */}
-        {!isLoading && !isFetching && submitted && bookings?.length === 0 && (
+        {!isLoading && !isFetching && customerSession && bookings?.length === 0 && (
           <div className="text-center py-20 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl transition-colors">
             <BookOpen size={48} className="mx-auto mb-4 text-zinc-700" />
             <h3 className="text-xl font-playfair font-bold text-zinc-900 dark:text-white mb-2">No Bookings Found</h3>
             <p className="text-zinc-400 font-jakarta text-sm mb-6">
-              No bookings found for <span className="text-zinc-900 dark:text-white font-semibold">{submitted}</span>.
+              No bookings found for <span className="text-zinc-900 dark:text-white font-semibold">{customerSession.email || customerSession.phone}</span>.
             </p>
             <button onClick={onBack} className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-jakarta font-bold text-sm transition-all hover:scale-105">
               Browse Our Menu

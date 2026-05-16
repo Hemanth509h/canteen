@@ -1,6 +1,8 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar, Mail } from "lucide-react";
+import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar, Mail, MapPin, Tag } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/lib/cart-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +18,16 @@ export function CartDrawer() {
   const { toast } = useToast();
   const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests } = useCart();
   const [showContactDialog, setShowContactDialog] = useState(false);
-  const [customerDetails, setCustomerDetails] = useState({ name: "", phone: "", email: "", eventDate: "", specialRequests: "" });
+  const [customerDetails, setCustomerDetails] = useState({ 
+    name: "", 
+    phone: "", 
+    email: "", 
+    eventDate: "", 
+    eventType: "Wedding",
+    eventLocation: "",
+    specialRequests: "" 
+  });
+  const hasContactMethod = Boolean(customerDetails.phone.trim() || customerDetails.email.trim());
 
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
@@ -50,17 +61,30 @@ export function CartDrawer() {
       }
       return json;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const booking = response.data || response;
+      const emailSent = booking.emailStatus?.success;
+      const shouldCall = Boolean(customerDetails.phone.trim());
+
+      if (customerDetails.email.trim()) {
+        localStorage.setItem("customer_identifier", customerDetails.email.trim().toLowerCase());
+      } else if (customerDetails.phone.trim()) {
+        localStorage.setItem("customer_identifier", customerDetails.phone.trim());
+      }
+
       toast({
         title: "Booking Request Sent",
-        description: "Your details have been shared with our admin. Initiating call...",
+        description: emailSent
+          ? "Your details have been shared and a confirmation email was sent."
+          : "Your details have been shared with our admin.",
       });
       setShowContactDialog(false);
       clearCart();
-      
-      // Navigate to call using the company phone number or a fallback
-      const phoneToCall = companyInfo?.phoneNumber || "1234567890";
-      window.location.href = `tel:${phoneToCall}`;
+
+      if (shouldCall) {
+        const phoneToCall = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber || "";
+        if (phoneToCall) window.location.href = `tel:${phoneToCall.replace(/\D/g, "")}`;
+      }
     },
     onError: (error) => {
       toast({
@@ -72,19 +96,20 @@ export function CartDrawer() {
   });
 
   const handleContact = () => {
-    if (!customerDetails.name || !customerDetails.phone || !customerDetails.eventDate) return;
-    
+    if (!customerDetails.name || !hasContactMethod || !customerDetails.eventDate) return;
+
     // Create the booking record in the database
     const bookingData = {
       clientName: customerDetails.name || "Customer",
-      contactPhone: customerDetails.phone || "Not provided",
-      contactEmail: customerDetails.email || "customer@example.com",
-      eventType: "Inquiry from Website",
+      contactPhone: customerDetails.phone.trim(),
+      contactEmail: customerDetails.email.trim().toLowerCase(),
+      eventType: customerDetails.eventType,
+      eventLocation: customerDetails.eventLocation,
       eventDate: customerDetails.eventDate,
       guestCount: globalGuests || 1,
       pricePerPlate: 0,
       servingBoysNeeded: 0,
-      specialRequests: customerDetails.specialRequests || "",
+      specialRequests: customerDetails.specialRequests,
       status: "pending"
     };
 
@@ -113,14 +138,17 @@ export function CartDrawer() {
                 <ShoppingCart className="text-primary" />
                 Your Cart
               </SheetTitle>
-              
+              <SheetDescription className="sr-only">
+                Review your items and complete your booking request.
+              </SheetDescription>
+
               {cartItems.length > 0 && (
                 <div className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl">
                   <span className="text-sm font-medium whitespace-nowrap">No. of Guests:</span>
                   <div className="flex items-center gap-1">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-8 w-8 rounded-lg border-primary/20"
                       onClick={() => updateGlobalGuests(Math.max(1, globalGuests - 1))}
                     >
@@ -133,9 +161,9 @@ export function CartDrawer() {
                       onChange={(e) => updateGlobalGuests(parseInt(e.target.value) || 1)}
                       className="h-9 w-16 text-center font-bold bg-background border-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-8 w-8 rounded-lg border-primary/20"
                       onClick={() => updateGlobalGuests(globalGuests + 1)}
                     >
@@ -147,7 +175,7 @@ export function CartDrawer() {
               )}
             </div>
           </SheetHeader>
-          
+
           {cartItems.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
               <div className="w-20 h-20 bg-secondary/30 rounded-full flex items-center justify-center mb-4">
@@ -156,7 +184,7 @@ export function CartDrawer() {
               <h3 className="text-xl font-bold mb-2">Cart is empty</h3>
               <p className="text-muted-foreground mb-6">Add some delicious items from our menu to get started!</p>
               <SheetTrigger asChild>
-                <Button 
+                <Button
                   className="rounded-xl px-8 font-bold bg-primary hover:bg-primary/90 text-white shadow-lg"
                   onClick={() => {
                     const menu = document.getElementById('menu');
@@ -179,9 +207,9 @@ export function CartDrawer() {
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-bold text-sm line-clamp-1">{item.name}</h4>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-6 w-6 text-muted-foreground hover:text-destructive transition-colors"
                             onClick={() => removeFromCart(item.id)}
                           >
@@ -193,9 +221,9 @@ export function CartDrawer() {
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground whitespace-nowrap">Guests:</span>
                             <div className="flex items-center gap-1">
-                              <Button 
-                                variant="outline" 
-                                size="icon" 
+                              <Button
+                                variant="outline"
+                                size="icon"
                                 className="h-6 w-6 rounded-md border-primary/20"
                                 onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                               >
@@ -208,9 +236,9 @@ export function CartDrawer() {
                                 onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
                                 className="h-7 w-12 text-center text-xs font-bold bg-secondary/30 border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
-                              <Button 
-                                variant="outline" 
-                                size="icon" 
+                              <Button
+                                variant="outline"
+                                size="icon"
                                 className="h-6 w-6 rounded-md border-primary/20"
                                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               >
@@ -224,7 +252,7 @@ export function CartDrawer() {
                   ))}
                 </div>
               </ScrollArea>
-              
+
               <div className="pt-6 space-y-4">
                 <Separator />
                 <div className="flex justify-between items-center px-2 text-sm text-muted-foreground">
@@ -236,13 +264,13 @@ export function CartDrawer() {
                   <span className="font-bold text-lg">{globalGuests}</span>
                 </div>
                 <SheetFooter className="flex-col sm:flex-col gap-3">
-                  <Button 
-                    className="w-full h-12 text-lg font-bold rounded-xl bg-[#22c55e] hover:bg-[#16a34a]" 
+                  <Button
+                    className="w-full h-12 text-lg font-bold rounded-xl bg-[#22c55e] hover:bg-[#16a34a]"
                     onClick={() => setShowContactDialog(true)}
                   >
                     Proceed to Contact
                   </Button>
-                  
+
                   <div className="pt-2 pb-2 text-center space-y-2">
                     <p className="text-xs text-muted-foreground italic">Need help? Contact us directly:</p>
                     <div className="flex items-center justify-center gap-4 text-sm">
@@ -271,65 +299,102 @@ export function CartDrawer() {
               Complete Your Booking
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-sm">
-              Please provide your details so we can assist you with your booking.
+              Please provide your details so we can assist you with your booking. Phone or email is enough.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6">
-            {!isLoggedIn && (
-              <>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-bold flex items-center gap-2 px-1">
+                  <User size={16} className="text-primary" />
+                  Client Name
+                </label>
+                <Input
+                  placeholder="Enter your full name"
+                  value={customerDetails.name}
+                  onChange={(e) => setCustomerDetails(prev => ({ ...prev, name: e.target.value }))}
+                  className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold flex items-center gap-2 px-1">
+                  <Phone size={16} className="text-primary" />
+                  Mobile Number
+                </label>
+                <Input
+                  placeholder="Enter your mobile number"
+                  value={customerDetails.phone}
+                  onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
+                  className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold flex items-center gap-2 px-1">
-                    <User size={16} className="text-primary" />
-                    Your Name
+                    <Tag size={16} className="text-primary" />
+                    Event Type
                   </label>
-                  <Input
-                    placeholder="Enter your full name"
-                    value={customerDetails.name}
-                    onChange={(e) => setCustomerDetails(prev => ({ ...prev, name: e.target.value }))}
-                    className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-bold flex items-center gap-2 px-1">
-                    <Phone size={16} className="text-primary" />
-                    Phone Number
-                  </label>
-                  <Input
-                    placeholder="Enter your phone number"
-                    value={customerDetails.phone}
-                    onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
-                    className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
-                  />
+                  <Select 
+                    value={customerDetails.eventType} 
+                    onValueChange={(v) => setCustomerDetails(prev => ({ ...prev, eventType: v }))}
+                  >
+                    <SelectTrigger className="rounded-xl h-12 border-primary/20 focus:ring-primary/20">
+                      <SelectValue placeholder="Select event type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Wedding">Wedding</SelectItem>
+                      <SelectItem value="Corporate Event">Corporate Event</SelectItem>
+                      <SelectItem value="Birthday Party">Birthday Party</SelectItem>
+                      <SelectItem value="Anniversary">Anniversary</SelectItem>
+                      <SelectItem value="Engagement">Engagement</SelectItem>
+                      <SelectItem value="Conference">Conference</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-bold flex items-center gap-2 px-1">
-                    <Mail size={16} className="text-primary" />
-                    Email Address
+                    <Calendar size={16} className="text-primary" />
+                    Event Date
                   </label>
                   <Input
-                    placeholder="Enter your email address"
-                    value={customerDetails.email}
-                    onChange={(e) => setCustomerDetails(prev => ({ ...prev, email: e.target.value }))}
+                    type="date"
+                    value={customerDetails.eventDate}
+                    onChange={(e) => setCustomerDetails(prev => ({ ...prev, eventDate: e.target.value }))}
                     className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
                   />
                 </div>
-              </>
-            )}
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold flex items-center gap-2 px-1">
-                <Calendar size={16} className="text-primary" />
-                Event Date
-              </label>
-              <Input
-                type="date"
-                value={customerDetails.eventDate}
-                onChange={(e) => setCustomerDetails(prev => ({ ...prev, eventDate: e.target.value }))}
-                className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-bold flex items-center gap-2 px-1">
+                  <MapPin size={16} className="text-primary" />
+                  Event Location
+                </label>
+                <Input
+                  placeholder="Where is the event taking place?"
+                  value={customerDetails.eventLocation}
+                  onChange={(e) => setCustomerDetails(prev => ({ ...prev, eventLocation: e.target.value }))}
+                  className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold flex items-center gap-2 px-1">
+                  <Mail size={16} className="text-primary" />
+                  Email Address
+                </label>
+                <Input
+                  placeholder="Enter your email address"
+                  value={customerDetails.email}
+                  onChange={(e) => setCustomerDetails(prev => ({ ...prev, email: e.target.value }))}
+                  className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -337,11 +402,11 @@ export function CartDrawer() {
                 <Send size={16} className="text-primary" />
                 Other Requests
               </label>
-              <Input
+              <Textarea
                 placeholder="Any special requests or details?"
                 value={customerDetails.specialRequests}
                 onChange={(e) => setCustomerDetails(prev => ({ ...prev, specialRequests: e.target.value }))}
-                className="rounded-xl h-12 border-primary/20 focus:ring-primary/20"
+                className="rounded-xl min-h-[80px] border-primary/20 focus:ring-primary/20"
               />
             </div>
           </div>
@@ -355,7 +420,7 @@ export function CartDrawer() {
               Cancel
             </Button>
             <Button
-              disabled={(!isLoggedIn && (!customerDetails.name || !customerDetails.phone || !customerDetails.email)) || !customerDetails.eventDate || bookingMutation.isPending}
+              disabled={!customerDetails.name || !hasContactMethod || !customerDetails.eventDate || bookingMutation.isPending}
               onClick={handleContact}
               className="w-full h-12 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold"
             >

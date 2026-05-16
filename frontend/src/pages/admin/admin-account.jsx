@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -163,10 +161,10 @@ export default function AdminAccount() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>• Use a strong password with at least 6 characters</p>
-            <p>• Avoid using common words or personal information</p>
-            <p>• Keep your password secure and don't share it</p>
-            <p>• Change your password regularly for better security</p>
+            <p>Use a strong password with at least 6 characters.</p>
+            <p>Avoid using common words or personal information.</p>
+            <p>Keep your password secure and do not share it.</p>
+            <p>Change your password regularly for better security.</p>
           </CardContent>
         </Card>
       </div>

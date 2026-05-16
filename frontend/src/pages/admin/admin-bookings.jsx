@@ -21,7 +21,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, RefreshCw, List, DollarSign, Users, CreditCard, X, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Printer, Search, Eye, RefreshCw, List, DollarSign, Users, CreditCard, X, Loader2, Mail } from "lucide-react";
 import { insertEventBookingSchema, updateEventBookingSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -326,6 +326,30 @@ export default function EventBookingsManager() {
     },
   });
 
+  const sendUpdateMailMutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await apiRequest("POST", `/api/bookings/${id}/send-update`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to send update email");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Email Sent",
+        description: "Booking details have been sent to the customer.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to Send Email",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEdit = (booking) => {
     setEditingBooking(booking);
     // Clean up special requests if they contain the "Selected Menu:" string
@@ -342,6 +366,7 @@ export default function EventBookingsManager() {
       pricePerPlate: booking.pricePerPlate || 0,
       contactEmail: booking.contactEmail || "",
       contactPhone: booking.contactPhone || "",
+      eventLocation: booking.eventLocation || "",
       specialRequests: cleanedSpecialRequests,
       status: booking.status || "pending",
     });
@@ -515,6 +540,7 @@ export default function EventBookingsManager() {
       pricePerPlate: 0,
       contactEmail: "",
       contactPhone: "",
+      eventLocation: "",
       specialRequests: "",
       status: "pending",
     });
@@ -581,10 +607,17 @@ export default function EventBookingsManager() {
                       <FormItem><FormLabel>Price Per Plate (₹)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="contactPhone" render={({ field }) => (
-                      <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="contactEmail" render={({ field }) => (
                       <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="eventLocation" render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Event Location</FormLabel>
+                        <FormControl><Input placeholder="Event venue or address" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="status" render={({ field }) => (
                       <FormItem><FormLabel>Status</FormLabel>
@@ -647,6 +680,11 @@ export default function EventBookingsManager() {
                       <div className="text-xs text-muted-foreground">
                         {booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-IN') : "TBD"} • {booking.guestCount} Guests
                       </div>
+                      {booking.eventLocation && (
+                        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 italic">
+                          📍 {booking.eventLocation}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
@@ -668,6 +706,20 @@ export default function EventBookingsManager() {
                       <Badge variant={statusColors[booking.status] || "secondary"}>{booking.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => sendUpdateMailMutation.mutate(booking._id || booking.id)}
+                        disabled={sendUpdateMailMutation.isPending}
+                        title="Send Update Mail to Customer"
+                      >
+                        {sendUpdateMailMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Mail className="h-4 w-4 mr-1" />
+                        )}
+                        Send Mail
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => handleViewMenu(booking)}>
                         <List className="h-4 w-4 mr-1" /> Show Menu
                       </Button>

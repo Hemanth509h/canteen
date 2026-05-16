@@ -151,7 +151,7 @@ export default function CompanySettingsManager() {
     updateMutation.mutate(toCompanyInfoPayload(data));
   };
 
-  const logoUrlValue = form.watch("logoUrl") || "/leaf_logo.png";
+  const logoUrlValue = form.watch("logoUrl") || "/leaf_logo.svg";
   const heroImageUrlValue = form.watch("heroImageUrl");
   
   return (
@@ -433,7 +433,7 @@ export default function CompanySettingsManager() {
                                 <Button 
                                   type="button" 
                                   variant="outline"
-                                  onClick={() => field.onChange("/leaf_logo.png")}
+                                  onClick={() => field.onChange("/leaf_logo.svg")}
                                 >
                                   Use Generated
                                 </Button>

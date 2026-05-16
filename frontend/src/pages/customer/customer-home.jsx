@@ -4,7 +4,7 @@ import { useCart } from "@/lib/cart-context";
 import { Phone } from "lucide-react";
 
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { STATIC_COMPANY_INFO, STATIC_REVIEWS } from "@/lib/static-data";
 import localMenuItems from "@/lib/menu.json";
 
@@ -53,7 +53,7 @@ export default function CustomerHome() {
     refetchOnWindowFocus: false
   });
 
-  const logoSrc = companyInfo?.logoUrl || "/leaf_logo.png";
+  const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
   const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;
 
 
@@ -94,6 +94,12 @@ export default function CustomerHome() {
 
       <Dialog open={!!selectedItem} onOpenChange={(o) => !o && setSelectedItem(null)}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+          <div className="sr-only">
+            <DialogTitle>{selectedItem?.name || "Food Item Details"}</DialogTitle>
+            <DialogDescription>
+              View details and description for {selectedItem?.name || "this food item"}.
+            </DialogDescription>
+          </div>
           <FoodItemQuickView
             item={selectedItem}
             onClose={() => setSelectedItem(null)}

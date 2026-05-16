@@ -8,39 +8,42 @@ export function setAdminSession() {
   localStorage.setItem(AUTH_EXPIRY_KEY, expiryTime.toString());
 }
 
-export function isAdminAuthenticated() {
+export async function isAdminAuthenticated() {
   const isAuthenticated = localStorage.getItem(AUTH_KEY) === "true";
   const expiryTime = localStorage.getItem(AUTH_EXPIRY_KEY);
-  
+
   if (!isAuthenticated || !expiryTime) {
     return false;
   }
-  
+
   const expiry = parseInt(expiryTime, 10);
   if (Date.now() > expiry) {
-    clearAdminSession();
+    await clearAdminSession();
     return false;
   }
-  
+
   return true;
 }
 
-export function clearAdminSession() {
+export async function clearAdminSession() {
   localStorage.removeItem(AUTH_KEY);
   localStorage.removeItem(AUTH_EXPIRY_KEY);
 }
 
 export function refreshSession() {
-  if (isAdminAuthenticated()) {
+  if (localStorage.getItem(AUTH_KEY) === "true") {
     const expiryTime = Date.now() + SESSION_DURATION;
     localStorage.setItem(AUTH_EXPIRY_KEY, expiryTime.toString());
   }
 }
 
-export function getSessionTimeRemaining() {
-  const expiryTime = localStorage.getItem(AUTH_EXPIRY_KEY);
-  if (!expiryTime) return 0;
-  
-  const remaining = parseInt(expiryTime, 10) - Date.now();
-  return Math.max(0, remaining);
+export function onAdminAuthStateChange(callback) {
+  const handleStorage = (event) => {
+    if (event.key === AUTH_KEY || event.key === AUTH_EXPIRY_KEY) {
+      isAdminAuthenticated().then(callback);
+    }
+  };
+
+  window.addEventListener("storage", handleStorage);
+  return () => window.removeEventListener("storage", handleStorage);
 }

@@ -132,8 +132,6 @@ export default function FoodItemsManager() {
     
     const uniqueCategories = Array.from(new Set(categoriesForType)).sort();
     
-    console.log("Selected Type:", selectedType);
-    console.log("Filtered Categories:", uniqueCategories);
     
     return uniqueCategories;
   }, [selectedType, foodItems]);

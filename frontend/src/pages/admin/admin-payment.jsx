@@ -30,7 +30,6 @@ export default function AdminPaymentConfirmation() {
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
       const url = `/api/bookings/${bookingId}`;
-      console.log('Fetching from URL:', url);
       const res = await fetch(url);
       if (!res.ok) {
         const errorText = await res.text();
@@ -49,21 +48,9 @@ export default function AdminPaymentConfirmation() {
     queryKey: ["/api/company-info"],
   });
 
-  const getNextPaymentPayload = () => {
+  const getNextPaymentType = () => {
     if (!booking) throw new Error("Booking not found");
-
-    const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
-    const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
-    const paymentType = booking.advancePaymentStatus === "pending" ? "advance" : "final";
-    const amount = paymentType === "advance" ? advanceAmount : (totalAmount - advanceAmount);
-
-    return {
-      bookingId: booking._id || booking.id || bookingId,
-      paymentType,
-      customerName: booking.clientName,
-      amount,
-      eventDate: booking.eventDate
-    };
+    return booking.advancePaymentStatus === "pending" ? "advance" : "final";
   };
 
   useEffect(() => {
@@ -178,8 +165,8 @@ export default function AdminPaymentConfirmation() {
       if (!customerEmail) throw new Error("Customer email not available");
 
       const res = await apiRequest("POST", "/api/payments/send-email", {
-        ...getNextPaymentPayload(),
-        customerEmail,
+        bookingId: booking._id || booking.id || bookingId,
+        paymentType: getNextPaymentType(),
       });
       return res.json();
     },

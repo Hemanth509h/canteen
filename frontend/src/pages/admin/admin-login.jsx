@@ -5,11 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChefHat, Lock, ArrowLeft, UtensilsCrossed } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { setAdminSession } from "@/lib/auth";
+import { isAdminAuthenticated, setAdminSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
-
 import { API_URL } from "@/lib/queryClient";
 
 export default function AdminLogin() {
@@ -30,47 +29,44 @@ export default function AdminLogin() {
     }
   }, [companyInfo?.primaryColor]);
 
-  const logoSrc = "/leaf_logo.png";
+  useEffect(() => {
+    let isMounted = true;
+
+    isAdminAuthenticated().then((authenticated) => {
+      if (isMounted && authenticated) {
+        setLocation("/admin");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [setLocation]);
+
+  const logoSrc = "/leaf_logo.svg";
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Use the global API_URL configuration
-      const url = `${API_URL}/admin/login`;
-      
-      console.log("Attempting login at URL:", url);
-      
-      const response = await fetch(url, {
+      const response = await fetch(`${API_URL}/admin/login`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
         body: JSON.stringify({ password }),
       });
 
-      console.log("Login response status:", response.status);
-      
       if (!response.ok) {
         let errorMessage = "Invalid password";
         try {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            errorMessage = errorData.error || (errorData.data && errorData.data.error) || errorMessage;
-          } else {
-            const errorText = await response.text();
-            console.error("Login failed (non-JSON):", response.status, errorText.slice(0, 200));
-            if (errorText.includes("<!DOCTYPE html>")) {
-              errorMessage = "Authentication service temporarily unavailable. Please try again in a few seconds.";
-            }
-          }
-        } catch (e) {
-          console.error("Error parsing failure response:", e);
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.data?.error || errorMessage;
+        } catch {
+          // Keep default message for non-JSON failures.
         }
-        
         toast({
           title: "Login Failed",
           description: errorMessage,
@@ -80,25 +76,20 @@ export default function AdminLogin() {
       }
 
       const data = await response.json();
-      console.log("Login success:", data);
-
       if (data.success || data.data?.success) {
         setAdminSession();
         setLocation("/admin");
       } else {
         toast({
           title: "Login Failed",
-          description: data.error || (data.data && data.data.error) || "Invalid password",
+          description: data.error || data.data?.error || "Invalid password",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error("Login fetch error:", error);
-      
-      // Automatic retry logic for Replit environment fluctuations
       toast({
         title: "Connection Error",
-        description: "Checking backend connection... please try again in a moment.",
+        description: error.message || "Unable to reach the authentication service.",
         variant: "destructive",
       });
     } finally {
@@ -152,7 +143,7 @@ export default function AdminLogin() {
                     id="password"
                     type="password"
                     placeholder="Enter your password"
-                    value={password || ""}
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
@@ -182,7 +173,7 @@ export default function AdminLogin() {
               </Button>
 
               <p className="text-center text-xs text-muted-foreground font-jakarta pt-1">
-                Protected area — authorised personnel only
+                Protected area for authorised personnel only
               </p>
             </form>
           </CardContent>

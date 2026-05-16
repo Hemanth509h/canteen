@@ -3,6 +3,19 @@ import { z } from "zod";
 const sanitizeString = (val) => val.trim().slice(0, 500);
 const sanitizeName = (val) => val.trim().slice(0, 100);
 const sanitizePhone = (val) => val.replace(/\D/g, "").slice(0, 15);
+const sanitizeEmail = (val) => val.trim().toLowerCase();
+const optionalEmailSchema = z.string()
+  .trim()
+  .email("Please enter a valid email address")
+  .transform(sanitizeEmail)
+  .or(z.literal("").transform(() => ""))
+  .optional()
+  .default("");
+const optionalPhoneSchema = z.string()
+  .optional()
+  .default("")
+  .transform(sanitizePhone)
+  .refine((val) => !val || val.length >= 10, "Phone number must be at least 10 digits");
 
 export const insertFoodItemSchema = z.object({
   name: z.string()
@@ -22,7 +35,7 @@ export const insertFoodItemSchema = z.object({
   price: z.number().int().min(1, "Price must be at least 1").optional(),
 });
 
-export const insertEventBookingSchema = z.object({
+const eventBookingBaseSchema = z.object({
   clientName: z.string()
     .min(1, "Client name is required")
     .min(2, "Name must be at least 2 characters")
@@ -36,12 +49,23 @@ export const insertEventBookingSchema = z.object({
   guestCount: z.number().int().min(1, "At least 1 guest is required").max(10000, "Guest count too large"),
   pricePerPlate: z.number().int().min(0, "Price must be non-negative").max(100000),
   servingBoysNeeded: z.number().int().min(0, "Serving staff cannot be negative").max(100).default(2),
-  contactEmail: z.string().email("Please enter a valid email address"),
-  contactPhone: z.string().min(10, "Phone number must be at least 10 digits").transform(sanitizePhone),
+  contactEmail: optionalEmailSchema,
+  contactPhone: optionalPhoneSchema,
+  eventLocation: z.string().max(500, "Event location must be less than 500 characters").optional().default(""),
   specialRequests: z.string().max(1000, "Special requests must be less than 1000 characters").nullable().optional(),
 });
 
-export const updateEventBookingSchema = insertEventBookingSchema.partial().extend({
+export const insertEventBookingSchema = eventBookingBaseSchema.superRefine((data, ctx) => {
+  if (!data.contactEmail && !data.contactPhone) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["contactPhone"],
+      message: "Phone number or email address is required",
+    });
+  }
+});
+
+export const updateEventBookingSchema = eventBookingBaseSchema.partial().extend({
   status: z.enum(["pending", "confirmed", "completed", "cancelled"]).optional(),
   advancePaymentStatus: z.enum(["pending", "paid"]).optional(),
   finalPaymentStatus: z.enum(["pending", "paid"]).optional(),

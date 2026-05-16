@@ -2,7 +2,14 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
-import { sendPaymentLinkEmail, validateEmail } from "./mail-service.js";
+import { 
+  sendPaymentLinkEmail, 
+  validateEmail, 
+  sendBookingConfirmationEmail, 
+  sendAdminBookingNotificationEmail,
+  sendAdminPaymentNotificationEmail,
+  sendAdminCodeRequestNotificationEmail
+} from "./mail-service.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -160,7 +167,34 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       const booking = await getStorageInstance().createBooking(result.data);
-      sendResponse(res, 201, booking);
+      
+      // Customer Notification
+      let emailStatus = null;
+      if (booking.contactEmail && validateEmail(booking.contactEmail)) {
+        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+        const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
+        try {
+          emailStatus = await sendBookingConfirmationEmail(booking.contactEmail, booking, bookingLink);
+        } catch (error) {
+          console.error("Booking confirmation email error:", error);
+        }
+      }
+
+      // Admin Notification
+      try {
+        const companyInfo = readBrandingFromFrontend();
+        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
+        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+        const adminBookingLink = `${baseUrl}/admin/bookings`; 
+        
+        if (validateEmail(adminEmail)) {
+          await sendAdminBookingNotificationEmail(adminEmail, booking, adminBookingLink);
+        }
+      } catch (adminEmailError) {
+        console.error("Admin booking notification error:", adminEmailError);
+      }
+
+      sendResponse(res, 201, { ...booking, emailStatus });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create booking");
     }
@@ -199,6 +233,23 @@ export async function registerRoutes(app) {
       }
       const booking = await getStorageInstance().updateBooking(req.params.id, result.data);
       if (!booking) return sendResponse(res, 404, null, "Booking not found");
+
+      // Notify admin if payment screenshot was uploaded
+      if (req.body.advancePaymentScreenshot || req.body.finalPaymentScreenshot) {
+        try {
+          const companyInfo = readBrandingFromFrontend();
+          const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
+          const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+          const adminLink = `${baseUrl}/admin/bookings/payment/${booking.id || booking._id}`;
+          
+          if (validateEmail(adminEmail)) {
+            await sendAdminPaymentNotificationEmail(adminEmail, booking, adminLink);
+          }
+        } catch (paymentEmailError) {
+          console.error("Admin payment notification error:", paymentEmailError);
+        }
+      }
+
       sendResponse(res, 200, booking);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update booking");
@@ -282,13 +333,21 @@ export async function registerRoutes(app) {
 
       const result = insertCompanyInfoSchema.partial().extend({
         heroImages: z.array(z.string()).optional(),
-        contactEmail: z.string().email().optional(),
-        contactPhone: z.string().optional(),
+        contactEmail: z.string().email().optional().or(z.literal("")),
+        contactPhone: z.string().optional().or(z.literal("")),
       }).safeParse(sanitizedBody);
+
       if (!result.success) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
+      
       const info = writeBrandingToFrontend(result.data);
+      // Also sync to DB for redundancy
+      try {
+        await getStorageInstance().updateCompanyInfo(null, result.data);
+      } catch (dbErr) {
+        console.error("Failed to sync company info to DB:", dbErr);
+      }
       sendResponse(res, 200, info);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update company info");
@@ -394,6 +453,18 @@ export async function registerRoutes(app) {
         message: `Customer ${request.customerName} has requested a booking code.`,
         read: false
       });
+
+      // Notify admin via email
+      try {
+        const companyInfo = readBrandingFromFrontend();
+        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
+        if (validateEmail(adminEmail)) {
+          await sendAdminCodeRequestNotificationEmail(adminEmail, request);
+        }
+      } catch (err) {
+        console.error("Admin code request notification error:", err);
+      }
+
       sendResponse(res, 201, request);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to create code request");
