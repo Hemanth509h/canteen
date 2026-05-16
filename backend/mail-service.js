@@ -12,9 +12,47 @@ function getBranding() {
   }
 }
 
+function isValidEmailAddress(value) {
+  if (!value) return false;
+  const email = String(value).trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function formatFromAddress(displayName, emailAddress) {
+  if (!isValidEmailAddress(emailAddress)) return null;
+  const name = String(displayName || "").replace(/"/g, "").trim();
+  return name ? `"${name}" <${emailAddress}>` : emailAddress;
+}
+
 function getDefaultFrom(companyName) {
-  const name = companyName || getBranding().companyName;
-  return process.env.RESEND_FROM_EMAIL || `${name} <onboarding@resend.dev>`;
+  const name = companyName || getBranding().companyName || "Catering Services";
+  const configured = (process.env.RESEND_FROM_EMAIL || "").trim();
+
+  // Case 1: Already correctly formatted "Name <email@domain.com>"
+  const matched = configured.match(/^(.*)<([^>]+)>$/);
+  if (matched) {
+    const displayName = matched[1].trim().replace(/^"|"$/g, "");
+    const emailAddress = matched[2].trim();
+    const formatted = formatFromAddress(displayName || name, emailAddress);
+    if (formatted) return formatted;
+  }
+  
+  // Case 2: Just an email address "email@domain.com"
+  if (isValidEmailAddress(configured)) {
+    const formatted = formatFromAddress(name, configured);
+    if (formatted) return formatted;
+  }
+
+  const fallbackEmail =
+    process.env.RESEND_FROM_EMAIL_FALLBACK ||
+    "onboarding@resend.dev";
+
+  const fallbackDisplayName = configured && !configured.includes("@") ? configured : name;
+  const fallback = formatFromAddress(fallbackDisplayName, fallbackEmail);
+  if (fallback) return fallback;
+
+  // Case 3: Just a name or misconfigured - Force valid format
+  return `"${name.replace(/"/g, "")}" <onboarding@resend.dev>`;
 }
 
 function escapeHtml(value) {
@@ -249,8 +287,11 @@ export async function sendBookingUpdateEmail(to, booking, bookingLink, customMes
     throw new Error("RESEND_API_KEY is not configured");
   }
 
+  console.log(`[MAIL-DEBUG] Building update email for ${booking.clientName} (Status: ${booking.status})`);
   const { subject, text, html } = buildBookingUpdateEmail(booking, bookingLink, customMessage);
   const from = getDefaultFrom(booking.companyName);
+  
+  console.log(`[MAIL-DEBUG] Sending update email from: ${from} to: ${to}`);
   const { data, error } = await resend.emails.send({
     from,
     to,
@@ -499,13 +540,14 @@ export async function sendAdminCodeRequestNotificationEmail(to, request) {
   if (!resend) return { success: false, error: "Resend not configured" };
 
   const subject = `CODE REQUEST: ${request.customerName}`;
+  const customerIdentifier = request.customerIdentifier || request.customerEmail || request.customerPhone || "Not provided";
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:560px;margin:0 auto">
       <h2 style="color:#111827">Booking Code Requested</h2>
       <p>A potential customer has requested a booking code to view your services.</p>
       <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
         <p style="margin:0 0 8px"><strong>Customer:</strong> ${escapeHtml(request.customerName)}</p>
-        <p style="margin:0"><strong>Phone/Email:</strong> ${escapeHtml(request.customerIdentifier)}</p>
+        <p style="margin:0"><strong>Phone/Email:</strong> ${escapeHtml(customerIdentifier)}</p>
       </div>
       <p>Please log in to the admin panel to generate and send a code to this customer.</p>
     </div>
@@ -526,7 +568,7 @@ export async function sendCustomerLoginCodeEmail(to, code) {
   }
 
   const { subject, text, html } = buildCustomerLoginEmail(code);
-  const from = getDefaultFrom();
+  const from = getDefaultFrom("Customer Support");
   const { data, error } = await resend.emails.send({
     from,
     to,

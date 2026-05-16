@@ -1,10 +1,11 @@
-import { randomUUID } from "crypto";
+import { randomInt, randomUUID } from "crypto";
 import { getStorage } from "./db.js";
 import { 
   sendPaymentLinkEmail, 
   validateEmail, 
   sendBookingConfirmationEmail, 
   sendBookingUpdateEmail,
+  sendCustomerLoginCodeEmail,
   sendAdminBookingNotificationEmail,
   sendAdminPaymentNotificationEmail,
   sendAdminCodeRequestNotificationEmail
@@ -182,8 +183,9 @@ export async function registerRoutes(app) {
         const companyInfo = await readBranding();
         const baseUrl = getPublicBaseUrl(req);
         const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
+        const bookingData = typeof booking.toObject === 'function' ? booking.toObject() : booking;
         try {
-          emailStatus = await sendBookingConfirmationEmail(booking.contactEmail, { ...booking, companyName: companyInfo.companyName }, bookingLink);
+          emailStatus = await sendBookingConfirmationEmail(booking.contactEmail, { ...bookingData, companyName: companyInfo.companyName }, bookingLink);
         } catch (error) {
           console.error("Booking confirmation email error:", error);
         }
@@ -252,7 +254,12 @@ export async function registerRoutes(app) {
           const adminLink = `${baseUrl}/admin/bookings/payment/${booking.id || booking._id}`;
           
           if (validateEmail(adminEmail)) {
-            await sendAdminPaymentNotificationEmail(adminEmail, { ...booking, companyName: companyInfo.companyName }, adminLink);
+            await sendAdminPaymentNotificationEmail(
+              adminEmail,
+              { ...booking, companyName: companyInfo.companyName },
+              booking.advancePaymentStatus === "paid" ? "final" : "advance",
+              adminLink
+            );
           }
         } catch (paymentEmailError) {
           console.error("Admin payment notification error:", paymentEmailError);
@@ -275,16 +282,17 @@ export async function registerRoutes(app) {
         const companyInfo = await readBranding();
         const baseUrl = getPublicBaseUrl(req);
         const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
+        const bookingData = typeof booking.toObject === 'function' ? booking.toObject() : booking;
         
         // Using the dedicated update template for manual resends
-        await sendBookingUpdateEmail(booking.contactEmail, { ...booking, companyName: companyInfo.companyName }, bookingLink, message);
+        await sendBookingUpdateEmail(booking.contactEmail, { ...bookingData, companyName: companyInfo.companyName }, bookingLink, message);
         sendResponse(res, 200, { success: true, message: "Update email sent to customer" });
       } else {
         sendResponse(res, 400, null, "Customer has no valid email address");
       }
     } catch (error) {
       console.error("Failed to send update email:", error);
-      sendResponse(res, 500, null, "Failed to send update email");
+      sendResponse(res, 500, null, error?.message || "Failed to send update email");
     }
   });
 
@@ -485,18 +493,37 @@ export async function registerRoutes(app) {
         });
       }
 
-      // Reuse code-requests logic
+      const customerBooking = customerBookings[0];
+      const customerEmail = customerBooking.contactEmail || (validateEmail(trimmedIdentifier) ? trimmedIdentifier : "");
+      const customerPhone = customerBooking.contactPhone || identifier.trim();
+      const code = String(randomInt(100000, 1000000));
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+      const companyInfo = await readBranding();
+
       const request = await getStorageInstance().createCodeRequest({
-        customerName: customerBookings[0].clientName || "Customer",
-        email: customerBookings[0].contactEmail || trimmedIdentifier,
-        phone: customerBookings[0].contactPhone || identifier.trim(),
+        customerName: customerBooking.clientName || "Customer",
+        customerEmail,
+        customerPhone,
+        customerIdentifier: customerEmail || customerPhone,
+        eventDetails: customerBooking.eventType || "",
         status: "pending",
-        createdAt: new Date().toISOString()
       });
+
+      await getStorageInstance().createUserCode({
+        code,
+        isUsed: false,
+        expiresAt,
+        notes: `Customer login code for ${customerEmail || customerPhone}`,
+      });
+
+      if (customerEmail && validateEmail(customerEmail)) {
+        await sendCustomerLoginCodeEmail(customerEmail, code);
+      } else {
+        return sendResponse(res, 400, null, "Valid customer email address not found for this booking");
+      }
 
       // Notify admin
       try {
-        const companyInfo = await readBranding();
         const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
@@ -505,8 +532,9 @@ export async function registerRoutes(app) {
         console.error("Admin code request notification error:", err);
       }
 
-      sendResponse(res, 201, { codeSent: true, message: "Code request sent to admin" });
+      sendResponse(res, 201, { codeSent: true, message: "OTP sent to customer email" });
     } catch (error) {
+      console.error("Failed to initiate login:", error);
       sendResponse(res, 500, null, "Failed to initiate login");
     }
   });
@@ -518,6 +546,9 @@ export async function registerRoutes(app) {
 
       const validCode = await getStorageInstance().getUserCodeByValue(code);
       if (!validCode) {
+        return sendResponse(res, 401, null, "Invalid or expired code");
+      }
+      if (validCode.expiresAt && new Date(validCode.expiresAt).getTime() < Date.now()) {
         return sendResponse(res, 401, null, "Invalid or expired code");
       }
 
@@ -600,6 +631,9 @@ export async function registerRoutes(app) {
       if (!code) return sendResponse(res, 400, null, "Code is required");
       const validCode = await getStorageInstance().getUserCodeByValue(code);
       if (!validCode) return sendResponse(res, 404, null, "Invalid or used code");
+      if (validCode.expiresAt && new Date(validCode.expiresAt).getTime() < Date.now()) {
+        return sendResponse(res, 404, null, "Invalid or used code");
+      }
       sendResponse(res, 200, validCode);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to verify code");

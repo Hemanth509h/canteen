@@ -200,11 +200,18 @@ class MongoStorage {
   async getUserCodes() { return (await UserCodeModel.find()).map(toJSON); }
   async getUserCodeByValue(code) { 
     // Allow code to be used multiple times by searching without isUsed check
-    return toJSON(await UserCodeModel.findOne({ code })); 
+    return toJSON(await UserCodeModel.findOne({ code, isUsed: false })); 
   }
   async createUserCode(codeData) { return toJSON(await UserCodeModel.create(codeData)); }
   async updateUserCode(id, codeData) { return toJSON(await UserCodeModel.findByIdAndUpdate(id, codeData, { new: true })); }
   async deleteUserCode(id) { return (await UserCodeModel.findByIdAndDelete(id)) !== null; }
+  async markCodeAsUsed(code) {
+    return (await UserCodeModel.findOneAndUpdate(
+      { code, isUsed: false },
+      { isUsed: true },
+      { new: true }
+    )) !== null;
+  }
 
   // Code Request Methods
   async getCodeRequests() { return (await CodeRequestModel.find().sort({ createdAt: -1 })).map(toJSON); }
