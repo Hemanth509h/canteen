@@ -1,5 +1,5 @@
 // Use a relative path for the API URL in development
-export const API_URL = "/api";
+export const API_URL = "https://canteen-f0rq.onrender.com/api";
 
 export async function apiRequest(method, url, data) {
   // Normalize the URL: remove any leading slash and any leading 'api/'
@@ -33,41 +33,41 @@ export async function apiRequest(method, url, data) {
 
 export const getQueryFn =
   ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    const path = queryKey.join("/");
-    let cleanPath = path.startsWith("/") ? path.slice(1) : path;
-    if (cleanPath.startsWith("api/")) {
-      cleanPath = cleanPath.slice(4);
-    }
-
-    const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
-
-    const res = await fetch(finalUrl);
-
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
-    }
-
-    if (!res.ok) {
-      let errorData = {};
-      try {
-        errorData = await res.json();
-      } catch (e) {
-        // Not JSON
+    async ({ queryKey }) => {
+      const path = queryKey.join("/");
+      let cleanPath = path.startsWith("/") ? path.slice(1) : path;
+      if (cleanPath.startsWith("api/")) {
+        cleanPath = cleanPath.slice(4);
       }
-      throw new Error(errorData.error || res.statusText || `${res.status}`);
-    }
-    
-    const text = await res.text();
-    try {
-      const result = JSON.parse(text);
-      // Ensure we return the data property if it exists (wrapped by express handler)
-      return result.success && result.data !== undefined ? result.data : result;
-    } catch (e) {
-      console.error("Malformed JSON response:", text);
-      throw new Error("Invalid server response (malformed JSON)");
-    }
-  };
+
+      const finalUrl = `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
+
+      const res = await fetch(finalUrl);
+
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      if (!res.ok) {
+        let errorData = {};
+        try {
+          errorData = await res.json();
+        } catch (e) {
+          // Not JSON
+        }
+        throw new Error(errorData.error || res.statusText || `${res.status}`);
+      }
+
+      const text = await res.text();
+      try {
+        const result = JSON.parse(text);
+        // Ensure we return the data property if it exists (wrapped by express handler)
+        return result.success && result.data !== undefined ? result.data : result;
+      } catch (e) {
+        console.error("Malformed JSON response:", text);
+        throw new Error("Invalid server response (malformed JSON)");
+      }
+    };
 
 import { QueryClient } from "@tanstack/react-query";
 export const queryClient = new QueryClient({
