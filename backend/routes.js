@@ -42,23 +42,31 @@ import { z } from "zod";
 
 const getStorageInstance = () => getStorage();
 
-const frontendBrandingPath = path.resolve(__dirname, "../frontend/src/lib/branding.json");
-
-function readBrandingFromFrontend() {
-  if (!fs.existsSync(frontendBrandingPath)) return {};
-  return JSON.parse(fs.readFileSync(frontendBrandingPath, "utf8"));
+async function readBranding() {
+  try {
+    const info = await getStorageInstance().getCompanyInfo();
+    return info || {};
+  } catch (err) {
+    console.error("Failed to read branding from DB:", err);
+    return {};
+  }
 }
 
-function writeBrandingToFrontend(data) {
-  const current = readBrandingFromFrontend();
-  const next = {
-    ...current,
-    ...data,
-    contactEmail: data.contactEmail ?? data.email ?? current.contactEmail ?? current.email,
-    contactPhone: data.contactPhone ?? data.phone ?? current.contactPhone ?? current.phone,
-  };
-  fs.writeFileSync(frontendBrandingPath, `${JSON.stringify(next, null, 2)}\n`);
-  return next;
+async function writeBranding(data) {
+  try {
+    const current = await readBranding();
+    const next = {
+      ...current,
+      ...data,
+      contactEmail: data.contactEmail ?? data.email ?? current.contactEmail ?? current.email,
+      contactPhone: data.contactPhone ?? data.phone ?? current.contactPhone ?? current.phone,
+    };
+    await getStorageInstance().updateCompanyInfo(null, next);
+    return next;
+  } catch (err) {
+    console.error("Failed to write branding to DB:", err);
+    throw err;
+  }
 }
 
 export async function registerRoutes(app) {
@@ -182,7 +190,7 @@ export async function registerRoutes(app) {
 
       // Admin Notification
       try {
-        const companyInfo = readBrandingFromFrontend();
+        const companyInfo = await readBranding();
         const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
         const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
         const adminBookingLink = `${baseUrl}/admin/bookings`; 
@@ -237,7 +245,7 @@ export async function registerRoutes(app) {
       // Notify admin if payment screenshot was uploaded
       if (req.body.advancePaymentScreenshot || req.body.finalPaymentScreenshot) {
         try {
-          const companyInfo = readBrandingFromFrontend();
+          const companyInfo = await readBranding();
           const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
           const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
           const adminLink = `${baseUrl}/admin/bookings/payment/${booking.id || booking._id}`;
@@ -314,7 +322,7 @@ export async function registerRoutes(app) {
 
   app.get("/api/company-info", async (_req, res) => {
     try {
-      const info = readBrandingFromFrontend();
+      const info = await readBranding();
       sendResponse(res, 200, info || {});
     } catch (error) {
       sendResponse(res, 500, null, "Failed to fetch company info");
@@ -341,13 +349,7 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
       
-      const info = writeBrandingToFrontend(result.data);
-      // Also sync to DB for redundancy
-      try {
-        await getStorageInstance().updateCompanyInfo(null, result.data);
-      } catch (dbErr) {
-        console.error("Failed to sync company info to DB:", dbErr);
-      }
+      const info = await writeBranding(result.data);
       sendResponse(res, 200, info);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to update company info");
@@ -456,7 +458,7 @@ export async function registerRoutes(app) {
 
       // Notify admin via email
       try {
-        const companyInfo = readBrandingFromFrontend();
+        const companyInfo = await readBranding();
         const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
@@ -638,7 +640,7 @@ export async function registerRoutes(app) {
       const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
       const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.PAYMENT_BASE_URL || process.env.REPLIT_DEV_DOMAIN || '';
       const paymentLink = baseUrl ? `${baseUrl}/payment/${bookingId}` : `/payment/${bookingId}`;
-      const companyInfo = readBrandingFromFrontend();
+      const companyInfo = await readBranding();
 
       const emailStatus = await sendPaymentLinkEmail(customerEmail, paymentLink, {
         customerName,
