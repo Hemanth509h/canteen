@@ -244,7 +244,6 @@ export const insertAdminUserSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["superadmin", "accountant", "chef"]).default("accountant"),
   name: z.string().max(100).optional().default(""),
-  email: z.string().email("Invalid email address").optional().default(""),
 });
 
 export const updateAdminUserSchema = insertAdminUserSchema.partial();

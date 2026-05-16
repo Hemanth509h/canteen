@@ -353,25 +353,8 @@ export async function registerRoutes(app) {
         const adminBookingLink = `${baseUrl}/admin/bookings`; 
         
         // Resolve admin notification recipient
-        // Priority: 1. Admin Settings Email, 2. Branding Email, 3. Branding Contact Email, 4. Fallback
-        let adminEmail = "";
-        
-        // Try to get email from admin users collection first
-        try {
-          const adminUsers = await getStorageInstance().getAdminUsers();
-          const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
-          if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
-            adminEmail = primaryAdmin.email;
-            console.log(`[MAIL-DEBUG] Using admin email from settings: ${adminEmail}`);
-          }
-        } catch (e) {
-          console.warn("[MAIL-WARN] Could not fetch admin users from database");
-        }
-        
-        if (!adminEmail) {
-          // Fallback to branding email
-          adminEmail = (companyInfo?.email || companyInfo?.contactEmail || "").trim();
-        }
+        // Priority: 1. Branding Email, 2. Branding Contact Email, 3. Hardcoded Fallback
+        let adminEmail = (companyInfo?.email || companyInfo?.contactEmail || "").trim();
         
         if (!validateEmail(adminEmail)) {
           // If branding email is invalid/missing, fallback to RESEND_FROM_EMAIL but extract raw address
@@ -380,7 +363,7 @@ export async function registerRoutes(app) {
           adminEmail = match[1].trim();
           
           if (adminEmail === "onboarding@resend.dev") {
-             console.warn("[MAIL-WARN] Admin email is resolving to onboarding@resend.dev. You will not receive notifications here. Please set a valid email in Admin Panel > Staff Settings.");
+             console.warn("[MAIL-WARN] Admin email is resolving to onboarding@resend.dev. You will not receive notifications here. Please set a valid email in the Admin Panel > Settings.");
           }
         }
 
@@ -439,23 +422,7 @@ export async function registerRoutes(app) {
       if (req.body.advancePaymentScreenshot || req.body.finalPaymentScreenshot) {
         try {
           const companyInfo = await readBranding();
-          let adminEmail = "";
-          
-          // Try to get email from admin users collection first
-          try {
-            const adminUsers = await getStorageInstance().getAdminUsers();
-            const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
-            if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
-              adminEmail = primaryAdmin.email;
-            }
-          } catch (e) {
-            console.warn("[MAIL-WARN] Could not fetch admin users from database");
-          }
-          
-          if (!adminEmail) {
-            adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
-          }
-          
+          const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
           const baseUrl = getPublicBaseUrl(req);
           const adminLink = `${baseUrl}/admin/bookings/payment/${booking.id || booking._id}`;
           
@@ -937,23 +904,7 @@ export async function registerRoutes(app) {
 
       // Notify admin
       try {
-        let adminEmail = "";
-        
-        // Try to get email from admin users collection first
-        try {
-          const adminUsers = await getStorageInstance().getAdminUsers();
-          const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
-          if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
-            adminEmail = primaryAdmin.email;
-          }
-        } catch (e) {
-          console.warn("[MAIL-WARN] Could not fetch admin users from database");
-        }
-        
-        if (!adminEmail) {
-          adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
-        }
-        
+        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
         }
@@ -1030,23 +981,7 @@ export async function registerRoutes(app) {
       // Notify admin via email
       try {
         const companyInfo = await readBranding();
-        let adminEmail = "";
-        
-        // Try to get email from admin users collection first
-        try {
-          const adminUsers = await getStorageInstance().getAdminUsers();
-          const primaryAdmin = adminUsers.find(u => u.role === "superadmin") || adminUsers[0];
-          if (primaryAdmin?.email && validateEmail(primaryAdmin.email)) {
-            adminEmail = primaryAdmin.email;
-          }
-        } catch (e) {
-          console.warn("[MAIL-WARN] Could not fetch admin users from database");
-        }
-        
-        if (!adminEmail) {
-          adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
-        }
-        
+        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
         }
