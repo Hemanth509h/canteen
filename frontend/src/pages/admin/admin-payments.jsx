@@ -13,6 +13,7 @@ import { CalendarDays, CreditCard, IndianRupee, Search, AlertCircle, CheckCircle
 import { QRCodeCanvas } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import branding from "@/lib/branding.json";
 
 const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 
@@ -90,7 +91,7 @@ export default function AdminPayments() {
   const upiPreviewLink = useMemo(() => {
     const id = upiId.trim();
     if (!id) return "";
-    return `upi://pay?pa=${encodeURIComponent(id)}&pn=${encodeURIComponent(companyInfo?.companyName || "Catering Payment")}&tn=${encodeURIComponent("Payment Collection")}`;
+    return `upi://pay?pa=${encodeURIComponent(id)}&pn=${encodeURIComponent(companyInfo?.companyName || branding.companyName)}&tn=${encodeURIComponent("Payment Collection")}`;
   }, [companyInfo?.companyName, upiId]);
 
   const updateUpiMutation = useMutation({

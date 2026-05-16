@@ -28,6 +28,7 @@ import AdminPaymentConfirmation from "./admin-payment";
 import AdminPayments from "./admin-payments";
 import ChefPrintout from "./admin-chef-printout";
 import AnalyticsReports from "./admin-analytics";
+import branding from "@/lib/branding.json";
 import { useEffect, useState } from "react";
 import { clearAdminSession, isAdminAuthenticated, onAdminAuthStateChange } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
@@ -84,7 +85,7 @@ function AppSidebar({ onLogout }) {
                 <Skeleton className="h-5 w-24 mb-1" />
               ) : (
                 <span className="font-serif font-bold text-lg block truncate text-sidebar-foreground" data-testid="text-sidebar-company-name">
-                  {companyInfo?.companyName || "Ome Caterings"}
+                  {companyInfo?.companyName || branding.companyName}
                 </span>
               )}
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Admin Portal</Badge>

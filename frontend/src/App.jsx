@@ -13,6 +13,7 @@ import AdminPaymentConfirmation from "@/pages/admin/admin-payment";
 import PaymentConfirmation from "@/pages/staff/payment-confirmation";
 import NotFound from "@/pages/not-found";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
+import branding from "@/lib/branding.json";
 
 function Router() {
   return (
@@ -45,7 +46,7 @@ function AppContent() {
   });
 
   useEffect(() => {
-    const baseTitle = companyInfo?.companyName || "Ome Caterings";
+    const baseTitle = companyInfo?.companyName || branding.companyName;
     let pageTitle = "";
 
     if (location === "/") {

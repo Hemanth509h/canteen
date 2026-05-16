@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Printer, Loader2 } from "lucide-react";
 import { printElement } from "@/lib/print-utils";
+import branding from "@/lib/branding.json";
 
 export function Invoice({ booking, companyInfo, isAdmin = false }) {
   const invoiceRef = useRef(null);
@@ -62,8 +63,8 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
           <div className="border-b-4 border-blue-600 pb-6">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900">{companyInfo?.companyName || "OM Caterers"}</h1>
-                <p className="text-xs text-gray-600 mt-1">{companyInfo?.tagline || "Professional Catering Services"}</p>
+                <h1 className="text-4xl font-bold text-gray-900">{companyInfo?.companyName || branding.companyName}</h1>
+                <p className="text-xs text-gray-600 mt-1">{companyInfo?.tagline || branding.tagline}</p>
               </div>
               <div className="text-right">
                 <h2 className="text-3xl font-bold text-blue-600">INVOICE</h2>
@@ -114,7 +115,7 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
             </thead>
             <tbody>
               <tr className="border-b">
-                <td className="p-3">Catering Service</td>
+                <td className="p-3">{companyInfo?.companyName || branding.companyName}</td>
                 <td className="p-3 text-center">₹{booking.pricePerPlate}</td>
                 <td className="p-3 text-center">{booking.guestCount}</td>
                 <td className="p-3 text-right font-semibold">₹{totalAmount}</td>

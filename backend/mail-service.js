@@ -1,9 +1,12 @@
 import { Resend } from "resend";
+import { readBrandingFile } from "./branding.js";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
+const branding = readBrandingFile();
+const brandName = branding.companyName;
 
-const defaultFrom = process.env.RESEND_FROM_EMAIL || "Catering Services <onboarding@resend.dev>";
+const defaultFrom = process.env.RESEND_FROM_EMAIL || `${brandName} <onboarding@resend.dev>`;
 
 function escapeHtml(value) {
   return String(value)
@@ -40,7 +43,7 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
     paymentType,
     orderId,
     eventDate,
-    companyName = "Catering Services",
+    companyName = brandName,
   } = bookingDetails;
   const readablePaymentType = paymentType === "final" ? "final" : "advance";
   const formattedAmount = formatCurrency(amount);
@@ -89,7 +92,7 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
 }
 
 function buildBookingConfirmationEmail(booking, bookingLink) {
-  const companyName = booking.companyName || "Catering Services";
+  const companyName = booking.companyName || brandName;
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
@@ -166,7 +169,7 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
 }
 
 function buildBookingUpdateEmail(booking, bookingLink) {
-  const companyName = booking.companyName || "Catering Services";
+  const companyName = booking.companyName || brandName;
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
@@ -248,10 +251,13 @@ export async function sendBookingUpdateEmail(to, booking, bookingLink) {
   };
 }
 
-function buildCustomerLoginEmail(code) {
+function buildCustomerLoginEmail(code, companyName = brandName) {
   const safeCode = escapeHtml(code);
-  const subject = "Your booking login code";
+  const safeCompanyName = escapeHtml(companyName);
+  const subject = `${companyName}: Your booking login code`;
   const text = [
+    companyName,
+    "",
     "Use this code to sign in and view your bookings:",
     "",
     code,
@@ -261,7 +267,7 @@ function buildCustomerLoginEmail(code) {
 
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:520px;margin:0 auto">
-      <h2 style="margin:0 0 16px">Your booking login code</h2>
+      <h2 style="margin:0 0 16px">${safeCompanyName} booking login code</h2>
       <p>Use this code to sign in and view your bookings.</p>
       <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:18px;margin:20px 0;text-align:center">
         <p style="font-size:28px;letter-spacing:8px;font-weight:700;margin:0">${safeCode}</p>
@@ -274,7 +280,7 @@ function buildCustomerLoginEmail(code) {
 }
 
 function buildAdminBookingNotificationEmail(booking, bookingLink) {
-  const companyName = booking.companyName || "Catering Services";
+  const companyName = booking.companyName || brandName;
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");

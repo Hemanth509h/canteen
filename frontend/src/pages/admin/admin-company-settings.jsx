@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Building2, RefreshCw, Upload, Phone, ImagePlus } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import imageCompression from "browser-image-compression";
+import branding from "@/lib/branding.json";
 
 export default function CompanySettingsManager() {
   const { toast } = useToast();
@@ -208,7 +209,7 @@ export default function CompanySettingsManager() {
                     <FormItem>
                       <FormLabel>Company Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Premium Catering Services" {...field} data-testid="input-company-name" />
+                        <Input placeholder={branding.companyName} {...field} data-testid="input-company-name" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

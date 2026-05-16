@@ -1,5 +1,3 @@
-import bcrypt from "bcryptjs";
-import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
 import { 
@@ -10,12 +8,7 @@ import {
   sendAdminPaymentNotificationEmail,
   sendAdminCodeRequestNotificationEmail
 } from "./mail-service.js";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { getPublicBaseUrl, normalizeBranding, readBrandingFile, writeBrandingFile } from "./branding.js";
 
 import { 
   insertFoodItemSchema, 
@@ -45,10 +38,10 @@ const getStorageInstance = () => getStorage();
 async function readBranding() {
   try {
     const info = await getStorageInstance().getCompanyInfo();
-    return info || {};
+    return normalizeBranding(info || readBrandingFile());
   } catch (err) {
     console.error("Failed to read branding from DB:", err);
-    return {};
+    return readBrandingFile();
   }
 }
 
@@ -61,8 +54,14 @@ async function writeBranding(data) {
       contactEmail: data.contactEmail ?? data.email ?? current.contactEmail ?? current.email,
       contactPhone: data.contactPhone ?? data.phone ?? current.contactPhone ?? current.phone,
     };
-    await getStorageInstance().updateCompanyInfo(null, next);
-    return next;
+    const normalized = normalizeBranding(next);
+    await getStorageInstance().updateCompanyInfo(null, normalized);
+    try {
+      writeBrandingFile(normalized);
+    } catch (fileErr) {
+      console.warn("Failed to update branding.json:", fileErr.message);
+    }
+    return normalized;
   } catch (err) {
     console.error("Failed to write branding to DB:", err);
     throw err;
@@ -179,10 +178,11 @@ export async function registerRoutes(app) {
       // Customer Notification
       let emailStatus = null;
       if (booking.contactEmail && validateEmail(booking.contactEmail)) {
-        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+        const companyInfo = await readBranding();
+        const baseUrl = getPublicBaseUrl(req);
         const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
         try {
-          emailStatus = await sendBookingConfirmationEmail(booking.contactEmail, booking, bookingLink);
+          emailStatus = await sendBookingConfirmationEmail(booking.contactEmail, { ...booking, companyName: companyInfo.companyName }, bookingLink);
         } catch (error) {
           console.error("Booking confirmation email error:", error);
         }
@@ -191,12 +191,12 @@ export async function registerRoutes(app) {
       // Admin Notification
       try {
         const companyInfo = await readBranding();
-        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
-        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+        const baseUrl = getPublicBaseUrl(req);
         const adminBookingLink = `${baseUrl}/admin/bookings`; 
         
         if (validateEmail(adminEmail)) {
-          await sendAdminBookingNotificationEmail(adminEmail, booking, adminBookingLink);
+          await sendAdminBookingNotificationEmail(adminEmail, { ...booking, companyName: companyInfo.companyName }, adminBookingLink);
         }
       } catch (adminEmailError) {
         console.error("Admin booking notification error:", adminEmailError);
@@ -246,12 +246,12 @@ export async function registerRoutes(app) {
       if (req.body.advancePaymentScreenshot || req.body.finalPaymentScreenshot) {
         try {
           const companyInfo = await readBranding();
-          const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
-          const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+          const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
+          const baseUrl = getPublicBaseUrl(req);
           const adminLink = `${baseUrl}/admin/bookings/payment/${booking.id || booking._id}`;
           
           if (validateEmail(adminEmail)) {
-            await sendAdminPaymentNotificationEmail(adminEmail, booking, adminLink);
+            await sendAdminPaymentNotificationEmail(adminEmail, { ...booking, companyName: companyInfo.companyName }, adminLink);
           }
         } catch (paymentEmailError) {
           console.error("Admin payment notification error:", paymentEmailError);
@@ -270,11 +270,12 @@ export async function registerRoutes(app) {
       if (!booking) return sendResponse(res, 404, null, "Booking not found");
 
       if (booking.contactEmail && validateEmail(booking.contactEmail)) {
-        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+        const companyInfo = await readBranding();
+        const baseUrl = getPublicBaseUrl(req);
         const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
         
         // Re-using confirmation email for now as an "Update" notification
-        await sendBookingConfirmationEmail(booking.contactEmail, booking, bookingLink);
+        await sendBookingConfirmationEmail(booking.contactEmail, { ...booking, companyName: companyInfo.companyName }, bookingLink);
         sendResponse(res, 200, { success: true, message: "Update email sent to customer" });
       } else {
         sendResponse(res, 400, null, "Customer has no valid email address");
@@ -494,7 +495,7 @@ export async function registerRoutes(app) {
       // Notify admin
       try {
         const companyInfo = await readBranding();
-        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
+        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
         }
@@ -567,7 +568,7 @@ export async function registerRoutes(app) {
       // Notify admin via email
       try {
         const companyInfo = await readBranding();
-        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL || "admin@example.com";
+        const adminEmail = companyInfo?.email || companyInfo?.contactEmail || process.env.RESEND_FROM_EMAIL;
         if (validateEmail(adminEmail)) {
           await sendAdminCodeRequestNotificationEmail(adminEmail, request);
         }
@@ -746,7 +747,7 @@ export async function registerRoutes(app) {
       }
 
       const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
-      const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.PAYMENT_BASE_URL || process.env.REPLIT_DEV_DOMAIN || '';
+      const baseUrl = getPublicBaseUrl(req);
       const paymentLink = baseUrl ? `${baseUrl}/payment/${bookingId}` : `/payment/${bookingId}`;
       const companyInfo = await readBranding();
 
@@ -816,6 +817,4 @@ export async function registerRoutes(app) {
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
 }

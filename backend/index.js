@@ -1,8 +1,8 @@
 import "dotenv/config";
 import express from "express";
-import cors from "cors";
 import { registerRoutes } from "./routes.js";
-import { connectToDatabase } from "./db.js";
+import { connectToDatabase, getStorage } from "./db.js";
+import { seedBrandingFromFile } from "./branding.js";
 
 const app = express();
 
@@ -90,6 +90,7 @@ app.use((req, res, next) => {
 const startServer = async () => {
   try {
     await connectToDatabase();
+    await seedBrandingFromFile(getStorage());
     await registerRoutes(app);
 
     const port = process.env.PORT || 3000;

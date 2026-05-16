@@ -4,6 +4,7 @@ import { CartDrawer } from "@/components/features/cart-drawer";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Menu, X, ChevronRight, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
+import branding from "@/lib/branding.json";
 
 export default function Navbar({ companyName, logoSrc, setView }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,7 +30,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
             </span>
             <span className="leading-tight">
               <span className="block font-playfair text-lg font-bold text-zinc-950 transition-colors dark:text-white">
-                {companyName || "Ome Caterings"}
+                {companyName || branding.companyName}
               </span>
               <span className="hidden text-[10px] font-jakarta font-bold uppercase tracking-[0.18em] text-amber-600 sm:block">
                 Catering Service

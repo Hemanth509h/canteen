@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import branding from "@/lib/branding.json";
 
 export default function Hero({ companyName, tagline, description, heroImages, yearsExperience, eventsPerYear }) {
   const heroImage = heroImages?.[0] || "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=1200&auto=format&fit=crop";
@@ -21,7 +22,7 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
             <div className="relative aspect-[5/4] overflow-hidden rounded-md">
               <img
                 src={heroImage}
-                alt={`${companyName || "Catering"} food presentation`}
+                alt={`${companyName || branding.companyName} food presentation`}
                 className="h-full w-full object-cover"
                 loading="eager"
                 onError={(event) => {
@@ -44,14 +45,14 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
           </div>
 
           <h1 className="mb-4 text-5xl font-bold leading-[1.02] text-zinc-950 sm:text-6xl lg:text-7xl dark:text-white">
-            {companyName || "Ome Caterings"}
+            {companyName || branding.companyName}
           </h1>
 
           <p className="mb-3 text-lg font-jakarta font-semibold leading-relaxed text-emerald-800 sm:text-xl dark:text-emerald-200">
-            {tagline || "Exceptional Food for Unforgettable Events"}
+            {tagline || branding.tagline}
           </p>
           <p className="mb-8 text-sm leading-7 text-zinc-600 sm:text-base dark:text-zinc-300">
-            {description || "Freshly prepared menus, reliable service, and event-ready catering for every gathering."}
+            {description || branding.description}
           </p>
 
           <div className="flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">

@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
 import localMenuItems from "@/lib/menu.json";
+import branding from "@/lib/branding.json";
 
 export default function DashboardOverview() {
   const { data: companyInfo } = useQuery({
@@ -106,7 +107,7 @@ export default function DashboardOverview() {
             Dashboard Overview
           </h2>
           <p className="text-muted-foreground">
-            Real-time insights and management for {companyInfo?.companyName || "Ome Caterings"}
+            Real-time insights and management for {companyInfo?.companyName || branding.companyName}
           </p>
         </div>
         <Button
