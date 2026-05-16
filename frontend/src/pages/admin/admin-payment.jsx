@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Invoice } from "@/components/features/invoice";
-import { ArrowLeft, CheckCircle, MessageCircle, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon, RefreshCw } from "lucide-react";
+import { ArrowLeft, CheckCircle, Mail, Clock, Pencil, Save, X, Users, Calendar, Utensils, IndianRupee, ExternalLink, AlertCircle, Calculator, CheckIcon, XIcon, RefreshCw } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 
@@ -48,6 +48,23 @@ export default function AdminPaymentConfirmation() {
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
   });
+
+  const getNextPaymentPayload = () => {
+    if (!booking) throw new Error("Booking not found");
+
+    const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
+    const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
+    const paymentType = booking.advancePaymentStatus === "pending" ? "advance" : "final";
+    const amount = paymentType === "advance" ? advanceAmount : (totalAmount - advanceAmount);
+
+    return {
+      bookingId: booking._id || booking.id || bookingId,
+      paymentType,
+      customerName: booking.clientName,
+      amount,
+      eventDate: booking.eventDate
+    };
+  };
 
   useEffect(() => {
     if (booking && !isEditing) {
@@ -155,78 +172,46 @@ export default function AdminPaymentConfirmation() {
     },
   });
 
-  const sendPaymentLinkMutation = useMutation({
+  const sendPaymentLinkEmailMutation = useMutation({
     mutationFn: async () => {
-      if (!booking) throw new Error("Booking not found");
-      
-      const phoneNumber = booking.contactPhone?.replace(/\D/g, "");
-      if (!phoneNumber) throw new Error("Phone number not available");
-      
-      const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
-      const amount = booking.advancePaymentStatus === "pending" 
-        ? (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5))
-        : (totalAmount - (booking.advanceAmount ?? Math.ceil(totalAmount * 0.5)));
-      
-      const paymentType = booking.advancePaymentStatus === "pending" ? "advance" : "final";
-      
-      const res = await apiRequest("POST", "/api/payments/send-whatsapp", {
-        bookingId: booking._id || booking.id || bookingId,
-        paymentType,
-        customerPhone: phoneNumber,
-        customerName: booking.clientName,
-        customerEmail: booking.contactEmail,
-        amount,
-        eventDate: booking.eventDate
+      const customerEmail = booking.contactEmail?.trim();
+      if (!customerEmail) throw new Error("Customer email not available");
+
+      const res = await apiRequest("POST", "/api/payments/send-email", {
+        ...getNextPaymentPayload(),
+        customerEmail,
       });
       return res.json();
     },
-    onSuccess: (response) => {
-      const paymentLink = response?.data?.paymentLink || response?.paymentLink;
-      const whatsappPhone = booking.contactPhone?.replace(/\D/g, "");
-      
-      if (paymentLink && whatsappPhone) {
-        // Format phone number for WhatsApp
-        const formattedPhone = whatsappPhone.length === 10 ? `91${whatsappPhone}` : whatsappPhone;
-        
-        // Open WhatsApp with the payment link
-        const whatsappMessage = encodeURIComponent(
-          `Hi ${booking.clientName},\n\nPlease complete your payment using this link:\n${paymentLink}\n\nThank you!`
-        );
-        const whatsappUrl = `https://wa.me/${formattedPhone}?text=${whatsappMessage}`;
-        
-        window.open(whatsappUrl, "_blank");
-      }
-      
+    onSuccess: () => {
       toast({
         title: "Success",
-        description: "Payment link sent via WhatsApp!",
+        description: "Payment link sent via email!",
       });
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to send payment link",
+        description: error.message || "Failed to send payment email",
         variant: "destructive",
       });
-      console.error("Payment link error:", error);
+      console.error("Payment email error:", error);
     },
   });
 
-  const handleSendWhatsApp = async () => {
+  const handleSendEmail = async () => {
     if (!booking) return;
-    
-    const phoneNumber = booking.contactPhone?.replace(/\D/g, "");
-    if (!phoneNumber) {
+
+    if (!booking.contactEmail?.trim()) {
       toast({
-        title: "No phone number",
-        description: "Customer phone number not available",
+        title: "No email address",
+        description: "Customer email address not available",
         variant: "destructive",
       });
       return;
     }
 
-    // Send payment link via WhatsApp using backend API
-    sendPaymentLinkMutation.mutate();
+    sendPaymentLinkEmailMutation.mutate();
   };
 
   const openPaymentPage = () => {
@@ -664,14 +649,14 @@ export default function AdminPaymentConfirmation() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Button 
-                    className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white" 
-                    onClick={handleSendWhatsApp}
-                    disabled={sendPaymentLinkMutation.isPending}
-                    data-testid="button-whatsapp-reminder"
+                  <Button
+                    className="w-full gap-2"
+                    onClick={handleSendEmail}
+                    disabled={sendPaymentLinkEmailMutation.isPending}
+                    data-testid="button-email-payment-link"
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    {sendPaymentLinkMutation.isPending ? "Sending..." : "Send Payment Link"}
+                    <Mail className="w-4 h-4" />
+                    {sendPaymentLinkEmailMutation.isPending ? "Sending..." : "Send via Email"}
                   </Button>
                   <Button size="sm" variant="outline" onClick={openPaymentPage} className="w-full gap-2">
                     <ExternalLink className="w-4 h-4" />

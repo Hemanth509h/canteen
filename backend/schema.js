@@ -177,12 +177,13 @@ export const insertStaffPaymentSchema = z.object({
 
 export const updateStaffPaymentSchema = insertStaffPaymentSchema.partial();
 
-// ==================== WHATSAPP PAYMENT LINK ====================
+// ==================== EMAIL PAYMENT LINK ====================
 
-export const sendPaymentLinkWhatsAppSchema = z.object({
+export const sendPaymentLinkEmailSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
   paymentType: z.enum(["advance", "final"], { required_error: "Payment type is required" }),
-  customerPhone: z.string().min(10, "Valid phone number required"),
+  customerEmail: z.string().email("Valid email is required"),
   amount: z.number().int().positive("Amount must be positive"),
   customerName: z.string().min(1, "Customer name is required"),
+  eventDate: z.string().optional(),
 });

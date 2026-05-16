@@ -21,6 +21,7 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "redis": "^5.10.0",
+    "resend": "^6.12.3",
     "ws": "^8.18.0",
     "zod": "^3.24.2",
     "zod-validation-error": "^5.0.0"

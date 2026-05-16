@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { createServer } from "http";
 import { randomUUID } from "crypto";
 import { getStorage } from "./db.js";
-import { sendPaymentLinkWhatsApp, validateWhatsAppPhone } from "./whatsapp-service.js";
+import { sendPaymentLinkEmail, validateEmail } from "./mail-service.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -24,7 +24,7 @@ import {
   updateStaffBookingRequestSchema,
   insertUserCodeSchema,
   insertCodeRequestSchema,
-  sendPaymentLinkWhatsAppSchema,
+  sendPaymentLinkEmailSchema,
   insertStaffPaymentSchema,
   updateStaffPaymentSchema
 } from "./schema.js";
@@ -549,41 +549,44 @@ export async function registerRoutes(app) {
     }
   });
 
-  // ==================== WHATSAPP PAYMENT LINK ====================
+  // ==================== EMAIL PAYMENT LINK ====================
 
-  app.post("/api/payments/send-whatsapp", async (req, res) => {
+  app.post("/api/payments/send-email", async (req, res) => {
     try {
-      const result = sendPaymentLinkWhatsAppSchema.safeParse(req.body);
+      const result = sendPaymentLinkEmailSchema.safeParse(req.body);
       if (!result.success) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
 
-      const { bookingId, paymentType, customerPhone, amount, customerName } = result.data;
+      const { bookingId, paymentType, customerEmail, amount, customerName, eventDate } = result.data;
 
-      if (!validateWhatsAppPhone(customerPhone)) {
-        return sendResponse(res, 400, null, "Invalid phone number for WhatsApp");
+      if (!validateEmail(customerEmail)) {
+        return sendResponse(res, 400, null, "Invalid customer email address");
       }
 
       const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
       const baseUrl = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || process.env.PAYMENT_BASE_URL || process.env.REPLIT_DEV_DOMAIN || '';
       const paymentLink = baseUrl ? `${baseUrl}/payment/${bookingId}` : `/payment/${bookingId}`;
+      const companyInfo = readBrandingFromFrontend();
 
-      const result_send = await sendPaymentLinkWhatsApp(customerPhone, paymentLink, {
+      const emailStatus = await sendPaymentLinkEmail(customerEmail, paymentLink, {
         customerName,
         amount,
+        paymentType,
         orderId,
-        eventDate: req.body.eventDate
+        eventDate,
+        companyName: companyInfo.companyName,
       });
 
       sendResponse(res, 200, {
         success: true,
-        message: "Payment link sent via WhatsApp",
-        whatsappStatus: result_send,
+        message: "Payment link sent via email",
+        emailStatus,
         paymentLink
       });
     } catch (error) {
-      console.error("WhatsApp payment link error:", error);
-      sendResponse(res, 500, null, error.message || "Failed to send payment link via WhatsApp");
+      console.error("Email payment link error:", error);
+      sendResponse(res, 500, null, error.message || "Failed to send payment link via email");
     }
   });
 
