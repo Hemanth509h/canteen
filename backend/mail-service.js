@@ -3,10 +3,19 @@ import { readBrandingFile } from "./branding.js";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
-const branding = readBrandingFile();
-const brandName = branding.companyName;
 
-const defaultFrom = process.env.RESEND_FROM_EMAIL || `${brandName} <onboarding@resend.dev>`;
+function getBranding() {
+  try {
+    return readBrandingFile();
+  } catch (e) {
+    return { companyName: "Catering Services" };
+  }
+}
+
+function getDefaultFrom(companyName) {
+  const name = companyName || getBranding().companyName;
+  return process.env.RESEND_FROM_EMAIL || `${name} <onboarding@resend.dev>`;
+}
 
 function escapeHtml(value) {
   return String(value)
@@ -43,18 +52,19 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
     paymentType,
     orderId,
     eventDate,
-    companyName = brandName,
+    companyName,
   } = bookingDetails;
+  const currentBrand = companyName || getBranding().companyName;
   const readablePaymentType = paymentType === "final" ? "final" : "advance";
   const formattedAmount = formatCurrency(amount);
   const formattedDate = formatDate(eventDate);
   const safeCustomerName = escapeHtml(customerName || "Customer");
-  const safeCompanyName = escapeHtml(companyName);
+  const safeCompanyName = escapeHtml(currentBrand);
   const safePaymentLink = escapeHtml(paymentLink);
   const safeOrderId = escapeHtml(orderId);
   const safeFormattedDate = formattedDate ? escapeHtml(formattedDate) : null;
 
-  const subject = `${companyName}: ${readablePaymentType} payment link`;
+  const subject = `${currentBrand}: ${readablePaymentType} payment link`;
   const text = [
     `Hello ${customerName || "Customer"},`,
     "",
@@ -92,7 +102,7 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
 }
 
 function buildBookingConfirmationEmail(booking, bookingLink) {
-  const companyName = booking.companyName || brandName;
+  const companyName = booking.companyName || getBranding().companyName;
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
@@ -168,22 +178,26 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
   return { subject, text, html };
 }
 
-function buildBookingUpdateEmail(booking, bookingLink) {
-  const companyName = booking.companyName || brandName;
+function buildBookingUpdateEmail(booking, bookingLink, customMessage) {
+  const companyName = booking.companyName || getBranding().companyName;
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
   const safeBookingId = escapeHtml(String(booking.id || booking._id || ""));
+  const safeStatus = escapeHtml(String(booking.status || "Pending").toUpperCase());
   const formattedDate = formatDate(booking.eventDate);
   const safeFormattedDate = formattedDate ? escapeHtml(formattedDate) : "TBD";
   const safeBookingLink = bookingLink ? escapeHtml(bookingLink) : null;
+  const safeCustomMessage = customMessage ? escapeHtml(customMessage) : null;
 
   const subject = `Booking Update: ${safeEventType} - ${safeCompanyName}`;
   const text = [
     `Hello ${booking.clientName || "Customer"},`,
     "",
+    customMessage ? `${customMessage}\n` : null,
     "Here are the current details for your booking:",
     "",
+    `Status: ${safeStatus}`,
     `Booking ID: ${booking.id || booking._id || ""}`,
     `Event: ${booking.eventType || "Event booking"}`,
     `Event Date: ${formattedDate || "TBD"}`,
@@ -201,8 +215,14 @@ function buildBookingUpdateEmail(booking, bookingLink) {
       </div>
       <div style="padding:24px">
         <p>Hello ${safeCustomerName},</p>
-        <p>We are sharing the current details for your upcoming event booking with ${safeCompanyName}.</p>
+        ${safeCustomMessage ? `
+          <div style="margin: 16px 0; padding: 16px; background-color: #fff7ed; border-left: 4px solid #ea580c; color: #9a3412; font-style: italic;">
+            ${safeCustomMessage}
+          </div>
+        ` : `<p>We are sharing the current details for your upcoming event booking with ${safeCompanyName}.</p>`}
+        
         <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
+          <p style="margin:0 0 8px"><strong>Status:</strong> <span style="color: #ea580c; font-weight: bold;">${safeStatus}</span></p>
           <p style="margin:0 0 8px"><strong>Booking ID:</strong> ${safeBookingId}</p>
           <p style="margin:0 0 8px"><strong>Event:</strong> ${safeEventType}</p>
           <p style="margin:0 0 8px"><strong>Event Date:</strong> ${safeFormattedDate}</p>
@@ -224,14 +244,15 @@ function buildBookingUpdateEmail(booking, bookingLink) {
   return { subject, text, html };
 }
 
-export async function sendBookingUpdateEmail(to, booking, bookingLink) {
+export async function sendBookingUpdateEmail(to, booking, bookingLink, customMessage) {
   if (!resend) {
     throw new Error("RESEND_API_KEY is not configured");
   }
 
-  const { subject, text, html } = buildBookingUpdateEmail(booking, bookingLink);
+  const { subject, text, html } = buildBookingUpdateEmail(booking, bookingLink, customMessage);
+  const from = getDefaultFrom(booking.companyName);
   const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
+    from,
     to,
     subject,
     text,
@@ -251,12 +272,13 @@ export async function sendBookingUpdateEmail(to, booking, bookingLink) {
   };
 }
 
-function buildCustomerLoginEmail(code, companyName = brandName) {
+function buildCustomerLoginEmail(code, companyName) {
+  const currentBrand = companyName || getBranding().companyName;
   const safeCode = escapeHtml(code);
-  const safeCompanyName = escapeHtml(companyName);
-  const subject = `${companyName}: Your booking login code`;
+  const safeCompanyName = escapeHtml(currentBrand);
+  const subject = `${currentBrand}: Your booking login code`;
   const text = [
-    companyName,
+    currentBrand,
     "",
     "Use this code to sign in and view your bookings:",
     "",
@@ -280,7 +302,7 @@ function buildCustomerLoginEmail(code, companyName = brandName) {
 }
 
 function buildAdminBookingNotificationEmail(booking, bookingLink) {
-  const companyName = booking.companyName || brandName;
+  const companyName = booking.companyName || getBranding().companyName;
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
@@ -365,8 +387,9 @@ export async function sendPaymentLinkEmail(to, paymentLink, bookingDetails) {
   }
 
   const { subject, text, html } = buildPaymentEmail(paymentLink, bookingDetails);
+  const from = getDefaultFrom(bookingDetails.companyName);
   const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
+    from,
     to,
     subject,
     text,
@@ -392,8 +415,9 @@ export async function sendBookingConfirmationEmail(to, booking, bookingLink) {
   }
 
   const { subject, text, html } = buildBookingConfirmationEmail(booking, bookingLink);
+  const from = getDefaultFrom(booking.companyName);
   const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
+    from,
     to,
     subject,
     text,
@@ -419,8 +443,9 @@ export async function sendAdminBookingNotificationEmail(to, booking, bookingLink
   }
 
   const { subject, text, html } = buildAdminBookingNotificationEmail(booking, bookingLink);
+  const from = getDefaultFrom(booking.companyName);
   const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
+    from,
     to,
     subject,
     text,
@@ -461,8 +486,9 @@ export async function sendAdminPaymentNotificationEmail(to, booking, paymentType
     </div>
   `;
 
+  const from = getDefaultFrom(booking.companyName);
   return resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
+    from,
     to,
     subject,
     html,
@@ -485,8 +511,9 @@ export async function sendAdminCodeRequestNotificationEmail(to, request) {
     </div>
   `;
 
+  const from = getDefaultFrom();
   return resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
+    from,
     to,
     subject,
     html,
@@ -499,8 +526,9 @@ export async function sendCustomerLoginCodeEmail(to, code) {
   }
 
   const { subject, text, html } = buildCustomerLoginEmail(code);
+  const from = getDefaultFrom();
   const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
+    from,
     to,
     subject,
     text,

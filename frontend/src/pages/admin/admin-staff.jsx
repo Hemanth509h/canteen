@@ -449,8 +449,41 @@ function StaffPaymentsTab({ staffList }) {
     queryKey: ["/api/staff-work"],
     queryFn: async () => {
       const res = await fetch("/api/staff-work");
-      const json = await res.json();
-      return json.data || json || [];
+      if (res.ok) {
+        const json = await res.json();
+        return json.data || json || [];
+      }
+
+      const bookingsRes = await fetch("/api/bookings");
+      const bookingsJson = await bookingsRes.json();
+      const fallbackBookings = bookingsJson.data || bookingsJson || [];
+      const completedBookings = fallbackBookings.filter((booking) => String(booking.status || "").toLowerCase() === "completed");
+      const work = [];
+
+      for (const booking of completedBookings) {
+        const bookingId = booking.id || booking._id;
+        try {
+          const assignedRes = await fetch(`/api/bookings/${bookingId}/assigned-staff`);
+          if (!assignedRes.ok) continue;
+          const assignedJson = await assignedRes.json();
+          const assignedStaff = assignedJson.data || assignedJson || [];
+          assignedStaff.forEach((staff) => {
+            work.push({
+              id: `${bookingId}-${staff.id || staff._id}`,
+              bookingId,
+              staffId: staff.id || staff._id,
+              role: staff.role,
+              status: "accepted",
+              booking,
+              staff,
+            });
+          });
+        } catch {
+          // Keep the work list usable even if one booking cannot load assignments.
+        }
+      }
+
+      return work;
     },
   });
 
@@ -700,7 +733,7 @@ function StaffPaymentsTab({ staffList }) {
             <div className="py-12 text-center">
               <BriefcaseBusiness className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-muted-foreground font-medium">No assigned work found</p>
-              <p className="text-sm text-muted-foreground/70 mt-1">Confirm bookings and assign staff from Event Bookings.</p>
+              <p className="text-sm text-muted-foreground/70 mt-1">Complete bookings after assigning staff to show work for payment.</p>
             </div>
           ) : (
             <div className="divide-y">

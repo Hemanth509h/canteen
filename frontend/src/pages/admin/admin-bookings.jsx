@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -174,10 +175,28 @@ export default function EventBookingsManager() {
     try {
       const res = await apiRequest("GET", `/api/bookings/${bookingId}/staff`);
       const assignments = await unwrapApiResponse(res);
-      setStaffAssignments(Array.isArray(assignments) ? assignments : []);
+      const nextAssignments = Array.isArray(assignments) ? assignments : [];
+      setStaffAssignments(nextAssignments);
+      return nextAssignments;
     } catch (error) {
-      console.error("Failed to fetch staff assignments:", error);
-      setStaffAssignments([]);
+      try {
+        const fallbackRes = await apiRequest("GET", `/api/bookings/${bookingId}/assigned-staff`);
+        const assigned = await unwrapApiResponse(fallbackRes);
+        const nextAssignments = (Array.isArray(assigned) ? assigned : []).map((staff) => ({
+          id: `${bookingId}-${staff.id || staff._id}`,
+          bookingId,
+          staffId: staff.id || staff._id,
+          role: staff.role,
+          status: "accepted",
+          staff,
+        }));
+        setStaffAssignments(nextAssignments);
+        return nextAssignments;
+      } catch (fallbackError) {
+        console.error("Failed to fetch staff assignments:", fallbackError);
+        setStaffAssignments([]);
+        return [];
+      }
     }
   };
 
@@ -336,8 +355,8 @@ export default function EventBookingsManager() {
   });
 
   const sendUpdateMailMutation = useMutation({
-    mutationFn: async (id) => {
-      const response = await apiRequest("POST", `/api/bookings/${id}/send-update`);
+    mutationFn: async ({ id, message }) => {
+      const response = await apiRequest("POST", `/api/bookings/${id}/send-update`, { message });
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to send update email");
@@ -349,6 +368,8 @@ export default function EventBookingsManager() {
         title: "Email Sent",
         description: "Booking details have been sent to the customer.",
       });
+      setIsMessageModalOpen(false);
+      setCustomMessage("");
     },
     onError: (error) => {
       toast({
@@ -368,8 +389,17 @@ export default function EventBookingsManager() {
       });
       return unwrapApiResponse(response);
     },
-    onSuccess: async () => {
-      await fetchStaffAssignments();
+    onSuccess: async (assignment, variables) => {
+      const assignments = await fetchStaffAssignments();
+      if (assignments.length === 0 && assignment?.staffId) {
+        const staff = staffList.find((member) => String(member.id || member._id) === String(variables.staffId));
+        setStaffAssignments([{
+          ...assignment,
+          staffId: assignment.staffId || variables.staffId,
+          staff,
+          status: assignment.status || "accepted",
+        }]);
+      }
       toast({
         title: "Staff Assigned",
         description: "Staff member has been assigned to this booking.",
@@ -405,8 +435,63 @@ export default function EventBookingsManager() {
     },
   });
 
+  const recordStaffWorkMutation = useMutation({
+    mutationFn: async ({ staffId, bookingId, amount, notes }) => {
+      const response = await apiRequest("POST", "/api/staff-payments", {
+        staffId,
+        bookingId,
+        amount: amount || 0,
+        paymentDate: new Date().toISOString().split("T")[0],
+        paymentMethod: "cash",
+        notes: notes || "Work recorded from booking",
+        status: "pending",
+      });
+      return unwrapApiResponse(response);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/staff-payments"] });
+      toast({
+        title: "Work Recorded",
+        description: "Staff work has been recorded for payment.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to record staff work.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { data: staffPayments = [] } = useQuery({
+    queryKey: ["/api/staff-payments"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/staff-payments");
+      return unwrapApiResponse(res);
+    },
+  });
+
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [selectedBookingForMessage, setSelectedBookingForMessage] = useState(null);
+  const [customMessage, setCustomMessage] = useState("");
+
+  const openMessageModal = (booking) => {
+    setSelectedBookingForMessage(booking);
+    setCustomMessage("");
+    setIsMessageModalOpen(true);
+  };
+
+  const handleSendUpdateMail = () => {
+    if (!selectedBookingForMessage) return;
+    sendUpdateMailMutation.mutate({ 
+      id: selectedBookingForMessage._id || selectedBookingForMessage.id, 
+      message: customMessage 
+    });
+  };
+
   const openAssignmentModal = (booking) => {
-    if (booking.status !== "confirmed") {
+    if (String(booking.status || "").toLowerCase() !== "confirmed") {
       toast({
         title: "Confirm Booking First",
         description: "Staff can be assigned after the event booking is confirmed.",
@@ -418,6 +503,9 @@ export default function EventBookingsManager() {
     setStaffAssignments([]);
     setAssignmentModalOpen(true);
   };
+
+  const isBookingConfirmed = (booking) => String(booking?.status || "").toLowerCase() === "confirmed";
+
 
   const handleEdit = (booking) => {
     setEditingBooking(booking);
@@ -790,7 +878,7 @@ export default function EventBookingsManager() {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => sendUpdateMailMutation.mutate(booking._id || booking.id)}
+                        onClick={() => openMessageModal(booking)}
                         disabled={sendUpdateMailMutation.isPending}
                         title="Send Update Mail to Customer"
                       >
@@ -804,13 +892,15 @@ export default function EventBookingsManager() {
                       <Button variant="outline" size="sm" onClick={() => handleViewMenu(booking)}>
                         <List className="h-4 w-4 mr-1" /> Show Menu
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}>
-                        <CreditCard className="h-4 w-4 mr-1" /> View Payment
-                      </Button>
-                      {booking.status === "confirmed" && (
-                        <Button variant="outline" size="sm" onClick={() => openAssignmentModal(booking)}>
-                          <Users className="h-4 w-4 mr-1" /> Assign Staff
-                        </Button>
+                      {isBookingConfirmed(booking) && (
+                        <>
+                          <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/bookings/payment/${booking._id || booking.id}`)}>
+                            <CreditCard className="h-4 w-4 mr-1" /> View Payment
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => openAssignmentModal(booking)}>
+                            <Users className="h-4 w-4 mr-1" /> {String(booking.status).toLowerCase() === "completed" ? "Track Attendance" : "Assign Staff"}
+                          </Button>
+                        </>
                       )}
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(booking)}>
                         <Pencil className="h-4 w-4" />
@@ -1107,9 +1197,11 @@ export default function EventBookingsManager() {
       <Dialog open={assignmentModalOpen} onOpenChange={setAssignmentModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Assign Staff - {selectedBookingForAssignment?.clientName}</DialogTitle>
+            <DialogTitle>{String(selectedBookingForAssignment?.status).toLowerCase() === "completed" ? "Staff Attendance & Work" : "Assign Staff"} - {selectedBookingForAssignment?.clientName}</DialogTitle>
             <DialogDescription>
-              Staff can be assigned after the booking is confirmed.
+              {String(selectedBookingForAssignment?.status).toLowerCase() === "completed" 
+                ? "Verify staff who worked at this event to record their work for payment."
+                : "Staff can be assigned after the booking is confirmed."}
             </DialogDescription>
           </DialogHeader>
 
@@ -1132,27 +1224,65 @@ export default function EventBookingsManager() {
             </div>
 
             <div className="space-y-2">
-              <div className="text-xs font-bold uppercase text-muted-foreground">Assigned Staff</div>
+              <div className="text-xs font-bold uppercase text-muted-foreground">
+                {String(selectedBookingForAssignment?.status).toLowerCase() === "completed" ? "Staff Who Worked" : "Assigned Staff"}
+              </div>
               {staffAssignments.length > 0 ? (
                 <div className="space-y-2">
                   {staffAssignments.map((assignment) => {
                     const staff = assignment.staff;
+                    const bookingId = getBookingId(selectedBookingForAssignment);
+                    const staffId = assignment.staffId;
+                    
+                    // Check if work is already recorded
+                    const hasWorkRecord = staffPayments.some(p => 
+                      String(p.staffId) === String(staffId) && 
+                      String(p.bookingId) === String(bookingId)
+                    );
+
+                    const isCompleted = String(selectedBookingForAssignment?.status).toLowerCase() === "completed";
+
                     return (
                       <div key={assignment.id || assignment.staffId} className="flex items-center justify-between rounded-lg border p-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold">{staff?.name || "Unknown Staff"}</p>
                           <p className="text-xs capitalize text-muted-foreground">{assignment.role || staff?.role || "staff"} • {assignment.status}</p>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive"
-                          disabled={removeStaffAssignmentMutation.isPending}
-                          onClick={() => removeStaffAssignmentMutation.mutate({ bookingId: selectedBookingId, staffId: assignment.staffId })}
-                          title="Remove staff"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {isCompleted && (
+                            hasWorkRecord ? (
+                              <Badge variant="success" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200">
+                                Work Recorded
+                              </Badge>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                                onClick={() => recordStaffWorkMutation.mutate({ 
+                                  staffId, 
+                                  bookingId,
+                                  notes: `Work done for ${selectedBookingForAssignment.eventType} at ${selectedBookingForAssignment.eventLocation}`
+                                })}
+                                disabled={recordStaffWorkMutation.isPending}
+                              >
+                                {recordStaffWorkMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Record Work"}
+                              </Button>
+                            )
+                          )}
+                          {!isCompleted && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive h-8 w-8"
+                              disabled={removeStaffAssignmentMutation.isPending}
+                              onClick={() => removeStaffAssignmentMutation.mutate({ bookingId: selectedBookingId, staffId: assignment.staffId })}
+                              title="Remove staff"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -1164,39 +1294,78 @@ export default function EventBookingsManager() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <div className="text-xs font-bold uppercase text-muted-foreground">Available Staff</div>
-              {availableStaff.length > 0 ? (
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {availableStaff.map((staff) => {
-                    const staffId = staff.id || staff._id;
-                    return (
-                      <div key={staffId} className="flex items-center justify-between rounded-lg border p-3">
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold">{staff.name}</p>
-                          <p className="text-xs capitalize text-muted-foreground">{staff.role} • {staff.phone}</p>
+            {String(selectedBookingForAssignment?.status).toLowerCase() !== "completed" && (
+              <div className="space-y-2">
+                <div className="text-xs font-bold uppercase text-muted-foreground">Available Staff</div>
+                {availableStaff.length > 0 ? (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {availableStaff.map((staff) => {
+                      const staffId = staff.id || staff._id;
+                      return (
+                        <div key={staffId} className="flex items-center justify-between rounded-lg border p-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold">{staff.name}</p>
+                            <p className="text-xs capitalize text-muted-foreground">{staff.role} • {staff.phone}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            disabled={assignStaffMutation.isPending || !selectedBookingId}
+                            onClick={() => assignStaffMutation.mutate({ bookingId: selectedBookingId, staffId, role: staff.role })}
+                          >
+                            {assignStaffMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Assign"}
+                          </Button>
                         </div>
-                        <Button
-                          size="sm"
-                          disabled={assignStaffMutation.isPending || !selectedBookingId}
-                          onClick={() => assignStaffMutation.mutate({ bookingId: selectedBookingId, staffId, role: staff.role })}
-                        >
-                          {assignStaffMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Assign"}
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
-                  All available staff are assigned to this booking.
-                </div>
-              )}
-            </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
+                    All available staff are assigned to this booking.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setAssignmentModalOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMessageModalOpen} onOpenChange={setIsMessageModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Update Email</DialogTitle>
+            <DialogDescription>
+              Include a custom message for {selectedBookingForMessage?.clientName}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="message">Custom Message (Optional)</Label>
+              <Textarea
+                id="message"
+                className="min-h-[120px]"
+                placeholder="Type your message here..."
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+              />
+              <p className="text-[10px] text-muted-foreground">
+                This message will appear at the top of the booking details email.
+              </p>
+            </div>
+            <div className="rounded-lg border bg-muted/50 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Status to be sent</p>
+              <Badge>{selectedBookingForMessage?.status || "Pending"}</Badge>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsMessageModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSendUpdateMail} disabled={sendUpdateMailMutation.isPending}>
+              {sendUpdateMailMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Send Email
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

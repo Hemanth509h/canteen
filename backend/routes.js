@@ -4,6 +4,7 @@ import {
   sendPaymentLinkEmail, 
   validateEmail, 
   sendBookingConfirmationEmail, 
+  sendBookingUpdateEmail,
   sendAdminBookingNotificationEmail,
   sendAdminPaymentNotificationEmail,
   sendAdminCodeRequestNotificationEmail
@@ -266,16 +267,17 @@ export async function registerRoutes(app) {
 
   app.post("/api/bookings/:id/send-update", async (req, res) => {
     try {
+      const { message } = req.body;
       const booking = await getStorageInstance().getBooking(req.params.id);
       if (!booking) return sendResponse(res, 404, null, "Booking not found");
-
+ 
       if (booking.contactEmail && validateEmail(booking.contactEmail)) {
         const companyInfo = await readBranding();
         const baseUrl = getPublicBaseUrl(req);
         const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
         
-        // Re-using confirmation email for now as an "Update" notification
-        await sendBookingConfirmationEmail(booking.contactEmail, { ...booking, companyName: companyInfo.companyName }, bookingLink);
+        // Using the dedicated update template for manual resends
+        await sendBookingUpdateEmail(booking.contactEmail, { ...booking, companyName: companyInfo.companyName }, bookingLink, message);
         sendResponse(res, 200, { success: true, message: "Update email sent to customer" });
       } else {
         sendResponse(res, 400, null, "Customer has no valid email address");
@@ -693,6 +695,8 @@ export async function registerRoutes(app) {
       const work = [];
 
       for (const booking of bookings) {
+        if (String(booking.status || "").toLowerCase() !== "completed") continue;
+
         const bookingId = booking.id || booking._id;
         const requests = await getStorageInstance().getStaffBookingRequests(bookingId);
         requests
@@ -739,7 +743,7 @@ export async function registerRoutes(app) {
     try {
       const booking = await getStorageInstance().getBooking(req.params.id);
       if (!booking) return sendResponse(res, 404, null, "Booking not found");
-      if (booking.status !== "confirmed") {
+      if (String(booking.status || "").toLowerCase() !== "confirmed") {
         return sendResponse(res, 400, null, "Staff can be assigned only after booking is confirmed");
       }
 
@@ -810,13 +814,29 @@ export async function registerRoutes(app) {
         return sendResponse(res, 400, null, fromZodError(result.error).message);
       }
 
-      const { bookingId, paymentType, customerEmail, amount, customerName, eventDate } = result.data;
-
-      if (!validateEmail(customerEmail)) {
-        return sendResponse(res, 400, null, "Invalid customer email address");
+      const { bookingId, paymentType } = result.data;
+      const booking = await getStorageInstance().getBooking(bookingId);
+      
+      if (!booking) {
+        return sendResponse(res, 404, null, "Booking not found");
       }
 
-      const orderId = `${bookingId}-${paymentType}-${Date.now()}`;
+      const customerEmail = booking.contactEmail;
+      const customerName = booking.clientName;
+      const eventDate = booking.eventDate;
+      
+      // Calculate amount based on payment type
+      const guestCount = parseInt(booking.guestCount) || 0;
+      const pricePerPlate = parseInt(booking.pricePerPlate) || 0;
+      const totalAmount = booking.totalAmount || (guestCount * pricePerPlate);
+      const advanceAmount = booking.advanceAmount || Math.ceil(totalAmount * 0.5);
+      const amount = (paymentType === "final") ? (totalAmount - advanceAmount) : advanceAmount;
+
+      if (!customerEmail || !validateEmail(customerEmail)) {
+        return sendResponse(res, 400, null, "Valid customer email address not found for this booking");
+      }
+
+      const orderId = `${bookingId}-${paymentType || "payment"}-${Date.now()}`;
       const baseUrl = getPublicBaseUrl(req);
       const paymentLink = baseUrl ? `${baseUrl}/payment/${bookingId}` : `/payment/${bookingId}`;
       const companyInfo = await readBranding();
