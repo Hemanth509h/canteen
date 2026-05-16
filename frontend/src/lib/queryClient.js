@@ -1,18 +1,22 @@
-// Use a relative path for the API URL in development
-export const API_URL = "https://canteen-f0rq.onrender.com/api";
+const API_ORIGIN = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
-export async function apiRequest(method, url, data) {
-  // Normalize the URL: remove any leading slash and any leading 'api/'
+export const API_URL = API_ORIGIN
+  ? `${API_ORIGIN.replace(/\/api$/, "")}/api`
+  : "/api";
+
+export function apiUrl(url) {
   let cleanPath = url.startsWith("/") ? url.slice(1) : url;
   if (cleanPath.startsWith("api/")) {
     cleanPath = cleanPath.slice(4);
   }
 
-  const finalUrl = API_URL.startsWith('http') 
-    ? `${API_URL}/${cleanPath}`.replace(/([^:])\/+/g, '$1/')
-    : `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
+  return API_URL.startsWith("http")
+    ? `${API_URL}/${cleanPath}`.replace(/([^:])\/+/g, "$1/")
+    : `${API_URL}/${cleanPath}`.replace(/\/+/g, "/");
+}
 
-  const res = await fetch(finalUrl, {
+export async function apiRequest(method, url, data) {
+  const res = await fetch(apiUrl(url), {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
@@ -37,16 +41,7 @@ export const getQueryFn =
   ({ on401: unauthorizedBehavior }) =>
     async ({ queryKey }) => {
       const path = queryKey.join("/");
-      let cleanPath = path.startsWith("/") ? path.slice(1) : path;
-      if (cleanPath.startsWith("api/")) {
-        cleanPath = cleanPath.slice(4);
-      }
-
-      const finalUrl = API_URL.startsWith('http') 
-        ? `${API_URL}/${cleanPath}`.replace(/([^:])\/+/g, '$1/')
-        : `/${API_URL}/${cleanPath}`.replace(/\/+/g, '/');
-
-      const res = await fetch(finalUrl);
+      const res = await fetch(apiUrl(path));
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;

@@ -10,7 +10,7 @@ import {
   Loader2, LogIn
 } from "lucide-react";
 import localMenuItems from "@/lib/menu.json";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiUrl } from "@/lib/queryClient";
 
 const STATUS = {
   pending: { icon: AlertCircle, color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/30" },
@@ -25,13 +25,13 @@ function BookingMenu({ bookingId }) {
   const { data: items, isLoading } = useQuery({
     queryKey: ["/api/bookings", bookingId, "items"],
     queryFn: async () => {
-      const res = await fetch(`/api/bookings/${bookingId}/items`);
+      const res = await fetch(apiUrl(`/api/bookings/${bookingId}/items`));
       if (!res.ok) return [];
       const json = await res.json();
       const rawItems = json.data || json;
       let foodItems = localMenuItems;
       try {
-        const foodRes = await fetch("/api/food-items");
+        const foodRes = await fetch(apiUrl("/api/food-items"));
         if (foodRes.ok) {
           const foodJson = await foodRes.json();
           foodItems = foodJson.data || foodJson || localMenuItems;
@@ -153,7 +153,7 @@ export default function CustomerDashboardView({ onBack }) {
     queryKey: ["/api/customer/bookings", customerSession?.token],
     queryFn: async () => {
       if (!customerSession?.token) return [];
-      const res = await fetch("/api/customer/bookings", {
+      const res = await fetch(apiUrl("/api/customer/bookings"), {
         headers: {
           Authorization: `Bearer ${customerSession.token}`,
         },
@@ -244,7 +244,7 @@ export default function CustomerDashboardView({ onBack }) {
   const handleSignOut = async () => {
     if (customerSession?.token) {
       try {
-        await fetch("/api/customer/logout", {
+        await fetch(apiUrl("/api/customer/logout"), {
           method: "POST",
           headers: {
             Authorization: `Bearer ${customerSession.token}`,

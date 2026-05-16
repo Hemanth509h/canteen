@@ -30,12 +30,12 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Access-Control-Allow-Private-Network');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+
   // Replit-specific fix for NotSameOrigin errors in webview
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   res.header('Cross-Origin-Opener-Policy', 'unsafe-none');
   res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
@@ -91,8 +91,8 @@ const startServer = async () => {
   try {
     await connectToDatabase();
     await registerRoutes(app);
-    
-    const port = 3000;
+
+    const port = process.env.PORT || 3000;
     app.listen(port, "0.0.0.0", () => {
       log(`API server listening on http://0.0.0.0:${port}`);
     });

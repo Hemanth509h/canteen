@@ -476,7 +476,10 @@ export async function registerRoutes(app) {
       );
 
       if (customerBookings.length === 0) {
-        return sendResponse(res, 404, null, "No bookings found for this email or mobile number");
+        return sendResponse(res, 200, {
+          codeSent: false,
+          message: "No bookings found for this email or mobile number"
+        });
       }
 
       // Reuse code-requests logic
