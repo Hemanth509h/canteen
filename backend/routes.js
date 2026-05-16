@@ -264,6 +264,27 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.post("/api/bookings/:id/send-update", async (req, res) => {
+    try {
+      const booking = await getStorageInstance().getBooking(req.params.id);
+      if (!booking) return sendResponse(res, 404, null, "Booking not found");
+
+      if (booking.contactEmail && validateEmail(booking.contactEmail)) {
+        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`;
+        const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
+        
+        // Re-using confirmation email for now as an "Update" notification
+        await sendBookingConfirmationEmail(booking.contactEmail, booking, bookingLink);
+        sendResponse(res, 200, { success: true, message: "Update email sent to customer" });
+      } else {
+        sendResponse(res, 400, null, "Customer has no valid email address");
+      }
+    } catch (error) {
+      console.error("Failed to send update email:", error);
+      sendResponse(res, 500, null, "Failed to send update email");
+    }
+  });
+
   app.delete("/api/bookings/:id", async (req, res) => {
     try {
       const success = await getStorageInstance().deleteBooking(req.params.id);
