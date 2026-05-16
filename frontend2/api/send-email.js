@@ -1,4 +1,6 @@
 export default async function handler(req, res) {
+  console.log(`Email API: [${req.method}] ${req.url}`);
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -17,7 +19,11 @@ export default async function handler(req, res) {
   const fromEmail = process.env.RESEND_FROM_EMAIL;
 
   if (!apiKey || !fromEmail) {
-    return res.status(500).json({ error: "Resend API credentials are not configured." });
+    console.error("Resend configuration missing: RESEND_API_KEY or RESEND_FROM_EMAIL not found in environment.");
+    return res.status(500).json({ 
+      error: "Resend API credentials are not configured on Vercel dashboard.",
+      details: "Ensure RESEND_API_KEY and RESEND_FROM_EMAIL are set in project settings."
+    });
   }
 
   try {
