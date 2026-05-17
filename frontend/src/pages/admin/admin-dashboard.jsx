@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation, Link, Redirect } from "wouter";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, ChefHat, Users, LogOut, UserCog, Home, History, Star, Printer, BarChart3, Settings, CreditCard, Building2, ReceiptText } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, ChefHat, Users, LogOut, UserCog, Home, History, Star, Printer, BarChart3, Settings, CreditCard, Building2, ReceiptText, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -32,9 +32,10 @@ import AnalyticsReports from "./admin-analytics";
 import branding from "@/lib/branding.json";
 import { useEffect, useState } from "react";
 import { clearAdminSession, isAdminAuthenticated, onAdminAuthStateChange, getAdminSession } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
+import { useToast } from "@/hooks/use-toast";
 
 const menuSections = [
   {
@@ -171,6 +172,18 @@ export default function AdminDashboard() {
   const [isChecking, setIsChecking] = useState(true);
   const [role, setRole] = useState("superadmin");
 
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching();
+  const { toast } = useToast();
+
+  const handleGlobalRefresh = () => {
+    queryClient.invalidateQueries();
+    toast({
+      title: "Data Refreshed",
+      description: "All active dashboard panels have been successfully updated.",
+    });
+  };
+
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
     placeholderData: STATIC_COMPANY_INFO,
@@ -283,7 +296,7 @@ export default function AdminDashboard() {
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20 p-4 sm:p-6">
+          <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-background to-muted/20 p-4 sm:p-6 relative">
             <ErrorBoundary>
               <Switch>
                 <Route path="/admin/analytics" component={AnalyticsReports} />
@@ -302,6 +315,20 @@ export default function AdminDashboard() {
                 <Route path="/admin" component={DashboardOverview} />
               </Switch>
             </ErrorBoundary>
+
+            {/* Elegant Floating Refresh Action Button */}
+            <div className="fixed bottom-6 right-6 z-50">
+              <Button
+                variant="default"
+                size="icon"
+                onClick={handleGlobalRefresh}
+                disabled={isFetching > 0}
+                className="h-12 w-12 rounded-full shadow-lg bg-primary text-primary-foreground hover:scale-110 active:scale-95 transition-all duration-300 border border-primary/20 flex items-center justify-center cursor-pointer"
+                title="Refresh Page Data"
+              >
+                <RefreshCw className={`h-5 w-5 ${isFetching > 0 ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
           </main>
         </div>
       </div>

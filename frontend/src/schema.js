@@ -119,14 +119,6 @@ export const insertCustomerReviewSchema = z.object({
 
 export const updateCustomerReviewSchema = insertCustomerReviewSchema.partial();
 
-export const insertAdminNotificationSchema = z.object({
-  type: z.enum(["booking", "payment"]),
-  title: z.string().min(1),
-  message: z.string().min(1),
-  bookingId: z.string().optional(),
-  read: z.boolean().default(false),
-});
-
 export const insertStaffBookingRequestSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
   staffId: z.string().min(1, "Staff ID is required"),
@@ -136,13 +128,6 @@ export const insertStaffBookingRequestSchema = z.object({
 
 export const updateStaffBookingRequestSchema = z.object({
   status: z.enum(["pending", "accepted", "rejected"]),
-});
-
-export const insertAuditHistorySchema = z.object({
-  action: z.string().min(1, "Action is required"),
-  entityType: z.enum(["booking", "staff", "payment", "assignment"]),
-  entityId: z.string().min(1, "Entity ID is required"),
-  details: z.record(z.unknown()).default({}),
 });
 
 export const insertCodeRequestSchema = z.object({

@@ -138,16 +138,6 @@ export const insertCustomerReviewSchema = z.object({
 
 export const updateCustomerReviewSchema = insertCustomerReviewSchema.partial();
 
-// ==================== ADMIN NOTIFICATIONS ====================
-
-export const insertAdminNotificationSchema = z.object({
-  type: z.enum(["booking", "payment"]),
-  title: z.string().min(1),
-  message: z.string().min(1),
-  bookingId: z.string().optional(),
-  read: z.boolean().default(false),
-});
-
 // ==================== STAFF BOOKING REQUESTS ====================
 
 export const insertStaffBookingRequestSchema = z.object({
@@ -159,15 +149,6 @@ export const insertStaffBookingRequestSchema = z.object({
 
 export const updateStaffBookingRequestSchema = z.object({
   status: z.enum(["pending", "accepted", "rejected"]),
-});
-
-// ==================== AUDIT HISTORY ====================
-
-export const insertAuditHistorySchema = z.object({
-  action: z.string().min(1, "Action is required"),
-  entityType: z.enum(["booking", "staff", "payment", "assignment"]),
-  entityId: z.string().min(1, "Entity ID is required"),
-  details: z.record(z.unknown()).default({}),
 });
 
 // ==================== USER CODES ====================
@@ -227,15 +208,6 @@ export const updateExpenseSchema = insertExpenseSchema.partial();
 export const sendPaymentLinkEmailSchema = z.object({
   bookingId: z.string().min(1, "Booking ID is required"),
   paymentType: z.enum(["advance", "final"]).optional(),
-});
-
-export const customerLoginRequestSchema = z.object({
-  identifier: z.string().trim().min(1, "Email or mobile number is required"),
-});
-
-export const customerLoginVerifySchema = z.object({
-  email: z.string().email("Valid email is required").transform(sanitizeEmail),
-  code: z.string().trim().regex(/^\d{6}$/, "Enter the 6 digit code"),
 });
 
 // ==================== ADMIN USERS (RBAC) ====================

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -66,13 +67,13 @@ function paymentSummary(booking) {
 }
 
 export default function AdminHistory() {
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [startDate, setStartDate] = useState(yearStartInput());
   const [endDate, setEndDate] = useState(todayInput());
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [showDeleteAll, setShowDeleteAll] = useState(false);
 
   const deleteBookingMutation = useMutation({
     mutationFn: (id) => apiRequest("DELETE", `/api/bookings/${id}`),
@@ -86,20 +87,9 @@ export default function AdminHistory() {
     },
   });
 
-  const deleteAllMutation = useMutation({
-    mutationFn: () => apiRequest("DELETE", "/api/bookings"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
-      toast({ title: "All bookings deleted", description: "The entire booking history has been cleared." });
-      setShowDeleteAll(false);
-    },
-    onError: (error) => {
-      toast({ title: "Failed to delete all", description: error.message, variant: "destructive" });
-    },
-  });
-
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["/api/bookings"],
+    staleTime: 0,
   });
 
   const filteredBookings = useMemo(() => {
@@ -204,18 +194,13 @@ export default function AdminHistory() {
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Button variant="outline" onClick={() => setLocation("/admin/bookings")} className="w-full gap-2 sm:w-auto">
+            <Calendar className="h-4 w-4" />
+            Show All Bookings
+          </Button>
           <Button onClick={exportHistory} className="w-full gap-2 sm:w-auto">
             <Download className="h-4 w-4" />
             Export History
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => setShowDeleteAll(true)}
-            className="w-full gap-2 sm:w-auto"
-            disabled={bookings.length === 0}
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete All Bookings
           </Button>
         </div>
       </div>
@@ -376,17 +361,6 @@ export default function AdminHistory() {
         variant="destructive"
         isLoading={deleteBookingMutation.isPending}
         onConfirm={() => deleteTarget && deleteBookingMutation.mutate(deleteTarget._id || deleteTarget.id)}
-      />
-
-      <ConfirmDialog
-        open={showDeleteAll}
-        onOpenChange={(open) => !open && setShowDeleteAll(false)}
-        title="Delete All Bookings"
-        description={`This will permanently delete ALL ${bookings.length} booking records. This action cannot be undone.`}
-        confirmText="Delete All"
-        variant="destructive"
-        isLoading={deleteAllMutation.isPending}
-        onConfirm={() => deleteAllMutation.mutate()}
       />
     </div>
   );

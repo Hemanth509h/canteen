@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,7 +7,7 @@ import {
   Search, Mail, Phone, BookOpen, ArrowLeft, 
   AlertCircle, CheckCircle, XCircle, Calendar, 
   Utensils, ChevronUp, ChevronDown,
-  Loader2, LogIn
+  Loader2, LogIn, RefreshCw
 } from "lucide-react";
 import localMenuItems from "@/lib/menu.json";
 import { apiRequest, apiUrl } from "@/lib/queryClient";
@@ -144,6 +144,7 @@ function BookingCard({ booking }) {
 }
 
 export default function CustomerDashboardView({ onBack }) {
+  const queryClient = useQueryClient();
   const [identifier, setIdentifier] = useState("");
   const [code, setCode] = useState("");
   const [loginStep, setLoginStep] = useState("email");
@@ -283,9 +284,19 @@ export default function CustomerDashboardView({ onBack }) {
           </button>
           <span className="font-playfair font-bold text-base text-zinc-900 dark:text-white">My Bookings</span>
           {customerSession ? (
-            <button onClick={handleSignOut} className="text-xs font-jakarta font-semibold text-zinc-400 hover:text-rose-400 transition-colors">
-              Sign Out
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => queryClient.invalidateQueries(["/api/customer/bookings"])}
+                disabled={isFetching}
+                className="p-1 rounded-md text-zinc-500 hover:text-amber-500 transition-colors cursor-pointer"
+                title="Refresh Bookings"
+              >
+                <RefreshCw size={15} className={isFetching ? "animate-spin" : ""} />
+              </button>
+              <button onClick={handleSignOut} className="text-xs font-jakarta font-semibold text-zinc-400 hover:text-rose-400 transition-colors">
+                Sign Out
+              </button>
+            </div>
           ) : <div className="w-20" />}
         </div>
       </header>

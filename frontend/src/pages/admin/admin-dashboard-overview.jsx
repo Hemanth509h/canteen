@@ -15,10 +15,12 @@ export default function DashboardOverview() {
   const { data: companyInfo } = useQuery({
     queryKey: ["/api/company-info"],
     placeholderData: STATIC_COMPANY_INFO,
+    staleTime: 0,
   });
 
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
     queryKey: ["/api/bookings"],
+    staleTime: 0,
   });
 
   const { data: foodItems, isLoading: isLoadingFood, isFetching: isFetchingFood, refetch: refetchAll } = useQuery({
@@ -34,14 +36,17 @@ export default function DashboardOverview() {
       }
     },
     placeholderData: localMenuItems,
+    staleTime: 0,
   });
 
   const { data: staff, isLoading: isLoadingStaff } = useQuery({
     queryKey: ["/api/staff"],
+    staleTime: 0,
   });
 
   const { data: expenses, isLoading: isLoadingExpenses } = useQuery({
     queryKey: ["/api/expenses"],
+    staleTime: 0,
   });
 
   useEffect(() => {
@@ -54,15 +59,29 @@ export default function DashboardOverview() {
     refetchAll();
   };
 
+  const getTotal = (booking) =>
+    Number(booking.totalAmount) || (Number(booking.guestCount) || 0) * (Number(booking.pricePerPlate) || 0);
+
   const pendingBookings = bookings?.filter(b => b.status === "pending") || [];
   const confirmedBookings = bookings?.filter(b => b.status === "confirmed") || [];
-  const upcomingEvents = confirmedBookings
-    .filter(b => new Date(b.eventDate) >= new Date())
+  const completedBookings = bookings?.filter(b => b.status === "completed") || [];
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingEvents = (bookings || [])
+    .filter(b => ["confirmed", "completed"].includes(b.status))
+    .filter(b => {
+      const eventDate = new Date(b.eventDate);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate >= today;
+    })
     .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
     .slice(0, 5);
 
-  const totalRevenue = bookings?.filter(b => b.status === "completed" || b.status === "confirmed")
-    .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0) || 0;
+  const totalRevenue = bookings
+    ?.filter(b => ["confirmed", "completed"].includes(b.status))
+    .reduce((sum, b) => sum + getTotal(b), 0) || 0;
 
   const totalExpenses = expenses?.reduce((sum, e) => sum + (Number(e.amount) || 0), 0) || 0;
   const netProfit = totalRevenue - totalExpenses;
@@ -70,7 +89,7 @@ export default function DashboardOverview() {
   const metrics = [
     {
       title: "Active Bookings",
-      value: confirmedBookings.length,
+      value: confirmedBookings.length + completedBookings.length,
       description: `${pendingBookings.length} pending requests`,
       icon: CalendarDays,
       color: "text-blue-600",
