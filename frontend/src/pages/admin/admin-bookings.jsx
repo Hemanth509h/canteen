@@ -718,6 +718,7 @@ export default function EventBookingsManager() {
 
   const selectedBookingId = getBookingId(selectedBookingForAssignment);
   const assignedStaffIds = new Set(staffAssignments.map((assignment) => String(assignment.staffId)));
+  const availableStaff = staffList.filter((member) => !assignedStaffIds.has(String(member.id || member._id)));
   const assignedStaffCount = staffAssignments.length;
   const requiredStaffCount = selectedBookingForAssignment?.servingBoysNeeded || 0;
   const groupedMenuByCategory = {};
