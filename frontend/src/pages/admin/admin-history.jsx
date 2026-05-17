@@ -39,10 +39,14 @@ const getAdvance = (booking) => Number(booking.advanceAmount) || Math.ceil(getTo
 
 const getFinal = (booking) => getTotal(booking) - getAdvance(booking);
 
-const getDate = (booking) => {
-  const date = new Date(booking.eventDate);
-  return Number.isNaN(date.getTime()) ? null : date;
+const normalizeDate = (dateVal) => {
+  if (!dateVal) return null;
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return null;
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 };
+
+const getDate = (booking) => normalizeDate(booking.eventDate);
 
 const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 
@@ -71,8 +75,8 @@ export default function AdminHistory() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
-  const [startDate, setStartDate] = useState(yearStartInput());
-  const [endDate, setEndDate] = useState(todayInput());
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const deleteBookingMutation = useMutation({
@@ -93,8 +97,8 @@ export default function AdminHistory() {
   });
 
   const filteredBookings = useMemo(() => {
-    const start = startDate ? new Date(`${startDate}T00:00:00`) : null;
-    const end = endDate ? new Date(`${endDate}T23:59:59`) : null;
+    const start = startDate ? normalizeDate(startDate) : null;
+    const end = endDate ? normalizeDate(endDate) : null;
     const needle = search.trim().toLowerCase();
 
     return bookings
