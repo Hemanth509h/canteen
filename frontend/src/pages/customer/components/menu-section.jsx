@@ -148,7 +148,67 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
                 </Reveal>
               );
             })}
+
+          {!isLoading && (
+            <Reveal delay={((filtered.length) % 4) * 100}>
+              <div
+                onClick={() => {
+                  const cartBtn = document.getElementById("cart-drawer-button");
+                  if (cartBtn) {
+                    cartBtn.click();
+                  } else {
+                    alert("Please click the Cart icon at the bottom right to add custom requests!");
+                  }
+                }}
+                className="group rounded-lg border-2 border-dashed border-amber-300 dark:border-zinc-800 bg-amber-50/20 hover:bg-amber-50/50 dark:bg-zinc-900/30 dark:hover:bg-zinc-900/60 transition-all duration-300 cursor-pointer flex flex-col justify-center items-center p-5 text-center min-h-[170px] hover:border-amber-500 hover:shadow-lg"
+              >
+                <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Plus size={20} className="text-amber-600 dark:text-amber-400" />
+                </div>
+                <h3 className="font-playfair font-bold text-zinc-900 dark:text-white text-base mb-1">
+                  Add Custom Request
+                </h3>
+                <p className="text-zinc-500 dark:text-zinc-400 text-xs font-jakarta max-w-[200px] leading-relaxed">
+                  Can't find your dish? Open cart & add any custom request!
+                </p>
+              </div>
+            </Reveal>
+          )}
         </div>
+
+        {/* Under grid notice banner */}
+        {!isLoading && (
+          <Reveal delay={200} className="mt-10">
+            <div 
+              onClick={() => {
+                const cartBtn = document.getElementById("cart-drawer-button");
+                if (cartBtn) {
+                  cartBtn.click();
+                } else {
+                  alert("Please click the Cart icon at the bottom right to add custom requests!");
+                }
+              }}
+              className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 cursor-pointer hover:border-amber-500/40 transition-all duration-300 group dark:bg-zinc-900/30"
+            >
+              <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform shrink-0">
+                  <Plus size={24} />
+                </div>
+                <div>
+                  <h4 className="font-playfair font-bold text-zinc-950 dark:text-white text-lg">
+                    Missing any of your favorite items?
+                  </h4>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm font-jakarta mt-0.5">
+                    Don't worry! You can add custom requested dishes directly inside your cart.
+                  </p>
+                </div>
+              </div>
+              <button className="shrink-0 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white font-jakarta font-bold text-sm rounded-xl transition-all hover:scale-105 shadow-md shadow-amber-500/20">
+                Open Cart & Add Custom Item
+              </button>
+            </div>
+          </Reveal>
+        )}
       </div>
     </section>
   );

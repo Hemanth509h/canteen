@@ -332,6 +332,30 @@ export async function registerRoutes(app) {
       }
       const booking = await getStorageInstance().createBooking(result.data);
       
+      // Process items if provided in the body
+      let enrichedItems = [];
+      if (req.body.items && Array.isArray(req.body.items)) {
+        try {
+          const foodItems = await getStorageInstance().getFoodItems();
+          for (const item of req.body.items) {
+            await getStorageInstance().createBookingItem({
+              bookingId: booking.id || booking._id,
+              foodItemId: item.foodItemId,
+              quantity: item.quantity
+            });
+            const foodDetail = foodItems.find(f => String(f.id || f._id) === String(item.foodItemId));
+            enrichedItems.push({
+              foodItemId: item.foodItemId,
+              quantity: item.quantity,
+              name: foodDetail ? foodDetail.name : "Custom Request Item",
+              category: foodDetail ? foodDetail.category : "Custom Request"
+            });
+          }
+        } catch (itemErr) {
+          console.error("Error creating booking items during booking request:", itemErr);
+        }
+      }
+
       // Customer Notification
       let emailStatus = null;
       if (booking.contactEmail && validateEmail(booking.contactEmail)) {
@@ -339,8 +363,13 @@ export async function registerRoutes(app) {
         const baseUrl = getPublicBaseUrl(req);
         const bookingLink = `${baseUrl}/payment/${booking.id || booking._id}`;
         const bookingData = typeof booking.toObject === 'function' ? booking.toObject() : booking;
+        const emailPayload = {
+          ...bookingData,
+          companyName: companyInfo.companyName,
+          items: enrichedItems
+        };
         try {
-          emailStatus = await sendBookingConfirmationEmail(booking.contactEmail, { ...bookingData, companyName: companyInfo.companyName }, bookingLink);
+          emailStatus = await sendBookingConfirmationEmail(booking.contactEmail, emailPayload, bookingLink);
         } catch (error) {
           console.error("Booking confirmation email error:", error);
         }
@@ -367,9 +396,16 @@ export async function registerRoutes(app) {
           }
         }
 
+        const adminBookingData = typeof booking.toObject === 'function' ? booking.toObject() : booking;
+        const adminPayload = {
+          ...adminBookingData,
+          companyName: companyInfo.companyName,
+          items: enrichedItems
+        };
+
         if (validateEmail(adminEmail)) {
           console.log(`[MAIL-DEBUG] Sending admin notification to: ${adminEmail}`);
-          await sendAdminBookingNotificationEmail(adminEmail, { ...booking, companyName: companyInfo.companyName }, adminBookingLink);
+          await sendAdminBookingNotificationEmail(adminEmail, adminPayload, adminBookingLink);
         } else {
           console.error("[MAIL-ERROR] Failed to resolve any valid admin email for notification.");
           throw new Error("No valid admin email configured for notifications.");

@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Trash2, X, User, Phone, Send, Loader2, Calendar, Mail, MapPin, Tag, UtensilsCrossed } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,7 +18,8 @@ import { sendBookingEmails } from "@/lib/resend-email";
 export function CartDrawer() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests, addToCart } = useCart();
+  const [customItemName, setCustomItemName] = useState("");
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({ 
     name: "", 
@@ -65,6 +66,12 @@ export function CartDrawer() {
       specialRequests: customerDetails.specialRequests,
       companyName: companyInfo?.companyName || companyInfo?.name || "Sai Canteens",
       adminEmail: import.meta.env.VITE_ADMIN_EMAIL || companyInfo?.contactEmail || companyInfo?.email,
+      items: cartItems.map(item => ({
+        foodItemId: item.id,
+        quantity: item.quantity,
+        name: item.name,
+        category: item.category || "Custom Request"
+      }))
     };
 
     try {
@@ -91,13 +98,25 @@ export function CartDrawer() {
     }
   };
 
+  const handleAddCustomItem = () => {
+    if (!customItemName.trim()) return;
+    addToCart({
+      id: `custom-${Date.now()}`,
+      name: customItemName.trim(),
+      category: "Custom Request",
+      price: 0,
+      image: "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=800&auto=format&fit=crop"
+    });
+    setCustomItemName("");
+  };
+
   const isLoggedIn = !!localStorage.getItem("customer_identifier");
 
   return (
     <>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="relative rounded-full w-12 h-12 bg-white text-black shadow-2xl hover:scale-110 transition-transform duration-300 border-none flex items-center justify-center">
+          <Button id="cart-drawer-button" variant="outline" size="icon" className="relative rounded-full w-12 h-12 bg-white text-black shadow-2xl hover:scale-110 transition-transform duration-300 border-none flex items-center justify-center">
             <ShoppingCart size={24} />
             {totalItems > 0 && (
               <Badge className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 bg-primary text-white border-2 border-background">
@@ -169,6 +188,21 @@ export function CartDrawer() {
                   Explore Menus
                 </Button>
               </SheetTrigger>
+              <div className="w-full mt-4 bg-background p-4 rounded-xl border border-primary/20">
+                <p className="text-sm font-bold mb-2">Want something not on the menu?</p>
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="E.g., Vegan Pasta..." 
+                    value={customItemName}
+                    onChange={(e) => setCustomItemName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddCustomItem()}
+                    className="h-10 border-primary/20 focus-visible:ring-primary/20"
+                  />
+                  <Button onClick={handleAddCustomItem} className="h-10 px-4 bg-primary hover:bg-primary/90 font-bold">
+                    Add
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
             <>
@@ -228,7 +262,25 @@ export function CartDrawer() {
                 </div>
               </ScrollArea>
 
-              <div className="pt-6 space-y-4">
+              <div className="pt-4 px-2">
+                <div className="bg-secondary/30 p-3 rounded-xl border border-primary/10">
+                  <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">Add Custom Request</p>
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="Dish name not on menu..." 
+                      value={customItemName}
+                      onChange={(e) => setCustomItemName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddCustomItem()}
+                      className="h-9 text-sm border-primary/20 bg-background"
+                    />
+                    <Button onClick={handleAddCustomItem} size="sm" className="h-9 px-3 bg-primary hover:bg-primary/90 font-bold">
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-4">
                 <Separator />
                 <div className="flex justify-between items-center px-2 text-sm text-muted-foreground">
                   <span>Unique Items</span>
@@ -245,6 +297,8 @@ export function CartDrawer() {
                   >
                     Proceed to Contact
                   </Button>
+
+
 
                   <div className="pt-2 pb-2 text-center space-y-2">
                     <p className="text-xs text-muted-foreground italic">Need help? Contact us directly:</p>

@@ -96,33 +96,35 @@ export default function ChefPrintout() {
             </div>
           </div>
 
-          {Object.entries(groupedByCategory).map(([category, items]) => (
-            <div key={category} className="overflow-hidden rounded-lg border">
-              <div className="bg-gray-900 px-4 py-3">
-                <h2 className="text-lg font-bold text-white">{category}</h2>
-              </div>
-              <table className="w-full border-collapse text-sm">
-                <thead className="bg-gray-100">
-                  <tr className="border-b">
-                    <th className="w-[10%] p-3 text-left text-gray-900">#</th>
-                    <th className="w-[50%] p-3 text-left text-gray-900">Dish</th>
-                    <th className="w-[20%] p-3 text-center text-gray-900">Quantity</th>
-                    <th className="w-[20%] p-3 text-center text-gray-900">Guests</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, idx) => (
-                    <tr key={item.id} className="border-b last:border-0">
-                      <td className="p-3 text-gray-600">{idx + 1}</td>
-                      <td className="p-3 font-semibold text-gray-900">{item.name}</td>
-                      <td className="p-3 text-center font-bold text-gray-900">{item.totalQuantity}</td>
-                      <td className="p-3 text-center text-gray-700">{item.totalGuests}</td>
+          <div className="columns-1 md:columns-2 gap-6">
+            {Object.entries(groupedByCategory).map(([category, items]) => (
+              <div key={category} className="overflow-hidden rounded-lg border mb-6 break-inside-avoid">
+                <div className="bg-gray-900 px-4 py-3">
+                  <h2 className="text-lg font-bold text-white">{category}</h2>
+                </div>
+                <table className="w-full border-collapse text-sm">
+                  <thead className="bg-gray-100">
+                    <tr className="border-b">
+                      <th className="w-[10%] p-3 text-left text-gray-900">#</th>
+                      <th className="w-[50%] p-3 text-left text-gray-900">Dish</th>
+                      <th className="w-[20%] p-3 text-center text-gray-900">Qty</th>
+                      <th className="w-[20%] p-3 text-center text-gray-900">Guests</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
+                  </thead>
+                  <tbody>
+                    {items.map((item, idx) => (
+                      <tr key={item.id} className="border-b last:border-0">
+                        <td className="p-3 text-gray-600">{idx + 1}</td>
+                        <td className="p-3 font-semibold text-gray-900">{item.name}</td>
+                        <td className="p-3 text-center font-bold text-gray-900">{item.totalQuantity}</td>
+                        <td className="p-3 text-center text-gray-700">{item.totalGuests}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

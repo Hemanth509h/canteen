@@ -256,7 +256,11 @@ export default function EventBookingsManager() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const priceInRupees = Math.round(data.pricePerPlate);
-      const response = await apiRequest("POST", "/api/bookings", { ...data, pricePerPlate: priceInRupees });
+      const items = selectedItems.map(item => ({
+        foodItemId: item.foodItemId,
+        quantity: item.quantity
+      }));
+      const response = await apiRequest("POST", "/api/bookings", { ...data, pricePerPlate: priceInRupees, items });
       return await response.json();
     },
     onSuccess: async (response) => {
@@ -716,7 +720,19 @@ export default function EventBookingsManager() {
   const assignedStaffIds = new Set(staffAssignments.map((assignment) => String(assignment.staffId)));
   const assignedStaffCount = staffAssignments.length;
   const requiredStaffCount = selectedBookingForAssignment?.servingBoysNeeded || 0;
-  const availableStaff = (staffList || []).filter((staff) => !assignedStaffIds.has(String(staff.id || staff._id)));
+  const groupedMenuByCategory = {};
+  selectedItems.forEach(si => {
+    const item = foodItems.find(f => f.id === si.foodItemId);
+    if (!item) return;
+    const cat = item.category || "Other";
+    if (!groupedMenuByCategory[cat]) {
+      groupedMenuByCategory[cat] = [];
+    }
+    groupedMenuByCategory[cat].push({
+      ...si,
+      name: item.name
+    });
+  });
 
   return (
     <div className="p-6 sm:p-8 space-y-6">
@@ -1035,28 +1051,34 @@ export default function EventBookingsManager() {
             </div>
           </div>
 
-          {selectedItems.length > 0 ? (
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="bg-gray-900 text-white">
-                  <th className="w-14 p-3 text-left">#</th>
-                  <th className="p-3 text-left">Item</th>
-                  <th className="w-28 p-3 text-center">Guests</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedItems.map((si, index) => {
-                  const item = foodItems.find(f => f.id === si.foodItemId);
-                  return (
-                    <tr key={si.foodItemId} className="border-b">
-                      <td className="p-3 text-gray-600">{index + 1}</td>
-                      <td className="p-3 font-semibold text-gray-900">{item?.name || "Menu item"}</td>
-                      <td className="p-3 text-center font-bold text-gray-900">{si.quantity}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          {Object.keys(groupedMenuByCategory).length > 0 ? (
+            <div className="columns-1 md:columns-2 gap-6">
+              {Object.entries(groupedMenuByCategory).map(([category, items]) => (
+                <div key={category} className="overflow-hidden rounded-lg border mb-6 break-inside-avoid">
+                  <div className="bg-gray-900 px-4 py-3">
+                    <h2 className="text-lg font-bold text-white">{category}</h2>
+                  </div>
+                  <table className="w-full border-collapse text-sm">
+                    <thead className="bg-gray-100">
+                      <tr className="border-b">
+                        <th className="w-12 p-3 text-left text-gray-900">#</th>
+                        <th className="p-3 text-left text-gray-900">Item</th>
+                        <th className="w-20 p-3 text-center text-gray-900">Guests</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item, idx) => (
+                        <tr key={item.foodItemId} className="border-b last:border-0">
+                          <td className="p-3 text-gray-600">{idx + 1}</td>
+                          <td className="p-3 font-semibold text-gray-900">{item.name}</td>
+                          <td className="p-3 text-center font-bold text-gray-900">{item.quantity}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="rounded-lg border border-dashed py-10 text-center text-gray-500">
               No items selected for this menu.

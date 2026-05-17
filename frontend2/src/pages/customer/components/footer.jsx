@@ -35,12 +35,7 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
               <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-left hover:text-amber-400 transition-colors">Home</button>
               <button onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })} className="text-left hover:text-amber-400 transition-colors">Menu</button>
               <button onClick={() => setView("bookings")} className="text-left hover:text-amber-400 transition-colors">My Bookings</button>
-              <Link href="/admin/login" className="hover:text-amber-400 transition-colors flex items-center gap-2">
-                <Lock size={12} /> Admin Portal
-              </Link>
-              <Link href="/staff/login" className="hover:text-amber-400 transition-colors flex items-center gap-2">
-                <UserRound size={12} /> Staff Portal
-              </Link>
+
             </div>
           </Reveal>
 

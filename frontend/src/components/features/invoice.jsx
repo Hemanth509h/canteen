@@ -5,10 +5,43 @@ import { Badge } from "@/components/ui/badge";
 import { Printer, Loader2 } from "lucide-react";
 import { printElement } from "@/lib/print-utils";
 import branding from "@/lib/branding.json";
+import { useQuery } from "@tanstack/react-query";
 
 export function Invoice({ booking, companyInfo, isAdmin = false }) {
   const invoiceRef = useRef(null);
   const [isGeneratingPrint, setIsGeneratingPrint] = useState(false);
+
+  const bookingId = booking?.id || booking?._id;
+  const { data: itemsResponse } = useQuery({
+    queryKey: ["/api/bookings", bookingId, "items"],
+    queryFn: async () => {
+      if (!bookingId) return [];
+      const res = await fetch(`/api/bookings/${bookingId}/items`);
+      if (!res.ok) return [];
+      const json = await res.json();
+      return json.data || json || [];
+    },
+    enabled: !!bookingId,
+  });
+  const bookingItems = Array.isArray(itemsResponse) ? itemsResponse : itemsResponse?.data || [];
+
+  const { data: foodItems = [] } = useQuery({
+    queryKey: ["/api/food-items"],
+  });
+
+  const groupedInvoiceItems = {};
+  bookingItems.forEach(si => {
+    const item = (foodItems || []).find(f => f.id === si.foodItemId);
+    if (!item) return;
+    const cat = item.category || "Other";
+    if (!groupedInvoiceItems[cat]) {
+      groupedInvoiceItems[cat] = [];
+    }
+    groupedInvoiceItems[cat].push({
+      ...si,
+      name: item.name
+    });
+  });
 
   const totalAmount = booking.totalAmount || (booking.guestCount * booking.pricePerPlate);
   const advanceAmount = booking.advanceAmount ?? Math.ceil(totalAmount * 0.5);
@@ -122,6 +155,30 @@ export function Invoice({ booking, companyInfo, isAdmin = false }) {
               </tr>
             </tbody>
           </table>
+
+          {/* Selected Menu Items */}
+          {Object.keys(groupedInvoiceItems).length > 0 && (
+            <div className="border-t pt-6 space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-700">Selected Event Menu</h3>
+              <div className="columns-2 gap-4">
+                {Object.entries(groupedInvoiceItems).map(([category, items]) => (
+                  <div key={category} className="overflow-hidden rounded-lg border mb-4 break-inside-avoid text-[11px]">
+                    <div className="bg-gray-100 px-3 py-1.5 border-b">
+                      <h4 className="font-bold text-gray-900">{category}</h4>
+                    </div>
+                    <ul className="divide-y divide-gray-100 bg-white">
+                      {items.map((item, idx) => (
+                        <li key={item.foodItemId} className="px-3 py-1.5 flex justify-between items-center text-gray-700">
+                          <span className="font-medium">{idx + 1}. {item.name}</span>
+                          {item.quantity && <span className="text-gray-500 font-mono">({item.quantity} Qty)</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Payment Summary */}
           <div className="space-y-3 border-t pt-4">

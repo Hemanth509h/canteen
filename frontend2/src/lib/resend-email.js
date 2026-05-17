@@ -33,6 +33,43 @@ export function buildBookingConfirmationEmail(booking, bookingLink) {
   const safeLocation = escapeHtml(booking.eventLocation || "TBD");
   const safeGuests = escapeHtml(String(booking.guestCount || "N/A"));
 
+  let menuHtml = "";
+  let menuText = "";
+  if (booking.items && booking.items.length > 0) {
+    const grouped = {};
+    booking.items.forEach(item => {
+      const cat = item.category || "Selected Menu";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(item);
+    });
+
+    menuText = "\n\nSelected Menu:\n";
+    Object.entries(grouped).forEach(([cat, list]) => {
+      menuText += `\n--- ${cat} ---\n`;
+      list.forEach((item, idx) => {
+        menuText += `${idx + 1}. ${item.name} (${item.quantity || 1} Qty)\n`;
+      });
+    });
+
+    menuHtml = `
+      <div style="margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+        <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: #111827;">Selected Menu Items</h3>
+        <div style="background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; padding: 16px;">
+    `;
+    Object.entries(grouped).forEach(([cat, list]) => {
+      menuHtml += `
+        <div style="margin-bottom: 16px;">
+          <h4 style="margin: 0 0 8px; font-size: 13px; color: #ea580c; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">${escapeHtml(cat)}</h4>
+          <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151;">
+      `;
+      list.forEach(item => {
+        menuHtml += `<li style="margin-bottom: 4px;"><strong>${escapeHtml(item.name)}</strong> <span style="color:#6b7280;font-size:12px">(${escapeHtml(String(item.quantity || 1))} Qty)</span></li>`;
+      });
+      menuHtml += `</ul></div>`;
+    });
+    menuHtml += `</div></div>`;
+  }
+
   const subject = `Confirmation: We've received your booking request - ${safeCompanyName}`;
   const text = [
     `Hello ${booking.clientName || "Customer"},`,
@@ -45,6 +82,7 @@ export function buildBookingConfirmationEmail(booking, bookingLink) {
     `- Event Date: ${formattedDate || "TBD"}`,
     `- Guests: ${booking.guestCount || "N/A"}`,
     `- Location: ${booking.eventLocation || "TBD"}`,
+    menuText,
     "",
     "What happens next?",
     "Our team will review your requirements and get in touch with you shortly to discuss the menu and further details.",
@@ -73,6 +111,7 @@ export function buildBookingConfirmationEmail(booking, bookingLink) {
             <tr><td style="padding:8px 0;color:#6b7280">Location:</td><td style="padding:8px 0;text-align:right;font-weight:600">${safeLocation}</td></tr>
           </table>
         </div>
+        ${menuHtml}
         <div style="margin:32px 0;padding:20px;border-left:4px solid #22c55e;background:#f0fdf4">
           <p style="margin:0;font-weight:600;color:#166534">What's next?</p>
           <p style="margin:8px 0 0;font-size:14px;color:#166534">A member of our team will contact you within 24 hours to finalize your menu and discuss special requirements.</p>
@@ -111,6 +150,43 @@ export function buildAdminBookingNotificationEmail(booking, bookingLink) {
   const safeGuests = escapeHtml(String(booking.guestCount || "N/A"));
   const safeMealType = escapeHtml(booking.mealType || "N/A");
 
+  let menuHtml = "";
+  let menuText = "";
+  if (booking.items && booking.items.length > 0) {
+    const grouped = {};
+    booking.items.forEach(item => {
+      const cat = item.category || "Selected Menu";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(item);
+    });
+
+    menuText = "\n\nSelected Menu:\n";
+    Object.entries(grouped).forEach(([cat, list]) => {
+      menuText += `\n--- ${cat} ---\n`;
+      list.forEach((item, idx) => {
+        menuText += `${idx + 1}. ${item.name} (${item.quantity || 1} Qty)\n`;
+      });
+    });
+
+    menuHtml = `
+      <div style="margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+        <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: #111827;">Selected Menu Items</h3>
+        <div style="background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; padding: 16px;">
+    `;
+    Object.entries(grouped).forEach(([cat, list]) => {
+      menuHtml += `
+        <div style="margin-bottom: 16px;">
+          <h4 style="margin: 0 0 8px; font-size: 13px; color: #ea580c; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">${escapeHtml(cat)}</h4>
+          <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151;">
+      `;
+      list.forEach(item => {
+        menuHtml += `<li style="margin-bottom: 4px;"><strong>${escapeHtml(item.name)}</strong> <span style="color:#6b7280;font-size:12px">(${escapeHtml(String(item.quantity || 1))} Qty)</span></li>`;
+      });
+      menuHtml += `</ul></div>`;
+    });
+    menuHtml += `</div></div>`;
+  }
+
   const subject = `🔥 NEW BOOKING: ${safeCustomerName} (${safeEventType})`;
   const text = [
     "--- NEW BOOKING ALERT ---",
@@ -128,6 +204,7 @@ export function buildAdminBookingNotificationEmail(booking, bookingLink) {
     `- Guests: ${booking.guestCount || "N/A"}`,
     `- Location: ${booking.eventLocation || "Not provided"}`,
     `- Special Requests: ${booking.specialRequests || "None"}`,
+    menuText,
     "",
     bookingLink ? `Link to Dashboard: ${bookingLink}` : null,
   ].filter(Boolean).join("\n");
@@ -164,6 +241,8 @@ export function buildAdminBookingNotificationEmail(booking, bookingLink) {
           <h3 style="font-size:13px;margin:0 0 8px;color:#9a3412;text-transform:uppercase">Special Requests</h3>
           <p style="margin:0;font-size:14px;color:#4b5563;white-space:pre-wrap">${safeRequests}</p>
         </div>
+
+        ${menuHtml}
 
         ${safeBookingLink ? `
           <div style="text-align:center;margin-top:32px">
