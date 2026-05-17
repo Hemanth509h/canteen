@@ -79,6 +79,13 @@ export default function AdminHistory() {
   const [endDate, setEndDate] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  const handleShowAll = () => {
+    setSearch("");
+    setStatus("all");
+    setStartDate("");
+    setEndDate("");
+  };
+
   const deleteBookingMutation = useMutation({
     mutationFn: (id) => apiRequest("DELETE", `/api/bookings/${id}`),
     onSuccess: () => {
@@ -118,8 +125,7 @@ export default function AdminHistory() {
   const totals = useMemo(() => {
     const summary = filteredBookings.reduce((acc, booking) => {
       const payment = paymentSummary(booking);
-      const total = getTotal(booking);
-      acc.revenue += ["confirmed", "completed"].includes(booking.status) ? total : 0;
+      acc.revenue += ["confirmed", "completed"].includes(booking.status) ? payment.collected : 0;
       acc.collected += payment.collected;
       acc.balance += payment.balance;
       acc.guests += Number(booking.guestCount) || 0;
@@ -198,7 +204,7 @@ export default function AdminHistory() {
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Button variant="outline" onClick={() => setLocation("/admin/bookings")} className="w-full gap-2 sm:w-auto">
+          <Button variant="outline" onClick={handleShowAll} className="w-full gap-2 sm:w-auto">
             <Calendar className="h-4 w-4" />
             Show All Bookings
           </Button>

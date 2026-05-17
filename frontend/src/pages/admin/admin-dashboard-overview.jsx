@@ -62,6 +62,19 @@ export default function DashboardOverview() {
   const getTotal = (booking) =>
     Number(booking.totalAmount) || (Number(booking.guestCount) || 0) * (Number(booking.pricePerPlate) || 0);
 
+  const getCollected = (booking) => {
+    const total = getTotal(booking);
+    const advance = Number(booking.advanceAmount) || Math.ceil(total * 0.5);
+    const final = total - advance;
+    
+    const advanceApproved = booking.advancePaymentStatus === "paid" && 
+      (!booking.advancePaymentApprovalStatus || booking.advancePaymentApprovalStatus === "approved");
+    const finalApproved = booking.finalPaymentStatus === "paid" && 
+      (!booking.finalPaymentApprovalStatus || booking.finalPaymentApprovalStatus === "approved");
+      
+    return (advanceApproved ? advance : 0) + (finalApproved ? final : 0);
+  };
+
   const pendingBookings = bookings?.filter(b => b.status === "pending") || [];
   const confirmedBookings = bookings?.filter(b => b.status === "confirmed") || [];
   const completedBookings = bookings?.filter(b => b.status === "completed") || [];
@@ -79,12 +92,16 @@ export default function DashboardOverview() {
     .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
     .slice(0, 5);
 
-  const totalRevenue = bookings
+  const totalBilling = bookings
     ?.filter(b => ["confirmed", "completed"].includes(b.status))
     .reduce((sum, b) => sum + getTotal(b), 0) || 0;
 
+  const totalCollected = bookings
+    ?.filter(b => ["confirmed", "completed"].includes(b.status))
+    .reduce((sum, b) => sum + getCollected(b), 0) || 0;
+
   const totalExpenses = expenses?.reduce((sum, e) => sum + (Number(e.amount) || 0), 0) || 0;
-  const netProfit = totalRevenue - totalExpenses;
+  const netProfit = totalCollected - totalExpenses;
 
   const metrics = [
     {
@@ -96,17 +113,33 @@ export default function DashboardOverview() {
       loading: isLoadingBookings,
     },
     {
-      title: "Total Revenue",
-      value: `₹${totalRevenue.toLocaleString()}`,
-      description: "Confirmed & Completed",
+      title: "Total Billing",
+      value: `₹${totalBilling.toLocaleString()}`,
+      description: "Confirmed & Completed Value",
       icon: IndianRupee,
+      color: "text-indigo-600",
+      loading: isLoadingBookings,
+    },
+    {
+      title: "Total Collected",
+      value: `₹${totalCollected.toLocaleString()}`,
+      description: "Actual Funds Received",
+      icon: CheckCircle2,
       color: "text-emerald-600",
       loading: isLoadingBookings,
     },
     {
+      title: "Total Expenses",
+      value: `₹${totalExpenses.toLocaleString()}`,
+      description: "Event Costs & Costs",
+      icon: TrendingUp,
+      color: "text-rose-600 font-semibold",
+      loading: isLoadingExpenses,
+    },
+    {
       title: "Net Profit",
       value: `₹${netProfit.toLocaleString()}`,
-      description: `₹${totalExpenses.toLocaleString()} expenses`,
+      description: "Collected - Expenses",
       icon: TrendingUp,
       color: "text-emerald-500",
       loading: isLoadingBookings || isLoadingExpenses,
@@ -155,7 +188,7 @@ export default function DashboardOverview() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-4">
         {metrics.map((metric) => (
           <Card key={metric.title} className="shadow-sm border-border/50 hover:shadow-md transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

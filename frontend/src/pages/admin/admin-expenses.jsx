@@ -38,6 +38,19 @@ const EMPTY_FORM = {
 const getBookingTotal = (booking) =>
   Number(booking.totalAmount) || (Number(booking.guestCount) || 0) * (Number(booking.pricePerPlate) || 0);
 
+const getCollected = (booking) => {
+  const total = getBookingTotal(booking);
+  const advance = Number(booking.advanceAmount) || Math.ceil(total * 0.5);
+  const final = total - advance;
+  
+  const advanceApproved = booking.advancePaymentStatus === "paid" && 
+    (!booking.advancePaymentApprovalStatus || booking.advancePaymentApprovalStatus === "approved");
+  const finalApproved = booking.finalPaymentStatus === "paid" && 
+    (!booking.finalPaymentApprovalStatus || booking.finalPaymentApprovalStatus === "approved");
+    
+  return (advanceApproved ? advance : 0) + (finalApproved ? final : 0);
+};
+
 export default function AdminExpenses() {
   const { toast } = useToast();
   const [form, setForm] = useState(EMPTY_FORM);
@@ -79,7 +92,7 @@ export default function AdminExpenses() {
   const totals = useMemo(() => {
     const revenue = bookings
       .filter((booking) => ["confirmed", "completed"].includes(booking.status))
-      .reduce((sum, booking) => sum + getBookingTotal(booking), 0);
+      .reduce((sum, booking) => sum + getCollected(booking), 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
     const categoryTotals = expenses.reduce((acc, expense) => {
       acc[expense.category] = (acc[expense.category] || 0) + Number(expense.amount || 0);

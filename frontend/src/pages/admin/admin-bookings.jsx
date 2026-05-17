@@ -87,6 +87,17 @@ export default function EventBookingsManager() {
   const [isMenuEditDialogOpen, setIsMenuEditDialogOpen] = useState(false);
   const [isMenuViewDialogOpen, setIsMenuViewDialogOpen] = useState(false);
   const [menuEditingBooking, setMenuEditingBooking] = useState(null);
+  const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
+  const [expenseTargetBooking, setExpenseTargetBooking] = useState(null);
+  const [expenseForm, setExpenseForm] = useState({
+    title: "",
+    category: "raw_materials",
+    amount: "",
+    expenseDate: new Date().toISOString().split("T")[0],
+    vendor: "",
+    paymentMethod: "cash",
+    notes: "",
+  });
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -139,12 +150,6 @@ export default function EventBookingsManager() {
 
     const matchesStatusFilter = !statusFilter || booking.status === statusFilter;
     if (!matchesStatusFilter) return false;
-
-    // Keep Event Bookings focused on active work. Completed/cancelled records
-    // remain available from History, or by explicitly filtering/searching here.
-    if (!statusFilter && ["cancelled", "completed"].includes(booking.status)) {
-      return false;
-    }
     
     const bookingDate = new Date(booking.eventDate);
     const matchesDateFrom = !dateFrom || bookingDate >= new Date(dateFrom);
@@ -741,6 +746,52 @@ export default function EventBookingsManager() {
     setIsDialogOpen(true);
   };
 
+  const handleAddExpense = (booking) => {
+    setExpenseTargetBooking(booking);
+    setExpenseForm({
+      title: `Expense for ${booking.clientName}'s ${booking.eventType || 'Event'}`,
+      category: "raw_materials",
+      amount: "",
+      expenseDate: booking.eventDate ? booking.eventDate.split("T")[0] : new Date().toISOString().split("T")[0],
+      vendor: "",
+      paymentMethod: "cash",
+      notes: "",
+    });
+    setIsExpenseDialogOpen(true);
+  };
+
+  const createExpenseMutation = useMutation({
+    mutationFn: async (payload) => {
+      const response = await apiRequest("POST", "/api/expenses", payload);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
+      setIsExpenseDialogOpen(false);
+      setExpenseTargetBooking(null);
+      toast({
+        title: "Expense recorded",
+        description: "The cost entry is now linked to this event booking.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to record expense",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleExpenseSubmit = (e) => {
+    e.preventDefault();
+    createExpenseMutation.mutate({
+      ...expenseForm,
+      amount: Number(expenseForm.amount),
+      bookingId: expenseTargetBooking ? String(expenseTargetBooking._id || expenseTargetBooking.id) : "",
+    });
+  };
+
   const selectedBookingId = getBookingId(selectedBookingForAssignment);
   const assignedStaffIds = new Set(staffAssignments.map((assignment) => String(assignment.staffId)));
   const availableStaff = staffList.filter((member) => !assignedStaffIds.has(String(member.id || member._id)));
@@ -967,6 +1018,14 @@ export default function EventBookingsManager() {
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => handleViewMenu(booking)}>
                         <List className="h-4 w-4 mr-1" /> Show Menu
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAddExpense(booking)}
+                        className="border-amber-500/30 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                      >
+                        <Plus className="h-4 w-4 mr-1" /> Add Expense
                       </Button>
                       {isBookingConfirmed(booking) && (
                         <>
@@ -1449,6 +1508,123 @@ export default function EventBookingsManager() {
               Send Email
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-primary animate-pulse" />
+              Add Expense for Booking
+            </DialogTitle>
+            <DialogDescription>
+              Record an expense directly linked to {expenseTargetBooking?.clientName}'s event.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="space-y-4 pt-2" onSubmit={handleExpenseSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="expense-title">Title</Label>
+              <Input
+                id="expense-title"
+                value={expenseForm.title}
+                onChange={(event) => setExpenseForm({ ...expenseForm, title: event.target.value })}
+                required
+              />
+            </div>
+            
+            <div className="grid gap-3 grid-cols-2">
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select
+                  value={expenseForm.category}
+                  onValueChange={(value) => setExpenseForm({ ...expenseForm, category: value })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent className="z-[9999]">
+                    <SelectItem value="raw_materials">Raw Materials</SelectItem>
+                    <SelectItem value="transport">Transport</SelectItem>
+                    <SelectItem value="utilities">Utilities</SelectItem>
+                    <SelectItem value="staff">Staff</SelectItem>
+                    <SelectItem value="rent">Rent</SelectItem>
+                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="expense-amount">Amount (₹)</Label>
+                <Input
+                  id="expense-amount"
+                  type="number"
+                  min="1"
+                  value={expenseForm.amount}
+                  onChange={(event) => setExpenseForm({ ...expenseForm, amount: event.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3 grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="expense-date">Date</Label>
+                <Input
+                  id="expense-date"
+                  type="date"
+                  value={expenseForm.expenseDate}
+                  onChange={(event) => setExpenseForm({ ...expenseForm, expenseDate: event.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Payment Method</Label>
+                <Select
+                  value={expenseForm.paymentMethod}
+                  onValueChange={(value) => setExpenseForm({ ...expenseForm, paymentMethod: value })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent className="z-[9999]">
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="upi">UPI</SelectItem>
+                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="card">Card</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expense-vendor">Vendor</Label>
+              <Input
+                id="expense-vendor"
+                value={expenseForm.vendor}
+                onChange={(event) => setExpenseForm({ ...expenseForm, vendor: event.target.value })}
+                placeholder="Optional vendor name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expense-notes">Notes</Label>
+              <Textarea
+                id="expense-notes"
+                value={expenseForm.notes}
+                onChange={(event) => setExpenseForm({ ...expenseForm, notes: event.target.value })}
+                rows={3}
+                placeholder="Optional notes or details"
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="outline" onClick={() => setIsExpenseDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createExpenseMutation.isPending}>
+                {createExpenseMutation.isPending ? "Saving..." : "Record Expense"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 

@@ -45,6 +45,19 @@ const toDateInput = (date) => date.toISOString().split("T")[0];
 const getBookingTotal = (booking) =>
   Number(booking.totalAmount) || (Number(booking.guestCount) || 0) * (Number(booking.pricePerPlate) || 0);
 
+const getCollected = (booking) => {
+  const total = getBookingTotal(booking);
+  const advance = Number(booking.advanceAmount) || Math.ceil(total * 0.5);
+  const final = total - advance;
+  
+  const advanceApproved = booking.advancePaymentStatus === "paid" && 
+    (!booking.advancePaymentApprovalStatus || booking.advancePaymentApprovalStatus === "approved");
+  const finalApproved = booking.finalPaymentStatus === "paid" && 
+    (!booking.finalPaymentApprovalStatus || booking.finalPaymentApprovalStatus === "approved");
+    
+  return (advanceApproved ? advance : 0) + (finalApproved ? final : 0);
+};
+
 const getBookingDate = (booking) => {
   const date = new Date(booking.eventDate);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -196,7 +209,7 @@ export default function AnalyticsReports() {
 
   const analytics = useMemo(() => {
     const revenueBookings = filteredBookings.filter((b) => ["confirmed", "completed"].includes(b.status));
-    const totalRevenue = revenueBookings.reduce((sum, booking) => sum + getBookingTotal(booking), 0);
+    const totalRevenue = revenueBookings.reduce((sum, booking) => sum + getCollected(booking), 0);
     const totalExpenses = filteredExpenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
     const avgBookingValue = revenueBookings.length ? Math.round(totalRevenue / revenueBookings.length) : 0;
 
@@ -208,7 +221,7 @@ export default function AnalyticsReports() {
     filteredBookings.forEach((booking) => {
       const date = getBookingDate(booking);
       if (!date) return;
-      const total = ["confirmed", "completed"].includes(booking.status) ? getBookingTotal(booking) : 0;
+      const total = ["confirmed", "completed"].includes(booking.status) ? getCollected(booking) : 0;
       const monthKey = getMonthKey(date);
       const weekKey = getWeekKey(date);
 
