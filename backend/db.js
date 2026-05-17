@@ -147,7 +147,22 @@ class MongoStorage {
     }
   }
   async createBooking(booking) { return toJSON(await EventBookingModel.create(booking)); }
-  async updateBooking(id, booking) { return toJSON(await EventBookingModel.findByIdAndUpdate(id, booking, { new: true })); }
+  async updateBooking(id, booking) {
+    // Split into $set (normal values) and $unset (null values) so MongoDB actually clears null fields
+    const setFields = {};
+    const unsetFields = {};
+    for (const [key, value] of Object.entries(booking)) {
+      if (value === null) {
+        unsetFields[key] = "";
+      } else {
+        setFields[key] = value;
+      }
+    }
+    const update = {};
+    if (Object.keys(setFields).length > 0) update.$set = setFields;
+    if (Object.keys(unsetFields).length > 0) update.$unset = unsetFields;
+    return toJSON(await EventBookingModel.findByIdAndUpdate(id, update, { new: true }));
+  }
   async deleteBooking(id) { return (await EventBookingModel.findByIdAndDelete(id)) !== null; }
 
   async getBookingItems(bookingId) { return (await BookingItemModel.find({ bookingId })).map(toJSON); }
