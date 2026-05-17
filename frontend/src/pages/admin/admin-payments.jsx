@@ -267,7 +267,7 @@ export default function AdminPayments() {
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2">
                 <div className="rounded-lg border bg-muted/30 p-3">
                   <p className="text-xs font-medium uppercase text-muted-foreground">Current UPI</p>
                   <p className="mt-1 truncate font-mono text-sm">{companyInfo?.upiId || "Not set"}</p>
@@ -275,10 +275,6 @@ export default function AdminPayments() {
                 <div className="rounded-lg border bg-muted/30 p-3">
                   <p className="text-xs font-medium uppercase text-muted-foreground">Used On</p>
                   <p className="mt-1 text-sm font-medium">Payment page and invoices</p>
-                </div>
-                <div className="rounded-lg border bg-muted/30 p-3">
-                  <p className="text-xs font-medium uppercase text-muted-foreground">Preview Link</p>
-                  <p className="mt-1 truncate font-mono text-sm">{upiPreviewLink || "Add UPI ID"}</p>
                 </div>
               </div>
             </div>

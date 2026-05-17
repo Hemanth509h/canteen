@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
   History,
   IndianRupee,
   Search,
+  Trash2,
   TrendingUp,
   Users,
   WalletCards,
@@ -24,6 +25,8 @@ import {
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ConfirmDialog } from "@/components/features/confirm-dialog";
 
 const todayInput = () => new Date().toISOString().split("T")[0];
 const yearStartInput = () => new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
@@ -68,6 +71,19 @@ export default function AdminHistory() {
   const [status, setStatus] = useState("all");
   const [startDate, setStartDate] = useState(yearStartInput());
   const [endDate, setEndDate] = useState(todayInput());
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const deleteBookingMutation = useMutation({
+    mutationFn: (id) => apiRequest("DELETE", `/api/bookings/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      toast({ title: "Booking deleted", description: "The booking record has been permanently removed." });
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
+    },
+  });
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["/api/bookings"],
@@ -229,12 +245,13 @@ export default function AdminHistory() {
                   <TableHead>Status</TableHead>
                   <TableHead>Payment</TableHead>
                   <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredBookings.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                       No records match the current filters.
                     </TableCell>
                   </TableRow>
@@ -265,6 +282,17 @@ export default function AdminHistory() {
                         <TableCell className="text-right">
                           <p className="font-bold">{money(getTotal(booking))}</p>
                           <p className="text-xs text-muted-foreground">Collected {money(payment.collected)}</p>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setDeleteTarget(booking)}
+                            title="Delete booking"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -314,6 +342,17 @@ export default function AdminHistory() {
           </Card>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Booking Record"
+        description={`Permanently delete booking for "${deleteTarget?.clientName || 'this client'}"? This cannot be undone.`}
+        confirmText="Delete"
+        variant="destructive"
+        isLoading={deleteBookingMutation.isPending}
+        onConfirm={() => deleteTarget && deleteBookingMutation.mutate(deleteTarget._id || deleteTarget.id)}
+      />
     </div>
   );
 }
