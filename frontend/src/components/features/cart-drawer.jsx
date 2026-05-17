@@ -404,6 +404,28 @@ export function CartDrawer() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-bold flex items-center gap-2 px-1">
+                    <Utensils size={16} className="text-primary" />
+                    Meal Type
+                  </label>
+                  <Select
+                    value={customerDetails.mealType}
+                    onValueChange={(v) => setCustomerDetails(prev => ({ ...prev, mealType: v }))}
+                  >
+                    <SelectTrigger className="rounded-xl h-12 border-primary/20 focus:ring-primary/20">
+                      <SelectValue placeholder="Select meal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Breakfast">Breakfast</SelectItem>
+                      <SelectItem value="Lunch">Lunch</SelectItem>
+                      <SelectItem value="Dinner">Dinner</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold flex items-center gap-2 px-1">
                     <Calendar size={16} className="text-primary" />
                     Event Date
                   </label>
