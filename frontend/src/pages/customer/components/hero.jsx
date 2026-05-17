@@ -1,8 +1,28 @@
+import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import branding from "@/lib/branding.json";
 
 export default function Hero({ companyName, tagline, description, heroImages, yearsExperience, eventsPerYear }) {
-  const heroImage = heroImages?.[0] || "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=1200&auto=format&fit=crop";
+  const defaultImages = [
+    "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=1200&auto=format&fit=crop"
+  ];
+  
+  const imagesList = heroImages?.length >= 3 ? heroImages : defaultImages;
+  
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % imagesList.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [imagesList.length]);
+
+  const heroImage1 = imagesList[currentIndex];
+  const heroImage2 = imagesList[(currentIndex + 1) % imagesList.length];
+  const heroImage3 = imagesList[(currentIndex + 2) % imagesList.length];
   const stats = [
     { value: `${Number(yearsExperience || 1)}+`, label: "Years Experience" },
     { value: `${Number(eventsPerYear || 50).toLocaleString("en-IN")}+`, label: "Events Catered" },
@@ -16,14 +36,27 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 pb-14 sm:px-8 sm:pb-16 lg:grid-cols-[0.9fr_1fr] lg:gap-14 lg:px-10">
         <div className="order-2 mx-auto w-full max-w-[460px] lg:order-1">
           <div className="relative px-4 pb-4">
-            <div className="absolute left-0 top-8 h-[92%] w-[92%] rotate-[-3deg] rounded-lg border border-amber-200 bg-amber-100/70 dark:border-amber-500/20 dark:bg-amber-500/10" />
-            <div className="absolute right-0 top-4 h-[94%] w-[94%] rotate-[2deg] rounded-lg border border-emerald-200 bg-emerald-100/70 dark:border-emerald-500/20 dark:bg-emerald-500/10" />
-            <div className="relative overflow-hidden rounded-lg border border-zinc-200 bg-white p-2 shadow-xl shadow-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+            <div className="absolute left-0 top-8 h-[92%] w-[92%] rotate-[-3deg] rounded-lg border border-zinc-200 bg-white p-2 shadow-xl shadow-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+              <div className="relative h-full w-full overflow-hidden rounded-md">
+                <img src={heroImage2} alt="" className="h-full w-full object-cover opacity-80 transition-opacity duration-1000" />
+                <div className="absolute inset-0 bg-black/10 dark:bg-black/30" />
+              </div>
+            </div>
+            
+            <div className="absolute right-0 top-4 h-[94%] w-[94%] rotate-[2deg] rounded-lg border border-zinc-200 bg-white p-2 shadow-xl shadow-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+              <div className="relative h-full w-full overflow-hidden rounded-md">
+                <img src={heroImage3} alt="" className="h-full w-full object-cover opacity-80 transition-opacity duration-1000" />
+                <div className="absolute inset-0 bg-black/10 dark:bg-black/30" />
+              </div>
+            </div>
+            
+            <div className="relative overflow-hidden rounded-lg border border-zinc-200 bg-white p-2 shadow-2xl shadow-zinc-900/20 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/50">
             <div className="relative aspect-[5/4] overflow-hidden rounded-md">
               <img
-                src={heroImage}
+                key={heroImage1}
+                src={heroImage1}
                 alt={`${companyName || branding.companyName} food presentation`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-opacity duration-1000 animate-in fade-in zoom-in-95"
                 loading="eager"
                 onError={(event) => {
                   event.currentTarget.src = "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=1200&auto=format&fit=crop";

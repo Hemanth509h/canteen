@@ -34,7 +34,9 @@ export default function CompanySettingsManager() {
       minAdvanceBookingDays: companyInfo.minAdvanceBookingDays || 2,
       primaryColor: companyInfo.primaryColor || "#ea580c",
       logoUrl: companyInfo.logoUrl || "",
-      heroImageUrl: companyInfo.heroImages?.[0] || "",
+      heroImage1: companyInfo.heroImages?.[0] || "",
+      heroImage2: companyInfo.heroImages?.[1] || "",
+      heroImage3: companyInfo.heroImages?.[2] || "",
     } : {
       companyName: "",
       tagline: "",
@@ -48,7 +50,9 @@ export default function CompanySettingsManager() {
       minAdvanceBookingDays: 2,
       primaryColor: "#ea580c",
       logoUrl: "",
-      heroImageUrl: "",
+      heroImage1: "",
+      heroImage2: "",
+      heroImage3: "",
     },
   });
 
@@ -67,7 +71,9 @@ export default function CompanySettingsManager() {
       minAdvanceBookingDays: companyInfo.minAdvanceBookingDays || 2,
       primaryColor: companyInfo.primaryColor || "#ea580c",
       logoUrl: companyInfo.logoUrl || "",
-      heroImageUrl: companyInfo.heroImages?.[0] || "",
+      heroImage1: companyInfo.heroImages?.[0] || "",
+      heroImage2: companyInfo.heroImages?.[1] || "",
+      heroImage3: companyInfo.heroImages?.[2] || "",
     });
   }, [companyInfo, form]);
 
@@ -105,14 +111,15 @@ export default function CompanySettingsManager() {
   };
 
   const toCompanyInfoPayload = (data) => {
-    const { heroImageUrl, ...companyData } = data;
+    const { heroImage1, heroImage2, heroImage3, ...companyData } = data;
+    const heroImages = [heroImage1, heroImage2, heroImage3].filter(Boolean);
     return {
       ...companyData,
-      heroImages: heroImageUrl ? [heroImageUrl] : [],
+      heroImages,
     };
   };
 
-  const handleHeroImageUpload = async (e) => {
+  const handleHeroImageUpload = async (e, fieldName) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -135,8 +142,8 @@ export default function CompanySettingsManager() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const dataUrl = reader.result;
-        form.setValue("heroImageUrl", dataUrl, { shouldDirty: true });
-        updateMutation.mutate(toCompanyInfoPayload({ ...form.getValues(), heroImageUrl: dataUrl }));
+        form.setValue(fieldName, dataUrl, { shouldDirty: true });
+        updateMutation.mutate(toCompanyInfoPayload({ ...form.getValues(), [fieldName]: dataUrl }));
       };
       reader.readAsDataURL(compressedFile);
     } catch (error) {
@@ -153,7 +160,9 @@ export default function CompanySettingsManager() {
   };
 
   const logoUrlValue = form.watch("logoUrl") || "/leaf_logo.svg";
-  const heroImageUrlValue = form.watch("heroImageUrl");
+  const heroImage1Value = form.watch("heroImage1");
+  const heroImage2Value = form.watch("heroImage2");
+  const heroImage3Value = form.watch("heroImage3");
   
   return (
     <div className="p-6 sm:p-8 space-y-6">
@@ -486,69 +495,178 @@ export default function CompanySettingsManager() {
                     <div className="flex items-center gap-3">
                       <ImagePlus className="h-5 w-5 text-primary" />
                       <div>
-                        <CardTitle className="text-lg">Home Page Image</CardTitle>
+                        <CardTitle className="text-lg">Home Page Rotating Images</CardTitle>
                         <CardDescription>
-                          This image appears in the card on the customer landing page.
+                          These 3 images appear in the rotating card stack on the customer landing page.
                         </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <FormField
-                      control={form.control}
-                      name="heroImageUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Image URL or Uploaded Image</FormLabel>
-                          <FormControl>
-                            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
-                              <Input
-                                placeholder="https://example.com/home-food-image.jpg"
-                                {...field}
-                                value={field.value || ""}
-                                data-testid="input-home-hero-image"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => field.onChange("https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=1200&auto=format&fit=crop")}
-                              >
-                                Use Default
-                              </Button>
-                              <div>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  id="hero-image-upload"
-                                  onChange={handleHeroImageUpload}
+                  <CardContent className="space-y-8">
+                    {/* Image 1 */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm">Image 1 (Front/Primary)</h4>
+                      <FormField
+                        control={form.control}
+                        name="heroImage1"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+                                <Input
+                                  placeholder="https://example.com/home-food-image1.jpg"
+                                  {...field}
+                                  value={field.value || ""}
                                 />
-                                <Button type="button" variant="outline" asChild className="w-full">
-                                  <label htmlFor="hero-image-upload" className="cursor-pointer">
-                                    <Upload className="h-4 w-4" />
-                                    Upload
-                                  </label>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => field.onChange("https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=1200&auto=format&fit=crop")}
+                                >
+                                  Use Default
                                 </Button>
+                                <div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id="hero-image-upload-1"
+                                    onChange={(e) => handleHeroImageUpload(e, "heroImage1")}
+                                  />
+                                  <Button type="button" variant="outline" asChild className="w-full">
+                                    <label htmlFor="hero-image-upload-1" className="cursor-pointer">
+                                      <Upload className="h-4 w-4 mr-2" />
+                                      Upload
+                                    </label>
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {heroImage1Value && (
+                        <div className="overflow-hidden rounded-lg border bg-background p-2">
+                          <img
+                            src={heroImage1Value}
+                            alt="Home page image preview"
+                            className="h-32 w-full rounded-md object-cover"
+                            onError={(e) => { e.target.style.display = "none"; }}
+                          />
+                        </div>
                       )}
-                    />
+                    </div>
 
-                    {heroImageUrlValue && (
-                      <div className="mt-4 overflow-hidden rounded-lg border bg-background p-2">
-                        <img
-                          src={heroImageUrlValue}
-                          alt="Home page image preview"
-                          className="h-56 w-full rounded-md object-cover"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                          }}
-                        />
-                      </div>
-                    )}
+                    {/* Image 2 */}
+                    <div className="space-y-4 border-t border-border/50 pt-4">
+                      <h4 className="font-medium text-sm">Image 2</h4>
+                      <FormField
+                        control={form.control}
+                        name="heroImage2"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+                                <Input
+                                  placeholder="https://example.com/home-food-image2.jpg"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => field.onChange("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200&auto=format&fit=crop")}
+                                >
+                                  Use Default
+                                </Button>
+                                <div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id="hero-image-upload-2"
+                                    onChange={(e) => handleHeroImageUpload(e, "heroImage2")}
+                                  />
+                                  <Button type="button" variant="outline" asChild className="w-full">
+                                    <label htmlFor="hero-image-upload-2" className="cursor-pointer">
+                                      <Upload className="h-4 w-4 mr-2" />
+                                      Upload
+                                    </label>
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {heroImage2Value && (
+                        <div className="overflow-hidden rounded-lg border bg-background p-2">
+                          <img
+                            src={heroImage2Value}
+                            alt="Home page image preview"
+                            className="h-32 w-full rounded-md object-cover"
+                            onError={(e) => { e.target.style.display = "none"; }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Image 3 */}
+                    <div className="space-y-4 border-t border-border/50 pt-4">
+                      <h4 className="font-medium text-sm">Image 3</h4>
+                      <FormField
+                        control={form.control}
+                        name="heroImage3"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+                                <Input
+                                  placeholder="https://example.com/home-food-image3.jpg"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => field.onChange("https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=1200&auto=format&fit=crop")}
+                                >
+                                  Use Default
+                                </Button>
+                                <div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id="hero-image-upload-3"
+                                    onChange={(e) => handleHeroImageUpload(e, "heroImage3")}
+                                  />
+                                  <Button type="button" variant="outline" asChild className="w-full">
+                                    <label htmlFor="hero-image-upload-3" className="cursor-pointer">
+                                      <Upload className="h-4 w-4 mr-2" />
+                                      Upload
+                                    </label>
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {heroImage3Value && (
+                        <div className="overflow-hidden rounded-lg border bg-background p-2">
+                          <img
+                            src={heroImage3Value}
+                            alt="Home page image preview"
+                            className="h-32 w-full rounded-md object-cover"
+                            onError={(e) => { e.target.style.display = "none"; }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
 
