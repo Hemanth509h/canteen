@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Instagram, Facebook, Twitter, Lock, MapPin, Phone, Clock, UserRound } from "lucide-react";
+import { Reveal } from "@/components/layout/reveal";
 import branding from "@/lib/branding.json";
 
 export default function Footer({ companyInfo, logoSrc, setView }) {
@@ -11,7 +12,7 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
     <footer id="contact" className="bg-zinc-900 dark:bg-zinc-950 text-zinc-400 py-16 px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 border-b border-zinc-800">
-          <div>
+          <Reveal delay={100}>
             <div className="flex items-center gap-2.5 mb-4">
               {logoSrc && <img src={logoSrc} alt="logo" className="w-8 h-8" />}
               <span className="font-playfair font-bold text-white text-lg">{companyName}</span>
@@ -26,9 +27,9 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
                 </button>
               ))}
             </div>
-          </div>
+          </Reveal>
 
-          <div>
+          <Reveal delay={200}>
             <p className="font-jakarta font-bold text-white text-sm uppercase tracking-widest mb-4">Navigate</p>
             <div className="flex flex-col gap-3 text-sm font-jakarta">
               <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-left hover:text-amber-400 transition-colors">Home</button>
@@ -41,9 +42,9 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
                 <UserRound size={12} /> Staff Portal
               </Link>
             </div>
-          </div>
+          </Reveal>
 
-          <div>
+          <Reveal delay={300}>
             <p className="font-jakarta font-bold text-white text-sm uppercase tracking-widest mb-4">Contact</p>
             <div className="flex flex-col gap-3 text-sm font-jakarta">
               {companyInfo?.address && (
@@ -56,7 +57,7 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
               )}
               <span className="flex items-center gap-2"><Clock size={14} className="text-amber-500 shrink-0" />Mon – Sun: 9AM – 10PM</span>
             </div>
-          </div>
+          </Reveal>
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-jakarta">

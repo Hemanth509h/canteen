@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Search, Plus, CheckCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/layout/reveal";
 
 export default function MenuSection({ foodItems, isLoading, onSelectItem, addToCart, cartItems }) {
   const [type, setType] = useState("All");
@@ -28,14 +29,14 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
   return (
     <section id="menu" className="bg-zinc-50 px-4 py-14 transition-colors duration-300 dark:bg-zinc-950 sm:px-6 sm:py-20">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-10 text-center sm:mb-12">
+        <Reveal className="mb-10 text-center sm:mb-12">
           <p className="text-amber-600 dark:text-amber-400 text-xs font-jakarta font-bold uppercase tracking-[0.3em] mb-3">Our Menu</p>
           <h2 className="text-3xl font-playfair font-bold text-zinc-900 transition-colors dark:text-white sm:text-5xl">Seasonal Selections</h2>
           <p className="text-zinc-500 dark:text-zinc-400 font-jakarta max-w-lg mx-auto">Curated dishes made with the freshest seasonal ingredients.</p>
-        </div>
+        </Reveal>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <Reveal delay={100} className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="grid grid-cols-3 overflow-hidden rounded-lg border border-zinc-200 bg-white transition-colors dark:border-zinc-800 dark:bg-zinc-900 sm:flex sm:shrink-0">
             {["All", "Veg", "Non-Veg"].map((t) => (
               <button
@@ -60,10 +61,10 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
               className="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-11 pr-4 text-sm font-jakarta text-zinc-900 transition-colors placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
             />
           </div>
-        </div>
+        </Reveal>
 
         {/* Category pills */}
-        <div className="mb-8 flex gap-2 overflow-x-auto pb-2 sm:mb-10 sm:flex-wrap sm:overflow-visible">
+        <Reveal delay={200} className="mb-8 flex gap-2 overflow-x-auto pb-2 sm:mb-10 sm:flex-wrap sm:overflow-visible">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -76,7 +77,7 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
               )}
             >{cat}</button>
           ))}
-        </div>
+        </Reveal>
 
         {/* Grid */}
         <div className="-m-2 grid grid-cols-1 gap-4 p-2 sm:grid-cols-2 lg:max-h-[520px] lg:grid-cols-3 lg:overflow-y-auto xl:grid-cols-4">
@@ -95,11 +96,11 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
                 </div>
               </div>
             ))
-            : filtered.map((item) => {
+            : filtered.map((item, index) => {
               const inCart = cartItems.find((c) => c.id === item.id);
               return (
+                <Reveal key={item.id} delay={(index % 4) * 100}>
                 <div
-                  key={item.id}
                   onClick={() => !inCart && onSelectItem(item)}
                   className={cn(
                     "group rounded-lg border bg-white transition-all duration-300 cursor-pointer hover:-translate-y-1 dark:bg-zinc-900",
@@ -144,6 +145,7 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
                     </div>
                   </div>
                 </div>
+                </Reveal>
               );
             })}
         </div>

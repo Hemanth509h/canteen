@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { Reveal } from "@/components/layout/reveal";
 
 export default function Testimonials({ reviews }) {
   const list = reviews?.length ? reviews.slice(0, 3) : [
@@ -9,17 +10,18 @@ export default function Testimonials({ reviews }) {
   return (
     <section className="bg-white dark:bg-zinc-900 py-20 px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <Reveal className="text-center mb-12">
           <p className="text-amber-600 dark:text-amber-400 text-xs font-jakarta font-bold uppercase tracking-[0.3em] mb-3">Reviews</p>
           <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-zinc-900 dark:text-white transition-colors">What Clients Say</h2>
-        </div>
+        </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {list.map((r, i) => {
             const displayName = r.customerName || r.name || "Guest";
             const displayComment = r.comment || r.message || "Great experience!";
             const displayEventType = r.eventType || r.title || "Customer";
             return (
-              <div key={i} className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50 flex flex-col gap-4 transition-colors">
+            <Reveal key={i} delay={i * 200}>
+              <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50 flex flex-col gap-4 transition-colors h-full">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, j) => <Star key={j} size={14} className="fill-amber-400 text-amber-400" />)}
                 </div>
@@ -34,6 +36,7 @@ export default function Testimonials({ reviews }) {
                   </div>
                 </div>
               </div>
+            </Reveal>
             );
           })}
         </div>

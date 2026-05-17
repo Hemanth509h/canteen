@@ -22,14 +22,14 @@ export default function Navbar({ companyName, logoSrc, setView }) {
 
   return (
     <>
-      <nav className="fixed left-4 right-4 top-4 z-50 rounded-lg border border-zinc-200/80 bg-white/95 shadow-lg shadow-zinc-900/5 backdrop-blur-xl transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950/92 dark:shadow-black/25">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-5 px-4 sm:px-6">
+      <nav className="fade-in fixed left-1/2 top-4 z-50 w-[92%] max-w-4xl -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg shadow-zinc-900/5 backdrop-blur-xl transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950/92 dark:shadow-black/25">
+        <div className="flex h-14 w-full items-center justify-between gap-5 px-4 sm:px-6">
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setView("home"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm shadow-emerald-900/20">
-              <Leaf className="h-5 w-5" />
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-900/20">
+              <Leaf className="h-4 w-4" />
             </span>
             <span className="leading-tight">
-              <span className="block font-playfair text-lg font-bold text-zinc-950 transition-colors dark:text-white">
+              <span className="block font-playfair text-base font-bold text-zinc-950 transition-colors dark:text-white">
                 {companyName || branding.companyName}
               </span>
               <span className="hidden text-[10px] font-jakarta font-bold uppercase tracking-[0.18em] text-amber-600 sm:block">
@@ -39,7 +39,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden items-center gap-8 text-sm font-jakarta font-semibold text-zinc-500 dark:text-zinc-400 md:flex">
+          <div className="hidden items-center gap-6 text-sm font-jakarta font-medium text-zinc-500 dark:text-zinc-400 md:flex">
             {navItems.map((item) => (
               <button 
                 key={item.id}
@@ -55,7 +55,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
             <ThemeToggle />
             <button 
               onClick={() => setView("bookings")} 
-              className="hidden rounded-md px-3 py-2 text-sm font-jakarta font-semibold text-zinc-700 transition-colors hover:bg-white hover:text-amber-700 hover:shadow-sm dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-amber-300 sm:block"
+              className="hidden rounded-md px-3 py-2 text-sm font-jakarta font-medium text-zinc-700 transition-colors hover:bg-white hover:text-amber-700 hover:shadow-sm dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-amber-300 sm:block"
             >
               My Bookings
             </button>
@@ -108,7 +108,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
       </nav>
       
       {/* Spacer to prevent content from going under fixed nav */}
-      <div className="h-16" />
+      <div className="h-14" />
     </>
   );
 }
