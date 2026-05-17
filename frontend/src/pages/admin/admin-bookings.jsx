@@ -32,6 +32,31 @@ import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { printElement } from "@/lib/print-utils";
 import localMenuItems from "@/lib/menu.json";
 
+const getRelativeDateLabel = (dateStr) => {
+  if (!dateStr) return null;
+  const eventDate = new Date(dateStr);
+  eventDate.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffTime = eventDate.getTime() - today.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return { label: "Today 🌟", color: "bg-red-500 text-white font-bold animate-pulse text-[10px]" };
+  } else if (diffDays === 1) {
+    return { label: "Tomorrow ⏳", color: "bg-amber-500 text-white font-bold text-[10px]" };
+  } else if (diffDays > 1) {
+    return { label: `In ${diffDays} days`, color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 font-bold text-[10px]" };
+  } else if (diffDays === -1) {
+    return { label: "Yesterday", color: "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-400 text-[10px]" };
+  } else if (diffDays < -1) {
+    return { label: "Past Event", color: "bg-zinc-100 text-zinc-500 dark:bg-zinc-900/10 dark:text-zinc-500 text-[10px]" };
+  }
+  return null;
+};
+
 const statusColors = {
   pending: "secondary",
   confirmed: "default",
@@ -878,11 +903,27 @@ export default function EventBookingsManager() {
                     <TableCell>
                       <div className="font-bold">{booking.clientName}</div>
                       <div className="text-xs text-muted-foreground">{booking.contactPhone}</div>
+                      {booking.createdAt && (
+                        <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1 bg-secondary/30 w-fit px-1.5 py-0.5 rounded">
+                          <span className="font-medium text-primary/80">Booked:</span>
+                          <span>{new Date(booking.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div>{booking.eventType} {booking.mealType && <Badge variant="outline" className="ml-1 text-[10px] h-4 px-1">{booking.mealType}</Badge>}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-IN') : "TBD"} • {booking.guestCount} Guests
+                      <div className="text-xs text-muted-foreground flex items-center flex-wrap gap-y-1">
+                        <span>{booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-IN') : "TBD"}</span>
+                        {(() => {
+                          const badge = getRelativeDateLabel(booking.eventDate);
+                          return badge ? (
+                            <Badge className={`ml-2 h-4.5 py-0 px-1.5 uppercase font-black border-none tracking-wide text-[9px] ${badge.color}`}>
+                              {badge.label}
+                            </Badge>
+                          ) : null;
+                        })()}
+                        <span className="mx-1.5">•</span>
+                        <span>{booking.guestCount} Guests</span>
                       </div>
                       {booking.eventLocation && (
                         <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 italic">
