@@ -11,10 +11,12 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function CartDrawer() {
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { cartItems, removeFromCart, updateQuantity, totalItems, clearCart, globalGuests, updateGlobalGuests } = useCart();
   const [showContactDialog, setShowContactDialog] = useState(false);
@@ -73,19 +75,9 @@ export function CartDrawer() {
         localStorage.setItem("customer_identifier", customerDetails.phone.trim());
       }
 
-      toast({
-        title: "Booking Request Sent",
-        description: emailSent
-          ? "Your details have been received and confirmation emails have been sent."
-          : "Your details have been shared with our team. We will contact you shortly.",
-      });
       setShowContactDialog(false);
       clearCart();
-
-      if (shouldCall) {
-        const phoneToCall = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber || "";
-        if (phoneToCall) window.location.href = `tel:${phoneToCall.replace(/\D/g, "")}`;
-      }
+      setLocation("/booking-success");
     },
     onError: (error) => {
       toast({

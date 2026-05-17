@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import CustomerHome from "@/pages/customer/customer-home";
+import BookingSuccess from "@/pages/customer/booking-success";
 import NotFound from "@/pages/not-found";
 import branding from "@/lib/branding.json";
 import { CartProvider } from "@/lib/cart-context";
@@ -12,6 +13,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
+      <Route path="/booking-success" component={BookingSuccess} />
       <Route component={NotFound} />
     </Switch>
   );

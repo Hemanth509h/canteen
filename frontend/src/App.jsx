@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { CartProvider } from "@/lib/cart-context";
 import CustomerHome from "@/pages/customer/customer-home";
+import BookingSuccess from "@/pages/customer/booking-success";
 import AdminLogin from "@/pages/admin/admin-login";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
 import AdminPaymentConfirmation from "@/pages/admin/admin-payment";
@@ -25,6 +26,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
+      <Route path="/booking-success" component={BookingSuccess} />
       <Route path="/payment/:bookingId">
         {(params) => <PaymentConfirmation bookingId={params.bookingId} />}
       </Route>
