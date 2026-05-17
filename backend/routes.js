@@ -513,6 +513,16 @@ export async function registerRoutes(app) {
     }
   });
 
+  app.delete("/api/bookings", async (req, res) => {
+    try {
+      await getStorageInstance().deleteAllBookings();
+      req.io.emit("bookings:cleared", {});
+      sendResponse(res, 200, { success: true });
+    } catch (error) {
+      sendResponse(res, 500, null, "Failed to delete all bookings");
+    }
+  });
+
   app.delete("/api/bookings/:id", async (req, res) => {
     try {
       const success = await getStorageInstance().deleteBooking(req.params.id);

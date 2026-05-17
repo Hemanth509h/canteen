@@ -164,6 +164,7 @@ class MongoStorage {
     return toJSON(await EventBookingModel.findByIdAndUpdate(id, update, { new: true }));
   }
   async deleteBooking(id) { return (await EventBookingModel.findByIdAndDelete(id)) !== null; }
+  async deleteAllBookings() { await EventBookingModel.deleteMany({}); return true; }
 
   async getBookingItems(bookingId) { return (await BookingItemModel.find({ bookingId })).map(toJSON); }
   async createBookingItem(item) { return toJSON(await BookingItemModel.create(item)); }

@@ -72,6 +72,7 @@ export default function AdminHistory() {
   const [startDate, setStartDate] = useState(yearStartInput());
   const [endDate, setEndDate] = useState(todayInput());
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [showDeleteAll, setShowDeleteAll] = useState(false);
 
   const deleteBookingMutation = useMutation({
     mutationFn: (id) => apiRequest("DELETE", `/api/bookings/${id}`),
@@ -82,6 +83,18 @@ export default function AdminHistory() {
     },
     onError: (error) => {
       toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteAllMutation = useMutation({
+    mutationFn: () => apiRequest("DELETE", "/api/bookings"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      toast({ title: "All bookings deleted", description: "The entire booking history has been cleared." });
+      setShowDeleteAll(false);
+    },
+    onError: (error) => {
+      toast({ title: "Failed to delete all", description: error.message, variant: "destructive" });
     },
   });
 
@@ -190,10 +203,21 @@ export default function AdminHistory() {
             </div>
           </div>
         </div>
-        <Button onClick={exportHistory} className="w-full gap-2 sm:w-auto">
-          <Download className="h-4 w-4" />
-          Export History
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Button onClick={exportHistory} className="w-full gap-2 sm:w-auto">
+            <Download className="h-4 w-4" />
+            Export History
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => setShowDeleteAll(true)}
+            className="w-full gap-2 sm:w-auto"
+            disabled={bookings.length === 0}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete All Bookings
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -352,6 +376,17 @@ export default function AdminHistory() {
         variant="destructive"
         isLoading={deleteBookingMutation.isPending}
         onConfirm={() => deleteTarget && deleteBookingMutation.mutate(deleteTarget._id || deleteTarget.id)}
+      />
+
+      <ConfirmDialog
+        open={showDeleteAll}
+        onOpenChange={(open) => !open && setShowDeleteAll(false)}
+        title="Delete All Bookings"
+        description={`This will permanently delete ALL ${bookings.length} booking records. This action cannot be undone.`}
+        confirmText="Delete All"
+        variant="destructive"
+        isLoading={deleteAllMutation.isPending}
+        onConfirm={() => deleteAllMutation.mutate()}
       />
     </div>
   );
