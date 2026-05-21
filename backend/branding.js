@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const brandingPath = path.resolve(__dirname, "../frontend/src/lib/branding.json");
 
 const fallbackBranding = {
-  companyName: "Sai Canteens",
+  companyName: "Sai Caterers",
   tagline: "Exceptional Food for Unforgettable Events",
   description: "Crafting unforgettable culinary memories with passion, precision, and the finest ingredients.",
   email: "phemanthkumar509@gmail.com",

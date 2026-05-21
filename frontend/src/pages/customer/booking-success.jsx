@@ -24,7 +24,7 @@ export default function BookingSuccess() {
         
         <Reveal delay={300}>
           <p className="text-muted-foreground mb-8 text-lg">
-            Thank you for choosing <span className="font-bold text-primary">{companyInfo?.companyName || "Sai Canteens"}</span>. 
+            Thank you for choosing <span className="font-bold text-primary">{companyInfo?.companyName || "Sai Caterers"}</span>. 
             Your details have been successfully received and our team will get in touch with you shortly.
           </p>
         </Reveal>

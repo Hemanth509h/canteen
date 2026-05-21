@@ -64,7 +64,7 @@ export function CartDrawer() {
       contactEmail: customerDetails.email,
       contactPhone: customerDetails.phone,
       specialRequests: customerDetails.specialRequests,
-      companyName: companyInfo?.companyName || companyInfo?.name || "Sai Canteens",
+      companyName: companyInfo?.companyName || companyInfo?.name || "Sai Caterers",
       adminEmail: import.meta.env.VITE_ADMIN_EMAIL || companyInfo?.contactEmail || companyInfo?.email,
       items: cartItems.map(item => ({
         foodItemId: item.id,

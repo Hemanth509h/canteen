@@ -30,7 +30,7 @@ export default function CustomerHome() {
       id: "review-1",
       name: "Sri",
       title: "Fantastic food and service",
-      message: "Sai Canteens handled our event beautifully. The flavors were outstanding and the team was very responsive.",
+      message: "Sai Caterers handled our event beautifully. The flavors were outstanding and the team was very responsive.",
       rating: 5,
     },
     {

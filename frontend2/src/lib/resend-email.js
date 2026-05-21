@@ -22,7 +22,7 @@ export function formatDate(value) {
 }
 
 export function buildBookingConfirmationEmail(booking, bookingLink) {
-  const companyName = booking.companyName || "Sai Canteens";
+  const companyName = booking.companyName || "Sai Caterers";
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
@@ -135,7 +135,7 @@ export function buildBookingConfirmationEmail(booking, bookingLink) {
 }
 
 export function buildAdminBookingNotificationEmail(booking, bookingLink) {
-  const companyName = booking.companyName || "Sai Canteens";
+  const companyName = booking.companyName || "Sai Caterers";
   const safeCompanyName = escapeHtml(companyName);
   const safeCustomerName = escapeHtml(booking.clientName || "Customer");
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
@@ -328,4 +328,3 @@ export async function sendBookingEmails(booking, bookingLink) {
 
   return { customerEmailSuccess, adminEmailSuccess };
 }
-
