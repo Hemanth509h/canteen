@@ -94,7 +94,7 @@ export function CartDrawer() {
 
     // Create the booking record in the database
     const bookingData = {
-      clientName: customerDetails.name || "Customer",
+      clientName: customerDetails.name,
       contactPhone: customerDetails.phone.trim(),
       contactEmail: customerDetails.email.trim().toLowerCase(),
       eventType: customerDetails.eventType,
@@ -319,11 +319,19 @@ export function CartDrawer() {
 
                   <div className="pt-2 pb-2 text-center space-y-2">
                     <p className="text-xs text-muted-foreground italic">Need help? Contact us directly:</p>
-                    <div className="flex items-center justify-center gap-4 text-sm">
-                      <a href="tel:1234567890" className="text-primary font-bold hover:underline">Call</a>
-                      <span className="text-muted-foreground/30">|</span>
-                      <a href="mailto:events@elite-catering.com" className="text-primary font-bold hover:underline">Email</a>
-                    </div>
+                    {(companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.email || companyInfo?.contactEmail) && (
+                      <div className="flex items-center justify-center gap-4 text-sm">
+                        {(companyInfo?.phone || companyInfo?.contactPhone) && (
+                          <a href={`tel:${String(companyInfo.phone || companyInfo.contactPhone).replace(/\D/g, "")}`} className="text-primary font-bold hover:underline">Call</a>
+                        )}
+                        {(companyInfo?.phone || companyInfo?.contactPhone) && (companyInfo?.email || companyInfo?.contactEmail) && (
+                          <span className="text-muted-foreground/30">|</span>
+                        )}
+                        {(companyInfo?.email || companyInfo?.contactEmail) && (
+                          <a href={`mailto:${companyInfo.email || companyInfo.contactEmail}`} className="text-primary font-bold hover:underline">Email</a>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <Button variant="ghost" className="w-full text-muted-foreground" onClick={clearCart}>

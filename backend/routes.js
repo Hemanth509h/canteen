@@ -172,7 +172,7 @@ export async function registerRoutes(app) {
       // Fallback for "admin" username if no user found
       if (!adminUser && username === "admin") {
         const isValid = await verifyPassword(password);
-        if (isValid) return sendResponse(res, 200, { success: true, role: "superadmin", username: "admin" });
+        if (isValid) return sendResponse(res, 200, { success: true, role: "superadmin", username });
       }
 
       if (!adminUser) return sendResponse(res, 401, null, "Invalid username or password");
@@ -930,7 +930,7 @@ export async function registerRoutes(app) {
       const companyInfo = await readBranding();
 
       const request = await getStorageInstance().createCodeRequest({
-        customerName: customerBooking.clientName || "Customer",
+        customerName: customerBooking.clientName || customerEmail || customerPhone,
         customerEmail,
         customerPhone,
         customerIdentifier: customerEmail || customerPhone,

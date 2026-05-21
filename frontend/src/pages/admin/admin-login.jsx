@@ -57,7 +57,7 @@ export default function AdminLogin() {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ username: username || "admin", password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (!response.ok) {
@@ -79,7 +79,7 @@ export default function AdminLogin() {
       const data = await response.json();
       if (data.success || data.data?.success) {
         const payload = data.data || data;
-        setAdminSession({ role: payload.role || "superadmin", user: payload.user || { username: "admin" } });
+        setAdminSession({ role: payload.role || "superadmin", user: payload.user || null });
         setLocation("/admin");
       } else {
         toast({
@@ -143,7 +143,7 @@ export default function AdminLogin() {
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your username (default: admin)"
+                    placeholder="Enter your username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     autoComplete="username"

@@ -302,11 +302,19 @@ export function CartDrawer() {
 
                   <div className="pt-2 pb-2 text-center space-y-2">
                     <p className="text-xs text-muted-foreground italic">Need help? Contact us directly:</p>
-                    <div className="flex items-center justify-center gap-4 text-sm">
-                      <a href="tel:1234567890" className="text-primary font-bold hover:underline">Call</a>
-                      <span className="text-muted-foreground/30">|</span>
-                      <a href="mailto:events@elite-catering.com" className="text-primary font-bold hover:underline">Email</a>
-                    </div>
+                    {(branding.phone || branding.contactPhone || branding.email || branding.contactEmail) && (
+                      <div className="flex items-center justify-center gap-4 text-sm">
+                        {(branding.phone || branding.contactPhone) && (
+                          <a href={`tel:${String(branding.phone || branding.contactPhone).replace(/\D/g, "")}`} className="text-primary font-bold hover:underline">Call</a>
+                        )}
+                        {(branding.phone || branding.contactPhone) && (branding.email || branding.contactEmail) && (
+                          <span className="text-muted-foreground/30">|</span>
+                        )}
+                        {(branding.email || branding.contactEmail) && (
+                          <a href={`mailto:${branding.email || branding.contactEmail}`} className="text-primary font-bold hover:underline">Email</a>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <Button variant="ghost" className="w-full text-muted-foreground" onClick={clearCart}>

@@ -25,29 +25,7 @@ export default function CustomerHome() {
   const foodItems = localMenuItems;
   const isLoadingFood = false;
   const companyInfo = branding;
-  const reviews = [
-    {
-      id: "review-1",
-      name: "Sri",
-      title: "Fantastic food and service",
-      message: "Sai Caterers handled our event beautifully. The flavors were outstanding and the team was very responsive.",
-      rating: 5,
-    },
-    {
-      id: "review-2",
-      name: "Nithya",
-      title: "Delicious catering with great value",
-      message: "The menu had great variety, and the food arrived fresh and on time. Highly recommend for small and large events.",
-      rating: 5,
-    },
-    {
-      id: "review-3",
-      name: "Aravind",
-      title: "Excellent support and tasty dishes",
-      message: "Everything from ordering to delivery was smooth. The team made our celebration easy and delicious.",
-      rating: 5,
-    },
-  ];
+  const reviews = [];
 
   const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
   const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;

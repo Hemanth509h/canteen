@@ -2,11 +2,9 @@ import { Star } from "lucide-react";
 import { Reveal } from "@/components/layout/reveal";
 
 export default function Testimonials({ reviews }) {
-  const list = reviews?.length ? reviews.slice(0, 3) : [
-    { customerName: "Sarah J.", eventType: "Wedding", comment: "Absolutely divine food! Every guest was blown away." },
-    { customerName: "Michael R.", eventType: "Corporate", comment: "Professional, punctual, and exceptional quality." },
-    { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering we've ever experienced. Highly recommend!" },
-  ];
+  const list = reviews?.length ? reviews.slice(0, 3) : [];
+  if (!list.length) return null;
+
   return (
     <section className="bg-white dark:bg-zinc-900 py-20 px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">

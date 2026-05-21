@@ -8,7 +8,7 @@ function getBranding() {
   try {
     return readBrandingFile();
   } catch (e) {
-    return { companyName: "Catering Services" };
+    return { companyName: "Sai Caterers" };
   }
 }
 
@@ -25,7 +25,7 @@ function formatFromAddress(displayName, emailAddress) {
 }
 
 function getDefaultFrom(companyName) {
-  const name = companyName || getBranding().companyName || "Catering Services";
+  const name = companyName || getBranding().companyName || "Sai Caterers";
   const configured = (process.env.RESEND_FROM_EMAIL || "").trim();
 
   // Case 1: Already correctly formatted "Name <email@domain.com>"
@@ -96,7 +96,7 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
   const readablePaymentType = paymentType === "final" ? "final" : "advance";
   const formattedAmount = formatCurrency(amount);
   const formattedDate = formatDate(eventDate);
-  const safeCustomerName = escapeHtml(customerName || "Customer");
+  const safeCustomerName = customerName ? escapeHtml(customerName) : null;
   const safeCompanyName = escapeHtml(currentBrand);
   const safePaymentLink = escapeHtml(paymentLink);
   const safeOrderId = escapeHtml(orderId);
@@ -104,7 +104,7 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
 
   const subject = `${currentBrand}: ${readablePaymentType} payment link`;
   const text = [
-    `Hello ${customerName || "Customer"},`,
+    customerName ? `Hello ${customerName},` : "Hello,",
     "",
     `Please complete your ${readablePaymentType} payment of ${formattedAmount} using this link:`,
     paymentLink,
@@ -118,7 +118,7 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:560px;margin:0 auto">
       <h2 style="margin:0 0 16px">${readablePaymentType.charAt(0).toUpperCase() + readablePaymentType.slice(1)} payment link</h2>
-      <p>Hello ${safeCustomerName},</p>
+      <p>Hello${safeCustomerName ? ` ${safeCustomerName}` : ""},</p>
       <p>Please complete your ${readablePaymentType} payment to continue with your booking.</p>
       <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
         <p style="margin:0 0 8px"><strong>Amount:</strong> ${formattedAmount}</p>
@@ -142,7 +142,7 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
 function buildBookingConfirmationEmail(booking, bookingLink) {
   const companyName = booking.companyName || getBranding().companyName;
   const safeCompanyName = escapeHtml(companyName);
-  const safeCustomerName = escapeHtml(booking.clientName || "Customer");
+  const safeCustomerName = booking.clientName ? escapeHtml(booking.clientName) : null;
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
   const safeBookingId = escapeHtml(String(booking.id || booking._id || ""));
   const formattedDate = formatDate(booking.eventDate);
@@ -189,7 +189,7 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
 
   const subject = `Confirmation: We've received your booking request - ${safeCompanyName}`;
   const text = [
-    `Hello ${booking.clientName || "Customer"},`,
+    booking.clientName ? `Hello ${booking.clientName},` : "Hello,",
     "",
     `Thank you for reaching out to ${companyName}! We've successfully received your booking request for your upcoming ${booking.eventType || "event"}.`,
     "",
@@ -218,7 +218,7 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
         <p style="margin:8px 0 0;opacity:0.9;font-size:16px">Thank you for choosing ${safeCompanyName}</p>
       </div>
       <div style="padding:32px 24px">
-        <p style="font-size:16px">Hello <strong>${safeCustomerName}</strong>,</p>
+        <p style="font-size:16px">Hello${safeCustomerName ? ` <strong>${safeCustomerName}</strong>` : ""},</p>
         <p>We're excited to help you with your upcoming event! We've received your request and our team is already reviewing the details.</p>
         
         <div style="background:#f9fafb;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #e5e7eb">
@@ -261,7 +261,7 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
 function buildBookingUpdateEmail(booking, bookingLink, customMessage) {
   const companyName = booking.companyName || getBranding().companyName;
   const safeCompanyName = escapeHtml(companyName);
-  const safeCustomerName = escapeHtml(booking.clientName || "Customer");
+  const safeCustomerName = booking.clientName ? escapeHtml(booking.clientName) : null;
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
   const safeBookingId = escapeHtml(String(booking.id || booking._id || ""));
   const safeStatus = escapeHtml(String(booking.status || "Pending").toUpperCase());
@@ -272,7 +272,7 @@ function buildBookingUpdateEmail(booking, bookingLink, customMessage) {
 
   const subject = `Booking Update: ${safeEventType} - ${safeCompanyName}`;
   const text = [
-    `Hello ${booking.clientName || "Customer"},`,
+    booking.clientName ? `Hello ${booking.clientName},` : "Hello,",
     "",
     customMessage ? `${customMessage}\n` : null,
     "Here are the current details for your booking:",
@@ -295,7 +295,7 @@ function buildBookingUpdateEmail(booking, bookingLink, customMessage) {
         <h2 style="margin:0;font-size:20px">Booking Details Update</h2>
       </div>
       <div style="padding:24px">
-        <p>Hello ${safeCustomerName},</p>
+        <p>Hello${safeCustomerName ? ` ${safeCustomerName}` : ""},</p>
         ${safeCustomMessage ? `
           <div style="margin: 16px 0; padding: 16px; background-color: #fff7ed; border-left: 4px solid #ea580c; color: #9a3412; font-style: italic;">
             ${safeCustomMessage}
@@ -389,7 +389,7 @@ function buildCustomerLoginEmail(code, companyName) {
 function buildAdminBookingNotificationEmail(booking, bookingLink) {
   const companyName = booking.companyName || getBranding().companyName;
   const safeCompanyName = escapeHtml(companyName);
-  const safeCustomerName = escapeHtml(booking.clientName || "Customer");
+  const safeCustomerName = booking.clientName ? escapeHtml(booking.clientName) : "";
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
   const safeBookingId = escapeHtml(String(booking.id || booking._id || ""));
   const formattedDate = formatDate(booking.eventDate);
@@ -437,12 +437,12 @@ function buildAdminBookingNotificationEmail(booking, bookingLink) {
     menuHtml += `</div></div>`;
   }
 
-  const subject = `🔥 NEW BOOKING: ${safeCustomerName} (${safeEventType})`;
+  const subject = `NEW BOOKING: ${safeCustomerName || "Booking request"} (${safeEventType})`;
   const text = [
     "--- NEW BOOKING ALERT ---",
     "",
     "Customer Information:",
-    `- Name: ${booking.clientName || "Customer"}`,
+    `- Name: ${booking.clientName || "Not provided"}`,
     `- Mobile: ${booking.contactPhone || "Not provided"}`,
     `- Email: ${booking.contactEmail || "Not provided"}`,
     "",
@@ -654,7 +654,7 @@ export async function sendCustomerLoginCodeEmail(to, code) {
   }
 
   const { subject, text, html } = buildCustomerLoginEmail(code);
-  const from = getDefaultFrom("Customer Support");
+  const from = getDefaultFrom();
   const { data, error } = await resend.emails.send({
     from,
     to,

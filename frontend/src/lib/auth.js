@@ -4,7 +4,7 @@ const AUTH_ROLE_KEY = "adminRole";
 const AUTH_USER_KEY = "adminUser";
 const SESSION_DURATION = 24 * 60 * 60 * 1000;
 
-export function setAdminSession(sessionData = { role: "superadmin", user: { username: "admin" } }) {
+export function setAdminSession(sessionData = { role: "superadmin", user: null }) {
   const expiryTime = Date.now() + SESSION_DURATION;
   localStorage.setItem(AUTH_KEY, "true");
   localStorage.setItem(AUTH_EXPIRY_KEY, expiryTime.toString());
@@ -32,7 +32,7 @@ export async function isAdminAuthenticated() {
 export function getAdminSession() {
   const role = localStorage.getItem(AUTH_ROLE_KEY) || "superadmin";
   const userStr = localStorage.getItem(AUTH_USER_KEY);
-  let user = { username: "admin" };
+  let user = null;
   if (userStr) {
     try { user = JSON.parse(userStr); } catch (e) {}
   }

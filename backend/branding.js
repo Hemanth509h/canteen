@@ -12,7 +12,7 @@ const fallbackBranding = {
   description: "Crafting unforgettable culinary memories with passion, precision, and the finest ingredients.",
   email: "phemanthkumar509@gmail.com",
   phone: "9177319695",
-  address: "123 Gourmet Avenue, Culinary City",
+  address: "",
   eventsPerYear: 50,
   websiteUrl: "https://github.com/Hemanth509h/RailServe.git",
   upiId: "9177319695@upi",

@@ -24,7 +24,7 @@ export function formatDate(value) {
 export function buildBookingConfirmationEmail(booking, bookingLink) {
   const companyName = booking.companyName || "Sai Caterers";
   const safeCompanyName = escapeHtml(companyName);
-  const safeCustomerName = escapeHtml(booking.clientName || "Customer");
+  const safeCustomerName = booking.clientName ? escapeHtml(booking.clientName) : null;
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
   const safeBookingId = escapeHtml(String(booking.id || booking._id || ""));
   const formattedDate = formatDate(booking.eventDate);
@@ -72,7 +72,7 @@ export function buildBookingConfirmationEmail(booking, bookingLink) {
 
   const subject = `Confirmation: We've received your booking request - ${safeCompanyName}`;
   const text = [
-    `Hello ${booking.clientName || "Customer"},`,
+    booking.clientName ? `Hello ${booking.clientName},` : "Hello,",
     "",
     `Thank you for reaching out to ${companyName}! We've successfully received your booking request for your upcoming ${booking.eventType || "event"}.`,
     "",
@@ -100,7 +100,7 @@ export function buildBookingConfirmationEmail(booking, bookingLink) {
         <p style="margin:8px 0 0;opacity:0.9;font-size:16px">Thank you for choosing ${safeCompanyName}</p>
       </div>
       <div style="padding:32px 24px">
-        <p style="font-size:16px">Hello <strong>${safeCustomerName}</strong>,</p>
+        <p style="font-size:16px">Hello${safeCustomerName ? ` <strong>${safeCustomerName}</strong>` : ""},</p>
         <p>We're excited to help you with your upcoming event! We've received your request and our team is already reviewing the details.</p>
         <div style="background:#f9fafb;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #e5e7eb">
           <h3 style="margin:0 0 16px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#6b7280">Booking Summary</h3>
@@ -137,7 +137,7 @@ export function buildBookingConfirmationEmail(booking, bookingLink) {
 export function buildAdminBookingNotificationEmail(booking, bookingLink) {
   const companyName = booking.companyName || "Sai Caterers";
   const safeCompanyName = escapeHtml(companyName);
-  const safeCustomerName = escapeHtml(booking.clientName || "Customer");
+  const safeCustomerName = booking.clientName ? escapeHtml(booking.clientName) : "";
   const safeEventType = escapeHtml(booking.eventType || "Event booking");
   const safeBookingId = escapeHtml(String(booking.id || booking._id || ""));
   const formattedDate = formatDate(booking.eventDate);
@@ -187,12 +187,12 @@ export function buildAdminBookingNotificationEmail(booking, bookingLink) {
     menuHtml += `</div></div>`;
   }
 
-  const subject = `🔥 NEW BOOKING: ${safeCustomerName} (${safeEventType})`;
+  const subject = `NEW BOOKING: ${safeCustomerName || "Booking request"} (${safeEventType})`;
   const text = [
     "--- NEW BOOKING ALERT ---",
     "",
     "Customer Information:",
-    `- Name: ${booking.clientName || "Customer"}`,
+    `- Name: ${booking.clientName || "Not provided"}`,
     `- Mobile: ${booking.contactPhone || "Not provided"}`,
     `- Email: ${booking.contactEmail || "Not provided"}`,
     "",

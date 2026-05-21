@@ -2,11 +2,9 @@ import { Star } from "lucide-react";
 import { Reveal } from "@/components/layout/reveal";
 
 export default function Testimonials({ reviews }) {
-  const list = reviews?.length ? reviews.slice(0, 3) : [
-    { customerName: "Sarah J.", eventType: "Wedding", comment: "Absolutely divine food! Every guest was blown away." },
-    { customerName: "Michael R.", eventType: "Corporate", comment: "Professional, punctual, and exceptional quality." },
-    { customerName: "Elena W.", eventType: "Birthday", comment: "Best catering we've ever experienced. Highly recommend!" },
-  ];
+  const list = reviews?.length ? reviews.slice(0, 3) : [];
+  if (!list.length) return null;
+
   return (
     <section className="bg-white dark:bg-zinc-900 py-20 px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
@@ -16,9 +14,10 @@ export default function Testimonials({ reviews }) {
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {list.map((r, i) => {
-            const displayName = r.customerName || r.name || "Guest";
-            const displayComment = r.comment || r.message || "Great experience!";
-            const displayEventType = r.eventType || r.title || "Customer";
+            const displayName = r.customerName || r.name;
+            const displayComment = r.comment || r.message;
+            const displayEventType = r.eventType || r.title;
+            if (!displayName || !displayComment) return null;
             return (
             <Reveal key={i} delay={i * 200}>
               <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50 flex flex-col gap-4 transition-colors h-full">
@@ -32,7 +31,7 @@ export default function Testimonials({ reviews }) {
                   </div>
                   <div>
                     <p className="font-jakarta font-bold text-sm text-zinc-900 dark:text-white">{displayName}</p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-jakarta">{displayEventType}</p>
+                    {displayEventType && <p className="text-xs text-zinc-500 dark:text-zinc-400 font-jakarta">{displayEventType}</p>}
                   </div>
                 </div>
               </div>
