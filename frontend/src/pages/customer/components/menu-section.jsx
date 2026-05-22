@@ -80,7 +80,7 @@ export default function MenuSection({ foodItems, isLoading, onSelectItem, addToC
         </Reveal>
 
         {/* Grid */}
-        <div className="-m-2 grid grid-cols-1 gap-4 p-2 sm:grid-cols-2 lg:max-h-[520px] lg:grid-cols-3 lg:overflow-y-auto xl:grid-cols-4">
+        <div className="-m-2 grid max-h-[58dvh] grid-cols-1 gap-4 overflow-y-auto overscroll-contain p-2 pr-3 sm:max-h-[62dvh] sm:grid-cols-2 lg:max-h-[520px] lg:grid-cols-3 xl:grid-cols-4">
           {isLoading
             ? Array(8).fill(0).map((_, i) => (
               <div key={i} className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-5 space-y-3 transition-colors">

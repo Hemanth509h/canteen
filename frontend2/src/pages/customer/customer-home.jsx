@@ -5,9 +5,8 @@ import { Phone } from "lucide-react";
 
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import branding from "@/lib/branding.json";
-import localMenuItems from "@/lib/menu.json";
 import { useCart } from "@/lib/cart-context";
+import { useSiteContent } from "@/lib/site-content";
 
 import Navbar from "./components/navbar";
 import Hero from "./components/hero";
@@ -21,8 +20,9 @@ export default function CustomerHome() {
   const [view, setView] = useState("home");
   const { cartItems, addToCart } = useCart();
   const [selectedItem, setSelectedItem] = useState(null);
+  const { branding, menuItems } = useSiteContent();
 
-  const foodItems = localMenuItems;
+  const foodItems = menuItems;
   const isLoadingFood = false;
   const companyInfo = branding;
   const reviews = [];

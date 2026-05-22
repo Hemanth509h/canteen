@@ -5,15 +5,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import CustomerHome from "@/pages/customer/customer-home";
 import BookingSuccess from "@/pages/customer/booking-success";
+import AdminContent from "@/pages/admin/admin-content";
 import NotFound from "@/pages/not-found";
-import branding from "@/lib/branding.json";
 import { CartProvider } from "@/lib/cart-context";
+import { useSiteContent } from "@/lib/site-content";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={CustomerHome} />
       <Route path="/booking-success" component={BookingSuccess} />
+      <Route path="/admin" component={AdminContent} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -21,18 +23,22 @@ function Router() {
 
 function AppContent() {
   const [location] = useLocation();
-  const companyInfo = branding;
+  const { branding } = useSiteContent();
 
   useEffect(() => {
-    const baseTitle = companyInfo?.companyName || branding.companyName;
+    const baseTitle = branding.companyName;
     let pageTitle = "";
 
     if (location === "/") {
-      pageTitle = companyInfo?.tagline ? ` | ${companyInfo.tagline}` : "";
+      pageTitle = branding.tagline ? ` | ${branding.tagline}` : "";
+    }
+
+    if (location === "/admin") {
+      pageTitle = " | Content Admin";
     }
 
     document.title = `${baseTitle}${pageTitle}`;
-  }, [location, companyInfo]);
+  }, [location, branding]);
 
   return (
     <div className="flex min-h-screen min-w-0 flex-col bg-background text-foreground">

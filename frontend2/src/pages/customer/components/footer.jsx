@@ -35,6 +35,10 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
               <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-left hover:text-amber-400 transition-colors">Home</button>
               <button onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })} className="text-left hover:text-amber-400 transition-colors">Menu</button>
               <button onClick={() => setView("bookings")} className="text-left hover:text-amber-400 transition-colors">My Bookings</button>
+              <Link href="/admin" className="inline-flex items-center gap-2 hover:text-amber-400 transition-colors">
+                <Lock size={13} />
+                Admin
+              </Link>
 
             </div>
           </Reveal>
