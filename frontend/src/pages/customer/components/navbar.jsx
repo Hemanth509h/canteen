@@ -22,14 +22,14 @@ export default function Navbar({ companyName, logoSrc, setView }) {
 
   return (
     <>
-      <nav className="fade-in fixed left-1/2 top-4 z-50 w-[92%] max-w-4xl -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg shadow-zinc-900/5 backdrop-blur-xl transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950/92 dark:shadow-black/25">
-        <div className="flex h-14 w-full items-center justify-between gap-5 px-4 sm:px-6">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setView("home"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-900/20">
-              <Leaf className="h-4 w-4" />
+      <nav className="fade-in fixed left-1/2 top-3 z-50 w-[94%] max-w-4xl -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg shadow-zinc-900/5 backdrop-blur-xl transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950/92 dark:shadow-black/25">
+        <div className="flex h-12 w-full items-center justify-between gap-3 px-3 sm:h-14 sm:gap-5 sm:px-6">
+          <div className="flex cursor-pointer items-center gap-2" onClick={() => { setView("home"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-900/20 sm:h-8 sm:w-8">
+              <Leaf className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </span>
             <span className="leading-tight">
-              <span className="block font-playfair text-base font-bold text-zinc-950 transition-colors dark:text-white">
+              <span className="block font-playfair text-sm font-bold text-zinc-950 transition-colors dark:text-white sm:text-base">
                 {companyName || branding.companyName}
               </span>
               <span className="hidden text-[10px] font-jakarta font-bold uppercase tracking-[0.18em] text-amber-600 sm:block">
@@ -51,7 +51,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-800 dark:bg-zinc-900 sm:p-1">
             <ThemeToggle />
             <button 
               onClick={() => setView("bookings")} 
@@ -64,7 +64,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
             {/* Mobile Menu Toggle */}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-md p-2 text-zinc-600 transition-colors hover:bg-white hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white md:hidden"
+              className="rounded-md p-1.5 text-zinc-600 transition-colors hover:bg-white hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white md:hidden"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -108,7 +108,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
       </nav>
       
       {/* Spacer to prevent content from going under fixed nav */}
-      <div className="h-14" />
+      <div className="h-12 sm:h-14" />
     </>
   );
 }
