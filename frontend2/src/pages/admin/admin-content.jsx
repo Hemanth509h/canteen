@@ -132,6 +132,7 @@ export default function AdminContent() {
   const [newMenuItem, setNewMenuItem] = useState(blankMenuItem);
   const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
   const [newReview, setNewReview] = useState(blankReview);
+  const reviews = content.branding?.reviews || [];
 
   const heroImagesText = useMemo(
     () => (content.branding.heroImages || []).join("\n"),
@@ -176,12 +177,11 @@ export default function AdminContent() {
   }, [content.menuItems]);
 
   const reviewSummary = useMemo(() => {
-    const reviews = content.reviews || [];
     const average = reviews.length
       ? (reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length).toFixed(1)
       : "0.0";
     return { total: reviews.length, average };
-  }, [content.reviews]);
+  }, [reviews]);
 
   const updateBranding = (key, value) => {
     setContent((current) => ({
@@ -215,9 +215,12 @@ export default function AdminContent() {
   const updateReview = (index, key, value) => {
     setContent((current) => ({
       ...current,
-      reviews: (current.reviews || []).map((review, reviewIndex) =>
-        reviewIndex === index ? { ...review, [key]: key === "rating" ? Number(value) : value } : review,
-      ),
+      branding: {
+        ...current.branding,
+        reviews: (current.branding?.reviews || []).map((review, reviewIndex) =>
+          reviewIndex === index ? { ...review, [key]: key === "rating" ? Number(value) : value } : review,
+        ),
+      },
     }));
   };
 
@@ -230,17 +233,20 @@ export default function AdminContent() {
 
     setContent((current) => ({
       ...current,
-      reviews: [
-        {
-          ...newReview,
-          id: `review-${Date.now()}`,
-          customerName: newReview.customerName.trim() || "Customer",
-          eventType: newReview.eventType.trim() || "Event",
-          comment: newReview.comment.trim(),
-          rating: Number(newReview.rating || 5),
-        },
-        ...(current.reviews || []),
-      ],
+      branding: {
+        ...current.branding,
+        reviews: [
+          {
+            ...newReview,
+            id: `review-${Date.now()}`,
+            customerName: newReview.customerName.trim() || "Customer",
+            eventType: newReview.eventType.trim() || "Event",
+            comment: newReview.comment.trim(),
+            rating: Number(newReview.rating || 5),
+          },
+          ...(current.branding?.reviews || []),
+        ],
+      },
     }));
     setIsAddReviewOpen(false);
     setNewReview(blankReview);
@@ -249,7 +255,10 @@ export default function AdminContent() {
   const removeReview = (index) => {
     setContent((current) => ({
       ...current,
-      reviews: (current.reviews || []).filter((_, reviewIndex) => reviewIndex !== index),
+      branding: {
+        ...current.branding,
+        reviews: (current.branding?.reviews || []).filter((_, reviewIndex) => reviewIndex !== index),
+      },
     }));
   };
 
@@ -726,7 +735,7 @@ export default function AdminContent() {
                 </div>
               </div>
 
-              {(content.reviews || []).length === 0 ? (
+              {reviews.length === 0 ? (
                 <div className="flex min-h-[220px] flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-300 px-4 py-10 text-center dark:border-zinc-700">
                   <Star className="mx-auto mb-3 size-8 text-zinc-400" />
                   <p className="font-semibold">No reviews yet.</p>
@@ -734,7 +743,7 @@ export default function AdminContent() {
                 </div>
               ) : (
                 <div className="min-h-[220px] flex-1 space-y-4 overflow-y-auto overscroll-contain pr-2">
-                  {(content.reviews || []).map((review, index) => (
+                  {reviews.map((review, index) => (
                     <div key={review.id || index} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
                       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>

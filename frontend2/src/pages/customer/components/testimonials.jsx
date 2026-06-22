@@ -2,27 +2,6 @@ import { useState } from "react";
 import { Send, Star } from "lucide-react";
 import { Reveal } from "@/components/layout/reveal";
 
-const fallbackReviews = [
-  {
-    customerName: "Priya Sharma",
-    eventType: "Wedding",
-    rating: 5,
-    comment: "The food, service, and presentation were excellent. Our guests kept asking who handled the catering.",
-  },
-  {
-    customerName: "Rahul Varma",
-    eventType: "Birthday Party",
-    rating: 5,
-    comment: "Everything arrived on time and tasted fresh. The team handled the event very professionally.",
-  },
-  {
-    customerName: "Anusha Reddy",
-    eventType: "Corporate Event",
-    rating: 4,
-    comment: "Good menu options and smooth coordination from booking to service. We will use them again.",
-  },
-];
-
 const initialForm = {
   customerName: "",
   eventType: "",
@@ -31,7 +10,7 @@ const initialForm = {
 };
 
 export default function Testimonials({ reviews, onSubmitReview, isSubmittingReview = false }) {
-  const list = reviews?.length ? reviews.slice(0, 3) : fallbackReviews;
+  const list = reviews?.length ? reviews.slice(0, 3) : [];
   const [form, setForm] = useState(initialForm);
   const [message, setMessage] = useState("");
 
@@ -65,8 +44,9 @@ export default function Testimonials({ reviews, onSubmitReview, isSubmittingRevi
           <p className="text-amber-600 dark:text-amber-400 text-xs font-jakarta font-bold uppercase tracking-[0.3em] mb-3">Reviews</p>
           <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-zinc-900 dark:text-white transition-colors">What Clients Say</h2>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {list.map((r, i) => {
+        {list.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {list.map((r, i) => {
             const displayName = r.customerName || r.name;
             const displayComment = r.comment || r.message;
             const displayEventType = r.eventType || r.title;
@@ -93,8 +73,11 @@ export default function Testimonials({ reviews, onSubmitReview, isSubmittingRevi
               </div>
             </Reveal>
             );
-          })}
-        </div>
+            })}
+          </div>
+        ) : (
+          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">No reviews yet. Be the first to add one.</p>
+        )}
         <Reveal className="mt-10">
           <form onSubmit={handleSubmit} className="mx-auto max-w-3xl rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950">
             <div className="mb-4">

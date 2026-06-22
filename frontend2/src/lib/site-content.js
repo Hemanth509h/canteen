@@ -7,16 +7,27 @@ export const SITE_CONTENT_STORAGE_KEY = "sai-caterers-site-content";
 export const SITE_CONTENT_UPDATED_EVENT = "site-content-updated";
 
 export const defaultSiteContent = {
-  branding: defaultBranding,
+  branding: {
+    ...defaultBranding,
+    reviews: Array.isArray(defaultBranding.reviews) ? defaultBranding.reviews : [],
+  },
   menuItems: defaultMenuItems,
-  reviews: Array.isArray(defaultBranding.reviews) ? defaultBranding.reviews : [],
 };
 
 function normalizeContent(content) {
+  const reviews = Array.isArray(content?.branding?.reviews)
+    ? content.branding.reviews
+    : Array.isArray(content?.reviews)
+      ? content.reviews
+      : Array.isArray(defaultBranding.reviews)
+        ? defaultBranding.reviews
+        : [];
+
   return {
     branding: {
       ...defaultBranding,
       ...(content?.branding || {}),
+      reviews,
       heroImages: Array.isArray(content?.branding?.heroImages)
         ? content.branding.heroImages.filter(Boolean)
         : defaultBranding.heroImages,
@@ -25,11 +36,6 @@ function normalizeContent(content) {
         : defaultBranding.workVideos,
     },
     menuItems: Array.isArray(content?.menuItems) ? content.menuItems : defaultMenuItems,
-    reviews: Array.isArray(content?.reviews)
-      ? content.reviews
-      : Array.isArray(content?.branding?.reviews)
-        ? content.branding.reviews
-        : defaultSiteContent.reviews,
   };
 }
 

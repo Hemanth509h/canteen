@@ -22,7 +22,8 @@ export default function CustomerHome() {
   const { cartItems, addToCart } = useCart();
   const [selectedItem, setSelectedItem] = useState(null);
   const siteContent = useSiteContent();
-  const { branding, menuItems, reviews = [] } = siteContent;
+  const { branding, menuItems } = siteContent;
+  const reviews = branding?.reviews || [];
 
   const foodItems = menuItems;
   const isLoadingFood = false;
@@ -33,13 +34,16 @@ export default function CustomerHome() {
   const handleSubmitReview = async (review) => {
     saveSiteContent({
       ...siteContent,
-      reviews: [
-        {
-          ...review,
-          id: `review-${Date.now()}`,
-        },
-        ...(reviews || []),
-      ],
+      branding: {
+        ...branding,
+        reviews: [
+          {
+            ...review,
+            id: `review-${Date.now()}`,
+          },
+          ...(reviews || []),
+        ],
+      },
     });
   };
 
