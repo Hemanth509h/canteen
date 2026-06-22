@@ -13,7 +13,9 @@ import {
   RotateCcw,
   Save,
   Search,
+  Star,
   Trash2,
+  User,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -43,7 +45,15 @@ const blankMenuItem = {
   imageUrl: "",
 };
 
+const blankReview = {
+  customerName: "",
+  eventType: "",
+  rating: 5,
+  comment: "",
+};
+
 const ADMIN_AUTH_KEY = "frontend2AdminAuthenticated";
+const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "admin123";
 
 function Field({ label, children }) {
@@ -112,6 +122,7 @@ export default function AdminContent() {
   const [activeSection, setActiveSection] = useState("brand");
   const [savedMessage, setSavedMessage] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem(ADMIN_AUTH_KEY) === "true");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [menuSearch, setMenuSearch] = useState("");
@@ -119,10 +130,16 @@ export default function AdminContent() {
   const [menuCategoryFilter, setMenuCategoryFilter] = useState("all");
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [newMenuItem, setNewMenuItem] = useState(blankMenuItem);
+  const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
+  const [newReview, setNewReview] = useState(blankReview);
 
   const heroImagesText = useMemo(
     () => (content.branding.heroImages || []).join("\n"),
     [content.branding.heroImages],
+  );
+  const workVideosText = useMemo(
+    () => (content.branding.workVideos || []).join("\n"),
+    [content.branding.workVideos],
   );
 
   const menuCategories = useMemo(() => {
@@ -158,6 +175,14 @@ export default function AdminContent() {
     ];
   }, [content.menuItems]);
 
+  const reviewSummary = useMemo(() => {
+    const reviews = content.reviews || [];
+    const average = reviews.length
+      ? (reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length).toFixed(1)
+      : "0.0";
+    return { total: reviews.length, average };
+  }, [content.reviews]);
+
   const updateBranding = (key, value) => {
     setContent((current) => ({
       ...current,
@@ -185,6 +210,47 @@ export default function AdminContent() {
 
   const updateNewMenuItem = (key, value) => {
     setNewMenuItem((current) => ({ ...current, [key]: value }));
+  };
+
+  const updateReview = (index, key, value) => {
+    setContent((current) => ({
+      ...current,
+      reviews: (current.reviews || []).map((review, reviewIndex) =>
+        reviewIndex === index ? { ...review, [key]: key === "rating" ? Number(value) : value } : review,
+      ),
+    }));
+  };
+
+  const updateNewReview = (key, value) => {
+    setNewReview((current) => ({ ...current, [key]: key === "rating" ? Number(value) : value }));
+  };
+
+  const addReview = (event) => {
+    event.preventDefault();
+
+    setContent((current) => ({
+      ...current,
+      reviews: [
+        {
+          ...newReview,
+          id: `review-${Date.now()}`,
+          customerName: newReview.customerName.trim() || "Customer",
+          eventType: newReview.eventType.trim() || "Event",
+          comment: newReview.comment.trim(),
+          rating: Number(newReview.rating || 5),
+        },
+        ...(current.reviews || []),
+      ],
+    }));
+    setIsAddReviewOpen(false);
+    setNewReview(blankReview);
+  };
+
+  const removeReview = (index) => {
+    setContent((current) => ({
+      ...current,
+      reviews: (current.reviews || []).filter((_, reviewIndex) => reviewIndex !== index),
+    }));
   };
 
   const addMenuItem = (event) => {
@@ -262,19 +328,21 @@ export default function AdminContent() {
 
   const handleLogin = (event) => {
     event.preventDefault();
-    if (password === ADMIN_PASSWORD) {
+    if (normalizeValue(username) === normalizeValue(ADMIN_USERNAME) && password === ADMIN_PASSWORD) {
       localStorage.setItem(ADMIN_AUTH_KEY, "true");
       setIsAuthenticated(true);
+      setUsername("");
       setPassword("");
       setLoginError("");
       return;
     }
-    setLoginError("Invalid password");
+    setLoginError("Invalid username or password");
   };
 
   const handleLogout = () => {
     localStorage.removeItem(ADMIN_AUTH_KEY);
     setIsAuthenticated(false);
+    setUsername("");
     setPassword("");
   };
 
@@ -292,10 +360,27 @@ export default function AdminContent() {
             </div>
             <div>
               <h1 className="font-playfair text-2xl font-bold">Content Admin</h1>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">Password required</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Username and password required</p>
             </div>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
+            <Field label="Username">
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+                <Input
+                  type="text"
+                  value={username}
+                  onChange={(event) => {
+                    setUsername(event.target.value);
+                    setLoginError("");
+                  }}
+                  className="pl-9"
+                  autoComplete="username"
+                  autoFocus
+                  required
+                />
+              </div>
+            </Field>
             <Field label="Password">
               <Input
                 type="password"
@@ -305,7 +390,7 @@ export default function AdminContent() {
                   setLoginError("");
                 }}
                 autoComplete="current-password"
-                autoFocus
+                required
               />
             </Field>
             {loginError && <p className="text-sm font-semibold text-red-600 dark:text-red-400">{loginError}</p>}
@@ -353,6 +438,7 @@ export default function AdminContent() {
             ["brand", "Brand"],
             ["contact", "Contact"],
             ["menu", "Menu Items"],
+            ["reviews", "Reviews"],
           ].map(([id, label]) => (
             <button
               key={id}
@@ -405,6 +491,32 @@ export default function AdminContent() {
                 <div className="md:col-span-2">
                   <Field label="Hero Images, One URL Per Line">
                     <Textarea rows={5} value={heroImagesText} onChange={(event) => updateBranding("heroImages", splitHeroImages(event.target.value))} />
+                  </Field>
+                </div>
+                <Field label="Owner Name">
+                  <Input value={content.branding.ownerName || ""} onChange={(event) => updateBranding("ownerName", event.target.value)} />
+                </Field>
+                <Field label="Owner Role">
+                  <Input value={content.branding.ownerRole || ""} onChange={(event) => updateBranding("ownerRole", event.target.value)} />
+                </Field>
+                <Field label="Owner Photo URL">
+                  <Input value={content.branding.ownerImageUrl || ""} onChange={(event) => updateBranding("ownerImageUrl", event.target.value)} />
+                </Field>
+                <Field label="Owner Phone">
+                  <Input value={content.branding.ownerPhone || ""} onChange={(event) => updateBranding("ownerPhone", event.target.value)} />
+                </Field>
+                <Field label="Owner Email">
+                  <Input type="email" value={content.branding.ownerEmail || ""} onChange={(event) => updateBranding("ownerEmail", event.target.value)} />
+                </Field>
+                <div className="md:col-span-2">
+                  <Field label="Owner Bio">
+                    <Textarea rows={4} value={content.branding.ownerBio || ""} onChange={(event) => updateBranding("ownerBio", event.target.value)} />
+                  </Field>
+                </div>
+                <div className="md:col-span-2">
+                  <Field label="Work Video URLs, One Per Line">
+                    <Textarea rows={5} value={workVideosText} placeholder={"https://youtube.com/watch?v=...\nhttps://example.com/event.mp4"} onChange={(event) => updateBranding("workVideos", splitHeroImages(event.target.value))} />
+                    <p className="mt-2 text-xs text-zinc-500">Add each new daily video on a separate line. YouTube, Vimeo, MP4/WebM, and external links are supported.</p>
                   </Field>
                 </div>
               </div>
@@ -584,6 +696,81 @@ export default function AdminContent() {
               )}
             </div>
           )}
+
+          {activeSection === "reviews" && (
+            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900 sm:p-5">
+              <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h2 className="font-playfair text-2xl font-bold">Reviews</h2>
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    Manage customer testimonials shown on the home page.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <div className="rounded-md border border-zinc-200 px-3 py-2 dark:border-zinc-800">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Total</p>
+                    <p className="text-xl font-bold">{reviewSummary.total}</p>
+                  </div>
+                  <div className="rounded-md border border-zinc-200 px-3 py-2 dark:border-zinc-800">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Average</p>
+                    <p className="text-xl font-bold">{reviewSummary.average}</p>
+                  </div>
+                  <Button onClick={() => setIsAddReviewOpen(true)}>
+                    <Plus size={16} />
+                    Add Review
+                  </Button>
+                </div>
+              </div>
+
+              {(content.reviews || []).length === 0 ? (
+                <div className="flex min-h-[220px] flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-300 px-4 py-10 text-center dark:border-zinc-700">
+                  <Star className="mx-auto mb-3 size-8 text-zinc-400" />
+                  <p className="font-semibold">No reviews yet.</p>
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Add a review to show testimonials on the home page.</p>
+                </div>
+              ) : (
+                <div className="min-h-[220px] flex-1 space-y-4 overflow-y-auto overscroll-contain pr-2">
+                  {(content.reviews || []).map((review, index) => (
+                    <div key={review.id || index} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+                      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold">{review.customerName || "Customer"}</h3>
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400">{review.eventType || "Event"}</p>
+                        </div>
+                        <Button variant="outline" size="icon" onClick={() => removeReview(index)} aria-label="Remove review">
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-[1fr_1fr_140px]">
+                        <Field label="Customer Name">
+                          <Input value={review.customerName || ""} onChange={(event) => updateReview(index, "customerName", event.target.value)} />
+                        </Field>
+                        <Field label="Event Type">
+                          <Input value={review.eventType || ""} onChange={(event) => updateReview(index, "eventType", event.target.value)} />
+                        </Field>
+                        <Field label="Rating">
+                          <select
+                            value={review.rating || 5}
+                            onChange={(event) => updateReview(index, "rating", event.target.value)}
+                            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                          >
+                            {[5, 4, 3, 2, 1].map((rating) => (
+                              <option key={rating} value={rating}>{rating}</option>
+                            ))}
+                          </select>
+                        </Field>
+                        <div className="md:col-span-3">
+                          <Field label="Comment">
+                            <Textarea rows={3} value={review.comment || ""} onChange={(event) => updateReview(index, "comment", event.target.value)} />
+                          </Field>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </section>
       </main>
       <Dialog open={isAddMenuOpen} onOpenChange={setIsAddMenuOpen}>
@@ -642,6 +829,62 @@ export default function AdminContent() {
               <Button type="submit">
                 <Plus size={16} />
                 Add Item
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isAddReviewOpen} onOpenChange={setIsAddReviewOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add Review</DialogTitle>
+            <DialogDescription>Create a customer review for the home page testimonials.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={addReview} className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-[1fr_1fr_140px]">
+              <Field label="Customer Name">
+                <Input
+                  value={newReview.customerName}
+                  onChange={(event) => updateNewReview("customerName", event.target.value)}
+                  placeholder="Customer name"
+                  autoFocus
+                />
+              </Field>
+              <Field label="Event Type">
+                <Input
+                  value={newReview.eventType}
+                  onChange={(event) => updateNewReview("eventType", event.target.value)}
+                  placeholder="Wedding, Birthday, Corporate"
+                />
+              </Field>
+              <Field label="Rating">
+                <select
+                  value={newReview.rating}
+                  onChange={(event) => updateNewReview("rating", event.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {[5, 4, 3, 2, 1].map((rating) => (
+                    <option key={rating} value={rating}>{rating}</option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <Field label="Comment">
+              <Textarea
+                rows={4}
+                value={newReview.comment}
+                onChange={(event) => updateNewReview("comment", event.target.value)}
+                placeholder="Customer feedback"
+                required
+              />
+            </Field>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsAddReviewOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                <Plus size={16} />
+                Add Review
               </Button>
             </DialogFooter>
           </form>

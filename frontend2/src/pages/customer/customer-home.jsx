@@ -6,13 +6,14 @@ import { Phone } from "lucide-react";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useCart } from "@/lib/cart-context";
-import { useSiteContent } from "@/lib/site-content";
+import { saveSiteContent, useSiteContent } from "@/lib/site-content";
 
 import Navbar from "./components/navbar";
 import Hero from "./components/hero";
 import Features from "./components/features";
 import MenuSection from "./components/menu-section";
 import Testimonials from "./components/testimonials";
+import OwnerAndVideos from "./components/owner-and-videos";
 import Footer from "./components/footer";
 import { CartDrawer } from "@/components/features/cart-drawer";
 
@@ -20,16 +21,27 @@ export default function CustomerHome() {
   const [view, setView] = useState("home");
   const { cartItems, addToCart } = useCart();
   const [selectedItem, setSelectedItem] = useState(null);
-  const { branding, menuItems } = useSiteContent();
+  const siteContent = useSiteContent();
+  const { branding, menuItems, reviews = [] } = siteContent;
 
   const foodItems = menuItems;
   const isLoadingFood = false;
   const companyInfo = branding;
-  const reviews = [];
-
   const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
   const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;
 
+  const handleSubmitReview = async (review) => {
+    saveSiteContent({
+      ...siteContent,
+      reviews: [
+        {
+          ...review,
+          id: `review-${Date.now()}`,
+        },
+        ...(reviews || []),
+      ],
+    });
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
@@ -44,6 +56,7 @@ export default function CustomerHome() {
           eventsPerYear={companyInfo?.eventsPerYear}
         />
         <Features />
+        <OwnerAndVideos companyInfo={companyInfo} />
         <MenuSection
           foodItems={foodItems}
           isLoading={isLoadingFood}
@@ -51,7 +64,7 @@ export default function CustomerHome() {
           addToCart={addToCart}
           cartItems={cartItems}
         />
-        <Testimonials reviews={reviews} />
+        <Testimonials reviews={reviews} onSubmitReview={handleSubmitReview} />
         <Footer companyInfo={companyInfo} logoSrc={logoSrc} setView={setView} />
       </main>
 

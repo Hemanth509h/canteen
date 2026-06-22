@@ -1,4 +1,4 @@
-import { randomInt, randomUUID } from "crypto";
+import { createHmac, randomInt, randomUUID, timingSafeEqual } from "crypto";
 import { getStorage } from "./db.js";
 import { 
   sendPaymentLinkEmail, 
@@ -44,6 +44,38 @@ const getStorageInstance = () => getStorage();
 const rateLimitBuckets = new Map();
 const staffOtpCodes = new Map();
 const staffPasswordResetTokens = new Map();
+
+const adminSessionSecret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD_HASH || process.env.ADMIN_PASSWORD || "admin123";
+
+function createAdminSessionToken({ role, userId = null, username = "admin" }) {
+  const payload = Buffer.from(JSON.stringify({ role, userId, username, exp: Date.now() + 24 * 60 * 60 * 1000 })).toString("base64url");
+  const signature = createHmac("sha256", adminSessionSecret).update(payload).digest("base64url");
+  return `${payload}.${signature}`;
+}
+
+function verifyAdminSessionToken(token) {
+  try {
+    const [payload, signature] = String(token || "").split(".");
+    if (!payload || !signature) return null;
+    const expected = createHmac("sha256", adminSessionSecret).update(payload).digest("base64url");
+    const actualBuffer = Buffer.from(signature);
+    const expectedBuffer = Buffer.from(expected);
+    if (actualBuffer.length !== expectedBuffer.length || !timingSafeEqual(actualBuffer, expectedBuffer)) return null;
+    const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    return session.exp > Date.now() ? session : null;
+  } catch {
+    return null;
+  }
+}
+
+function requireSuperAdmin(req, res, next) {
+  const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
+  const session = verifyAdminSessionToken(token);
+  if (!session) return res.status(401).json({ success: false, data: null, error: "Admin session required" });
+  if (session.role !== "superadmin") return res.status(403).json({ success: false, data: null, error: "Super admin access required" });
+  req.adminSession = session;
+  next();
+}
 
 function rateLimit({ windowMs = 15 * 60 * 1000, max = 10, keyPrefix = "global" } = {}) {
   return (req, res, next) => {
@@ -110,6 +142,10 @@ async function validateStaffCredentials(identifier, password) {
   return isValid ? staff : null;
 }
 
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
 async function readBranding() {
   try {
     const info = await getStorageInstance().getCompanyInfo();
@@ -155,24 +191,41 @@ export async function registerRoutes(app) {
 
   app.post("/api/admin/login", authRateLimit, async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { email, username, password } = req.body;
       
-      // Support legacy login with only password
+      // Support single-admin login with email + password.
       if (!username) {
+        const branding = await readBranding();
+        const configuredEmail = normalizeEmail(process.env.ADMIN_EMAIL || branding?.contactEmail || branding?.email);
+        const submittedEmail = normalizeEmail(email);
+
+        if (!submittedEmail) {
+          return sendResponse(res, 400, null, "Admin email is required");
+        }
+
+        if (!configuredEmail) {
+          return sendResponse(res, 500, null, "Admin email is not configured");
+        }
+
+        if (submittedEmail !== configuredEmail) {
+          return sendResponse(res, 401, null, "Invalid email or password");
+        }
+
         const isValid = await verifyPassword(password);
         if (isValid) {
-          return sendResponse(res, 200, { success: true, role: "superadmin" });
+          return sendResponse(res, 200, { success: true, role: "superadmin", token: createAdminSessionToken({ role: "superadmin" }) });
         }
-        return sendResponse(res, 401, null, "Invalid password");
+        return sendResponse(res, 401, null, "Invalid email or password");
       }
 
       // Role-based login
-      const adminUser = await getStorageInstance().getAdminUserByUsername(username);
+      const normalizedUsername = String(username).trim().toLowerCase();
+      const adminUser = await getStorageInstance().getAdminUserByUsername(normalizedUsername);
       
       // Fallback for "admin" username if no user found
-      if (!adminUser && username === "admin") {
+      if (!adminUser && normalizedUsername === "admin") {
         const isValid = await verifyPassword(password);
-        if (isValid) return sendResponse(res, 200, { success: true, role: "superadmin", username });
+        if (isValid) return sendResponse(res, 200, { success: true, role: "superadmin", username: normalizedUsername, token: createAdminSessionToken({ role: "superadmin", username: normalizedUsername }) });
       }
 
       if (!adminUser) return sendResponse(res, 401, null, "Invalid username or password");
@@ -180,7 +233,7 @@ export async function registerRoutes(app) {
       const isValid = await comparePassword(password, adminUser.password);
       if (isValid) {
         const { password: _, ...userWithoutPassword } = adminUser;
-        sendResponse(res, 200, { success: true, role: adminUser.role, user: userWithoutPassword });
+        sendResponse(res, 200, { success: true, role: adminUser.role, user: userWithoutPassword, token: createAdminSessionToken({ role: adminUser.role, userId: adminUser.id, username: adminUser.username }) });
       } else {
         sendResponse(res, 401, null, "Invalid username or password");
       }
@@ -210,7 +263,7 @@ export async function registerRoutes(app) {
   });
 
   // Admin Users CRUD
-  app.get("/api/admin/users", async (_req, res) => {
+  app.get("/api/admin/users", requireSuperAdmin, async (_req, res) => {
     try {
       const users = await getStorageInstance().getAdminUsers();
       const safeUsers = users.map(u => {
@@ -223,7 +276,7 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.post("/api/admin/users", async (req, res) => {
+  app.post("/api/admin/users", requireSuperAdmin, async (req, res) => {
     try {
       const result = insertAdminUserSchema.safeParse(req.body);
       if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
@@ -241,10 +294,27 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.patch("/api/admin/users/:id", async (req, res) => {
+  app.patch("/api/admin/users/:id", requireSuperAdmin, async (req, res) => {
     try {
       const result = updateAdminUserSchema.safeParse(req.body);
       if (!result.success) return sendResponse(res, 400, null, fromZodError(result.error).message);
+
+      const currentUser = await getStorageInstance().getAdminUser(req.params.id);
+      if (!currentUser) return sendResponse(res, 404, null, "User not found");
+
+      if (result.data.username) {
+        const existing = await getStorageInstance().getAdminUserByUsername(result.data.username);
+        if (existing && existing.id !== req.params.id) {
+          return sendResponse(res, 400, null, "Username already exists");
+        }
+      }
+
+      if (currentUser.role === "superadmin" && result.data.role && result.data.role !== "superadmin") {
+        const users = await getStorageInstance().getAdminUsers();
+        if (users.filter((user) => user.role === "superadmin").length <= 1) {
+          return sendResponse(res, 400, null, "At least one super admin is required");
+        }
+      }
 
       const userData = { ...result.data };
       if (userData.password) {
@@ -259,8 +329,16 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.delete("/api/admin/users/:id", async (req, res) => {
+  app.delete("/api/admin/users/:id", requireSuperAdmin, async (req, res) => {
     try {
+      const user = await getStorageInstance().getAdminUser(req.params.id);
+      if (!user) return sendResponse(res, 404, null, "User not found");
+      if (user.role === "superadmin") {
+        const users = await getStorageInstance().getAdminUsers();
+        if (users.filter((item) => item.role === "superadmin").length <= 1) {
+          return sendResponse(res, 400, null, "At least one super admin is required");
+        }
+      }
       const success = await getStorageInstance().deleteAdminUser(req.params.id);
       if (!success) return sendResponse(res, 404, null, "User not found");
       sendResponse(res, 204, { success: true });
@@ -601,6 +679,7 @@ export async function registerRoutes(app) {
 
       const result = insertCompanyInfoSchema.partial().extend({
         heroImages: z.array(z.string()).optional(),
+        workVideos: z.array(z.string().url()).max(12).optional(),
         contactEmail: z.string().email().optional().or(z.literal("")),
         contactPhone: z.string().optional().or(z.literal("")),
       }).safeParse(sanitizedBody);

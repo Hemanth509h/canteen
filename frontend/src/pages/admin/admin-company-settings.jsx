@@ -37,6 +37,13 @@ export default function CompanySettingsManager() {
       heroImage1: companyInfo.heroImages?.[0] || "",
       heroImage2: companyInfo.heroImages?.[1] || "",
       heroImage3: companyInfo.heroImages?.[2] || "",
+      ownerName: companyInfo.ownerName || "",
+      ownerRole: companyInfo.ownerRole || "",
+      ownerBio: companyInfo.ownerBio || "",
+      ownerImageUrl: companyInfo.ownerImageUrl || "",
+      ownerPhone: companyInfo.ownerPhone || "",
+      ownerEmail: companyInfo.ownerEmail || "",
+      workVideosText: (companyInfo.workVideos || []).join("\n"),
     } : {
       companyName: "",
       tagline: "",
@@ -53,6 +60,13 @@ export default function CompanySettingsManager() {
       heroImage1: "",
       heroImage2: "",
       heroImage3: "",
+      ownerName: "",
+      ownerRole: "Founder & Catering Specialist",
+      ownerBio: "",
+      ownerImageUrl: "",
+      ownerPhone: "",
+      ownerEmail: "",
+      workVideosText: "",
     },
   });
 
@@ -74,6 +88,13 @@ export default function CompanySettingsManager() {
       heroImage1: companyInfo.heroImages?.[0] || "",
       heroImage2: companyInfo.heroImages?.[1] || "",
       heroImage3: companyInfo.heroImages?.[2] || "",
+      ownerName: companyInfo.ownerName || "",
+      ownerRole: companyInfo.ownerRole || "",
+      ownerBio: companyInfo.ownerBio || "",
+      ownerImageUrl: companyInfo.ownerImageUrl || "",
+      ownerPhone: companyInfo.ownerPhone || "",
+      ownerEmail: companyInfo.ownerEmail || "",
+      workVideosText: (companyInfo.workVideos || []).join("\n"),
     });
   }, [companyInfo, form]);
 
@@ -111,11 +132,12 @@ export default function CompanySettingsManager() {
   };
 
   const toCompanyInfoPayload = (data) => {
-    const { heroImage1, heroImage2, heroImage3, ...companyData } = data;
+    const { heroImage1, heroImage2, heroImage3, workVideosText, ...companyData } = data;
     const heroImages = [heroImage1, heroImage2, heroImage3].filter(Boolean);
     return {
       ...companyData,
       heroImages,
+      workVideos: String(workVideosText || "").split("\n").map((url) => url.trim()).filter(Boolean),
     };
   };
 
@@ -489,6 +511,29 @@ export default function CompanySettingsManager() {
                     </div>
                   </div>
                 </div>
+
+                <Card className="border-border/60 bg-muted/20">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                      <Building2 className="h-5 w-5 text-primary" />
+                      <div>
+                        <CardTitle className="text-lg">Owner Details & Work Videos</CardTitle>
+                        <CardDescription>Content for the owner profile and video showcase on the customer home page.</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField control={form.control} name="ownerName" render={({ field }) => <FormItem><FormLabel>Owner Name</FormLabel><FormControl><Input placeholder="Owner's full name" {...field} /></FormControl><FormMessage /></FormItem>} />
+                      <FormField control={form.control} name="ownerRole" render={({ field }) => <FormItem><FormLabel>Owner Role</FormLabel><FormControl><Input placeholder="Founder & Catering Specialist" {...field} /></FormControl><FormMessage /></FormItem>} />
+                      <FormField control={form.control} name="ownerPhone" render={({ field }) => <FormItem><FormLabel>Owner Phone</FormLabel><FormControl><Input type="tel" placeholder="Contact number" {...field} /></FormControl><FormMessage /></FormItem>} />
+                      <FormField control={form.control} name="ownerEmail" render={({ field }) => <FormItem><FormLabel>Owner Email</FormLabel><FormControl><Input type="email" placeholder="owner@example.com" {...field} /></FormControl><FormMessage /></FormItem>} />
+                    </div>
+                    <FormField control={form.control} name="ownerImageUrl" render={({ field }) => <FormItem><FormLabel>Owner Photo URL</FormLabel><FormControl><Input placeholder="https://example.com/owner.jpg" {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name="ownerBio" render={({ field }) => <FormItem><FormLabel>Owner Bio</FormLabel><FormControl><Textarea rows={4} placeholder="Introduce the owner and their experience..." {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name="workVideosText" render={({ field }) => <FormItem><FormLabel>Work Video URLs (one per line)</FormLabel><FormControl><Textarea rows={5} placeholder={"https://youtube.com/watch?v=...\nhttps://example.com/event.mp4"} {...field} /></FormControl><p className="mt-1 text-xs text-muted-foreground">Add each new daily video on a separate line. Supports YouTube, Vimeo, direct MP4/WebM files, and external links. Remove the sample links when your own videos are ready.</p><FormMessage /></FormItem>} />
+                  </CardContent>
+                </Card>
 
                 <Card className="border-border/60 bg-muted/20">
                   <CardHeader className="pb-4">

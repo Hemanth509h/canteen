@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, Lock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { isAdminAuthenticated, setAdminSession } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
@@ -79,7 +79,7 @@ export default function AdminLogin() {
       const data = await response.json();
       if (data.success || data.data?.success) {
         const payload = data.data || data;
-        setAdminSession({ role: payload.role || "superadmin", user: payload.user || null });
+        setAdminSession({ role: payload.role || "superadmin", user: payload.user || null, token: payload.token || null });
         setLocation("/admin");
       } else {
         toast({
@@ -130,7 +130,7 @@ export default function AdminLogin() {
                 Admin Portal
               </CardTitle>
               <CardDescription className="mt-2 font-jakarta">
-                Enter your credentials to access the management panel
+                Enter your admin username and password to access the management panel
               </CardDescription>
             </div>
           </CardHeader>
@@ -140,14 +140,16 @@ export default function AdminLogin() {
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-jakarta font-medium">Username</Label>
                 <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder="Enter admin username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    required
                     autoComplete="username"
-                    className="h-12 font-jakarta rounded-xl border-border/60 focus:ring-2 focus:ring-primary/20"
+                    className="pl-10 h-12 font-jakarta rounded-xl border-border/60 focus:ring-2 focus:ring-primary/20"
                     data-testid="input-username"
                   />
                 </div>

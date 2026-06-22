@@ -95,6 +95,13 @@ export const insertCompanyInfoSchema = z.object({
   websiteUrl: z.string().url("Please enter a valid website URL").optional(),
   upiId: z.string().regex(/^[\w\-@.]+$/, "Invalid UPI ID format").optional(),
   minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
+  ownerName: z.string().max(100).optional(),
+  ownerRole: z.string().max(100).optional(),
+  ownerBio: z.string().max(2000).optional(),
+  ownerImageUrl: z.string().optional(),
+  ownerPhone: z.string().max(30).optional(),
+  ownerEmail: z.string().email().optional().or(z.literal("")),
+  workVideos: z.array(z.string().url()).max(12).optional(),
 });
 
 export const insertStaffSchema = z.object({

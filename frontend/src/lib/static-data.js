@@ -13,6 +13,13 @@ export const STATIC_COMPANY_INFO = {
   eventsPerYear: branding.eventsPerYear,
   address: branding.address,
   email: branding.email,
+  ownerName: branding.ownerName,
+  ownerRole: branding.ownerRole,
+  ownerBio: branding.ownerBio,
+  ownerImageUrl: branding.ownerImageUrl,
+  ownerPhone: branding.ownerPhone,
+  ownerEmail: branding.ownerEmail,
+  workVideos: branding.workVideos,
   currency: "₹",
   currencySymbol: "₹"
 };

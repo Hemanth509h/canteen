@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Switch, Route, Link, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
@@ -21,6 +21,7 @@ import StaffPaymentsListPage from "@/pages/staff/staff-payments-list";
 import NotFound from "@/pages/not-found";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
 import branding from "@/lib/branding.json";
+import { clearAdminSession } from "@/lib/auth";
 
 function Router() {
   return (
@@ -53,12 +54,21 @@ function Router() {
 
 function AppContent() {
   const [location] = useLocation();
+  const previousLocationRef = useRef(location);
   const { data: companyInfo } = useQuery({ 
     queryKey: ["/api/company-info"],
     staleTime: 1000 * 60 * 5, // 5 minutes
     placeholderData: STATIC_COMPANY_INFO,
   });
   const { toast } = useToast();
+
+  useEffect(() => {
+    const previousLocation = previousLocationRef.current;
+    if (previousLocation.startsWith("/admin") && !location.startsWith("/admin")) {
+      clearAdminSession();
+    }
+    previousLocationRef.current = location;
+  }, [location]);
 
   useEffect(() => {
     const handlePayment = (data) => {

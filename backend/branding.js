@@ -25,6 +25,16 @@ const fallbackBranding = {
   ],
   contactEmail: "phemanthkumar509@gmail.com",
   contactPhone: "9177319695",
+  ownerName: "",
+  ownerRole: "Founder & Catering Specialist",
+  ownerBio: "",
+  ownerImageUrl: "",
+  ownerPhone: "",
+  ownerEmail: "",
+  workVideos: [
+    "https://www.youtube.com/watch?v=nX4d1xYeNgU",
+    "https://vimeo.com/1161593035",
+  ],
 };
 
 export function readBrandingFile() {

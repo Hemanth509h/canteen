@@ -9,6 +9,7 @@ export const SITE_CONTENT_UPDATED_EVENT = "site-content-updated";
 export const defaultSiteContent = {
   branding: defaultBranding,
   menuItems: defaultMenuItems,
+  reviews: Array.isArray(defaultBranding.reviews) ? defaultBranding.reviews : [],
 };
 
 function normalizeContent(content) {
@@ -19,8 +20,16 @@ function normalizeContent(content) {
       heroImages: Array.isArray(content?.branding?.heroImages)
         ? content.branding.heroImages.filter(Boolean)
         : defaultBranding.heroImages,
+      workVideos: Array.isArray(content?.branding?.workVideos)
+        ? content.branding.workVideos.filter(Boolean)
+        : defaultBranding.workVideos,
     },
     menuItems: Array.isArray(content?.menuItems) ? content.menuItems : defaultMenuItems,
+    reviews: Array.isArray(content?.reviews)
+      ? content.reviews
+      : Array.isArray(content?.branding?.reviews)
+        ? content.branding.reviews
+        : defaultSiteContent.reviews,
   };
 }
 

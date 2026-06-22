@@ -110,6 +110,13 @@ export const insertCompanyInfoSchema = z.object({
   minAdvanceBookingDays: z.number().int().min(0).max(30).default(2).optional(),
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format").optional(),
   logoUrl: z.string().min(1, "Logo URL is required").or(z.string().length(0)).optional().nullable(),
+  ownerName: z.string().max(100, "Owner name too long").optional(),
+  ownerRole: z.string().max(100, "Owner role too long").optional(),
+  ownerBio: z.string().max(2000, "Owner bio too long").optional(),
+  ownerImageUrl: z.string().optional(),
+  ownerPhone: z.string().max(30).optional(),
+  ownerEmail: z.string().email("Please enter a valid owner email").optional().or(z.literal("")),
+  workVideos: z.array(z.string().url("Each work video must be a valid URL")).max(12).optional(),
 });
 
 // ==================== STAFF ====================
@@ -213,7 +220,7 @@ export const sendPaymentLinkEmailSchema = z.object({
 // ==================== ADMIN USERS (RBAC) ====================
 
 export const insertAdminUserSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters").max(50).transform(sanitizeName),
+  username: z.string().min(3, "Username must be at least 3 characters").max(50).transform((value) => sanitizeName(value).toLowerCase()),
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["superadmin", "accountant", "chef"]).default("accountant"),
   name: z.string().max(100).optional().default(""),

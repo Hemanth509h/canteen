@@ -9,7 +9,9 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
     "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=1200&auto=format&fit=crop"
   ];
   
-  const imagesList = heroImages?.length >= 3 ? heroImages : defaultImages;
+  const imagesList = heroImages?.length
+    ? [...heroImages, ...defaultImages].slice(0, 3)
+    : defaultImages;
   
   const [currentIndex, setCurrentIndex] = useState(0);
 

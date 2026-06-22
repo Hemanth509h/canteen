@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCart } from "@/lib/cart-context";
 import { Phone } from "lucide-react";
 
@@ -13,6 +13,7 @@ import Hero from "./components/hero";
 import Features from "./components/features";
 import MenuSection from "./components/menu-section";
 import Testimonials from "./components/testimonials";
+import OwnerAndVideos from "./components/owner-and-videos";
 import Footer from "./components/footer";
 import CustomerDashboardView from "./components/customer-dashboard-view";
 
@@ -20,6 +21,7 @@ export default function CustomerHome() {
   const [view, setView] = useState("home");
   const { addToCart, cartItems } = useCart();
   const [selectedItem, setSelectedItem] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: foodItems, isLoading: isLoadingFood } = useQuery({
     queryKey: ["/api/food-items"],
@@ -52,6 +54,24 @@ export default function CustomerHome() {
     placeholderData: STATIC_REVIEWS,
     refetchOnWindowFocus: false
   });
+  const reviewMutation = useMutation({
+    mutationFn: async (review) => {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(review),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Failed to add review");
+      return data.data || data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
+    },
+  });
 
   const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
   const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;
@@ -72,6 +92,7 @@ export default function CustomerHome() {
           eventsPerYear={companyInfo?.eventsPerYear}
         />
         <Features />
+        <OwnerAndVideos companyInfo={companyInfo} />
         <MenuSection
           foodItems={foodItems}
           isLoading={isLoadingFood}
@@ -79,7 +100,11 @@ export default function CustomerHome() {
           addToCart={addToCart}
           cartItems={cartItems}
         />
-        <Testimonials reviews={reviews} />
+        <Testimonials
+          reviews={reviews}
+          onSubmitReview={(review) => reviewMutation.mutateAsync(review)}
+          isSubmittingReview={reviewMutation.isPending}
+        />
         <Footer companyInfo={companyInfo} logoSrc={logoSrc} setView={setView} />
       </main>
 

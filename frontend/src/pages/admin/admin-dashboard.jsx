@@ -307,6 +307,7 @@ export default function AdminDashboard() {
                 <Route path="/admin/bookings" component={BookingsManager} />
                 {/* Remove the internal payment route as it's now handled by the main App router */}
                 <Route path="/admin/staff" component={StaffManager} />
+                <Route path="/admin/users"><Redirect to="/admin/account" /></Route>
                 <Route path="/admin/chef-printout" component={ChefPrintout} />
                 <Route path="/admin/company-info" component={CompanySettingsManager} />
                 <Route path="/admin/branding"><Redirect to="/admin/company-info" /></Route>
