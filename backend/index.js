@@ -6,6 +6,7 @@ import helmet from "helmet";
 import { registerRoutes } from "./routes.js";
 import { connectToDatabase, getStorage } from "./db.js";
 import { seedBrandingFromFile } from "./branding.js";
+import { hashPassword } from "./password-manager.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -66,6 +67,27 @@ function log(message, source = "express") {
   });
 
   console.log(`${formattedTime} [${source}] ${message}`);
+}
+
+async function seedInitialAdminUser(storage) {
+  const users = await storage.getAdminUsers();
+  if (users.length > 0) return;
+
+  const username = String(process.env.ADMIN_USERNAME || "").trim().toLowerCase();
+  const password = String(process.env.ADMIN_PASSWORD || "");
+
+  if (!username || !password) {
+    console.warn("No admin users found. Set ADMIN_USERNAME and ADMIN_PASSWORD once to seed the first MongoDB admin user.");
+    return;
+  }
+
+  await storage.createAdminUser({
+    username,
+    password: await hashPassword(password),
+    role: "superadmin",
+    name: process.env.ADMIN_NAME || "Super Admin",
+  });
+  console.log(`Seeded initial MongoDB admin user: ${username}`);
 }
 
 // Debug log for incoming requests
@@ -141,7 +163,9 @@ app.use((req, res, next) => {
 const startServer = async () => {
   try {
     await connectToDatabase();
-    await seedBrandingFromFile(getStorage());
+    const storage = getStorage();
+    await seedBrandingFromFile(storage);
+    await seedInitialAdminUser(storage);
     await registerRoutes(app);
 
     const port = process.env.PORT || 3000;

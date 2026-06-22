@@ -53,8 +53,8 @@ const blankReview = {
 };
 
 const ADMIN_AUTH_KEY = "frontend2AdminAuthenticated";
-const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "admin123";
+const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME;
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 
 function Field({ label, children }) {
   return (
@@ -328,6 +328,10 @@ export default function AdminContent() {
 
   const handleLogin = (event) => {
     event.preventDefault();
+    if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+      setLoginError("Admin credentials are not configured.");
+      return;
+    }
     if (normalizeValue(username) === normalizeValue(ADMIN_USERNAME) && password === ADMIN_PASSWORD) {
       localStorage.setItem(ADMIN_AUTH_KEY, "true");
       setIsAuthenticated(true);

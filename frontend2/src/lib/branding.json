@@ -26,21 +26,5 @@
   "workVideos": [
     "https://www.youtube.com/watch?v=nX4d1xYeNgU",
     "https://vimeo.com/1161593035"
-  ],
-  "reviews": [
-    {
-      "id": "review-1",
-      "customerName": "Priya Sharma",
-      "eventType": "Wedding",
-      "rating": 5,
-      "comment": "The food, service, and presentation were excellent. Our guests kept asking who handled the catering."
-    },
-    {
-      "id": "review-2",
-      "customerName": "Rahul Varma",
-      "eventType": "Birthday Party",
-      "rating": 5,
-      "comment": "Everything arrived on time and tasted fresh. The team handled the event very professionally."
-    }
   ]
 }

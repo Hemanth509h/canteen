@@ -6,6 +6,7 @@ import { Phone } from "lucide-react";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { STATIC_COMPANY_INFO, STATIC_REVIEWS } from "@/lib/static-data";
+import { cacheSubmittedReview } from "@/lib/review-cache";
 import localMenuItems from "@/lib/menu.json";
 
 import Navbar from "./components/navbar";
@@ -68,7 +69,8 @@ export default function CustomerHome() {
       if (!response.ok) throw new Error(data.error || "Failed to add review");
       return data.data || data;
     },
-    onSuccess: () => {
+    onSuccess: (review) => {
+      cacheSubmittedReview(review);
       queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
     },
   });

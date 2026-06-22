@@ -36,7 +36,7 @@ import {
 } from "./schema.js";
 
 import { fromZodError } from "zod-validation-error";
-import { verifyPassword, updatePassword, hashPassword, comparePassword } from "./password-manager.js";
+import { hashPassword, comparePassword } from "./password-manager.js";
 import { z } from "zod";
 
 const getStorageInstance = () => getStorage();
@@ -45,7 +45,7 @@ const rateLimitBuckets = new Map();
 const staffOtpCodes = new Map();
 const staffPasswordResetTokens = new Map();
 
-const adminSessionSecret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD_HASH || process.env.ADMIN_PASSWORD || "admin123";
+const adminSessionSecret = process.env.ADMIN_SESSION_SECRET || randomUUID();
 
 function createAdminSessionToken({ role, userId = null, username = "admin" }) {
   const payload = Buffer.from(JSON.stringify({ role, userId, username, exp: Date.now() + 24 * 60 * 60 * 1000 })).toString("base64url");
@@ -73,6 +73,14 @@ function requireSuperAdmin(req, res, next) {
   const session = verifyAdminSessionToken(token);
   if (!session) return res.status(401).json({ success: false, data: null, error: "Admin session required" });
   if (session.role !== "superadmin") return res.status(403).json({ success: false, data: null, error: "Super admin access required" });
+  req.adminSession = session;
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
+  const session = verifyAdminSessionToken(token);
+  if (!session) return res.status(401).json({ success: false, data: null, error: "Admin session required" });
   req.adminSession = session;
   next();
 }
@@ -191,43 +199,11 @@ export async function registerRoutes(app) {
 
   app.post("/api/admin/login", authRateLimit, async (req, res) => {
     try {
-      const { email, username, password } = req.body;
-      
-      // Support single-admin login with email + password.
-      if (!username) {
-        const branding = await readBranding();
-        const configuredEmail = normalizeEmail(process.env.ADMIN_EMAIL || branding?.contactEmail || branding?.email);
-        const submittedEmail = normalizeEmail(email);
+      const { username, password } = req.body;
+      if (!username || !password) return sendResponse(res, 400, null, "Username and password are required");
 
-        if (!submittedEmail) {
-          return sendResponse(res, 400, null, "Admin email is required");
-        }
-
-        if (!configuredEmail) {
-          return sendResponse(res, 500, null, "Admin email is not configured");
-        }
-
-        if (submittedEmail !== configuredEmail) {
-          return sendResponse(res, 401, null, "Invalid email or password");
-        }
-
-        const isValid = await verifyPassword(password);
-        if (isValid) {
-          return sendResponse(res, 200, { success: true, role: "superadmin", token: createAdminSessionToken({ role: "superadmin" }) });
-        }
-        return sendResponse(res, 401, null, "Invalid email or password");
-      }
-
-      // Role-based login
       const normalizedUsername = String(username).trim().toLowerCase();
       const adminUser = await getStorageInstance().getAdminUserByUsername(normalizedUsername);
-      
-      // Fallback for "admin" username if no user found
-      if (!adminUser && normalizedUsername === "admin") {
-        const isValid = await verifyPassword(password);
-        if (isValid) return sendResponse(res, 200, { success: true, role: "superadmin", username: normalizedUsername, token: createAdminSessionToken({ role: "superadmin", username: normalizedUsername }) });
-      }
-
       if (!adminUser) return sendResponse(res, 401, null, "Invalid username or password");
 
       const isValid = await comparePassword(password, adminUser.password);
@@ -242,20 +218,23 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.post("/api/admin/change-password", async (req, res) => {
+  app.post("/api/admin/change-password", requireAdmin, async (req, res) => {
     try {
       const { currentPassword, newPassword } = req.body;
       if (!currentPassword || !newPassword) {
         return sendResponse(res, 400, null, "Current password and new password are required");
       }
-      const isCurrentPasswordValid = await verifyPassword(currentPassword);
+      const currentUser = await getStorageInstance().getAdminUser(req.adminSession.userId);
+      if (!currentUser) return sendResponse(res, 404, null, "Admin user not found");
+
+      const isCurrentPasswordValid = await comparePassword(currentPassword, currentUser.password);
       if (!isCurrentPasswordValid) {
         return sendResponse(res, 401, null, "Current password is incorrect");
       }
       if (newPassword.length < 6) {
         return sendResponse(res, 400, null, "New password must be at least 6 characters");
       }
-      await updatePassword(newPassword);
+      await getStorageInstance().updateAdminUser(currentUser.id, { password: await hashPassword(newPassword) });
       sendResponse(res, 200, { success: true, message: "Password changed successfully" });
     } catch (error) {
       sendResponse(res, 500, null, "Failed to change password");

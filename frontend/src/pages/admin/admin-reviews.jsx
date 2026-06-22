@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Plus, Pencil, Trash2, Star, Search, RefreshCw } from "lucide-react";
 import { insertCustomerReviewSchema, updateCustomerReviewSchema } from "@/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { socket } from "@/lib/socket";
+import { getCachedReviews, REVIEW_CACHE_EVENT } from "@/lib/review-cache";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
 import { EmptyState } from "@/components/features/empty-state";
 import { PageLoader, TableSkeleton } from "@/components/features/loading-spinner";
@@ -37,6 +39,7 @@ export default function ReviewsManager() {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [deleteTargetName, setDeleteTargetName] = useState("");
+  const [cachedReviews, setCachedReviews] = useState(() => getCachedReviews());
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const { toast } = useToast();
 
@@ -44,7 +47,41 @@ export default function ReviewsManager() {
     queryKey: ["/api/reviews"],
   });
 
-  const filteredReviews = (reviews || []).filter((review) => {
+  useEffect(() => {
+    const handleNewReview = () => {
+      setCachedReviews(getCachedReviews());
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
+      toast({
+        title: "New Review Submitted",
+        description: "A customer review was added from the website.",
+      });
+    };
+
+    socket.on("review:new", handleNewReview);
+    return () => {
+      socket.off("review:new", handleNewReview);
+    };
+  }, [toast]);
+
+  useEffect(() => {
+    const refreshCachedReviews = (event) => {
+      setCachedReviews(event?.detail || getCachedReviews());
+    };
+
+    window.addEventListener(REVIEW_CACHE_EVENT, refreshCachedReviews);
+    window.addEventListener("storage", refreshCachedReviews);
+    return () => {
+      window.removeEventListener(REVIEW_CACHE_EVENT, refreshCachedReviews);
+      window.removeEventListener("storage", refreshCachedReviews);
+    };
+  }, []);
+
+  const allReviews = [
+    ...cachedReviews,
+    ...(reviews || []).filter((review) => !cachedReviews.some((cached) => cached.id === review.id)),
+  ];
+
+  const filteredReviews = allReviews.filter((review) => {
     const matchesSearch = (review.customerName || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
       (review.eventType || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
       (review.comment || "").toLowerCase().includes(debouncedSearch.toLowerCase());
@@ -64,7 +101,9 @@ export default function ReviewsManager() {
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      return apiRequest("POST", "/api/reviews", data);
+      const response = await apiRequest("POST", "/api/reviews", data);
+      const result = await response.json();
+      return result.data || result;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
@@ -329,7 +368,7 @@ export default function ReviewsManager() {
               <div>
                 <CardTitle>Reviews</CardTitle>
                 <CardDescription>
-                  {filteredReviews?.length || 0} of {reviews?.length || 0} reviews
+                  {filteredReviews?.length || 0} of {allReviews?.length || 0} reviews
                 </CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
