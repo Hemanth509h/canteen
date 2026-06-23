@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Switch, Route, Link, useLocation } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -13,11 +13,6 @@ import BookingSuccess from "@/pages/customer/booking-success";
 import AdminLogin from "@/pages/admin/admin-login";
 import AdminDashboard from "@/pages/admin/admin-dashboard";
 import AdminPaymentConfirmation from "@/pages/admin/admin-payment";
-import PaymentConfirmation from "@/pages/staff/payment-confirmation";
-import StaffLogin from "@/pages/staff/staff-login";
-import StaffDashboard from "@/pages/staff/staff-dashboard";
-import StaffPaymentPage from "@/pages/staff/staff-payment";
-import StaffPaymentsListPage from "@/pages/staff/staff-payments-list";
 import NotFound from "@/pages/not-found";
 import { STATIC_COMPANY_INFO } from "@/lib/static-data";
 import branding from "@/lib/branding.json";
@@ -28,16 +23,7 @@ function Router() {
     <Switch>
       <Route path="/" component={CustomerHome} />
       <Route path="/booking-success" component={BookingSuccess} />
-      <Route path="/payment/:bookingId">
-        {(params) => <PaymentConfirmation bookingId={params.bookingId} />}
-      </Route>
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/staff/login" component={StaffLogin} />
-      <Route path="/staff/dashboard" component={StaffDashboard} />
-      <Route path="/staff/payments" component={StaffPaymentsListPage} />
-      <Route path="/staff/payment/:bookingId">
-        {(params) => <StaffPaymentPage bookingId={params.bookingId} />}
-      </Route>
       {/* Specific admin routes must come BEFORE the generic /admin/:rest* catch-all */}
       <Route path="/admin/bookings/payment/:bookingId">
         {(params) => <AdminPaymentConfirmation bookingId={params.bookingId} />}
@@ -57,7 +43,7 @@ function AppContent() {
   const previousLocationRef = useRef(location);
   const { data: companyInfo } = useQuery({ 
     queryKey: ["/api/company-info"],
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
     placeholderData: STATIC_COMPANY_INFO,
   });
   const { toast } = useToast();
@@ -73,7 +59,6 @@ function AppContent() {
   useEffect(() => {
     const handlePayment = (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/staff/assignments"] });
       if (location.startsWith("/admin")) {
         toast({
           title: "Payment Received!",
@@ -97,10 +82,6 @@ function AppContent() {
       pageTitle = companyInfo?.tagline ? ` | ${companyInfo.tagline}` : "";
     } else if (location.startsWith("/admin")) {
       pageTitle = " | Admin Portal";
-    } else if (location.startsWith("/payment/")) {
-      pageTitle = " | Payment Confirmation";
-    } else if (location.startsWith("/staff")) {
-      pageTitle = " | Staff Portal";
     } else if (location.startsWith("/admin/bookings/payment/")) {
       pageTitle = " | Payment Confirmation";
     }
