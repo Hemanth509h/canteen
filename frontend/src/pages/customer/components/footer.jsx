@@ -1,9 +1,10 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Instagram, Facebook, Twitter, Lock, MapPin, Phone, Clock } from "lucide-react";
 import { Reveal } from "@/components/layout/reveal";
 import branding from "@/lib/branding.json";
 
 export default function Footer({ companyInfo, logoSrc, setView }) {
+  const [, navigate] = useLocation();
   const companyName = companyInfo?.companyName || branding.companyName;
   const tagline = companyInfo?.tagline || branding.tagline;
   const phone = companyInfo?.phoneNumber || companyInfo?.phone || companyInfo?.contactPhone || branding.contactPhone || branding.phone;
@@ -32,9 +33,22 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
           <Reveal delay={200}>
             <p className="font-jakarta font-bold text-white text-sm uppercase tracking-widest mb-4">Navigate</p>
             <div className="flex flex-col gap-3 text-sm font-jakarta">
-              <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-left hover:text-amber-400 transition-colors">Home</button>
-              <button onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })} className="text-left hover:text-amber-400 transition-colors">Menu</button>
-              <button onClick={() => setView("bookings")} className="text-left hover:text-amber-400 transition-colors">My Bookings</button>
+                <Link href="/" className="text-left hover:text-amber-400 transition-colors">Home</Link>
+              <Link href="/#menu" className="text-left hover:text-amber-400 transition-colors">Menu</Link>
+              <Link href="/about-us" className="text-left hover:text-amber-400 transition-colors">About Us</Link>
+              <Link href="/gallery" className="text-left hover:text-amber-400 transition-colors">Event Gallery</Link>
+              <button
+                onClick={() => {
+                  if (setView) {
+                    setView("bookings");
+                  } else {
+                    navigate("/");
+                  }
+                }}
+                className="text-left hover:text-amber-400 transition-colors"
+              >
+                My Bookings
+              </button>
               <Link href="/admin/login" className="hover:text-amber-400 transition-colors flex items-center gap-2">
                 <Lock size={12} /> Admin Portal
               </Link>
@@ -59,6 +73,10 @@ export default function Footer({ companyInfo, logoSrc, setView }) {
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-jakarta">
           <p>© 2025 {companyName}. All rights reserved.</p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/privacy-policy" className="text-zinc-400 hover:text-amber-400 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="text-zinc-400 hover:text-amber-400 transition-colors">Terms & Conditions</Link>
+          </div>
           {phone && (
             <a href={`tel:${phone.replace(/\D/g, "")}`} className="flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
               <Phone size={13} /> Call Us Now

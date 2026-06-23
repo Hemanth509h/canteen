@@ -1,30 +1,45 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Menu, X, ChevronRight, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 import branding from "@/lib/branding.json";
 
-export default function Navbar({ companyName, logoSrc, setView }) {
+export default function Navbar({ companyName, logoSrc, setView, onLogoClick }) {
+  const [location, navigate] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: "Menu", id: "menu" },
-    { label: "About", id: "about" },
-    { label: "Contact", id: "contact" },
+    { label: "Menu", id: "menu", href: "/#menu" },
+    { label: "About", id: "about", href: "/#about" },
+    { label: "Contact", id: "contact", href: "/#contact" },
   ];
 
-  const handleNavClick = (id) => {
+  const handleNavClick = (item) => {
     setMobileMenuOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    if (location === "/") {
+      document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate(item.href);
+    }
+  };
+
+  const handleLogoClick = () => {
+    if (onLogoClick) {
+      onLogoClick();
+    } else if (setView) {
+      setView("home");
+      setMobileMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
     <>
       <nav className="fade-in fixed left-1/2 top-4 z-50 w-[92%] max-w-4xl -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg shadow-zinc-900/5 backdrop-blur-xl transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950/92 dark:shadow-black/25">
         <div className="flex h-14 w-full items-center justify-between gap-5 px-4 sm:px-6">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setView("home"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={handleLogoClick}>
             {logoSrc ? (
               <img src={logoSrc} alt={companyName || branding.companyName} className="h-8 w-8 object-contain" />
             ) : (
@@ -47,7 +62,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => handleNavClick(item.id)}
+                onClick={() => handleNavClick(item)}
                 className="relative py-2 transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-amber-500 after:transition-all hover:text-zinc-950 hover:after:w-full dark:hover:text-white"
               >
                 {item.label}
@@ -79,7 +94,7 @@ export default function Navbar({ companyName, logoSrc, setView }) {
               {navItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => handleNavClick(item.id)}
+                  onClick={() => handleNavClick(item)}
                   className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-900 text-base font-jakarta font-medium text-zinc-900 dark:text-white transition-colors"
                 >
                   {item.label}

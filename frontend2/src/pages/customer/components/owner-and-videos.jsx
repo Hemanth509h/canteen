@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, ExternalLink, Mail, Phone, Play, UserRound } from "lucide-react";
 
 import { Reveal } from "@/components/layout/reveal";
@@ -173,28 +174,34 @@ export default function OwnerAndVideos({ companyInfo }) {
               )}
             </div>
           </Reveal>
-          <Reveal delay={150}>
-            <p className="mb-3 font-jakarta text-xs font-bold uppercase tracking-[0.25em] text-amber-600">Meet the owner</p>
-            <h2 className="font-playfair text-4xl font-bold text-zinc-900 dark:text-white sm:text-5xl">{ownerName}</h2>
-            <p className="mt-3 font-jakarta font-semibold text-amber-600">{ownerRole}</p>
-            <p className="mt-6 max-w-2xl font-jakarta leading-8 text-zinc-600 dark:text-zinc-300">{ownerBio}</p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              {ownerPhone && <a href={`tel:${ownerPhone.replace(/\D/g, "")}`} className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-3 text-sm font-bold text-white hover:bg-amber-600 dark:bg-white dark:text-zinc-900"><Phone size={16} /> {ownerPhone}</a>}
-              {ownerEmail && <a href={`mailto:${ownerEmail}`} className="inline-flex items-center gap-2 rounded-full border border-zinc-300 px-5 py-3 text-sm font-bold text-zinc-800 hover:border-amber-500 hover:text-amber-600 dark:border-zinc-700 dark:text-zinc-100"><Mail size={16} /> Email owner</a>}
-            </div>
-          </Reveal>
+          <Link href="/about-us">
+            <Reveal delay={150} className="hover:opacity-80 transition-opacity cursor-pointer">
+              <p className="mb-3 font-jakarta text-xs font-bold uppercase tracking-[0.25em] text-amber-600">Meet the owner</p>
+              <h2 className="font-playfair text-4xl font-bold text-zinc-900 dark:text-white sm:text-5xl">{ownerName}</h2>
+              <p className="mt-3 font-jakarta font-semibold text-amber-600">{ownerRole}</p>
+              <p className="mt-6 max-w-2xl font-jakarta leading-8 text-zinc-600 dark:text-zinc-300">{ownerBio}</p>
+              <div className="mt-7 flex flex-wrap gap-3 items-center">
+                <span className="inline-flex items-center justify-center rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-amber-500/20">Read Founder Story</span>
+                {ownerPhone && <a href={`tel:${ownerPhone.replace(/\D/g, "")}`} className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-3 text-sm font-bold text-white hover:bg-amber-600 dark:bg-white dark:text-zinc-900"><Phone size={16} /> {ownerPhone}</a>}
+                {ownerEmail && <a href={`mailto:${ownerEmail}`} className="inline-flex items-center gap-2 rounded-full border border-zinc-300 px-5 py-3 text-sm font-bold text-zinc-800 hover:border-amber-500 hover:text-amber-600 dark:border-zinc-700 dark:text-zinc-100"><Mail size={16} /> Email owner</a>}
+              </div>
+            </Reveal>
+          </Link>
         </div>
       </section>
 
       <section id="work-videos" className="bg-zinc-100 px-6 py-20 dark:bg-zinc-950">
         <div className="mx-auto max-w-7xl">
-          <Reveal>
-            <div className="mb-10 text-center">
-              <p className="mb-3 font-jakarta text-xs font-bold uppercase tracking-[0.25em] text-amber-600">Behind the scenes</p>
-              <h2 className="font-playfair text-4xl font-bold text-zinc-900 dark:text-white">See our work in action</h2>
-              <p className="mx-auto mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">A closer look at the food, preparation, and service behind our events.</p>
-            </div>
-          </Reveal>
+          <Link href="/gallery">
+            <Reveal>
+              <div className="mb-10 text-center cursor-pointer hover:opacity-80 transition-opacity">
+                <p className="mb-3 font-jakarta text-xs font-bold uppercase tracking-[0.25em] text-amber-600">Behind the scenes</p>
+                <h2 className="font-playfair text-4xl font-bold text-zinc-900 dark:text-white">See our work in action</h2>
+                <p className="mx-auto mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">A closer look at the food, preparation, and service behind our events.</p>
+                <span className="mt-6 inline-flex items-center justify-center rounded-full bg-amber-500 px-7 py-3 text-sm font-semibold text-white shadow-sm shadow-amber-500/20">View Event Gallery</span>
+              </div>
+            </Reveal>
+          </Link>
           {workVideos.length ? (
             workVideos.length === 1 ? (
               <div className="mx-auto max-w-2xl">

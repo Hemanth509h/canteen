@@ -58,7 +58,7 @@ export default function CustomerHome() {
           cartItems={cartItems}
         />
         <Testimonials reviews={reviews} onSubmitReview={handleSubmitReview} />
-        <Footer companyInfo={companyInfo} logoSrc={logoSrc} setView={setView} />
+        <Footer setView={setView} />
       </main>
 
       {phoneNumber && (
