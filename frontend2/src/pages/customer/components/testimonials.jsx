@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, Star } from "lucide-react";
+import { Send, Star, CheckCircle, X } from "lucide-react";
 import { Reveal } from "@/components/layout/reveal";
 
 const initialForm = {
@@ -9,17 +9,48 @@ const initialForm = {
   comment: "",
 };
 
+function SuccessPopup({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-zinc-900 p-8 shadow-2xl flex flex-col items-center text-center">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+        >
+          <X size={20} />
+        </button>
+        <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-500/20">
+          <CheckCircle size={36} className="text-amber-500" />
+        </div>
+        <h3 className="font-playfair text-2xl font-bold text-zinc-900 dark:text-white mb-2">
+          Thank You!
+        </h3>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 font-jakarta leading-relaxed">
+          Your review has been submitted successfully. We appreciate you sharing your experience!
+        </p>
+        <button
+          onClick={onClose}
+          className="mt-6 w-full rounded-md bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Testimonials({ reviews, onSubmitReview, isSubmittingReview = false }) {
   const list = reviews?.length ? reviews.slice(0, 3) : [];
   const [form, setForm] = useState(initialForm);
-  const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setMessage("");
+    setErrorMessage("");
 
     if (!form.customerName.trim() || !form.comment.trim()) {
-      setMessage("Please enter your name and review.");
+      setErrorMessage("Please enter your name and review.");
       return;
     }
 
@@ -31,14 +62,15 @@ export default function Testimonials({ reviews, onSubmitReview, isSubmittingRevi
         comment: form.comment.trim(),
       });
       setForm(initialForm);
-      setMessage("Thank you. Your review has been added.");
+      setShowSuccess(true);
     } catch (error) {
-      setMessage(error?.message || "Could not add your review. Please try again.");
+      setErrorMessage(error?.message || "Could not add your review. Please try again.");
     }
   };
 
   return (
     <section className="bg-white dark:bg-zinc-900 py-20 px-6 transition-colors duration-300">
+      {showSuccess && <SuccessPopup onClose={() => setShowSuccess(false)} />}
       <div className="max-w-7xl mx-auto">
         <Reveal className="text-center mb-12">
           <p className="text-amber-600 dark:text-amber-400 text-xs font-jakarta font-bold uppercase tracking-[0.3em] mb-3">Reviews</p>
@@ -124,7 +156,7 @@ export default function Testimonials({ reviews, onSubmitReview, isSubmittingRevi
                 required
               />
             </div>
-            {message && <p className="mt-3 text-sm font-semibold text-zinc-600 dark:text-zinc-300">{message}</p>}
+            {errorMessage && <p className="mt-3 text-sm font-semibold text-red-500">{errorMessage}</p>}
           </form>
         </Reveal>
       </div>
