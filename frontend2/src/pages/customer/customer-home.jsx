@@ -7,6 +7,7 @@ import FoodItemQuickView from "@/components/features/food-item-quick-view";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useCart } from "@/lib/cart-context";
 import { useSiteContent } from "@/lib/site-content";
+import { sendReviewEmail } from "@/lib/resend-email";
 
 import Navbar from "./components/navbar";
 import Hero from "./components/hero";
@@ -31,7 +32,9 @@ export default function CustomerHome() {
   const logoSrc = companyInfo?.logoUrl || "/leaf_logo.svg";
   const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;
 
-  const handleSubmitReview = async () => {};
+  const handleSubmitReview = async (review) => {
+    await sendReviewEmail(review, branding.companyName);
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
