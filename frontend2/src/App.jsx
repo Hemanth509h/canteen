@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import CustomerHome from "@/pages/customer/customer-home";
 import BookingSuccess from "@/pages/customer/booking-success";
-import AdminContent from "@/pages/admin/admin-content";
 import NotFound from "@/pages/not-found";
 import { CartProvider } from "@/lib/cart-context";
 import { useSiteContent } from "@/lib/site-content";
@@ -15,7 +14,6 @@ function Router() {
     <Switch>
       <Route path="/" component={CustomerHome} />
       <Route path="/booking-success" component={BookingSuccess} />
-      <Route path="/admin" component={AdminContent} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -31,10 +29,6 @@ function AppContent() {
 
     if (location === "/") {
       pageTitle = branding.tagline ? ` | ${branding.tagline}` : "";
-    }
-
-    if (location === "/admin") {
-      pageTitle = " | Content Admin";
     }
 
     document.title = `${baseTitle}${pageTitle}`;
