@@ -1,4 +1,5 @@
-import { ExternalLink, Mail, Phone, Play, UserRound } from "lucide-react";
+import { useRef } from "react";
+import { ChevronLeft, ChevronRight, ExternalLink, Mail, Phone, Play, UserRound } from "lucide-react";
 
 import { Reveal } from "@/components/layout/reveal";
 
@@ -13,7 +14,7 @@ function getEmbedUrl(value) {
       videoId = url.searchParams.get("v") || url.pathname.match(/^\/(?:shorts|embed)\/([^/]+)/)?.[1] || "";
     }
 
-    if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}`;
+    if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1`;
 
     const vimeoId = url.hostname.includes("vimeo.com") ? url.pathname.match(/\/(\d+)/)?.[1] : "";
     return vimeoId ? `https://player.vimeo.com/video/${vimeoId}` : "";
@@ -60,7 +61,19 @@ export default function OwnerAndVideos({ companyInfo }) {
   const ownerPhone = companyInfo?.ownerPhone || companyInfo?.phone || companyInfo?.contactPhone;
   const ownerEmail = companyInfo?.ownerEmail || companyInfo?.email || companyInfo?.contactEmail;
   const configuredVideos = Array.isArray(companyInfo?.workVideos) ? companyInfo.workVideos.filter(Boolean) : [];
-  const workVideos = configuredVideos.length ? configuredVideos : EXAMPLE_VIDEOS;
+  const workVideos = configuredVideos;
+
+  const scrollContainerRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 400;
+      scrollContainerRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   return (
     <>
@@ -98,9 +111,55 @@ export default function OwnerAndVideos({ companyInfo }) {
             </div>
           </Reveal>
           {workVideos.length ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {workVideos.map((url, index) => <Reveal key={`${url}-${index}`} delay={index * 100}><div className="overflow-hidden rounded-2xl bg-black shadow-lg"><WorkVideo url={url} index={index} /></div></Reveal>)}
-            </div>
+            workVideos.length === 1 ? (
+              <div className="mx-auto max-w-2xl">
+                <Reveal>
+                  <div className="overflow-hidden rounded-2xl bg-black shadow-lg">
+                    <WorkVideo url={workVideos[0]} index={0} />
+                  </div>
+                </Reveal>
+              </div>
+            ) : (
+              <div className="group relative">
+                {/* Left Scroll Button */}
+                <button
+                  onClick={() => scroll("left")}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 dark:bg-zinc-800/80 hover:bg-white dark:hover:bg-zinc-800 p-3 rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50 text-zinc-800 dark:text-zinc-200 cursor-pointer"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="size-6" />
+                </button>
+
+                {/* Right Scroll Button */}
+                <button
+                  onClick={() => scroll("right")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 dark:bg-zinc-800/80 hover:bg-white dark:hover:bg-zinc-800 p-3 rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50 text-zinc-800 dark:text-zinc-200 cursor-pointer"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="size-6" />
+                </button>
+
+                {/* Gradient Masks */}
+                <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-zinc-100 to-transparent pointer-events-none z-10 dark:from-zinc-950" />
+                <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-zinc-100 to-transparent pointer-events-none z-10 dark:from-zinc-950" />
+
+                {/* Scroll Area */}
+                <div
+                  ref={scrollContainerRef}
+                  className="flex gap-6 overflow-x-auto pb-6 pt-2 snap-x snap-mandatory no-scrollbar scroll-smooth px-8"
+                >
+                  {workVideos.map((url, index) => (
+                    <div key={`${url}-${index}`} className="w-[85vw] sm:w-[480px] shrink-0 snap-center">
+                      <Reveal delay={index * 100}>
+                        <div className="overflow-hidden rounded-2xl bg-black shadow-lg hover:shadow-xl transition-all duration-300">
+                          <WorkVideo url={url} index={index} />
+                        </div>
+                      </Reveal>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
           ) : (
             <Reveal><div className="mx-auto flex aspect-video max-w-3xl flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-zinc-300 bg-white text-center dark:border-zinc-700 dark:bg-zinc-900"><Play className="size-12 text-amber-500" /><p className="font-playfair text-2xl font-bold text-zinc-800 dark:text-white">Work videos coming soon</p></div></Reveal>
           )}

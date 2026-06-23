@@ -181,6 +181,14 @@
   .dot-float-1 { animation: dotFloat 14s ease-in-out infinite; }
   .dot-float-2 { animation: dotFloat 18s ease-in-out infinite 3s; }
   .dot-float-3 { animation: dotFloat 22s ease-in-out infinite 6s; }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @keyframes fadeIn {
