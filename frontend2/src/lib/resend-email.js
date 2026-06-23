@@ -279,6 +279,59 @@ export async function sendResendEmail({ to, subject, text, html }) {
   return response.json();
 }
 
+export function buildReviewNotificationEmail(review, companyName) {
+  const safeCompany = escapeHtml(companyName || "Sai Caterers");
+  const safeName = escapeHtml(review.customerName || "Anonymous");
+  const safeEvent = escapeHtml(review.eventType || "General");
+  const safeComment = escapeHtml(review.comment || "");
+  const rating = Math.max(1, Math.min(5, Number(review.rating || 5)));
+  const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
+
+  const subject = `NEW REVIEW: ${safeName} left a ${rating}-star review — ${safeCompany}`;
+
+  const text = [
+    "--- NEW CUSTOMER REVIEW ---",
+    "",
+    `Customer: ${review.customerName || "Anonymous"}`,
+    `Event Type: ${review.eventType || "General"}`,
+    `Rating: ${rating}/5 ${stars}`,
+    "",
+    `Review:`,
+    review.comment || "",
+  ].join("\n");
+
+  const html = `
+    <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;border:2px solid #f59e0b;border-radius:12px;overflow:hidden">
+      <div style="background:#f59e0b;color:white;padding:24px;text-align:center">
+        <h2 style="margin:0;font-size:20px;text-transform:uppercase;letter-spacing:1px">New Customer Review</h2>
+        <p style="margin:8px 0 0;opacity:0.9;font-size:14px">${safeCompany}</p>
+      </div>
+      <div style="padding:32px 24px">
+        <table style="width:100%;border-collapse:collapse;font-size:15px;margin-bottom:24px">
+          <tr><td style="padding:8px 0;color:#6b7280;width:120px">Customer:</td><td style="padding:8px 0;font-weight:700">${safeName}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">Event Type:</td><td style="padding:8px 0;font-weight:700">${safeEvent}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">Rating:</td><td style="padding:8px 0;font-size:20px;color:#f59e0b">${stars}</td></tr>
+        </table>
+        <div style="background:#fffbeb;border-radius:8px;border:1px solid #fde68a;padding:20px">
+          <p style="margin:0;font-size:14px;color:#92400e;font-weight:700;margin-bottom:8px">Review:</p>
+          <p style="margin:0;font-size:15px;color:#374151;white-space:pre-wrap">${safeComment}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return { subject, text, html };
+}
+
+export async function sendReviewEmail(review, companyName) {
+  const adminEmail = ADMIN_EMAIL?.trim();
+  if (!adminEmail) {
+    throw new Error("Admin email (VITE_ADMIN_EMAIL) is not configured.");
+  }
+  const payload = buildReviewNotificationEmail(review, companyName);
+  await sendResendEmail({ to: [adminEmail], ...payload });
+}
+
 export async function sendBookingEmails(booking, bookingLink) {
   const customerEmail = booking.contactEmail?.trim();
   const adminEmail = ADMIN_EMAIL?.trim() || booking.adminEmail?.trim() || "";

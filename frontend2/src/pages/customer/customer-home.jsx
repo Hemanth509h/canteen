@@ -6,7 +6,8 @@ import { Phone } from "lucide-react";
 import FoodItemQuickView from "@/components/features/food-item-quick-view";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useCart } from "@/lib/cart-context";
-import { saveSiteContent, useSiteContent } from "@/lib/site-content";
+import { useSiteContent } from "@/lib/site-content";
+import { sendReviewEmail } from "@/lib/resend-email";
 
 import Navbar from "./components/navbar";
 import Hero from "./components/hero";
@@ -32,19 +33,7 @@ export default function CustomerHome() {
   const phoneNumber = companyInfo?.phone || companyInfo?.contactPhone || companyInfo?.phoneNumber;
 
   const handleSubmitReview = async (review) => {
-    saveSiteContent({
-      ...siteContent,
-      branding: {
-        ...branding,
-        reviews: [
-          {
-            ...review,
-            id: `review-${Date.now()}`,
-          },
-          ...(reviews || []),
-        ],
-      },
-    });
+    await sendReviewEmail(review, branding.companyName);
   };
 
   return (
