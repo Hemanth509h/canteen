@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ExternalLink, Mail, Phone, Play, UserRound } from "lucide-react";
 
 import { Reveal } from "@/components/layout/reveal";
@@ -21,6 +21,55 @@ function getEmbedUrl(value) {
   } catch {
     return "";
   }
+}
+
+function getYoutubeVideoId(urlStr) {
+  try {
+    const url = new URL(urlStr);
+    if (url.hostname === "youtu.be") return url.pathname.slice(1);
+    if (url.hostname.includes("youtube.com")) {
+      return url.searchParams.get("v") || url.pathname.match(/^\/(?:shorts|embed)\/([^/]+)/)?.[1] || "";
+    }
+  } catch {}
+  return "";
+}
+
+function VideoThumbnail({ url, index, isActive, onClick }) {
+  const ytId = getYoutubeVideoId(url);
+  let thumbSrc = "";
+  if (ytId) {
+    thumbSrc = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative aspect-video w-28 sm:w-36 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+        isActive
+          ? "border-amber-500 ring-2 ring-amber-500/30 scale-105"
+          : "border-transparent opacity-60 hover:opacity-100 hover:scale-102"
+      }`}
+    >
+      {thumbSrc ? (
+        <img
+          src={thumbSrc}
+          alt={`Video thumbnail ${index + 1}`}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+      ) : (
+        <div className="flex h-full w-full flex-col items-center justify-center bg-zinc-800 text-white">
+          <Play className="size-6 text-zinc-400 group-hover:text-amber-500 transition-colors" />
+          <span className="text-[10px] mt-1 font-semibold text-zinc-400">Video {index + 1}</span>
+        </div>
+      )}
+      <div className={`absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors ${isActive ? "bg-black/10" : ""}`}>
+        <div className={`rounded-full bg-black/60 p-2 text-white transition-transform duration-300 ${isActive ? "scale-100 bg-amber-500 text-black" : "scale-90 group-hover:scale-100"}`}>
+          <Play className="size-3.5 fill-current" />
+        </div>
+      </div>
+    </button>
+  );
 }
 
 function WorkVideo({ url, index }) {
@@ -62,17 +111,53 @@ export default function OwnerAndVideos({ companyInfo }) {
   const ownerEmail = companyInfo?.ownerEmail || companyInfo?.email || companyInfo?.contactEmail;
   const configuredVideos = Array.isArray(companyInfo?.workVideos) ? companyInfo.workVideos.filter(Boolean) : [];
   const workVideos = configuredVideos;
-
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [loadedVideoIndex, setLoadedVideoIndex] = useState(0);
   const scrollContainerRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-  const scroll = (direction) => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 400;
-      scrollContainerRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const handleSwitch = (index, scrollIntoViewTarget = null) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setLoadedVideoIndex(-1);
+    setActiveVideoIndex(index);
+
+    if (scrollIntoViewTarget) {
+      scrollIntoViewTarget.scrollIntoView({
         behavior: "smooth",
+        block: "nearest",
+        inline: "center"
       });
     }
+
+    timeoutRef.current = setTimeout(() => {
+      setLoadedVideoIndex(index);
+    }, 600);
+  };
+
+  const scroll = (direction) => {
+    let nextIndex = activeVideoIndex;
+    if (direction === "left") {
+      nextIndex = activeVideoIndex > 0 ? activeVideoIndex - 1 : workVideos.length - 1;
+    } else {
+      nextIndex = activeVideoIndex < workVideos.length - 1 ? activeVideoIndex + 1 : 0;
+    }
+
+    const container = scrollContainerRef.current;
+    const targetEl = container ? container.querySelectorAll(".snap-center")[nextIndex] : null;
+    handleSwitch(nextIndex, targetEl);
+  };
+
+  const handleThumbnailClick = (index, event) => {
+    const targetEl = event.currentTarget.closest(".snap-center");
+    handleSwitch(index, targetEl);
   };
 
   return (
@@ -140,28 +225,79 @@ export default function OwnerAndVideos({ companyInfo }) {
                 </button>
 
                 {/* Gradient Masks */}
-                <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-zinc-100 to-transparent pointer-events-none z-10 dark:from-zinc-950" />
-                <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-zinc-100 to-transparent pointer-events-none z-10 dark:from-zinc-950" />
+                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-zinc-100 to-transparent pointer-events-none z-10 dark:from-zinc-950" />
+                <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-zinc-100 to-transparent pointer-events-none z-10 dark:from-zinc-950" />
 
                 {/* Scroll Area */}
                 <div
                   ref={scrollContainerRef}
-                  className="flex gap-6 overflow-x-auto pb-6 pt-2 snap-x snap-mandatory no-scrollbar scroll-smooth px-8"
+                  className="flex gap-6 overflow-x-auto pb-6 pt-2 snap-x snap-mandatory no-scrollbar scroll-smooth px-8 items-center"
                 >
-                  {workVideos.map((url, index) => (
-                    <div key={`${url}-${index}`} className="w-[85vw] sm:w-[480px] shrink-0 snap-center">
-                      <Reveal delay={index * 100}>
-                        <div className="overflow-hidden rounded-2xl bg-black shadow-lg hover:shadow-xl transition-all duration-300">
-                          <WorkVideo url={url} index={index} />
-                        </div>
-                      </Reveal>
-                    </div>
-                  ))}
+                  {workVideos.map((url, index) => {
+                    const isActive = index === activeVideoIndex;
+                    const isLoaded = index === loadedVideoIndex;
+                    const ytId = getYoutubeVideoId(url);
+                    let thumbSrc = "";
+                    if (ytId) {
+                      thumbSrc = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+                    }
+
+                    return (
+                      <div
+                        key={`${url}-${index}`}
+                        className={`shrink-0 snap-center transition-all duration-500 ease-out ${
+                          isActive
+                            ? "w-[85vw] sm:w-[600px] scale-100 opacity-100"
+                            : "w-[70vw] sm:w-[380px] scale-90 opacity-50 hover:opacity-80"
+                        }`}
+                      >
+                        <Reveal delay={index * 100}>
+                          <div className={`overflow-hidden rounded-2xl bg-black shadow-lg hover:shadow-xl transition-all duration-300 ${
+                            isActive ? "border-4 border-white dark:border-zinc-800" : "border-4 border-transparent"
+                          }`}>
+                            {isActive && isLoaded ? (
+                              <WorkVideo url={url} index={index} />
+                            ) : (
+                              <button
+                                onClick={(e) => handleThumbnailClick(index, e)}
+                                className="group relative w-full aspect-video overflow-hidden block cursor-pointer"
+                              >
+                                {thumbSrc ? (
+                                  <img
+                                    src={thumbSrc}
+                                    alt={`Preview ${index + 1}`}
+                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full flex-col items-center justify-center bg-zinc-800 text-white">
+                                    <Play className="size-12 text-zinc-400 group-hover:text-amber-500 transition-colors" />
+                                    <span className="text-sm mt-2 font-semibold text-zinc-400">Video {index + 1}</span>
+                                  </div>
+                                )}
+                                {/* Play Overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors">
+                                  <div className="rounded-full bg-black/60 p-4 text-white transition-transform duration-300 group-hover:scale-110">
+                                    <Play className="size-6 fill-current text-amber-400" />
+                                  </div>
+                                </div>
+                              </button>
+                            )}
+                          </div>
+                        </Reveal>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )
           ) : (
-            <Reveal><div className="mx-auto flex aspect-video max-w-3xl flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-zinc-300 bg-white text-center dark:border-zinc-700 dark:bg-zinc-900"><Play className="size-12 text-amber-500" /><p className="font-playfair text-2xl font-bold text-zinc-800 dark:text-white">Work videos coming soon</p></div></Reveal>
+            <Reveal>
+              <div className="mx-auto flex aspect-video max-w-3xl flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-zinc-300 bg-white text-center dark:border-zinc-700 dark:bg-zinc-900">
+                <Play className="size-12 text-amber-500" />
+                <p className="font-playfair text-2xl font-bold text-zinc-800 dark:text-white">Work videos coming soon</p>
+              </div>
+            </Reveal>
           )}
         </div>
       </section>
