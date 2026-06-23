@@ -2,10 +2,6 @@ import { ExternalLink, Mail, Phone, Play, UserRound } from "lucide-react";
 
 import { Reveal } from "@/components/layout/reveal";
 
-const EXAMPLE_VIDEOS = [
-  "https://www.youtube.com/watch?v=nX4d1xYeNgU",
-  "https://vimeo.com/1161593035",
-];
 
 function getEmbedUrl(value) {
   try {

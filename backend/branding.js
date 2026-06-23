@@ -32,8 +32,7 @@ const fallbackBranding = {
   ownerPhone: "",
   ownerEmail: "",
   workVideos: [
-    "https://www.youtube.com/watch?v=nX4d1xYeNgU",
-    "https://vimeo.com/1161593035",
+    "https://www.youtube.com/watch?v=RZJlok9VY2I"
   ],
 };
 

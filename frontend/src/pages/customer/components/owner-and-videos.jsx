@@ -2,10 +2,7 @@ import { ExternalLink, Mail, Phone, Play, UserRound } from "lucide-react";
 
 import { Reveal } from "@/components/layout/reveal";
 
-const EXAMPLE_VIDEOS = [
-  "https://www.youtube.com/watch?v=nX4d1xYeNgU",
-  "https://vimeo.com/1161593035",
-];
+
 
 function getEmbedUrl(value) {
   try {
@@ -64,7 +61,7 @@ export default function OwnerAndVideos({ companyInfo }) {
   const ownerPhone = companyInfo?.ownerPhone || companyInfo?.phone || companyInfo?.contactPhone;
   const ownerEmail = companyInfo?.ownerEmail || companyInfo?.email || companyInfo?.contactEmail;
   const configuredVideos = Array.isArray(companyInfo?.workVideos) ? companyInfo.workVideos.filter(Boolean) : [];
-  const workVideos = configuredVideos.length ? configuredVideos : EXAMPLE_VIDEOS;
+  const workVideos = configuredVideos
 
   return (
     <>
