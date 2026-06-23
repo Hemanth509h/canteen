@@ -42,12 +42,10 @@ import { z } from "zod";
 const getStorageInstance = () => getStorage();
 
 const rateLimitBuckets = new Map();
-const staffOtpCodes = new Map();
-const staffPasswordResetTokens = new Map();
 
 const adminSessionSecret = process.env.ADMIN_SESSION_SECRET || randomUUID();
 
-function createAdminSessionToken({ role, userId = null, username = "admin" }) {
+function createAdminSessionToken({ role, userId = null, username = "system" }) {
   const payload = Buffer.from(JSON.stringify({ role, userId, username, exp: Date.now() + 24 * 60 * 60 * 1000 })).toString("base64url");
   const signature = createHmac("sha256", adminSessionSecret).update(payload).digest("base64url");
   return `${payload}.${signature}`;
@@ -116,39 +114,6 @@ function rateLimit({ windowMs = 15 * 60 * 1000, max = 10, keyPrefix = "global" }
 
 const authRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 8, keyPrefix: "auth" });
 const otpRateLimit = rateLimit({ windowMs: 10 * 60 * 1000, max: 5, keyPrefix: "otp" });
-
-function stripStaffSecrets(staff) {
-  const { password: _, ...staffWithoutPassword } = staff;
-  return staffWithoutPassword;
-}
-
-function normalizeStaffIdentifier(value) {
-  const raw = String(value || "").trim();
-  const normalizedPhone = raw.replace(/\D/g, "");
-  const normalizedEmail = raw.toLowerCase();
-  return {
-    raw,
-    key: raw.includes("@") ? `email:${normalizedEmail}` : `phone:${normalizedPhone}`,
-    phone: normalizedPhone,
-    email: normalizedEmail,
-    isEmail: raw.includes("@"),
-  };
-}
-
-async function getStaffByIdentifier(identifier) {
-  const normalized = normalizeStaffIdentifier(identifier);
-  if (!normalized.raw) return null;
-  if (normalized.isEmail) return getStorageInstance().getStaffByEmail(normalized.email);
-  return getStorageInstance().getStaffByPhone(normalized.phone);
-}
-
-async function validateStaffCredentials(identifier, password) {
-  if (!identifier || !password) return null;
-  const staff = await getStaffByIdentifier(identifier);
-  if (!staff || !staff.password) return null;
-  const isValid = await comparePassword(password, staff.password);
-  return isValid ? staff : null;
-}
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
@@ -732,195 +697,6 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.post("/api/staff/login", authRateLimit, async (req, res) => {
-    try {
-      const { phone, email, identifier, password } = req.body;
-      const accountIdentifier = identifier || email || phone;
-      if (!accountIdentifier || !password) return sendResponse(res, 400, null, "Phone/email and password are required");
-      
-      const staff = await validateStaffCredentials(accountIdentifier, password);
-      if (!staff) return sendResponse(res, 401, null, "Invalid credentials");
-      sendResponse(res, 200, { success: true, staff: stripStaffSecrets(staff) });
-    } catch (error) {
-      sendResponse(res, 500, null, "Login failed");
-    }
-  });
-
-  app.post("/api/staff/login/request-otp", otpRateLimit, async (req, res) => {
-    try {
-      const { phone, email, identifier, password } = req.body;
-      const accountIdentifier = identifier || email || phone;
-      const staff = await validateStaffCredentials(accountIdentifier, password);
-      if (!staff) return sendResponse(res, 401, null, "Invalid credentials");
-
-      const code = String(randomInt(100000, 1000000));
-      const expiresAt = Date.now() + 10 * 60 * 1000;
-      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
-      staffOtpCodes.set(otpKey, { code, expiresAt, staffId: staff.id });
-
-      let delivery = "OTP generated";
-      if (staff.email && validateEmail(staff.email)) {
-        await sendCustomerLoginCodeEmail(staff.email, code);
-        delivery = "OTP sent to staff email";
-      }
-
-      sendResponse(res, 200, {
-        otpSent: true,
-        message: delivery,
-        expiresInSeconds: 600,
-        ...(process.env.NODE_ENV === "production" || (staff.email && validateEmail(staff.email)) ? {} : { otp: code }),
-      });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to send staff OTP");
-    }
-  });
-
-  app.post("/api/staff/login/forgot-password/request-otp", otpRateLimit, async (req, res) => {
-    try {
-      const { phone, email, identifier } = req.body;
-      const accountIdentifier = identifier || email || phone;
-      if (!String(accountIdentifier || "").trim()) return sendResponse(res, 400, null, "Phone or email is required");
-
-      const staff = await getStaffByIdentifier(accountIdentifier);
-      if (!staff) {
-        return sendResponse(res, 200, {
-          otpSent: false,
-          message: "No staff account found for this phone or email",
-        });
-      }
-
-      if (process.env.NODE_ENV === "production" && (!staff.email || !validateEmail(staff.email))) {
-        return sendResponse(res, 200, {
-          otpSent: false,
-          message: "Staff email is required for OTP login",
-        });
-      }
-
-      const code = String(randomInt(100000, 1000000));
-      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
-      staffOtpCodes.set(otpKey, { code, expiresAt: Date.now() + 10 * 60 * 1000, staffId: staff.id });
-
-      let delivery = "OTP generated";
-      if (staff.email && validateEmail(staff.email)) {
-        await sendCustomerLoginCodeEmail(staff.email, code);
-        delivery = "OTP sent to staff email";
-      }
-
-      sendResponse(res, 200, {
-        otpSent: true,
-        message: delivery,
-        expiresInSeconds: 600,
-        ...(process.env.NODE_ENV === "production" || (staff.email && validateEmail(staff.email)) ? {} : { otp: code }),
-      });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to send staff OTP");
-    }
-  });
-
-  app.post("/api/staff/login/verify-otp", authRateLimit, async (req, res) => {
-    try {
-      const { phone, email, identifier, password, code } = req.body;
-      const accountIdentifier = identifier || email || phone;
-      if (!accountIdentifier || !password || !code) return sendResponse(res, 400, null, "Phone/email, password, and OTP are required");
-
-      const staff = await validateStaffCredentials(accountIdentifier, password);
-      if (!staff) return sendResponse(res, 401, null, "Invalid credentials");
-
-      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
-      const record = staffOtpCodes.get(otpKey);
-      if (!record || record.staffId !== staff.id || record.code !== String(code).trim() || record.expiresAt < Date.now()) {
-        return sendResponse(res, 401, null, "Invalid or expired OTP");
-      }
-
-      staffOtpCodes.delete(otpKey);
-      sendResponse(res, 200, { success: true, staff: stripStaffSecrets(staff) });
-    } catch (error) {
-      sendResponse(res, 500, null, "OTP verification failed");
-    }
-  });
-
-  app.post("/api/staff/login/forgot-password/verify-otp", authRateLimit, async (req, res) => {
-    try {
-      const { phone, email, identifier, code } = req.body;
-      const accountIdentifier = identifier || email || phone;
-      if (!accountIdentifier || !code) return sendResponse(res, 400, null, "Phone/email and OTP are required");
-
-      const staff = await getStaffByIdentifier(accountIdentifier);
-      if (!staff) return sendResponse(res, 404, null, "Staff member not found");
-
-      const otpKey = normalizeStaffIdentifier(accountIdentifier).key;
-      const record = staffOtpCodes.get(otpKey);
-      if (!record || record.staffId !== staff.id || record.code !== String(code).trim() || record.expiresAt < Date.now()) {
-        return sendResponse(res, 401, null, "Invalid or expired OTP");
-      }
-
-      staffOtpCodes.delete(otpKey);
-      const resetToken = randomUUID();
-      staffPasswordResetTokens.set(resetToken, {
-        staffId: staff.id,
-        expiresAt: Date.now() + 10 * 60 * 1000,
-      });
-      sendResponse(res, 200, { success: true, resetToken });
-    } catch (error) {
-      sendResponse(res, 500, null, "OTP verification failed");
-    }
-  });
-
-  app.post("/api/staff/login/forgot-password/reset", authRateLimit, async (req, res) => {
-    try {
-      const { resetToken, newPassword } = req.body;
-      if (!resetToken || !newPassword) return sendResponse(res, 400, null, "Reset token and new password are required");
-      if (String(newPassword).length < 6) return sendResponse(res, 400, null, "New password must be at least 6 characters");
-
-      const reset = staffPasswordResetTokens.get(resetToken);
-      if (!reset || reset.expiresAt < Date.now()) {
-        return sendResponse(res, 401, null, "Invalid or expired reset token");
-      }
-
-      const staff = await getStorageInstance().getStaffMember(reset.staffId);
-      if (!staff) return sendResponse(res, 404, null, "Staff member not found");
-
-      const updated = await getStorageInstance().updateStaffMember(staff.id, {
-        password: await hashPassword(newPassword),
-      });
-      staffPasswordResetTokens.delete(resetToken);
-      sendResponse(res, 200, { success: true, staff: stripStaffSecrets(updated) });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to reset password");
-    }
-  });
-
-  app.get("/api/staff/me", async (req, res) => {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader) return sendResponse(res, 401, null, "Unauthorized");
-      const staffId = authHeader.split(" ")[1];
-      const staff = await getStorageInstance().getStaffMember(staffId);
-      if (!staff) return sendResponse(res, 404, null, "Staff not found");
-      sendResponse(res, 200, stripStaffSecrets(staff));
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch staff info");
-    }
-  });
-
-  app.get("/api/staff/assignments", async (req, res) => {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader) return sendResponse(res, 401, null, "Unauthorized");
-      const staffId = authHeader.split(" ")[1];
-      
-      const assignments = await getStorageInstance().getStaffAssignmentsByStaffId(staffId);
-      const enrichedAssignments = await Promise.all(assignments.map(async (assignment) => {
-        const booking = await getStorageInstance().getBooking(assignment.bookingId);
-        return { ...assignment, booking };
-      }));
-      
-      sendResponse(res, 200, enrichedAssignments);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch staff assignments");
-    }
-  });
-
   app.get("/api/user-codes", async (_req, res) => {
     try {
       const codes = await getStorageInstance().getUserCodes();
@@ -1234,29 +1010,6 @@ export async function registerRoutes(app) {
       sendResponse(res, 200, work);
     } catch (error) {
       sendResponse(res, 500, null, "Failed to fetch staff work");
-    }
-  });
-
-  app.get("/api/staff-requests/:token", async (req, res) => {
-    try {
-      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
-      if (!request) return sendResponse(res, 404, null, "Request not found");
-      const booking = await getStorageInstance().getBooking(request.bookingId);
-      const staff = await getStorageInstance().getStaffMember(request.staffId);
-      sendResponse(res, 200, { request, booking, staff });
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to fetch staff request");
-    }
-  });
-
-  app.patch("/api/staff-requests/:token", async (req, res) => {
-    try {
-      const request = await getStorageInstance().getStaffBookingRequestByToken(req.params.token);
-      if (!request) return sendResponse(res, 404, null, "Request not found");
-      const updated = await getStorageInstance().updateStaffBookingRequest(request.id, req.body);
-      sendResponse(res, 200, updated);
-    } catch (error) {
-      sendResponse(res, 500, null, "Failed to update staff request");
     }
   });
 
