@@ -12,6 +12,35 @@ function getBranding() {
   }
 }
 
+function getFullyQualifiedLogoUrl(linkUrl) {
+  const brand = getBranding();
+  let logoUrl = brand.logoUrl || "/Vaishnavi9logo.png";
+  if (logoUrl.startsWith("http")) return logoUrl;
+
+  const envBase = (
+    process.env.APP_BASE_URL ||
+    process.env.PAYMENT_BASE_URL ||
+    process.env.FRONTEND_BASE_URL ||
+    process.env.VITE_APP_BASE_URL ||
+    ""
+  ).trim().replace(/\/+$/, "");
+
+  if (envBase) {
+    return `${envBase}${logoUrl.startsWith("/") ? "" : "/"}${logoUrl}`;
+  }
+
+  if (linkUrl) {
+    try {
+      const parsed = new URL(linkUrl);
+      return `${parsed.origin}${logoUrl.startsWith("/") ? "" : "/"}${logoUrl}`;
+    } catch {
+      // ignore
+    }
+  }
+
+  return logoUrl;
+}
+
 function isValidEmailAddress(value) {
   if (!value) return false;
   const email = String(value).trim();
@@ -115,8 +144,13 @@ function buildPaymentEmail(paymentLink, bookingDetails) {
     `Thank you for choosing ${companyName}.`,
   ].filter(Boolean).join("\n");
 
+  const logoUrl = getFullyQualifiedLogoUrl(paymentLink);
+
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:560px;margin:0 auto">
+      <div style="margin-bottom: 24px;">
+        <img src="${logoUrl}" alt="${safeCompanyName}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+      </div>
       <h2 style="margin:0 0 16px">${readablePaymentType.charAt(0).toUpperCase() + readablePaymentType.slice(1)} payment link</h2>
       <p>Hello${safeCustomerName ? ` ${safeCustomerName}` : ""},</p>
       <p>Please complete your ${readablePaymentType} payment to continue with your booking.</p>
@@ -211,9 +245,14 @@ function buildBookingConfirmationEmail(booking, bookingLink) {
     `The ${companyName} Team`,
   ].filter(Boolean).join("\n");
 
+  const logoUrl = getFullyQualifiedLogoUrl(bookingLink);
+
   const html = `
     <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6;color:#374151;max-width:600px;margin:0 auto;border:1px solid #f3f4f6;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)">
       <div style="background:#22c55e;color:white;padding:32px 24px;text-align:center">
+        <div style="margin-bottom: 16px;">
+          <img src="${logoUrl}" alt="${safeCompanyName}" style="width:80px;height:80px;border-radius:50%;border:3px solid white;background:white;object-fit:cover;" />
+        </div>
         <h1 style="margin:0;font-size:24px;font-weight:800">Booking Received!</h1>
         <p style="margin:8px 0 0;opacity:0.9;font-size:16px">Thank you for choosing ${safeCompanyName}</p>
       </div>
@@ -289,9 +328,14 @@ function buildBookingUpdateEmail(booking, bookingLink, customMessage) {
     `Thank you for choosing ${companyName}.`,
   ].filter(Boolean).join("\n");
 
+  const logoUrl = getFullyQualifiedLogoUrl(bookingLink);
+
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:560px;margin:0 auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
       <div style="background:#ea580c;color:white;padding:24px;text-align:center">
+        <div style="margin-bottom: 16px;">
+          <img src="${logoUrl}" alt="${safeCompanyName}" style="width:80px;height:80px;border-radius:50%;border:3px solid white;background:white;object-fit:cover;" />
+        </div>
         <h2 style="margin:0;font-size:20px">Booking Details Update</h2>
       </div>
       <div style="padding:24px">
@@ -372,14 +416,19 @@ function buildCustomerLoginEmail(code, companyName) {
     "This code expires in 10 minutes.",
   ].join("\n");
 
+  const logoUrl = getFullyQualifiedLogoUrl();
+
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:520px;margin:0 auto">
-      <h2 style="margin:0 0 16px">${safeCompanyName} booking login code</h2>
-      <p>Use this code to sign in and view your bookings.</p>
+      <div style="margin-bottom: 24px; text-align: center;">
+        <img src="${logoUrl}" alt="${safeCompanyName}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+      </div>
+      <h2 style="margin:0 0 16px;text-align:center">${safeCompanyName} booking login code</h2>
+      <p style="text-align:center">Use this code to sign in and view your bookings.</p>
       <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:18px;margin:20px 0;text-align:center">
         <p style="font-size:28px;letter-spacing:8px;font-weight:700;margin:0">${safeCode}</p>
       </div>
-      <p style="font-size:13px;color:#6b7280">This code expires in 10 minutes.</p>
+      <p style="font-size:13px;color:#6b7280;text-align:center">This code expires in 10 minutes.</p>
     </div>
   `;
 
@@ -459,9 +508,14 @@ function buildAdminBookingNotificationEmail(booking, bookingLink) {
     bookingLink ? `Link to Dashboard: ${bookingLink}` : null,
   ].filter(Boolean).join("\n");
 
+  const logoUrl = getFullyQualifiedLogoUrl(bookingLink);
+
   const html = `
     <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;border:2px solid #ea580c;border-radius:12px;overflow:hidden">
       <div style="background:#ea580c;color:white;padding:24px;text-align:center">
+        <div style="margin-bottom: 16px;">
+          <img src="${logoUrl}" alt="${safeCompanyName}" style="width:80px;height:80px;border-radius:50%;border:3px solid white;background:white;object-fit:cover;" />
+        </div>
         <h2 style="margin:0;font-size:20px;text-transform:uppercase;letter-spacing:1px">New Booking Alert</h2>
         <p style="margin:8px 0 0;opacity:0.9;font-size:14px">Immediate action required in Admin Panel</p>
       </div>
@@ -596,8 +650,12 @@ export async function sendAdminPaymentNotificationEmail(to, booking, paymentType
   if (!resend) return { success: false, error: "Resend not configured" };
 
   const subject = `PAYMENT UPLOAD: ${booking.clientName} - ${paymentType}`;
+  const logoUrl = getFullyQualifiedLogoUrl(adminLink);
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:560px;margin:0 auto">
+      <div style="margin-bottom: 24px; text-align: center;">
+        <img src="${logoUrl}" alt="logo" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+      </div>
       <h2 style="color:#111827">Payment Screenshot Uploaded</h2>
       <p>A customer has uploaded a payment screenshot for your review.</p>
       <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
@@ -627,8 +685,12 @@ export async function sendAdminCodeRequestNotificationEmail(to, request) {
 
   const subject = `CODE REQUEST: ${request.customerName}`;
   const customerIdentifier = request.customerIdentifier || request.customerEmail || request.customerPhone || "Not provided";
+  const logoUrl = getFullyQualifiedLogoUrl();
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:560px;margin:0 auto">
+      <div style="margin-bottom: 24px; text-align: center;">
+        <img src="${logoUrl}" alt="logo" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+      </div>
       <h2 style="color:#111827">Booking Code Requested</h2>
       <p>A potential customer has requested a booking code to view your services.</p>
       <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">

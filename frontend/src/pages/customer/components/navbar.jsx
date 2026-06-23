@@ -25,9 +25,13 @@ export default function Navbar({ companyName, logoSrc, setView }) {
       <nav className="fade-in fixed left-1/2 top-3 z-50 w-[94%] max-w-4xl -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg shadow-zinc-900/5 backdrop-blur-xl transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950/92 dark:shadow-black/25">
         <div className="flex h-12 w-full items-center justify-between gap-3 px-3 sm:h-14 sm:gap-5 sm:px-6">
           <div className="flex cursor-pointer items-center gap-2" onClick={() => { setView("home"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-900/20 sm:h-8 sm:w-8">
-              <Leaf className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </span>
+            {logoSrc ? (
+              <img src={logoSrc} alt={companyName || branding.companyName} className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
+            ) : (
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-900/20 sm:h-8 sm:w-8">
+                <Leaf className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </span>
+            )}
             <span className="leading-tight">
               <span className="block font-playfair text-sm font-bold text-zinc-950 transition-colors dark:text-white sm:text-base">
                 {companyName || branding.companyName}
