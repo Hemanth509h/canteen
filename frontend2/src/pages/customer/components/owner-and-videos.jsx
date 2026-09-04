@@ -190,7 +190,7 @@ export default function OwnerAndVideos({ companyInfo }) {
         </div>
       </section>
 
-      <section id="work-videos" className="bg-zinc-100 px-6 py-20 dark:bg-zinc-950">
+      <section id="work-videos" className="hidden bg-zinc-100 px-6 py-20 dark:bg-zinc-950">
         <div className="mx-auto max-w-7xl">
           <Link href="/gallery">
             <Reveal>

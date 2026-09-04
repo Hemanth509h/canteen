@@ -49,6 +49,7 @@ export default function CustomerHome() {
           eventsPerYear={companyInfo?.eventsPerYear}
         />
         <Features />
+        <OwnerAndVideos companyInfo={companyInfo} />
 
         <MenuSection
           foodItems={foodItems}
