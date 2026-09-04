@@ -36,9 +36,9 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
       <div className="absolute inset-0 bg-[linear-gradient(180deg,#fffdf8_0%,#f8faf7_100%)] dark:bg-[linear-gradient(180deg,#09090b_0%,#11120f_100%)]" />
       
       {/* Animated Background Elements */}
-      <div className="absolute top-0 left-[15%] h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-amber-500/10 blur-[100px] dot-float-1 dark:bg-amber-500/5" />
-      <div className="absolute bottom-0 right-[15%] h-[600px] w-[600px] translate-x-1/3 translate-y-1/3 rounded-full bg-emerald-500/10 blur-[120px] dot-float-2 dark:bg-emerald-500/5" />
-      <div className="absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/5 blur-[80px] dot-float-3 dark:bg-orange-500/5" />
+      <div className="absolute top-0 left-[15%] h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-red-700/10 blur-[100px] dot-float-1 dark:bg-red-500/5" />
+      <div className="absolute bottom-0 right-[15%] h-[600px] w-[600px] translate-x-1/3 translate-y-1/3 rounded-full bg-zinc-500/10 blur-[120px] dot-float-2 dark:bg-zinc-500/5" />
+      <div className="absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500/5 blur-[80px] dot-float-3 dark:bg-red-500/5" />
       <div className="absolute inset-0 grain-overlay opacity-30 dark:opacity-20" />
 
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 pb-14 sm:px-8 sm:pb-16 lg:grid-cols-[0.9fr_1fr] lg:gap-14 lg:px-10">
@@ -78,7 +78,7 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
                     <div className={`absolute inset-0 bg-black/10 transition-opacity duration-1000 dark:bg-black/30 ${isFront ? "opacity-0" : "opacity-100"}`} />
                     
                     <div className={`absolute bottom-0 left-0 right-0 bg-zinc-950/72 px-4 py-3 text-white backdrop-blur transition-opacity duration-1000 ${isFront ? "opacity-100" : "opacity-0"}`}>
-                      <p className="text-xs font-jakarta font-semibold uppercase tracking-widest text-amber-200">Freshly prepared</p>
+                      <p className="text-xs font-jakarta font-semibold uppercase tracking-widest text-red-200">Freshly prepared</p>
                       <p className="mt-1 text-sm text-white/85">Breakfast, catering meals, sweets, and event menus.</p>
                     </div>
                   </div>
@@ -89,16 +89,16 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
         </div>
 
         <div className="order-1 mx-auto max-w-2xl text-center lg:order-2 lg:mx-0 lg:text-left">
-          <div className="slide-up mb-5 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-jakarta font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-300" style={{ animationDelay: "100ms" }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-            Premium Catering Service
+          <div className="slide-up mb-5 inline-flex items-center gap-2 rounded-full border border-red-700/30 bg-red-700/10 px-4 py-2 text-xs font-jakarta font-semibold uppercase tracking-widest text-red-800 dark:text-red-300" style={{ animationDelay: "100ms" }}>
+            <span className="h-1.5 w-1.5 rounded-full bg-red-700" />
+            Telugu Events Catered
           </div>
 
           <h1 className="slide-up mb-4 text-5xl font-bold leading-[1.02] text-zinc-950 sm:text-6xl lg:text-7xl dark:text-white" style={{ animationDelay: "200ms" }}>
             {companyName || branding.companyName}
           </h1>
 
-          <p className="slide-up mb-3 text-lg font-jakarta font-semibold leading-relaxed text-emerald-800 sm:text-xl dark:text-emerald-200" style={{ animationDelay: "300ms" }}>
+          <p className="slide-up mb-3 text-lg font-jakarta font-semibold leading-relaxed text-red-800 sm:text-xl dark:text-red-200" style={{ animationDelay: "300ms" }}>
             {tagline || branding.tagline}
           </p>
           <p className="slide-up mb-8 text-sm leading-7 text-zinc-600 sm:text-base dark:text-zinc-300" style={{ animationDelay: "400ms" }}>
@@ -108,13 +108,13 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
           <div className="slide-up flex flex-col justify-center gap-3 sm:flex-row lg:justify-start" style={{ animationDelay: "500ms" }}>
             <button
               onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-7 py-3.5 text-base font-jakarta font-bold text-white shadow-lg shadow-amber-500/25 transition-all duration-200 hover:bg-amber-400 hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-700 px-7 py-3.5 text-base font-jakarta font-bold text-white shadow-lg shadow-red-700/25 transition-all duration-200 hover:bg-red-800 hover:scale-[1.02] active:scale-[0.98]"
             >
               Explore Menu <ChevronRight size={18} />
             </button>
             <button
               onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-7 py-3.5 text-base font-jakarta font-semibold text-zinc-900 shadow-sm transition-all duration-200 hover:border-amber-400 hover:text-amber-700 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-amber-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-7 py-3.5 text-base font-jakarta font-semibold text-zinc-900 shadow-sm transition-all duration-200 hover:border-red-700 hover:text-red-700 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-red-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               Contact Us
             </button>
@@ -123,7 +123,7 @@ export default function Hero({ companyName, tagline, description, heroImages, ye
           <div className="slide-up mx-auto mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-zinc-900/10 pt-6 dark:border-white/15 lg:mx-0" style={{ animationDelay: "600ms" }}>
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-playfair text-2xl font-bold text-amber-600 sm:text-3xl dark:text-amber-300">{stat.value}</div>
+                <div className="font-playfair text-2xl font-bold text-red-700 sm:text-3xl dark:text-red-300">{stat.value}</div>
                 <div className="mt-0.5 text-[11px] font-jakarta text-zinc-500 sm:text-xs dark:text-zinc-400">{stat.label}</div>
               </div>
             ))}

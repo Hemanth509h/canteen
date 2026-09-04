@@ -15,7 +15,7 @@ export default function AboutUs({ setView }) {
     window.scrollTo(0, 0);
   }, []);
 
-  const logoSrc = branding?.logoUrl || "/leaf_logo.svg";
+  const logoSrc = branding?.logoUrl;
   const ownerName = branding?.ownerName || "Founder";
   const ownerBio = branding?.ownerBio || "Passionate culinary professional with years of experience in catering excellence.";
   const yearsExperience = branding?.yearsExperience || 1;
@@ -55,7 +55,7 @@ export default function AboutUs({ setView }) {
       <Navbar logoSrc={logoSrc} setView={setView} onLogoClick={handleLogoClick} />
 
       {/* Hero Section */}
-      <section className="relative py-20 px-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-zinc-900 dark:to-zinc-800">
+      <section className="relative py-20 px-6 bg-gradient-to-br from-red-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800">
         <div className="max-w-6xl mx-auto text-center">
           <Reveal>
             <h1 className="text-4xl md:text-5xl font-playfair font-bold text-zinc-900 dark:text-white mb-6">
@@ -88,7 +88,7 @@ export default function AboutUs({ setView }) {
               <h2 className="text-3xl font-playfair font-bold text-zinc-900 dark:text-white mb-4">
                 Meet {ownerName}
               </h2>
-              <p className="text-amber-600 dark:text-amber-400 font-jakarta font-semibold mb-4">
+              <p className="text-red-700 dark:text-red-400 font-jakarta font-semibold mb-4">
                 Founder & Catering Specialist
               </p>
               <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed mb-6">

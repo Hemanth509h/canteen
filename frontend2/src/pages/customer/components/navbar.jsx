@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { Menu, X, ChevronRight, Leaf } from "lucide-react";
+import { Menu, X, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import branding from "@/lib/branding.json";
 
@@ -43,16 +43,16 @@ export default function Navbar({ companyName, logoSrc, setView, onLogoClick }) {
             {logoSrc ? (
               <img src={logoSrc} alt={companyName || branding.companyName} className="h-8 w-8 object-contain" />
             ) : (
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-900/20">
-                <Leaf className="h-4 w-4" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-700 font-playfair text-sm font-bold text-white shadow-sm shadow-red-900/20">
+                LN
               </span>
             )}
             <span className="leading-tight">
               <span className="block font-playfair text-base font-bold text-zinc-950 transition-colors dark:text-white">
                 {companyName || branding.companyName}
               </span>
-              <span className="hidden text-[10px] font-jakarta font-bold uppercase tracking-[0.18em] text-amber-600 sm:block">
-                Catering Service
+              <span className="hidden text-[10px] font-jakarta font-bold uppercase tracking-[0.18em] text-red-700 sm:block">
+                Telugu Catering Service
               </span>
             </span>
           </div>
@@ -63,7 +63,7 @@ export default function Navbar({ companyName, logoSrc, setView, onLogoClick }) {
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
-                className="relative py-2 transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-amber-500 after:transition-all hover:text-zinc-950 hover:after:w-full dark:hover:text-white"
+                className="relative py-2 transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-red-700 after:transition-all hover:text-zinc-950 hover:after:w-full dark:hover:text-white"
               >
                 {item.label}
               </button>
